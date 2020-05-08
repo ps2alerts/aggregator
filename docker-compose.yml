@@ -1,0 +1,32 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:1.12
+        container_name: ps2alerts-websocket-nginx
+        ports:
+            - "80"
+        volumes:
+            - ./docker/nginx:/etc/nginx/conf.d
+            - ./:/var/www/html/ps2alerts.com/public
+        environment:
+            - VIRTUAL_HOST=dev.ws.ps2alerts.com
+        restart: always
+    npm:
+        image: node:latest
+        volumes:
+            - ./:/app
+        command: npm install
+        working_dir: /app
+    app:
+        image: node:latest
+        container_name: ps2alerts-websocket-production
+        volumes:
+            - ./:/app
+        ports:
+            - "1337:1337"
+        command: npm start
+        working_dir: /app
+networks:
+    default:
+        external:
+            name: local
