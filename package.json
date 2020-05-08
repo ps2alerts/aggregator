@@ -14,9 +14,9 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Maelstrome26/PS2Alerts-WebsocketServer/issues"
+    "url": "https://github.com/ps2alerts/websocket/issues"
   },
-  "homepage": "https://github.com/Maelstrome26/PS2Alerts-WebsocketServer#readme",
+  "homepage": "https://github.com/ps2alerts/websocket#readme",
   "dependencies": {
     "cli-color": "^1.1.0",
     "clone": "^1.0.2",
