@@ -1,0 +1,11 @@
+"event_name":"",
+"timestamp":"",
+"world_id":"",
+"zone_id":"",
+"triggering_faction":"",
+"previous_faction":"",
+"vs_population":"",
+"nc_population":"",
+"tr_population":"",
+"metagame_event_id":"",
+"event_type":""

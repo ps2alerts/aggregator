@@ -1,0 +1,9 @@
+"duration_held":"",
+"event_name":"FacilityControl",
+"facility_id":"",
+"new_faction_id":"",
+"old_faction_id":"",
+"outfit_id":"",
+"timestamp":"",
+"world_id":"",
+"zone_id":""

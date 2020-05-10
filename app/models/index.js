@@ -19,6 +19,6 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.Logins = require("./Login.model.js")(sequelize, Sequelize);
+db.Logins = require("./events/login.model.js")(sequelize, Sequelize);
 
 module.exports = db;
