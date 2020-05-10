@@ -1,35 +1,27 @@
 /**
  *  ### CENSUS RESPONSE ATTRIBUTES ####
-"battle_rank":"",
 "character_id":"",
-"event_name":"BattleRankUp",
+"event_name":"PlayerLogin/PlayerLogout",
 "timestamp":"",
-"world_id":"",
-"zone_id":""
+"world_id":""
  * ### END ###
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const BattleRankUp = sequelize.define("BattleRankUp", {
+    const PlayerLogout = sequelize.define("PlayerLogout", {
       character_id: {
         type: Sequelize.STRING
       },
       event_name: {
         type: Sequelize.STRING
       },
-      battle_rank: {
+      timestamp: {
         type: Sequelize.STRING
       },
       world_id: {
         type: Sequelize.STRING
-      },
-      zone_id: {
-        type: Sequelize.STRING
-      },
-      timestamp: {
-        type: Sequelize.STRING
-      },
+      }
     });
   
-    return BattleRankUp;
+    return PlayerLogout;
   };
