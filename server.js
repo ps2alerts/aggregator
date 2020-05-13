@@ -26,7 +26,7 @@ db.sequelize.sync();
 //     console.log("Drop and re-sync db.");
 //   });
 
-const ps2ws = require('./app/census/wsHandler');
+const ps2ws = require('./app/censusSocket/wsHandler');
 ps2ws.createStream();
 
 // simple route

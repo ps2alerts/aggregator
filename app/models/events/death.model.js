@@ -20,46 +20,46 @@
 module.exports = (sequelize, Sequelize) => {
     const Death = sequelize.define("Death", {
         attacker_character_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         attacker_fire_mode_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         attacker_loadout_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         attacker_vehicle_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         attacker_weapon_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         character_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         character_loadout_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         event_name: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         is_critical: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         is_headshot: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         timestamp: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         vehicle_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         world_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
         zone_id: {
-            type: Sequelize.String
+            type: Sequelize.STRING
         },
     });
   

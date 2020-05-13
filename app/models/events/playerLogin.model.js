@@ -1,7 +1,10 @@
-"character_id":"",
-"event_name":"PlayerLogin/PlayerLogout",
-"timestamp":"",
-"world_id":""
+/**
+ "character_id":"",
+ "event_name":"PlayerLogin/PlayerLogout",
+ "timestamp":"",
+ "world_id":""
+ */
+
 module.exports = (sequelize, Sequelize) => {
     const Login = sequelize.define("Login", {
       character_id: {
