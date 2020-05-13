@@ -55,7 +55,7 @@ function handleWsResponse(raw) {
             break;
         case 'PlayerLogout':
             console.log(payload);
-            storeLogin(payload.character_id,payload.event_name,payload.timestamp);
+            storeLogout(payload.character_id,payload.event_name,payload.timestamp);
             break;
         case 'SkillAdded':
             break;
@@ -68,17 +68,29 @@ function handleWsResponse(raw) {
     }
 
 }
-
-function storeLogin(character_id, event_name, timestamp) {
-    const Login = db.Logins;
-
+function storeLogout(character_id, event_name, timestamp) {
     // Create a charLogin
     const charLogin = {
         character_id: character_id,
         event_name: event_name,
         timestamp: timestamp
+    };
+    db.PlayerLogouts.create(charLogin)
+        .then(data => {
+            //console.log(data);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+}
+function storeLogin(character_id, event_name, timestamp) {
+     // Create a charLogin
+    const charLogin = {
+        character_id: character_id,
+        event_name: event_name,
+        timestamp: timestamp
       };
-      CharLogin.create(charLogin)
+    db.PlayerLogins.create(charLogin)
         .then(data => {
           //console.log(data);
         })
