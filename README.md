@@ -1,5 +1,7 @@
-# PS2Alerts-WebsocketServer
+# ps2alerts/websocket
 The websocket collection script that powers PS2Alerts.com.
+
+THIS PROJECT IS UNDERGOING A VAST RE-REWITE. If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
 
 ## Preface
 
