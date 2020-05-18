@@ -1,0 +1,4 @@
+host: localhost
+tasks:
+  - name: "PING"
+    ping:
