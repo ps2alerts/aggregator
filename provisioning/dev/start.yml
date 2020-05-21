@@ -1,5 +1,5 @@
 ---
-host: localhost
-tasks:
-  - name: "PING"
-    ping:
+- hosts: localhost
+  tasks:
+    - name: "PING"
+      ping:
