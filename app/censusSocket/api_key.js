@@ -1,1 +1,1 @@
-exports.KEY = 'yourcensusserviceID';
+exports.KEY = 'hailotApi';

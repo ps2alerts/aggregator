@@ -19,6 +19,9 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+/**
+ * EVENTS
+ */
 db.AchievementsEarned = require("./events/achievementEarned.model.js")(sequelize, Sequelize);
 db.BattleRankUps = require("./events/battleRankUp.model.js")(sequelize, Sequelize);
 db.ContinentLocks = require("./events/continentLock.model.js")(sequelize, Sequelize);
@@ -34,6 +37,12 @@ db.PlayerLogouts = require("./events/playerLogout.model.js")(sequelize, Sequeliz
 db.SkillsAdded = require("./events/skillAdded.model.js")(sequelize, Sequelize);
 db.VehiclesDestroyed = require("./events/vehicleDestroy.model.js")(sequelize, Sequelize);
 
+/**
+ * ALERTS
+ */
 
+db.Alerts = require("./alerts/alert.model.js")(sequelize,Sequelize);
+db.AlertScores = require("./alerts/alertScore.model.js")(sequelize,Sequelize);
+db.AlertDatas = require("./alerts/alertData.model.js")(sequelize,Sequelize);
 
 module.exports = db;

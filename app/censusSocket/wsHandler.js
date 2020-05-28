@@ -1,6 +1,7 @@
 const api_key = require('./api_key.js');
 const WebSocket = require('ws');
 const db = require("../models");
+const alertHandler = require('../handlers/alertHandler');
 
 
 function createStream() {
@@ -44,6 +45,7 @@ function handleWsResponse(raw) {
         case 'ItemAdded':
             break;
         case 'MetagameEvent':
+            handleMetagameEvent(payload);
             break;
         case 'PlayerFacilityCapture':
             break;
@@ -97,6 +99,12 @@ function storeLogin(character_id, event_name, timestamp) {
         .catch(err => {
           console.log(err);
         });
+}
+
+function handleMetagameEvent(data) {
+    if(data.metagame_event_id === '') {
+        alertHandler.startAlert();
+    }
 }
 
 module.exports = {
