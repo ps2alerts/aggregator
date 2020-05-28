@@ -1,5 +1,9 @@
 const db = require("../models");
 
+function handleAlertEvent(data) {
+    //if new alert event
+    startAlert();
+}
 
 function startAlert(alertType,world,startTime){
     //Create an alert
@@ -24,4 +28,5 @@ function startAlert(alertType,world,startTime){
 
 module.exports = {
     startAlert,
+    handleAlertEvent
 }

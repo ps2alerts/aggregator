@@ -102,8 +102,9 @@ function storeLogin(character_id, event_name, timestamp) {
 }
 
 function handleMetagameEvent(data) {
+    //insert record in db with raw data
     if(data.metagame_event_id === '') {
-        alertHandler.startAlert();
+        alertHandler.handleAlertEvent(data);
     }
 }
 
