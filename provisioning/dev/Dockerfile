@@ -1,0 +1,1 @@
+FROM ps2alerts/websocket:base

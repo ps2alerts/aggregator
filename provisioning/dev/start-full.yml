@@ -1,0 +1,69 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Install docker
+      pip:
+        name: docker
+        state: present
+
+    - name: Create docker network
+      docker_network:
+        name: ps2alerts
+        state: present
+
+    - name: Build Websocket Base image (grab a snickers)
+      docker_image:
+        name: ps2alerts/websocket # local image
+        state: present
+        source: build
+        tag: base
+        force_source: yes
+        build:
+          pull: no
+          path: "{{ playbook_dir }}/../base"
+
+    - name: Build Websocket Dev image
+      docker_image:
+        name: ps2alerts/websocket
+        state: present
+        source: build
+        tag: dev
+        force_source: yes
+        build:
+          pull: no
+          path: "{{ playbook_dir }}"
+
+    - name: Get user's current UID
+      command: "id -u {{ ansible_user_id }}"
+      register: id
+
+    - name: Run npm install for Websocket deps
+      docker_container:
+        name: ps2alerts-websocket-npm
+        image: node:11
+        volumes:
+          - "{{ playbook_dir }}/../../app:/app:rw"
+        user: "{{ id.stdout }}:{{ id.stdout }}"
+        command: "npm --prefix /app install"
+        labels:
+          traefik.enable: "false"
+
+    - name: Start Websocket Dev Image
+      docker_container:
+        name: ps2alerts-websocket
+        image: ps2alerts/websocket:dev
+        state: started
+        restart: yes
+        recreate: yes
+        restart_policy: "no"
+        volumes:
+          - "{{ playbook_dir }}/../../app:/app:rw"
+        ports:
+          - "1337"
+        networks:
+          - name: "ps2alerts"
+        labels:
+          traefik.enable: "true"
+          traefik.http.routers.ps2alerts-websocket.rule: "Host(`wss.dev.ps2alerts.com`)"
+          traefik.http.routers.ps2alerts-websocket.tls: "true"
+          traefik.http.routers.ps2alerts-websocket.tls.domains[0].main: "wss.dev.ps2alerts.com"

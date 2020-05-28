@@ -22,8 +22,8 @@ var success = clc.green.bold;
 var usage = require('usage');
 var pid = process.pid; // you can use any valid PID instead
 
-var configStore = require('./config.dist.js');
-var config = configStore.getConfig(); // Call the getConfig funtion to load the config
+var configStore = require('./config.js');
+var config = configStore.getConfig(); // Call the getConfig function to load the config
 var supplementalConfig = configStore.getSupplementalConfig();
 
 // Main Database Pool

@@ -1,5 +1,22 @@
 ---
 - hosts: localhost
   tasks:
-    - name: "PING"
-      ping:
+    - name: Start Websocket Dev Image
+      docker_container:
+        name: ps2alerts-websocket
+        image: ps2alerts/websocket:dev
+        state: started
+        restart: yes
+        recreate: yes
+        restart_policy: "no"
+        volumes:
+          - "{{ playbook_dir }}/../../app:/app:rw"
+        ports:
+          - "1337"
+        networks:
+          - name: "ps2alerts"
+        labels:
+          traefik.enable: "true"
+          traefik.http.routers.ps2alerts-websocket.rule: "Host(`wss.dev.ps2alerts.com`)"
+          traefik.http.routers.ps2alerts-websocket.tls: "true"
+          traefik.http.routers.ps2alerts-websocket.tls.domains[0].main: "wss.dev.ps2alerts.com"

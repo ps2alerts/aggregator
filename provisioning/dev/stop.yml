@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Stop Websocket container
+      docker_container:
+        name: ps2alerts-websocket
+        state: stopped

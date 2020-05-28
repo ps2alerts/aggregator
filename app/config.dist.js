@@ -1,19 +1,19 @@
 var config = {
     serviceID: 'yourcensusserviceID',
-    extendedAPIKey: 'yougetthisfromjhett12321',
+    extendedAPIKey: 'TO BE DELETED',
     serverPort: 1337,
     database : {
         primary : {
-            host: '123.456.789.0',
-            user: 'dbUser',
-            pass: 'dbPass',
-            name: 'dbname'
+            host: 'ps2alerts-db',
+            user: 'root',
+            pass: 'foobar',
+            name: 'ps2alertsWS'
         },
         cache : {
-            host: '123.456.789.0',
-            user: 'dbUser',
-            pass: 'dbPass',
-            name: 'dbname'
+            host: 'ps2alerts-db',
+            user: 'root',
+            pass: 'foobar',
+            name: 'ps2alertsCache'
         }
     },
     toggles : {
@@ -71,7 +71,7 @@ var supplementalConfig = {
         13: 'Cobalt',
         17: 'Emerald',
         19: 'Jaeger',
-        25: 'Briggs',
+        25: 'Briggs', // DEAD!
         // TODO: Find SolTech's worldID
         // TODO: Find out which PS2 servers are still operational
         1000: 'Genudine (PS4US)',

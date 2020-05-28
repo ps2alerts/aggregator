@@ -1,0 +1,32 @@
+{
+  "name": "ps2alerts-websocket",
+  "version": "1.0.0",
+  "description": "PS2Alerts websocket census client / server",
+  "main": "ps2alerts-server.js",
+  "dependencies": {
+    "cli-color": "^2.0.0",
+    "clone": "^2.1.2",
+    "moment-timezone": "^0.5.31",
+    "mysql": "^2.18.1",
+    "nodemailer": "^6.4.6",
+    "url": "^0.11.0",
+    "usage": "^0.7.1",
+    "ws": "^7.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.org/ps2alerts/websocket"
+  },
+  "keywords": [
+    "ps2alerts",
+    "planetside2",
+    "planetside",
+    "2"
+  ],
+  "author": "Matt Cavanagh <maelstrome26@gmail.com>",
+  "license": "GPL-3.0"
+}
