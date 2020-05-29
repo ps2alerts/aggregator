@@ -11,22 +11,22 @@
 module.exports = (sequelize, Sequelize) => {
     const AchievementEarned = sequelize.define("AchievementEarned", {
       character_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       event_name: {
         type: Sequelize.STRING
       },
       achievement_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       world_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       zone_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       timestamp: {
-        type: Sequelize.STRING
+        type: Sequelize.BIGINT
       },
     });
   

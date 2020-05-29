@@ -21,25 +21,25 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         facility_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         new_faction_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         old_faction_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         outfit_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         timestamp: {
-            type: Sequelize.STRING
+            type: Sequelize.BIGINT
         },
         world_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
     });
   

@@ -13,25 +13,25 @@
 module.exports = (sequelize, Sequelize) => {
     const PlayerFacilityDefend = sequelize.define("PlayerFacilityDefend", {
         character_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         event_name: {
             type: Sequelize.STRING
         },
         facility_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         outfit_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         timestamp: {
-            type: Sequelize.STRING
+            type: Sequelize.BIGINT
         },
         world_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
     });
   

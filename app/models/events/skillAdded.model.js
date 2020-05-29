@@ -12,22 +12,22 @@
 module.exports = (sequelize, Sequelize) => {
     const ItemAdded = sequelize.define("itemAdded", {
         character_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         event_name: {
             type: Sequelize.STRING
         },
         skill_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         timestamp: {
-            type: Sequelize.STRING
+            type: Sequelize.BIGINT
         },
         world_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
     });
   

@@ -31,19 +31,19 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         metagame_event_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         metagame_event_state: {
             type: Sequelize.STRING
         },
         timestamp: {
-            type: Sequelize.STRING
+            type: Sequelize.BIGINT
         },
         world_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         }
     });
   

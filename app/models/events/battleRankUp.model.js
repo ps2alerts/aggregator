@@ -12,7 +12,7 @@
 module.exports = (sequelize, Sequelize) => {
     const BattleRankUp = sequelize.define("BattleRankUp", {
       character_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       event_name: {
         type: Sequelize.STRING
@@ -21,13 +21,13 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       world_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       zone_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       timestamp: {
-        type: Sequelize.STRING
+        type: Sequelize.BIGINT
       },
     });
   

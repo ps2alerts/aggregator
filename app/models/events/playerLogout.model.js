@@ -10,16 +10,16 @@
 module.exports = (sequelize, Sequelize) => {
     const PlayerLogout = sequelize.define("PlayerLogout", {
       character_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       event_name: {
         type: Sequelize.STRING
       },
       timestamp: {
-        type: Sequelize.STRING
+        type: Sequelize.BIGINT
       },
       world_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       }
     });
   

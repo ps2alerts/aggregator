@@ -18,28 +18,28 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         character_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         event_name: {
             type: Sequelize.STRING
         },
         experience_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         loadout_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         other_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         timestamp: {
-            type: Sequelize.STRING
+            type: Sequelize.BIGINT
         },
         world_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
-        zone_i: {
-            type: Sequelize.STRING
+        zone_id: {
+            type: Sequelize.INTEGER
         },
     });
   

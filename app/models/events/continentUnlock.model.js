@@ -20,16 +20,16 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       timestamp: {
-        type: Sequelize.STRING
+        type: Sequelize.BIGINT
       },
       battle_rank: {
         type: Sequelize.STRING
       },
       world_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       zone_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       triggering_faction: {
         type: Sequelize.STRING
@@ -47,7 +47,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       metagame_event_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
 
       event_type: {

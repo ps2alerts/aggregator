@@ -6,18 +6,18 @@
  */
 
 module.exports = (sequelize, Sequelize) => {
-    const PlayerLogin = sequelize.define("PLayerLogin", {
+    const PlayerLogin = sequelize.define("PlayerLogin", {
         character_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         event_name: {
             type: Sequelize.STRING
         },
         timestamp: {
-            type: Sequelize.STRING
+            type: Sequelize.BIGINT
         },
         world_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         }
     });
   

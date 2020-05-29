@@ -18,46 +18,46 @@
 module.exports = (sequelize, Sequelize) => {
     const VehicleDestroy = sequelize.define("VehicleDestroy", {
         attacker_character_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         attacker_fire_mode_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         attacker_loadout_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         attacker_vehicle_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         attacker_weapon_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         character_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         character_loadout_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         event_name: {
             type: Sequelize.STRING
         },
         is_critical: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         is_headshot: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         timestamp: {
-            type: Sequelize.STRING
+            type: Sequelize.BIGINT
         },
         vehicle_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         world_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
     });
   
