@@ -19,8 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Init DB
 
-const db = require("./app/models");
-db.sequelize.sync();
+//const db = require("./app/models");
+//db.sequelize.sync();
 
 // db.sequelize.sync({ force: true }).then(() => {
 //     console.log("Drop and re-sync db.");
@@ -28,6 +28,10 @@ db.sequelize.sync();
 
 const ps2ws = require('./app/censusSocket/wsHandler');
 ps2ws.createStream();
+
+//for testing purpose
+// const qApi = require('./app/censusSocket/queryApiHandler');
+// qApi.getRegionForZone(2);
 
 // simple route
 app.get("/", (req, res) => {

@@ -27,7 +27,7 @@ function handleWsResponse(raw) {
     //console.log(raw);
 
     jsonData = JSON.parse(raw);
-    //console.log(jsonData);
+    console.log(jsonData);
     if (jsonData.hasOwnProperty('payload')) {
         //define here
         var payload = jsonData.payload;
@@ -103,6 +103,25 @@ function storeLogin(character_id, event_name, timestamp) {
 
 function handleMetagameEvent(data) {
     //insert record in db with raw data
+    const metagameEvent = {
+        event_name: data.event_name,
+        experience_bonus: data.experience_bonus,
+        faction_nc: data.faction_nc,
+        faction_tr: data.faction_tr,
+        faction_vs: data.faction_vs,
+        metagame_event_id: data.metagame_event_id,
+        metagame_event_state: data.metagame_event_state,
+        timestamp: data.timestamp,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+    db.MetagameEvents.create(metagameEvent)
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
     if(data.metagame_event_id === '') {
         alertHandler.handleAlertEvent(data);
     }

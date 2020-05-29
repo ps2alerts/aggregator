@@ -1,6 +1,5 @@
 /**
  *  ### CENSUS RESPONSE ATTRIBUTES ####
-"character_id":"",
 "event_name":"MetagameEvent",
 "experience_bonus":"",
 "faction_nc":"",
