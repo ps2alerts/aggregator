@@ -26,6 +26,18 @@ function startAlert(alertType,world,startTime){
         });
 }
 
+function endAlert(){
+
+}
+
+function calculateAlertData(){
+
+}
+
+function calculateAlertScores(){
+
+}
+
 module.exports = {
     startAlert,
     handleAlertEvent
