@@ -173,6 +173,141 @@ function storeDeath(data) {
         })
 }
 
+function storeFacilityControl(data) {
+    const facilityCapture = {
+        duration_held: data.duration_held,
+        event_name: data.event_name,
+        facility_id: data.facility_id,
+        new_faction_id: data.new_faction_id,
+        old_faction_id: data.old_faction_id,
+        outfit_id: data.outfit_id,
+        timestamp: data.timestamp,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+    db.FacilityControls.create(facilityCapture)
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
+}
+
+function storeGainExperience(data) {
+    const gainExperience = {
+        amount: data.amount,
+        character_id: data.character_id,
+        event_name: data.event_name,
+        experience_id: data.experience_id,
+        loadout_id: data.loadout_id,
+        other_id: data.other_is,
+        timestamp: data.timestamp,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+    db.GainExperiences.create(gainExperience)
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+
+function storeItemAdded(data) {
+    const itemAdded = {
+        character_id: data.character_id,
+        context: data.context,
+        event_name: data.event_name,
+        item_count: data.item_count,
+        item_id: data.item_id,
+        timestamp: data.timestamp,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+    db.ItemsAdded.create(itemAdded)
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+
+function storePlayerFacilityCapture(data) {
+    const playerFacilityCapture = {
+        character_id: data.character_id,
+        event_name: data.event_name,
+        facility_id: data.facility_id,
+        outfit_id: data.outfit_id,
+        timestamp: data.timestamp,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+    db.PlayerFacilityCaptures.create(playerFacilityCapture)
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+function storePlayerFacilityDefend(data){
+    const playerFacilityDefend = {
+        character_id: data.character_id,
+        event_name: data.event_name,
+        facility_id: data.facility_id,
+        outfit_id: data.outfit_id,
+        timestamp: data.timestamp,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+    db.PlayerFacilityDefends.create(playerFacilityDefend)
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+function storeSkillAdded(data) {
+    const skillAdded = {
+        character_id: data.character_id,
+        event_name: data.event_name,
+        skill_id: data.skill_id,
+        timestamp: data.timestamp,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+}
+function storeVehicleDestroy(data) {
+    const vehicleDestroy = {
+        attacker_character_id: data.attacker_character_id,
+        attacker_fire_mode_id: data.attacker_fire_mode_id,
+        attacker_loadout_id: data.attacker_loadout_id,
+        attacker_vehicle_id: data.attacker_vehicle_id,
+        attacker_weapon_id: data.attacker_weapon_id,
+        character_id: data.character_id,
+        character_loadout_id: data.character_loadout_id,
+        event_name: data.event_name,
+        is_critical: data.hasOwnProperty('is_critical') ? data.is_critical : 0,
+        is_headshot: data.is_headshot,
+        timestamp: data.timestamp,
+        vehicle_id: data.hasOwnProperty('vehicle_id') ? data.vehicle_id : 0,
+        world_id: data.world_id,
+        zone_id: data.zone_id
+    }
+    db.VehiclesDestroyed.create(vehicleDestroy)
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+
 module.exports = {
     storeLogout,
     storeLogin,
@@ -181,5 +316,12 @@ module.exports = {
     storeBattleRankUp,
     storeContinentLock,
     storeContinentUnlock,
-    storeDeath
+    storeDeath,
+    storeFacilityControl,
+    storeGainExperience,
+    storeItemAdded,
+    storePlayerFacilityCapture,
+    storePlayerFacilityDefend,
+    storeSkillAdded,
+    storeVehicleDestroy
 }

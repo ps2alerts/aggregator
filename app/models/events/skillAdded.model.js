@@ -10,7 +10,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const ItemAdded = sequelize.define("itemAdded", {
+    const SkillAdded = sequelize.define("SkillAdded", {
         character_id: {
             type: Sequelize.INTEGER
         },
@@ -31,5 +31,5 @@ module.exports = (sequelize, Sequelize) => {
         },
     });
   
-    return ItemAdded;
+    return SkillAdded;
   };

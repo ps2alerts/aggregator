@@ -31,6 +31,7 @@ db.BattleRankUps = require("./events/battleRankUp.model.js")(sequelize, Sequeliz
 db.ContinentLocks = require("./events/continentLock.model.js")(sequelize, Sequelize);
 db.ContinentUnlocks = require("./events/continentUnlock.model.js")(sequelize, Sequelize);
 db.Deaths = require("./events/death.model.js")(sequelize, Sequelize);
+db.FacilityControls = require('./events/facilityControl.model')(sequelize, Sequelize);
 db.GainExperiences = require("./events/gainExperience.model.js")(sequelize, Sequelize);
 db.ItemsAdded = require("./events/itemAdded.model.js")(sequelize, Sequelize);
 db.MetagameEvents = require("./events/metagameEvent.model.js")(sequelize, Sequelize);

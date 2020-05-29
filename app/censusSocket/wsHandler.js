@@ -43,29 +43,34 @@ function handleWsResponse(raw) {
             eventStore.storeDeath(payload);
             break;
         case 'FacilityControl':
+            eventStore.storeFacilityControl(payload);
             break;
         case 'GainExperience':
+            eventStore.storeGainExperience(payload);
             break;
         case 'ItemAdded':
+            eventStore.storeItemAdded(payload);
             break;
         case 'MetagameEvent':
             eventStore.storeMetagameEvent(payload);
             break;
         case 'PlayerFacilityCapture':
+            eventStore.storePlayerFacilityCapture(payload);
             break;
         case 'PlayerFacilityDefend':
+            eventStore.storePlayerFacilityDefend(payload)
             break;
         case 'PlayerLogin':
-            console.log(payload);
             eventStore.storeLogin(payload.character_id,payload.event_name,payload.timestamp,payload.world_id);
             break;
         case 'PlayerLogout':
-            console.log(payload);
             eventStore.storeLogout(payload.character_id,payload.event_name,payload.timestamp,payload.world_id);
             break;
         case 'SkillAdded':
+            eventStore.storeSkillAdded(payload);
             break;
         case 'VehicleDestroy':
+            eventStore.storeVehicleDestroy(payload);
             break;
         default:
             break;
