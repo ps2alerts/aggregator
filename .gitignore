@@ -3,3 +3,4 @@ node_modules
 .idea
 app/censusSocket/api_key.js
 app/config/db.config.js
+app/config/census.serviceid.js
