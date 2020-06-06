@@ -1,4 +1,4 @@
 #!/bin/sh
 
 echo "=============== STARTING WEBSOCKET ==================="
-node /app/ps2alerts-server.js
+node /app/server.js

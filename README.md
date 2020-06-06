@@ -9,21 +9,7 @@ This is the start of updating and restructuring the websocket server for ps2aler
 
 ## Installation
 
-You will need the following technologies to run this application:
-
-* MySQL / MariaDB (SQL Structure dump provided)
-* NodeJS
-* NPM
-
-When you clone the rep, you'll need to run the following NPM command to acquire the modules required to run the Websocket Server:
-
-```
-Make sure your npm version are below 13.0 - recommend using 12.10.0, else some npm modules wont install
-```
-npm install - Install required npm modules
-```
-npm start - Starts the server
-```
+Run `ps2alerts-start` to start all associated services and this module. Dependencies will be handled via the bootstrap process.
 
 ### Todos
 

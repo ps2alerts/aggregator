@@ -1,32 +1,33 @@
 {
   "name": "ps2alerts-websocket",
   "version": "1.0.0",
-  "description": "PS2Alerts websocket census client / server",
-  "main": "ps2alerts-server.js",
-  "dependencies": {
-    "cli-color": "^2.0.0",
-    "clone": "^2.1.2",
-    "moment-timezone": "^0.5.31",
-    "mysql": "^2.18.1",
-    "nodemailer": "^6.4.6",
-    "url": "^0.11.0",
-    "usage": "^0.7.1",
-    "ws": "^7.3.0"
-  },
-  "devDependencies": {},
+  "description": "The websocket collection script that powers PS2Alerts.com.",
+  "main": "config.dist.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.org/ps2alerts/websocket"
+    "url": "git+https://Maelstrome26@github.com/Maelstrome26/PS2Alerts-WebsocketServer.git"
   },
-  "keywords": [
-    "ps2alerts",
-    "planetside2",
-    "planetside",
-    "2"
-  ],
-  "author": "Matt Cavanagh <maelstrome26@gmail.com>",
-  "license": "GPL-3.0"
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ps2alerts/websocket/issues"
+  },
+  "homepage": "https://github.com/ps2alerts/websocket#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "cli-color": "^2.0.0",
+    "clone": "^2.1.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.7",
+    "sqlite3": "^4.2.0",
+    "usage": "^0.7.1",
+    "ws": "^7.2.5"
+  }
 }

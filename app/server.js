@@ -19,14 +19,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Init DB
 
-const db = require("./app/models");
+const db = require("./models");
 db.sequelize.sync();
 
 // db.sequelize.sync({ force: true }).then(() => {
 //     console.log("Drop and re-sync db.");
 //   });
 
-const ps2ws = require('./app/censusSocket/wsHandler');
+const ps2ws = require('./censusSocket/wsHandler');
 ps2ws.createStream();
 
 //for testing purpose
