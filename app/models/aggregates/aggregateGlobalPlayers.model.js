@@ -11,31 +11,31 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true,
         },
         player_kills: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_deaths: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_team_kills: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_suicides: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_headshots: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_br: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_alerts_participated: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         }
     });

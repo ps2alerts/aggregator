@@ -15,7 +15,7 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: true
         },
         player_br: {
-            type: Sequelize.int,
+            type: Sequelize.INTEGER,
             allowNull: false
         },
         player_asp: {

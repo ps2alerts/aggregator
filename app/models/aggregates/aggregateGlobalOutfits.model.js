@@ -12,35 +12,35 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         outfit_kills: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_deaths: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_team_kills: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_suicides: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_headshots: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_captures: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_defences: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_alerts_participated: {
-            type: Sequelize.INT,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         }
     });
