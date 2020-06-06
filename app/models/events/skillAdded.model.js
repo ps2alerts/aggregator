@@ -11,6 +11,9 @@
 
 module.exports = (sequelize, Sequelize) => {
     const SkillAdded = sequelize.define("SkillAdded", {
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
         character_id: {
             type: Sequelize.INTEGER
         },
@@ -20,14 +23,11 @@ module.exports = (sequelize, Sequelize) => {
         skill_id: {
             type: Sequelize.INTEGER
         },
-        timestamp: {
-            type: Sequelize.BIGINT
-        },
         world_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
     });
   

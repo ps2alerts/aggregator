@@ -14,32 +14,33 @@
 
 module.exports = (sequelize, Sequelize) => {
     const GainExperience = sequelize.define("GainExperience", {
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
         amount: {
-            type: Sequelize.STRING
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
         character_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.BIGINT.UNSIGNED
         },
         event_name: {
             type: Sequelize.STRING
         },
         experience_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
         loadout_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
+        // TODO: Narrow this down
         other_id: {
-            type: Sequelize.INTEGER
-        },
-        timestamp: {
-            type: Sequelize.BIGINT
+            type: Sequelize.INTEGER.UNSIGNED
         },
         world_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
     });
   

@@ -5,19 +5,19 @@
 module.exports = (sequelize, Sequelize) => {
     const Alert = sequelize.define("Alert", {
         type: {
-            type: Sequelize.STRING
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         world: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         start_time: {
-            type: Sequelize.BIGINT
+            type: Sequelize.BIGINT.UNSIGNED
         },
         end_time: {
-            type: Sequelize.BIGINT
+            type: Sequelize.BIGINT.UNSIGNED
         },
         running: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.BOOLEAN,
             defaultValue: 0
         }
     });

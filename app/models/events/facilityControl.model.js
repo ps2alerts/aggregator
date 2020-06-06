@@ -14,32 +14,32 @@
 
 module.exports = (sequelize, Sequelize) => {
     const FacilityControl = sequelize.define("FacilityControl", {
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
         duration_held: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER.UNSIGNED
         },
         event_name: {
             type: Sequelize.STRING
         },
         facility_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         new_faction_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         old_faction_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         outfit_id: {
-            type: Sequelize.INTEGER
-        },
-        timestamp: {
-            type: Sequelize.BIGINT
+            type: Sequelize.BIGINT.UNSIGNED
         },
         world_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
     });
   

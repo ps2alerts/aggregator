@@ -1,27 +1,27 @@
 /**
  *  ### CENSUS RESPONSE ATTRIBUTES ####
-"character_id":"",
-"event_name":"PlayerLogin/PlayerLogout",
-"timestamp":"",
-"world_id":""
+ "character_id":"",
+ "event_name":"PlayerLogin/PlayerLogout",
+ "timestamp":"",
+ "world_id":""
  * ### END ###
  **/
 
 module.exports = (sequelize, Sequelize) => {
     const PlayerLogout = sequelize.define("PlayerLogout", {
-      character_id: {
-        type: Sequelize.INTEGER
-      },
-      event_name: {
-        type: Sequelize.STRING
-      },
-      timestamp: {
-        type: Sequelize.BIGINT
-      },
-      world_id: {
-        type: Sequelize.INTEGER
-      }
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
+        character_id: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
+        event_name: {
+            type: Sequelize.STRING
+        },
+        world_id: {
+            type: Sequelize.TINYINT.UNSIGNED
+        }
     });
-  
+
     return PlayerLogout;
-  };
+};

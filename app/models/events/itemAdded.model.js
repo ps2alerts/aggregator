@@ -13,29 +13,31 @@
 
 module.exports = (sequelize, Sequelize) => {
     const ItemAdded = sequelize.define("ItemAdded", {
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
         character_id: {
             type: Sequelize.INTEGER
         },
+        // TODO: Determine data type
         context: {
             type: Sequelize.STRING
         },
         event_name: {
             type: Sequelize.STRING
         },
+        // TODO: Determine data type
         item_count: {
             type: Sequelize.STRING
         },
         item_id: {
-            type: Sequelize.INTEGER
-        },
-        timestamp: {
-            type: Sequelize.BIGINT
+            type: Sequelize.INTEGER.UNSIGNED
         },
         world_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
     });
   

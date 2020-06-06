@@ -10,24 +10,24 @@
 **/
 module.exports = (sequelize, Sequelize) => {
     const AchievementEarned = sequelize.define("AchievementEarned", {
-      character_id: {
-        type: Sequelize.INTEGER
-      },
-      event_name: {
-        type: Sequelize.STRING
-      },
-      achievement_id: {
-        type: Sequelize.INTEGER
-      },
-      world_id: {
-        type: Sequelize.INTEGER
-      },
-      zone_id: {
-        type: Sequelize.INTEGER
-      },
-      timestamp: {
-        type: Sequelize.BIGINT
-      },
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
+        character_id: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
+        event_name: {
+            type: Sequelize.STRING
+        },
+        achievement_id: {
+            type: Sequelize.INTEGER.UNSIGNED
+        },
+        world_id: {
+            type: Sequelize.INTEGER.UNSIGNED
+        },
+        zone_id: {
+            type: Sequelize.INTEGER.UNSIGNED
+        }
     });
   
     return AchievementEarned;
