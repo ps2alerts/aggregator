@@ -16,12 +16,9 @@ module.exports = (sequelize, Sequelize) => {
         control_tr: {
             type: Sequelize.INTEGER
         },
-        state: {
-            type: Sequelize.INTEGER,
-            defaultValue: "Init"
+        control_cutoff: {
+            type: Sequelize.INTEGER
         }
-
-
     });
 
     return AlertScore;
