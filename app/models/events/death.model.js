@@ -50,7 +50,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         timestamp: {
-            type: Sequelize.BIGINT
+            type: Sequelize.BIGINT.UNSIGNED
         },
         vehicle_id: {
             type: Sequelize.INTEGER

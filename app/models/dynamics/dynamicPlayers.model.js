@@ -7,11 +7,11 @@
 module.exports = (sequelize, Sequelize) => {
     const DynamicPlayers = sequelize.define("DynamicPlayers", {
         player_id: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.BIGINT.UNSIGNED,
             primaryKey: true
         },
         player_outfit_id: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.BIGINT.UNSIGNED,
             allowNull: true
         },
         player_br: {
@@ -19,12 +19,12 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false
         },
         player_asp: {
-            type: Sequelize.TINY,
+            type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: 0
         },
         player_last_seen: {
-            type: Sequelize.DATETIME,
+            type: Sequelize.DATE,
             allowNull: false
         }
     });

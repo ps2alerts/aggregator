@@ -8,7 +8,7 @@
 module.exports = (sequelize, Sequelize) => {
     const StaticOutfits = sequelize.define("StaticOutfits", {
         outfit_id: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.BIGINT.UNSIGNED,
             primaryKey: true,
         },
         // While the below property CAN change, it's very rare and requires customer services to do it, so it's reasonably static.
@@ -19,11 +19,11 @@ module.exports = (sequelize, Sequelize) => {
         },
         // Outfit TAG can be changed at any time!
         outfit_server: {
-            type: Sequelize.TINY,
+            type: Sequelize.TINYINT,
             allowNull: false
         },
         outfit_faction: {
-            type: Sequelize.TINY,
+            type: Sequelize.TINYINT,
             allowNull: false
         }
     });

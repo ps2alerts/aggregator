@@ -20,7 +20,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       timestamp: {
-        type: Sequelize.BIGINT
+        type: Sequelize.BIGINT.UNSIGNED
       },
       battle_rank: {
         type: Sequelize.STRING

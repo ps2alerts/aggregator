@@ -11,10 +11,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         start_time: {
-            type: Sequelize.BIGINT
+            type: Sequelize.BIGINT.UNSIGNED
         },
         end_time: {
-            type: Sequelize.BIGINT
+            type: Sequelize.BIGINT.UNSIGNED
         },
         running: {
             type: Sequelize.INTEGER,

@@ -37,7 +37,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         timestamp: {
-            type: Sequelize.BIGINT
+            type: Sequelize.BIGINT.UNSIGNED
         },
         world_id: {
             type: Sequelize.INTEGER

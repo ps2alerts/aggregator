@@ -16,11 +16,11 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         player_id: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.BIGINT.UNSIGNED,
             primaryKey: true,
         },
         player_outfit_id: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.BIGINT.UNSIGNED,
             allowNull: true
         },
         player_kills: {

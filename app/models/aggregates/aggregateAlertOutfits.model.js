@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         outfit_id: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.BIGINT.UNSIGNED,
             primaryKey: true
         },
         outfit_kills: {
