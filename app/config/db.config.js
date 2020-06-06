@@ -2,7 +2,7 @@ module.exports = {
     HOST: "ps2alerts-db",
     USER: "root",
     PASSWORD: "foobar",
-    DB: "ps2alertsWS",
+    DB: "ps2alerts",
     dialect: "mysql",
     pool: {
         max: 100,

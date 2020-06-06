@@ -1,12 +1,13 @@
-const api_key = require('./api_key.js');
+const censusServiceId = require('../config/census.serviceid');
 const WebSocket = require('ws');
 const db = require("../models");
 const eventStore = require('../handlers/eventStoreHandler');
 const alertHandler = require('../handlers/alertHandler');
+const flags = require('../config/flags.js');
 
 
 function createStream() {
-    const ws = new WebSocket('wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + api_key.KEY);
+    const ws = new WebSocket('wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + censusServiceId.KEY);
     ws.on('open', function open() {
         console.log('Connected to Census Api');
         subscribe(ws);
@@ -32,6 +33,12 @@ function handleWsResponse(raw) {
     if (jsonData.hasOwnProperty('payload')) {
         //define here
         var payload = jsonData.payload;
+
+        // World check, if not monitored, chuck it
+        if (!flags.MONITORED_SERVERS.includes(payload.world_id )) {
+            console.log("Got event from world ${payload.world_id}, which we don't monitor!");
+            return false;
+        }
         switch (payload.event_name) {
         case 'AchievementEarned':
             eventStore.storeAchievementEarned(payload);
@@ -74,7 +81,6 @@ function handleWsResponse(raw) {
             break;
         default:
             break;
-
         }
     }
 

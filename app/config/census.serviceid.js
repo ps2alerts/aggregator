@@ -1,3 +1,1 @@
-module.exports = {
-    CENSUS_ID: "yourserviceidhere"
-}
+exports.CENSUS_ID = "yourserviceidhere"

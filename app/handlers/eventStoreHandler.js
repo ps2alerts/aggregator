@@ -1,4 +1,5 @@
 const db = require("../models");
+const flags = require("../config/flags.js");
 
 function storeLogout(character_id, event_name, timestamp, world_id) {
     // Create a charLogin
@@ -18,6 +19,9 @@ function storeLogout(character_id, event_name, timestamp, world_id) {
 }
 
 function storeLogin(character_id, event_name, timestamp, world_id) {
+    if (!flags.EVENTS.PlayerLogin) {
+        return false;
+    }
     // Create a charLogin
     const charLogin = {
         character_id: character_id,
@@ -35,6 +39,10 @@ function storeLogin(character_id, event_name, timestamp, world_id) {
 }
 
 function storeMetagameEvent(data) {
+    if (!flags.EVENTS.MetagameEvent) {
+        return false;
+    }
+
     //insert record in db with raw data
     const metagameEvent = {
         event_name: data.event_name,
@@ -61,6 +69,10 @@ function storeMetagameEvent(data) {
 }
 
 function storeAchievementEarned(data) {
+    if (!flags.EVENTS.AchievementEarned) {
+        return false;
+    }
+
     const achievementEarned = {
         character_id: data.character_id,
         event_name: data.event_name,
@@ -80,6 +92,10 @@ function storeAchievementEarned(data) {
 }
 
 function storeBattleRankUp(data) {
+    if (!flags.EVENTS.BattleRankUp) {
+        return false;
+    }
+
     const battleRankUp = {
         character_id: data.character_id,
         event_name: data.event_name,
@@ -99,6 +115,10 @@ function storeBattleRankUp(data) {
 }
 
 function storeContinentLock(data) {
+    if (!flags.EVENTS.ContinentLock) {
+        return false;
+    }
+
     const continentLock = {
         event_name: data.event_name,
         timestamp: data.timestamp,
@@ -123,6 +143,10 @@ function storeContinentLock(data) {
 }
 
 function storeContinentUnlock(data) {
+    if (!flags.EVENTS.ContinentUnlock) {
+        return false;
+    }
+
     const continentUnlock = {
         event_name: data.event_name,
         timestamp: data.timestamp,
@@ -147,6 +171,10 @@ function storeContinentUnlock(data) {
 }
 
 function storeDeath(data) {
+    if (!flags.EVENTS.Death) {
+        return false;
+    }
+
     const death = {
         attacker_character_id: data.attacker_character_id,
         attacker_fire_mode_id: data.attacker_fire_mode_id,
@@ -174,6 +202,10 @@ function storeDeath(data) {
 }
 
 function storeFacilityControl(data) {
+    if (!flags.EVENTS.FacilityControl) {
+        return false;
+    }
+
     const facilityCapture = {
         duration_held: data.duration_held,
         event_name: data.event_name,
@@ -196,6 +228,10 @@ function storeFacilityControl(data) {
 }
 
 function storeGainExperience(data) {
+    if (!flags.EVENTS.GainExperience) {
+        return false;
+    }
+
     const gainExperience = {
         amount: data.amount,
         character_id: data.character_id,
@@ -217,6 +253,10 @@ function storeGainExperience(data) {
 }
 
 function storeItemAdded(data) {
+    if (!flags.EVENTS.ItemAdded) {
+        return false;
+    }
+
     const itemAdded = {
         character_id: data.character_id,
         context: data.context,
@@ -237,6 +277,10 @@ function storeItemAdded(data) {
 }
 
 function storePlayerFacilityCapture(data) {
+    if (!flags.EVENTS.PlayerFacilityCapture) {
+        return false;
+    }
+
     const playerFacilityCapture = {
         character_id: data.character_id,
         event_name: data.event_name,
@@ -255,6 +299,10 @@ function storePlayerFacilityCapture(data) {
         })
 }
 function storePlayerFacilityDefend(data){
+    if (!flags.EVENTS.PlayerFacilityDefend) {
+        return false;
+    }
+
     const playerFacilityDefend = {
         character_id: data.character_id,
         event_name: data.event_name,
@@ -273,6 +321,10 @@ function storePlayerFacilityDefend(data){
         })
 }
 function storeSkillAdded(data) {
+    if (!flags.EVENTS.SkillAdded) {
+        return false;
+    }
+
     const skillAdded = {
         character_id: data.character_id,
         event_name: data.event_name,
@@ -283,6 +335,10 @@ function storeSkillAdded(data) {
     }
 }
 function storeVehicleDestroy(data) {
+    if (!flags.EVENTS.VehicleDestroy) {
+        return false;
+    }
+
     const vehicleDestroy = {
         attacker_character_id: data.attacker_character_id,
         attacker_fire_mode_id: data.attacker_fire_mode_id,
