@@ -54,10 +54,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.SMALLINT.UNSIGNED
         },
         world_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.SMALLINT.UNSIGNED
         },
-        zone_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+        zone_ihd: {
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
     });
   

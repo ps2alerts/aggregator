@@ -1,3 +1,4 @@
+// Use the below for the dev environment
 module.exports = {
     HOST: "ps2alerts-db",
     USER: "root",

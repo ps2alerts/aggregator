@@ -19,8 +19,8 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         world_id: {
-            type: Sequelize.TINYINT.UNSIGNED
-        }
+            type: Sequelize.SMALLINT.UNSIGNED
+        },
     });
 
     return PlayerLogout;

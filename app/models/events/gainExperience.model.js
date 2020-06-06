@@ -23,9 +23,6 @@ module.exports = (sequelize, Sequelize) => {
         character_id: {
             type: Sequelize.BIGINT.UNSIGNED
         },
-        event_name: {
-            type: Sequelize.STRING
-        },
         experience_id: {
             type: Sequelize.MEDIUMINT.UNSIGNED
         },
@@ -37,10 +34,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER.UNSIGNED
         },
         world_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
     });
   

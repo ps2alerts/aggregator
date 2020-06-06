@@ -26,10 +26,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TINYINT.UNSIGNED
         },
         world_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
         triggering_faction: {
             type: Sequelize.TINYINT.UNSIGNED

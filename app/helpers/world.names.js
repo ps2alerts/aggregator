@@ -6,8 +6,7 @@ module.exports = {
         17: 'Emerald',
         19: 'Jaeger',
         25: 'Briggs', // DEAD!
-        // TODO: Find SolTech's worldID
-        // TODO: Find out which PS2 servers are still operational
+        40: 'SolTech',
         1000: 'Genudine (PS4US)',
         1001: 'Palos (PS4US)',
         1002: 'Crux (PS4US)',

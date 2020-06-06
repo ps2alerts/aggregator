@@ -24,7 +24,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         facility_id: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
         new_faction_id: {
             type: Sequelize.TINYINT.UNSIGNED
@@ -36,10 +36,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.BIGINT.UNSIGNED
         },
         world_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
     });
   

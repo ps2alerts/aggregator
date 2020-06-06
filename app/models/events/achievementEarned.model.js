@@ -23,11 +23,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER.UNSIGNED
         },
         world_id: {
-            type: Sequelize.INTEGER.UNSIGNED
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.INTEGER.UNSIGNED
-        }
+            type: Sequelize.MEDIUMINT.UNSIGNED
+        },
     });
   
     return AchievementEarned;

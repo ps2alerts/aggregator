@@ -1,20 +1,21 @@
 const db = require("../models");
 const flags = require("../config/flags.js");
+const process = require("process");
 
 function storeLogout(character_id, event_name, timestamp, world_id) {
     // Create a charLogin
-    const charLogin = {
+    const charLogout = {
         character_id: character_id,
         event_name: event_name,
         timestamp: timestamp,
         world_id: world_id,
     };
-    db.PlayerLogouts.create(charLogin)
+    db.PlayerLogouts.create(charLogout)
         .then(data => {
             //console.log(data);
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         });
 }
 
@@ -34,7 +35,7 @@ function storeLogin(character_id, event_name, timestamp, world_id) {
             //console.log(data);
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         });
 }
 
@@ -61,7 +62,7 @@ function storeMetagameEvent(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
     // if(data.metagame_event_id === '') {
     //     alertHandler.handleAlertEvent(data);
@@ -87,7 +88,7 @@ function storeAchievementEarned(data) {
 
         })
         .catch(err => {
-            console.log(err)
+            handleStoreError(err);
         })
 }
 
@@ -110,7 +111,7 @@ function storeBattleRankUp(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 }
 
@@ -138,7 +139,7 @@ function storeContinentLock(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 }
 
@@ -166,7 +167,7 @@ function storeContinentUnlock(data) {
 
         })
         .catch(err => {
-            console.log(err)
+            handleStoreError(err);
         })
 }
 
@@ -197,7 +198,7 @@ function storeDeath(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 }
 
@@ -222,7 +223,7 @@ function storeFacilityControl(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 
 }
@@ -235,7 +236,6 @@ function storeGainExperience(data) {
     const gainExperience = {
         amount: data.amount,
         character_id: data.character_id,
-        event_name: data.event_name,
         experience_id: data.experience_id,
         loadout_id: data.loadout_id,
         other_id: data.other_is,
@@ -248,7 +248,7 @@ function storeGainExperience(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 }
 
@@ -272,7 +272,7 @@ function storeItemAdded(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 }
 
@@ -295,7 +295,7 @@ function storePlayerFacilityCapture(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 }
 function storePlayerFacilityDefend(data){
@@ -317,7 +317,7 @@ function storePlayerFacilityDefend(data){
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
 }
 function storeSkillAdded(data) {
@@ -360,8 +360,18 @@ function storeVehicleDestroy(data) {
 
         })
         .catch(err => {
-            console.log(err);
+            handleStoreError(err);
         })
+}
+
+function handleStoreError(err) {
+    if (flags.DB_TERMINATE_ON_ERROR) {
+        console.log(err);
+        console.log("PROCESS ENDED DUE TO DATABASE ERROR!");
+        process.exit(1);
+
+    }
+    console.log(err);
 }
 
 module.exports = {

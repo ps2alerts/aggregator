@@ -28,10 +28,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.BIGINT.UNSIGNED
         },
         world_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
     });
   

@@ -26,7 +26,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.BIGINT.UNSIGNED
         },
         attacker_fire_mode_id: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.MEDIUMINT
         },
         attacker_loadout_id: {
             type: Sequelize.SMALLINT.UNSIGNED
@@ -56,10 +56,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TINYINT.UNSIGNED
         },
         world_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.SMALLINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
     });
   

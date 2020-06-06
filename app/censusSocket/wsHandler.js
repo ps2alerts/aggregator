@@ -3,42 +3,54 @@ const WebSocket = require('ws');
 const db = require("../models");
 const eventStore = require('../handlers/eventStoreHandler');
 const alertHandler = require('../handlers/alertHandler');
-const flags = require('../config/flags.js');
+const activeWorldValidator = require('../validators/activeWorld.js');
+const activeZoneValidator = require('../validators/activeZone.js');
 
 
 function createStream() {
-    const ws = new WebSocket('wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + censusServiceId.KEY);
+    console.log("Creating Websocket Stream...");
+    const ws = new WebSocket('wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + censusServiceId.CENSUS_ID);
     ws.on('open', function open() {
         console.log('Connected to Census Api');
         subscribe(ws);
     });
     ws.on('message', function incoming(data) {
         handleWsResponse(data);
-
     });
 }
 
 function subscribe(ws) {
     console.log('Subscribing to DBG websocket..');
 
-    ws.send('{"service":"event","action":"subscribe","characters":["all"],"eventNames":["all"],"worlds":["all"],"logicalAndCharactersWithWorlds":true}');
-    console.log('Subscribed to all events for all servers');
+    const obj = {
+        service: "event",
+        action: "subscribe",
+        characters: ["all"],
+        eventNames: ["all"],
+        worlds: ["all"],
+        logicalAndCharactersWithWorlds: true
+    }
+
+    ws.send(JSON.stringify((obj)));
+    console.log('Subscribed successfully to Census Websocket Stream!');
 }
 
 function handleWsResponse(raw) {
     //console.log(raw);
 
     jsonData = JSON.parse(raw);
-    console.log(jsonData);
     if (jsonData.hasOwnProperty('payload')) {
         //define here
         var payload = jsonData.payload;
 
-        // World check, if not monitored, chuck it
-        if (!flags.MONITORED_SERVERS.includes(payload.world_id )) {
-            console.log("Got event from world ${payload.world_id}, which we don't monitor!");
+        // Validate if the message is relevent for what we want, e.g. worlds and zones with active alerts on.
+        if (!activeWorldValidator.validate(payload)) {
             return false;
         }
+        if (!activeZoneValidator.validate(payload)) {
+            return false;
+        }
+
         switch (payload.event_name) {
         case 'AchievementEarned':
             eventStore.storeAchievementEarned(payload);
