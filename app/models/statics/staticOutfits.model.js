@@ -1,5 +1,5 @@
 /**
- * Contains all of the data for players which cannot change, e.g. servers.
+ * Contains all of the data for outfits which cannot change, e.g. servers.
  *
  * @See:
  *      Outfit Tag: models/dynamics/dynamicOutfits.model.js
