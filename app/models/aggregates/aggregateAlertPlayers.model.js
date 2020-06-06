@@ -24,27 +24,27 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: true
         },
         player_kills: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT.UNSIGNED,
             defaultValue: 0
         },
         player_deaths: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT.UNSIGNED,
             defaultValue: 0
         },
         player_team_kills: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT.UNSIGNED,
             defaultValue: 0
         },
         player_suicides: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT.UNSIGNED,
             defaultValue: 0
         },
         player_headshots: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT.UNSIGNED,
             defaultValue: 0
         },
         player_br: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.TINYINT.UNSIGNED,
             defaultValue: 0
         }
     });

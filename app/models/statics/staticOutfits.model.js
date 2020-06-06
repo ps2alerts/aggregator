@@ -19,11 +19,11 @@ module.exports = (sequelize, Sequelize) => {
         },
         // Outfit TAG can be changed at any time!
         outfit_server: {
-            type: Sequelize.TINYINT,
+            type: Sequelize.TINYINT.UNSIGNED,
             allowNull: false
         },
         outfit_faction: {
-            type: Sequelize.TINYINT,
+            type: Sequelize.TINYINT.UNSIGNED,
             allowNull: false
         }
     });

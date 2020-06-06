@@ -15,12 +15,16 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: true
         },
         player_br: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.TINYINT.UNSIGNED,
             allowNull: false
         },
         player_asp: {
             type: Sequelize.BOOLEAN,
             allowNull: false,
+            defaultValue: 0
+        },
+        player_alerts_participated: {
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_last_seen: {

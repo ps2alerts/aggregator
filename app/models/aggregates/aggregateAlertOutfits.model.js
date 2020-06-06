@@ -16,31 +16,31 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         outfit_kills: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.MEDIUMINT.UNSIGNED,
             defaultValue: 0
         },
         outfit_deaths: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.MEDIUMINT.UNSIGNED,
             defaultValue: 0
         },
         outfit_team_kills: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.MEDIUMINT.UNSIGNED,
             defaultValue: 0
         },
         outfit_suicides: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.MEDIUMINT.UNSIGNED,
             defaultValue: 0
         },
         outfit_headshots: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.MEDIUMINT.UNSIGNED,
             defaultValue: 0
         },
         outfit_captures: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT.UNSIGNED,
             defaultValue: 0
         },
         outfit_defences: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT.UNSIGNED,
             defaultValue: 0
         }
     });

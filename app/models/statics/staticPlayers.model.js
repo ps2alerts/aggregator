@@ -17,11 +17,11 @@ module.exports = (sequelize, Sequelize) => {
         // Players can transfer servers via character transfer tokens or CS intervention, but they cost money and is reasonably static.
         // TODO: Handle the case where Player Server does actually change.
         player_server: {
-            type: Sequelize.TINYINT,
+            type: Sequelize.TINYINT.UNSIGNED,
             allowNull: false
         },
         player_faction: {
-            type: Sequelize.TINYINT,
+            type: Sequelize.TINYINT.UNSIGNED,
             allowNull: false
         }
     });
