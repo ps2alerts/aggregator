@@ -13,7 +13,7 @@ var config = {
             host: 'ps2alerts-db',
             user: 'root',
             pass: 'foobar',
-            name: 'ps2alertsCache'
+            name: 'ps2alerts_data'
         }
     },
     toggles : {
