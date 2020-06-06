@@ -1,2 +1,4 @@
-app/config.js
-app/node_modules
+config.js
+node_modules
+.idea
+app/censusSocket/api_key.js
