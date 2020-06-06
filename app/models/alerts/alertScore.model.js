@@ -5,19 +5,24 @@
 module.exports = (sequelize, Sequelize) => {
     const AlertScore = sequelize.define("AlertScore", {
         alert_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            primaryKey: true
         },
         control_vs: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED,
+            defaultValue: 0
         },
         control_nc: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED,
+            defaultValue: 0
         },
         control_tr: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED,
+            defaultValue: 0
         },
         control_cutoff: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED,
+            defaultValue: 0
         }
     });
 

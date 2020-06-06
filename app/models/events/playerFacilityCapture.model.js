@@ -12,26 +12,26 @@
 
 module.exports = (sequelize, Sequelize) => {
     const PlayerFacilityCapture = sequelize.define("PlayerFacilityCapture", {
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
         character_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.BIGINT.UNSIGNED
         },
         event_name: {
             type: Sequelize.STRING
         },
         facility_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
         outfit_id: {
-            type: Sequelize.INTEGER
-        },
-        timestamp: {
             type: Sequelize.BIGINT.UNSIGNED
         },
         world_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
         zone_id: {
-            type: Sequelize.INTEGER
+            type: Sequelize.TINYINT.UNSIGNED
         },
     });
   

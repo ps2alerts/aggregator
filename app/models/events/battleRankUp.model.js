@@ -11,24 +11,24 @@
 
 module.exports = (sequelize, Sequelize) => {
     const BattleRankUp = sequelize.define("BattleRankUp", {
-      character_id: {
-        type: Sequelize.INTEGER
-      },
-      event_name: {
-        type: Sequelize.STRING
-      },
-      battle_rank: {
-        type: Sequelize.STRING
-      },
-      world_id: {
-        type: Sequelize.INTEGER
-      },
-      zone_id: {
-        type: Sequelize.INTEGER
-      },
-      timestamp: {
-        type: Sequelize.BIGINT.UNSIGNED
-      },
+        timestamp: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
+        character_id: {
+            type: Sequelize.BIGINT.UNSIGNED
+        },
+        event_name: {
+            type: Sequelize.STRING
+        },
+        battle_rank: {
+            type: Sequelize.TINYINT.UNSIGNED
+        },
+        world_id: {
+            type: Sequelize.TINYINT.UNSIGNED
+        },
+        zone_id: {
+            type: Sequelize.TINYINT.UNSIGNED
+        }
     });
   
     return BattleRankUp;
