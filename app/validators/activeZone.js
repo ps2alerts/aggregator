@@ -1,3 +1,5 @@
+const flags = require('../config/flags.js');
+
 function validate (payload) {
     if (payload.hasOwnProperty("zone_id")) {
         const zone_id = parseInt(payload.zone_id);
@@ -6,6 +8,8 @@ function validate (payload) {
             console.log(`Got event from zone ${payload.zone_id}, which we don't monitor!`);
         }
     }
+
+    // TODO: Perform checks for active alert zones
 
     return true;
 }

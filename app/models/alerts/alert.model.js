@@ -7,8 +7,11 @@ module.exports = (sequelize, Sequelize) => {
         type: {
             type: Sequelize.SMALLINT.UNSIGNED
         },
-        world: {
-            type: Sequelize.TINYINT.UNSIGNED
+        world_id: {
+            type: Sequelize.SMALLINT.UNSIGNED
+        },
+        zone_id: {
+            type: Sequelize.MEDIUMINT.UNSIGNED
         },
         start_time: {
             type: Sequelize.BIGINT.UNSIGNED
