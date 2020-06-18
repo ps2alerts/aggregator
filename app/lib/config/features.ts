@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     ACCEPT_ADMIN_CONNECTION: true,
     DB_DEBUG: true,
     EVENTS: {
