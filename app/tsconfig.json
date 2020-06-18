@@ -5,7 +5,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES6",
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "strictPropertyInitialization": false,
     "moduleResolution": "Node",
     "outDir": "dist",

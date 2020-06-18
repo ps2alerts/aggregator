@@ -1,5 +1,5 @@
 const db = require("../../models");
-const flags = require("../config/flags.js");
+const features = require("../config/features");
 const process = require("process");
 
 function storeLogout(character_id, event_name, timestamp, world_id) {
@@ -20,7 +20,7 @@ function storeLogout(character_id, event_name, timestamp, world_id) {
 }
 
 function storeLogin(character_id, event_name, timestamp, world_id) {
-    if (!flags.EVENTS.PlayerLogin) {
+    if (!features.EVENTS.PlayerLogin) {
         return false;
     }
     // Create a charLogin
@@ -40,7 +40,7 @@ function storeLogin(character_id, event_name, timestamp, world_id) {
 }
 
 function storeMetagameEvent(data) {
-    if (!flags.EVENTS.MetagameEvent) {
+    if (!features.EVENTS.MetagameEvent) {
         return false;
     }
 
@@ -57,7 +57,7 @@ function storeMetagameEvent(data) {
         world_id: data.world_id,
         zone_id: data.zone_id
     }
-    db.MetagameEvents.create(metagameEvent)
+    db.MetagameEVENTS.create(metagameEvent)
         .then(data => {
 
         })
@@ -70,7 +70,7 @@ function storeMetagameEvent(data) {
 }
 
 function storeAchievementEarned(data) {
-    if (!flags.EVENTS.AchievementEarned) {
+    if (!features.EVENTS.AchievementEarned) {
         return false;
     }
 
@@ -93,7 +93,7 @@ function storeAchievementEarned(data) {
 }
 
 function storeBattleRankUp(data) {
-    if (!flags.EVENTS.BattleRankUp) {
+    if (!features.EVENTS.BattleRankUp) {
         return false;
     }
 
@@ -116,7 +116,7 @@ function storeBattleRankUp(data) {
 }
 
 function storeContinentLock(data) {
-    if (!flags.EVENTS.ContinentLock) {
+    if (!features.EVENTS.ContinentLock) {
         return false;
     }
 
@@ -144,7 +144,7 @@ function storeContinentLock(data) {
 }
 
 function storeContinentUnlock(data) {
-    if (!flags.EVENTS.ContinentUnlock) {
+    if (!features.EVENTS.ContinentUnlock) {
         return false;
     }
 
@@ -172,7 +172,7 @@ function storeContinentUnlock(data) {
 }
 
 function storeDeath(data) {
-    if (!flags.EVENTS.Death) {
+    if (!features.EVENTS.Death) {
         return false;
     }
 
@@ -203,7 +203,7 @@ function storeDeath(data) {
 }
 
 function storeFacilityControl(data) {
-    if (!flags.EVENTS.FacilityControl) {
+    if (!features.EVENTS.FacilityControl) {
         return false;
     }
 
@@ -229,7 +229,7 @@ function storeFacilityControl(data) {
 }
 
 function storeGainExperience(data) {
-    if (!flags.EVENTS.GainExperience) {
+    if (!features.EVENTS.GainExperience) {
         return false;
     }
 
@@ -253,7 +253,7 @@ function storeGainExperience(data) {
 }
 
 function storeItemAdded(data) {
-    if (!flags.EVENTS.ItemAdded) {
+    if (!features.EVENTS.ItemAdded) {
         return false;
     }
 
@@ -277,7 +277,7 @@ function storeItemAdded(data) {
 }
 
 function storePlayerFacilityCapture(data) {
-    if (!flags.EVENTS.PlayerFacilityCapture) {
+    if (!features.EVENTS.PlayerFacilityCapture) {
         return false;
     }
 
@@ -299,7 +299,7 @@ function storePlayerFacilityCapture(data) {
         })
 }
 function storePlayerFacilityDefend(data){
-    if (!flags.EVENTS.PlayerFacilityDefend) {
+    if (!features.EVENTS.PlayerFacilityDefend) {
         return false;
     }
 
@@ -321,7 +321,7 @@ function storePlayerFacilityDefend(data){
         })
 }
 function storeSkillAdded(data) {
-    if (!flags.EVENTS.SkillAdded) {
+    if (!features.EVENTS.SkillAdded) {
         return false;
     }
 
@@ -335,7 +335,7 @@ function storeSkillAdded(data) {
     }
 }
 function storeVehicleDestroy(data) {
-    if (!flags.EVENTS.VehicleDestroy) {
+    if (!features.EVENTS.VehicleDestroy) {
         return false;
     }
 
@@ -365,7 +365,7 @@ function storeVehicleDestroy(data) {
 }
 
 function handleStoreError(err) {
-    if (flags.DB_TERMINATE_ON_ERROR) {
+    if (features.DB_TERMINATE_ON_ERROR) {
         console.log(err);
         console.log("PROCESS ENDED DUE TO DATABASE ERROR!");
         process.exit(1);

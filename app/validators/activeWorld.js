@@ -1,10 +1,10 @@
-const flags = require('../config/flags.js');
+const features = require('../lib/config/features');
 
 function validate (payload) {
     if (payload.hasOwnProperty("world_id")) {
         const world_id = parseInt(payload.world_id);
-        if (!flags.MONITORED_SERVERS.includes(world_id)) {
-            if (flags.LOGGING.VALIDATION_REJECTS) {
+        if (!features.MONITORED_SERVERS.includes(world_id)) {
+            if (features.LOGGING.VALIDATION_REJECTS) {
                 console.log(`Got event from world ${payload.world_id}, which we don't monitor!`);
             }
             return false;

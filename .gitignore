@@ -1,5 +1,12 @@
-.idea
 app/node_modules
 app/config/census.serviceid.js
 app/config/db.config.js
 app/config/flags.js
+app/lib/censusSocket/api_key.ts
+
+# IDE #
+.idea
+.DS_STORE
+
+#If we have been running locally with sqlite
+app/database.sqlite
