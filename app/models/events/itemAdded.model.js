@@ -14,10 +14,10 @@
 module.exports = (sequelize, Sequelize) => {
     const ItemAdded = sequelize.define("ItemAdded", {
         timestamp: {
-            type: Sequelize.BIGINT.UNSIGNED
+            type: Sequelize.BIGINT
         },
         character_id: {
-            type: Sequelize.BIGINT.UNSIGNED
+            type: Sequelize.BIGINT
         },
         // TODO: Determine data type
         context: {
@@ -34,10 +34,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER.UNSIGNED
         },
         world_id: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.MEDIUMINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
     });
   

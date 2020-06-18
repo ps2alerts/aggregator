@@ -16,35 +16,35 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         player_id: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             primaryKey: true,
         },
         player_outfit_id: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             allowNull: true
         },
         player_kills: {
-            type: Sequelize.SMALLINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_deaths: {
-            type: Sequelize.SMALLINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_team_kills: {
-            type: Sequelize.SMALLINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_suicides: {
-            type: Sequelize.SMALLINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_headshots: {
-            type: Sequelize.SMALLINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         player_br: {
-            type: Sequelize.TINYINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         }
     });

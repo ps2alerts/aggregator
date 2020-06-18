@@ -7,15 +7,15 @@
 module.exports = (sequelize, Sequelize) => {
     const DynamicPlayers = sequelize.define("DynamicPlayers", {
         player_id: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             primaryKey: true
         },
         player_outfit_id: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             allowNull: true
         },
         player_br: {
-            type: Sequelize.TINYINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             allowNull: false
         },
         player_asp: {

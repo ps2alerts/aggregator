@@ -12,35 +12,35 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         outfit_id: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             primaryKey: true
         },
         outfit_kills: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_deaths: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_team_kills: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_suicides: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_headshots: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_captures: {
-            type: Sequelize.SMALLINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_defences: {
-            type: Sequelize.SMALLINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         }
     });

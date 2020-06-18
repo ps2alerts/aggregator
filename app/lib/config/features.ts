@@ -2,14 +2,14 @@ export default {
     ACCEPT_ADMIN_CONNECTION: true,
     DB_DEBUG: true,
     EVENTS: {
-        AchievementEarned: false,
+        AchievementEarned: true,
         BattleRankUp: true,
         ContinentLock: true,
         ContinentUnlock: true,
-        Death: false,
+        Death: true,
         FacilityControl: true,
         GainExperience: false,
-        ItemAdded: true,
+        ItemAdded: false,
         MetagameEvent: true,
         PlayerFacilityCapture: true,
         PlayerFacilityDefend: true,
@@ -18,6 +18,6 @@ export default {
         SkillAdded: true,
         VehicleDestroy: true
     },
-    MONITORED_SERVERS: [1,10,13,17,19,40],
+    MONITORED_SERVERS: [1,9,11,10,13,17,18,19,25,40,1000,1001],
     VALIDATION_DEBUG: true
 }

@@ -24,16 +24,36 @@ function createStream() {
 function subscribe(ws) {
     console.log('Subscribing to DBG websocket..');
 
-    const obj = {
+    const obj1 = {
         service: "event",
-        action: "subscribe",
+        action:  "subscribe",
         characters: ["all"],
-        eventNames: ["all"],
-        worlds: ["all"],
-        logicalAndCharactersWithWorlds: true
+        worlds: ["1","9","10","11","13","17","18","19","25","1000","1001"],
+        eventNames: ["Death","PlayerLogin","PlayerLogout","PlayerFacilityDefend",
+                        "PlayerFacilityCapture", ,"BattleRankUp","VehicleDestroy"],
+        //logicalAndCharactersWithWorlds: true
+    }
+    const obj2 = {
+        service: "event",
+        action:  "subscribe",
+        characters: ["all"],
+        worlds: ["1","9","10","11","13","17","18","19","25","1000","1001"],
+        eventNames: ["GainExperience","ItemAdded"],
+        //logicalAndCharactersWithWorlds: true
+    }
+    const obj3 = {
+        service: "event",
+        action:  "subscribe",
+        worlds: ["1","9","10","11","13","17","18","19","25","1000","1001"],
+        eventNames: ["FacilityControl","MetagameEvent","ContinentLock","ContinentUnlock"],
+        //logicalAndCharactersWithWorlds: true
     }
 
-    ws.send(JSON.stringify((obj)));
+    ws.send(JSON.stringify((obj1)));
+    console.log("Subscribed to - deats,login,captures,vehicles");
+    ws.send(JSON.stringify((obj2)));
+    console.log('Subscribed to xp and items');
+    ws.send(JSON.stringify((obj3)));
     console.log('Subscribed successfully to Census Websocket Stream!');
 }
 
@@ -92,6 +112,12 @@ function handleWsResponse(raw) {
             break;
         case 'VehicleDestroy':
             eventStore.storeVehicleDestroy(payload);
+            break;
+        case 'ContinentLock':
+            eventStore.storeContinentLock(payload);
+            break;
+        case 'ContinentUnlock':
+            eventStore.storeContinentUnlock(payload);
             break;
         default:
             break;

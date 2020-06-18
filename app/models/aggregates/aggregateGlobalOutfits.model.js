@@ -8,7 +8,7 @@
 module.exports = (sequelize, Sequelize) => {
     const AggregateGlobalOutfits = sequelize.define("AggregateGlobalOutfits", {
         outfit_id: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             primaryKey: true
         },
         outfit_kills: {
@@ -32,15 +32,15 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: 0
         },
         outfit_captures: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_defences: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         outfit_alerts_participated: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         }
     });

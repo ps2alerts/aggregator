@@ -17,40 +17,40 @@
 module.exports = (sequelize, Sequelize) => {
     const ContinentLock = sequelize.define("ContinentLock", {
         timestamp: {
-            type: Sequelize.BIGINT.UNSIGNED
+            type: Sequelize.BIGINT
         },
         event_name: {
             type: Sequelize.STRING
         },
         battle_rank: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         world_id: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.MEDIUMINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         triggering_faction: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         previous_faction: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         vs_population: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         nc_population: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         tr_population: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         metagame_event_id: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         event_type: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
     });
 

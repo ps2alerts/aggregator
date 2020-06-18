@@ -16,7 +16,7 @@
 module.exports = (sequelize, Sequelize) => {
     const MetagameEvent = sequelize.define("MetagameEvent", {
         timestamp: {
-            type: Sequelize.BIGINT.UNSIGNED
+            type: Sequelize.BIGINT
         },
         event_name: {
             type: Sequelize.STRING
@@ -26,25 +26,25 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         faction_nc: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         faction_tr: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         faction_vs: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         metagame_event_id: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         metagame_event_state: {
-            type: Sequelize.TINYINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         world_id: {
-            type: Sequelize.SMALLINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
         zone_id: {
-            type: Sequelize.MEDIUMINT.UNSIGNED
+            type: Sequelize.INTEGER
         },
     });
   

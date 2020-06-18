@@ -7,7 +7,7 @@
 module.exports = (sequelize, Sequelize) => {
     const DynamicOutfits = sequelize.define("DynamicOutfits", {
         outfit_id: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             primaryKey: true
         },
         outfit_tag: {
@@ -16,7 +16,7 @@ module.exports = (sequelize, Sequelize) => {
         },
         // Player ID reference
         outfit_leader: {
-            type: Sequelize.BIGINT.UNSIGNED,
+            type: Sequelize.BIGINT,
             allowNull: false
         }
     });

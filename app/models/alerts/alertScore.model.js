@@ -9,19 +9,19 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         control_vs: {
-            type: Sequelize.TINYINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         control_nc: {
-            type: Sequelize.TINYINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         control_tr: {
-            type: Sequelize.TINYINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         control_cutoff: {
-            type: Sequelize.TINYINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         }
     });

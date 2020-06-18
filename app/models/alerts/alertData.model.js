@@ -9,71 +9,71 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         kills_vs: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         kills_nc: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         kills_tr: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         deaths_vs: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         deaths_nc: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         deaths_tr: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         team_kills_vs: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         team_kills_nc: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         team_kills_tr: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         suicides_vs:{
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         suicides_nc:{
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         suicides_tr:{
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         total_kills: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         total_deaths: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         total_team_kills: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         total_suicides: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         },
         total_headshots: {
-            type: Sequelize.MEDIUMINT.UNSIGNED,
+            type: Sequelize.INTEGER,
             defaultValue: 0
         }
     });
