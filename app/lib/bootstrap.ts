@@ -2,7 +2,7 @@ require ('reflect-metadata')
 
 import { Container } from 'inversify';
 import Kernel from './kernel';
-import config from './lib/config';
+import config from './config';
 
 // Initialize container
 const app = new Container({

@@ -3,7 +3,7 @@ import {
     Container,
     multiInject
 } from "inversify"
-import { getLogger } from './lib/logger'
+import { getLogger } from './logger'
 
 /**
  * Denotes the running states of the application.

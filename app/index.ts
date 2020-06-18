@@ -1,5 +1,5 @@
-import app from './bootstrap';
-import Kernel from './kernel';
+import app from './lib/bootstrap';
+import Kernel from './lib/kernel';
 const kernel = app.get<Kernel>(Kernel);
 
 console.log("Booting Kernel...");

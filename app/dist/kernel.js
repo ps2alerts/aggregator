@@ -8,9 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -20,15 +17,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var Kernel_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
-const config_1 = __importDefault(require("./config"));
 const logger_1 = require("./logger");
-const runnable_1 = require("./bootstrap/runnable");
 /**
  * Denotes the running states of the application.
  */
@@ -45,13 +37,11 @@ var RunningStates;
 let Kernel = Kernel_1 = class Kernel {
     /**
      * Constructor.
-     * @param {Container} container for IoC
-     * @param runnables
+     * @param container
      */
-    constructor(container, runnables) {
+    constructor(container) {
         this.container = container;
         this.state = RunningStates.Idle;
-        this.runnables = runnables;
     }
     /**
      * Execute order 66 (run the app).
@@ -59,19 +49,14 @@ let Kernel = Kernel_1 = class Kernel {
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             // If already booting, stop here.
-            if (this.state !== RunningStates.Idle) {
+            if (this.state != RunningStates.Idle) {
                 return;
             }
             this.state = RunningStates.Booting;
             Kernel_1.logger.info("Hello world!");
-            Kernel_1.logger.info(`Starting {version: ${Kernel_1.version}, environment: ${config_1.default.app.environment}}`);
             yield this.terminateWithError("Testing 123!", 1);
         });
     }
-    /**
-     * Terminates the app gracefully.
-     * @param code
-     */
     terminate(code = 0) {
         return __awaiter(this, void 0, void 0, function* () {
             // If Idle or already terminating, we don't care as we're dead anyway sonny jim! :(
@@ -84,11 +69,6 @@ let Kernel = Kernel_1 = class Kernel {
             process.exit(code);
         });
     }
-    /**
-     * Logs the error then proceeds to terminate.
-     * @param err
-     * @param code
-     */
     terminateWithError(err, code = 1) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -99,13 +79,8 @@ let Kernel = Kernel_1 = class Kernel {
 };
 Kernel.logger = logger_1.getLogger('kernel');
 Kernel.version = '0.0.1';
-__decorate([
-    inversify_1.multiInject(runnable_1.RUNNABLE),
-    __metadata("design:type", Array)
-], Kernel.prototype, "runnables", void 0);
 Kernel = Kernel_1 = __decorate([
     inversify_1.injectable(),
-    __param(1, inversify_1.multiInject(runnable_1.RUNNABLE)),
-    __metadata("design:paramtypes", [inversify_1.Container, Array])
+    __metadata("design:paramtypes", [inversify_1.Container])
 ], Kernel);
 exports.default = Kernel;
