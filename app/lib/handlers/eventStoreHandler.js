@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../../models");
 const flags = require("../config/flags.js");
 const process = require("process");
 

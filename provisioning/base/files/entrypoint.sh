@@ -1,4 +1,4 @@
 #!/bin/sh
 
 echo "=============== STARTING WEBSOCKET ==================="
-node /app/server.js
+node /app/index.js

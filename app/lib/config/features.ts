@@ -1,14 +1,12 @@
-module.exports = {
-    ACCEPT_ADMIN_CONNECTION: true,
-    DB_DEBUG: true,
-    EVENTS: {
-        AchievementEarned: false,
+export default class Features {
+    public readonly events: {
+        AchievementEarned: true,
         BattleRankUp: true,
         ContinentLock: true,
         ContinentUnlock: true,
-        Death: false,
+        Death: true,
         FacilityControl: true,
-        GainExperience: false,
+        GainExperience: true,
         ItemAdded: true,
         MetagameEvent: true,
         PlayerFacilityCapture: true,
@@ -17,7 +15,6 @@ module.exports = {
         PlayerLogout: true,
         SkillAdded: true,
         VehicleDestroy: true
-    },
-    MONITORED_SERVERS: [1,10,13,17,19,40],
-    VALIDATION_DEBUG: true
+    }
+    public readonly allowedServers: [1,10,13,17,19,40]
 }

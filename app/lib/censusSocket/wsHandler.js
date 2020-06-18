@@ -1,10 +1,10 @@
 const censusServiceId = require('../config/census.serviceid');
 const WebSocket = require('ws');
-const db = require("../models");
+const db = require("../../models");
 const eventStore = require('../handlers/eventStoreHandler');
 const alertHandler = require('../handlers/alertHandler');
-const activeWorldValidator = require('../validators/activeWorld.js');
-const activeZoneValidator = require('../validators/activeZone.js');
+const activeWorldValidator = require('../../validators/activeWorld.js');
+const activeZoneValidator = require('../../validators/activeZone.js');
 
 
 function createStream() {

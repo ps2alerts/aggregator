@@ -15,6 +15,21 @@
           - "1337"
         networks:
           - name: "ps2alerts"
+        env:
+          ENVIRONMENT: "development"
+          VERSION: "12345"
+          DB_USER: "root"
+          DB_PASS: "foobar"
+          DB_HOST: "ps2alerts-db"
+          DB_NAME: "ps2alertsWS"
+          DB_NAME_DATA: "ps2alerts_data"
+          DB_NAME_ARCHIVE: "ps2alertsArchive"
+          DB_DEBUG: "1"
+          REDIS_ENABLED: "1"
+          REDIS_HOST: "ps2alerts-redis"
+          REDIS_DB: "1"
+          BASE_URL: "http://api.dev.ps2alerts.com"
+          CENSUS_SERVICE_ID: "{{ census_service_id }}"
         labels:
           traefik.enable: "true"
           traefik.http.routers.ps2alerts-websocket.rule: "Host(`wss.dev.ps2alerts.com`)"
