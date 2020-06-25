@@ -1,18 +1,23 @@
 name: ESLint
 
 on:
-  - pull_request
+  push:
+    branches: [ staging, master]
+  pull_request:
+
+defaults:
+  run:
+    working-directory: ./app
 
 jobs:
   eslint:
-    env:
-      working-directory: ./app
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
       - name: Install modules
         run: npm install
-        working_directory: ${{env.working_directory}}
       - name: Run ESLint
         run: npm run lint
-        working_directory: ${{env.working_directory}}
