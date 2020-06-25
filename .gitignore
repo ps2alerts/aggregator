@@ -3,7 +3,7 @@ app/dist
 app/config/census.serviceid.js
 app/config/db.config.js
 app/config/flags.js
-app/lib/censusSocket/api_key.ts
+app/src/censusSocket/api_key.ts
 app/npm-debug.log
 
 # IDE #
