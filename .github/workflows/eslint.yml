@@ -5,10 +5,14 @@ on:
 
 jobs:
   eslint:
+    env:
+      working-directory: ./app
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install modules
         run: npm install
+        working_directory: ${{env.working_directory}}
       - name: Run ESLint
-        run: cd app && npm run lint
+        run: npm run lint
+        working_directory: ${{env.working_directory}}
