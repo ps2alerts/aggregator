@@ -2,8 +2,6 @@ import app from './bootstrap';
 import Kernel from './bootstrap/kernel';
 const kernel = app.resolve(Kernel)
 
-console.log('Booting Kernel...');
-
 kernel.run().then(() => {
     process.on('unhandledRejection', (e) => {
         kernel.terminateWithError(e);

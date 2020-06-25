@@ -3,6 +3,7 @@ import { getLogger } from '../logger';
 import KernelInterface from '../interfaces/kernelinterface';
 import Runnable, { RUNNABLE } from '../interfaces/runnable';
 import config from '../config';
+import KernelException from '../exceptions/kernelexception';
 
 /**
  * Denotes the running states of the application.
@@ -51,21 +52,30 @@ export default class Kernel implements KernelInterface {
         Kernel.logger.info(`Starting! == VERSION: ${Kernel.version}, ENV: ${config.app.environment}`)
     }
 
-    public async terminate(code = 0): Promise<void> {
+    /**
+     * Public interface to execute a termination. A KernelException object must be supplied, giving the correct data.
+     * @param err KernelException
+     */
+    public async terminate(err: KernelException): Promise<void> {
+        await this.terminateWithError(err)
+    }
+
+    /**
+     * Executes logging and termination of the application.
+     * @param err KernelException
+     */
+    private async terminateWithError(err: KernelException): Promise<void> {
+        Kernel.logger.error(err.stack ?? err.message ?? err.code ?? err.toString())
+
         // If Idle or already terminating, we don't care as we're dead anyway sonny jim! :(
         if (this.state === RunningStates.Idle || this.state === RunningStates.Terminating) return
 
         // Set app as terminating!
         this.state = RunningStates.Terminating
 
-        Kernel.logger.info(`TERMINATING! CODE: ${code}`)
+        Kernel.logger.info(`TERMINATING! CODE: ${err.code}`)
 
         // Handle killing everything here
-        process.exit(code)
-    }
-
-    public async terminateWithError(err: any, code = 1): Promise<void> {
-        Kernel.logger.error(err.stack ?? err.message ?? err.toString())
-        await this.terminate(code)
+        process.exit(err.code)
     }
 }

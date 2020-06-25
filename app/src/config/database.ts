@@ -5,7 +5,7 @@ import {
 } from '../utils/env'
 
 export default class Database {
-    public readonly drivers: object = {
+    public readonly drivers: Record<string, unknown> = {
         'primary': {
             host: get('DATABASE_HOST'),
             port: getInt('DATABASE_PORT', 3306),

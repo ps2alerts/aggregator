@@ -1,3 +1,5 @@
+import KernelException from '../exceptions/kernelexception';
+
 export default interface KernelInterface {
     /**
      * Starts running the app
@@ -9,8 +11,8 @@ export default interface KernelInterface {
     /**
      * Terminates the app
      *
-     * @param {number} code
      * @return {Promise<void>}
+     * @param err KernelException
      */
-    terminate(code?: number): Promise<void>;
+    terminate(err: KernelException): Promise<void>;
 }
