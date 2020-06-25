@@ -44,7 +44,7 @@ db.sequelize.sync({ force: true }).then(() => {
   console.log("Drop and re-sync db.")
 })
 
-const ps2ws = require('./lib/censusSocket/wsHandler')
+const ps2ws = require('./src/censusSocket/wsHandler')
 ps2ws.createStream()
 
 //for testing purpose

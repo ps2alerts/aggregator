@@ -1,9 +1,8 @@
-import {
-    injectable,
-    Container,
-    multiInject
-} from "inversify"
-import { getLogger } from './logger'
+import { Container, injectable, multiInject } from 'inversify';
+import { getLogger } from '../logger';
+import KernelInterface from "../interfaces/kernelinterface";
+import Runnable, { RUNNABLE } from '../interfaces/runnable';
+import config from '../config';
 
 /**
  * Denotes the running states of the application.
@@ -19,19 +18,24 @@ enum RunningStates {
  * The Kernel acts as the starting point of the application, loading services required in order for it to run, bit like an OS.
  */
 @injectable()
-export default class Kernel {
-    private static readonly logger = getLogger('kernel')
+export default class Kernel implements KernelInterface {
+    private static readonly logger = getLogger('kernel');
 
-    public static readonly version: string = '0.0.1'
+    public static readonly version: string = '0.0.1';
 
-    private state = RunningStates.Idle
+    /**
+     * @type {RunningStates} Running state of the kernel
+     */
+    private state: RunningStates = RunningStates.Idle;
 
     /**
      * Constructor.
-     * @param container
+     * @param {Container} container the IoC Container
+     * @param {Runnable} runnables
      */
     public constructor(
         private readonly container: Container,
+        // @multiInject(RUNNABLE) private readonly runnables: Runnable[],
     ) {
     }
 
@@ -44,8 +48,7 @@ export default class Kernel {
 
         this.state = RunningStates.Booting;
 
-        Kernel.logger.info("Hello world!")
-        await this.terminateWithError("Testing 123!", 1)
+        Kernel.logger.info(`Starting! == VERSION: ${Kernel.version}, ENV: ${config.app.environment}`)
     }
 
     public async terminate(code = 0): Promise<void> {

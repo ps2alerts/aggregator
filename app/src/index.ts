@@ -1,6 +1,6 @@
-import app from './lib/bootstrap';
-import Kernel from './lib/kernel';
-const kernel = app.get<Kernel>(Kernel);
+import app from './bootstrap';
+import Kernel from './bootstrap/kernel';
+const kernel = app.resolve(Kernel)
 
 console.log("Booting Kernel...");
 
@@ -17,3 +17,4 @@ kernel.run().then(() => {
         kernel.terminate();
     });
 });
+

@@ -2,7 +2,7 @@ import {
     get,
     getBool,
     getInt
-} from '../helpers/env'
+} from '../utils/env'
 
 export default class Database {
     public readonly drivers: object = {
