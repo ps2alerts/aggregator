@@ -1,15 +1,17 @@
 {
-  "root": true,
-  "parser": "@typescript-eslint/parser",
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
   "plugins": [
     "@typescript-eslint"
   ],
   "extends": [
-    "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    "no-console": 2
+    "no-console": 2,
+    "@typescript-eslint/quotes": ["error", "single"]
   }
 }
