@@ -1,7 +1,7 @@
 const features = require('../src/config/features');
 
 function validate (payload) {
-    if (payload.hasOwnProperty("world_id")) {
+    if (payload.hasOwnProperty('world_id')) {
         const world_id = parseInt(payload.world_id);
         if (!features.MONITORED_SERVERS.includes(world_id)) {
             if (features.LOGGING.VALIDATION_REJECTS) {

@@ -1955,7 +1955,7 @@ function updateFactionStats(resultID, combatArray)
         if (config.debug.combat === true) {
             console.log(success("KILL"));
         }
-        
+
         if (combatArray.headshot === 1) {
             factionUpdates[resultID]['headshots'+kFaction]++;
             factionUpdates[resultID]['totalHeadshots']++;

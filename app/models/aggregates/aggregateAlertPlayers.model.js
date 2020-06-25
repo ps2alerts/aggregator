@@ -10,7 +10,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const AggregateAlertPlayers = sequelize.define("AggregateAlertPlayers", {
+    const AggregateAlertPlayers = sequelize.define('AggregateAlertPlayers', {
         alert_id: {
             type: Sequelize.INTEGER,
             primaryKey: true

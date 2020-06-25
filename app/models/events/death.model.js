@@ -18,7 +18,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const Death = sequelize.define("Death", {
+    const Death = sequelize.define('Death', {
         timestamp: {
             type: Sequelize.BIGINT
         },

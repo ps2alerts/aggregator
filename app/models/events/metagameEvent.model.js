@@ -14,7 +14,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const MetagameEvent = sequelize.define("MetagameEvent", {
+    const MetagameEvent = sequelize.define('MetagameEvent', {
         timestamp: {
             type: Sequelize.BIGINT
         },

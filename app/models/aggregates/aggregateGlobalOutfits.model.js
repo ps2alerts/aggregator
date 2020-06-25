@@ -6,7 +6,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const AggregateGlobalOutfits = sequelize.define("AggregateGlobalOutfits", {
+    const AggregateGlobalOutfits = sequelize.define('AggregateGlobalOutfits', {
         outfit_id: {
             type: Sequelize.BIGINT,
             primaryKey: true

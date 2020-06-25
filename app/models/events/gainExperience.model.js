@@ -13,7 +13,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const GainExperience = sequelize.define("GainExperience", {
+    const GainExperience = sequelize.define('GainExperience', {
         timestamp: {
             type: Sequelize.BIGINT
         },

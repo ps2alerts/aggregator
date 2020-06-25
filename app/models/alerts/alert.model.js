@@ -3,7 +3,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const Alert = sequelize.define("Alert", {
+    const Alert = sequelize.define('Alert', {
         type: {
             type: Sequelize.INTEGER
         },

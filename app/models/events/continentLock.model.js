@@ -15,7 +15,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const ContinentLock = sequelize.define("ContinentLock", {
+    const ContinentLock = sequelize.define('ContinentLock', {
         timestamp: {
             type: Sequelize.BIGINT
         },

@@ -10,7 +10,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const BattleRankUp = sequelize.define("BattleRankUp", {
+    const BattleRankUp = sequelize.define('BattleRankUp', {
         timestamp: {
             type: Sequelize.BIGINT
         },

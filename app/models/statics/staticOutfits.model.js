@@ -6,7 +6,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const StaticOutfits = sequelize.define("StaticOutfits", {
+    const StaticOutfits = sequelize.define('StaticOutfits', {
         outfit_id: {
             type: Sequelize.BIGINT,
             primaryKey: true,

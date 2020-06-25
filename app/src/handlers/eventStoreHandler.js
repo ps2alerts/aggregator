@@ -1,6 +1,6 @@
-const db = require("../../models");
-const features = require("../config/features");
-const process = require("process");
+const db = require('../../models');
+const features = require('../config/features');
+const process = require('process');
 
 function storeLogout(character_id, event_name, timestamp, world_id) {
     // Create a charLogin
@@ -367,7 +367,7 @@ function storeVehicleDestroy(data) {
 function handleStoreError(err) {
     if (features.DB_TERMINATE_ON_ERROR) {
         console.log(err);
-        console.log("PROCESS ENDED DUE TO DATABASE ERROR!");
+        console.log('PROCESS ENDED DUE TO DATABASE ERROR!');
         process.exit(1);
 
     }

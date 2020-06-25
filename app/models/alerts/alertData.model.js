@@ -3,7 +3,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const AlertData = sequelize.define("AlertData", {
+    const AlertData = sequelize.define('AlertData', {
         alert_id: {
             type: Sequelize.INTEGER.UNSIGNED,
             primaryKey: true

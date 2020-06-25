@@ -16,7 +16,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const VehicleDestroy = sequelize.define("VehicleDestroy", {
+    const VehicleDestroy = sequelize.define('VehicleDestroy', {
         timestamp: {
             type: Sequelize.BIGINT
         },

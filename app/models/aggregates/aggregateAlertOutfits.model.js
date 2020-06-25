@@ -6,7 +6,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const AggregateAlertOutfits = sequelize.define("AggregateAlertOutfits", {
+    const AggregateAlertOutfits = sequelize.define('AggregateAlertOutfits', {
         alert_id: {
             type: Sequelize.INTEGER,
             primaryKey: true

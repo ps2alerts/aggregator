@@ -10,7 +10,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const SkillAdded = sequelize.define("SkillAdded", {
+    const SkillAdded = sequelize.define('SkillAdded', {
         timestamp: {
             type: Sequelize.BIGINT
         },

@@ -3,7 +3,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const StaticPlayers = sequelize.define("StaticPlayers", {
+    const StaticPlayers = sequelize.define('StaticPlayers', {
         player_id: {
             type: Sequelize.BIGINT,
             primaryKey: true,

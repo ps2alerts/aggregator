@@ -13,7 +13,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const FacilityControl = sequelize.define("FacilityControl", {
+    const FacilityControl = sequelize.define('FacilityControl', {
         timestamp: {
             type: Sequelize.BIGINT
         },

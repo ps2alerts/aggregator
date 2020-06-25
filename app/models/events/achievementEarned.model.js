@@ -9,7 +9,7 @@
  * ### END ###
 **/
 module.exports = (sequelize, Sequelize) => {
-    const AchievementEarned = sequelize.define("AchievementEarned", {
+    const AchievementEarned = sequelize.define('AchievementEarned', {
         timestamp: {
             type: Sequelize.BIGINT
         },
