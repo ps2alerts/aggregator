@@ -11,4 +11,4 @@ jobs:
       - name: Install modules
         run: npm install
       - name: Run ESLint
-        run: ./app/node_modules/bin/eslint . --ext .ts,.tsx
+        run: cd app && npm run lint
