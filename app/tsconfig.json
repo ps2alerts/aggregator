@@ -16,6 +16,7 @@
       ]
     },
     "strict": true,
+    "strictNullChecks": true,
     "strictPropertyInitialization": false,
     "types": ["reflect-metadata"],
     "target": "ES6"
