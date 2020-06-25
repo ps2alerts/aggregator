@@ -1,4 +1,5 @@
 app/node_modules
+app/dist
 app/config/census.serviceid.js
 app/config/db.config.js
 app/config/flags.js

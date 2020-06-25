@@ -5,7 +5,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const DynamicPlayers = sequelize.define("DynamicPlayers", {
+    const DynamicPlayers = sequelize.define('DynamicPlayers', {
         player_id: {
             type: Sequelize.BIGINT,
             primaryKey: true

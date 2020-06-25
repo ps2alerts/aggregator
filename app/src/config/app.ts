@@ -12,5 +12,5 @@ export default class App {
             // require('../database').default,
             // require('../collector').default,
         ];
-    };
+    }
 }

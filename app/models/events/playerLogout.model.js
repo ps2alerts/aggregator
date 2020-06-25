@@ -8,7 +8,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const PlayerLogout = sequelize.define("PlayerLogout", {
+    const PlayerLogout = sequelize.define('PlayerLogout', {
         timestamp: {
             type: Sequelize.BIGINT
         },

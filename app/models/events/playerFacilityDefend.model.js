@@ -11,7 +11,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const PlayerFacilityDefend = sequelize.define("PlayerFacilityDefend", {
+    const PlayerFacilityDefend = sequelize.define('PlayerFacilityDefend', {
         timestamp: {
             type: Sequelize.BIGINT
         },

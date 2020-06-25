@@ -5,7 +5,7 @@
  **/
 
 module.exports = (sequelize, Sequelize) => {
-    const AggregateGlobalPlayers = sequelize.define("AggregateGlobalPlayers", {
+    const AggregateGlobalPlayers = sequelize.define('AggregateGlobalPlayers', {
         player_id: {
             type: Sequelize.BIGINT,
             primaryKey: true,

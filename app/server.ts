@@ -1,7 +1,7 @@
-const express = require("express")
-const bodyParser = require("body-parser")
-const cors = require("cors")
-const logger = require("winston")
+const express = require('express')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const logger = require('winston')
 
 class WebsocketServer {
   constructor(
@@ -23,8 +23,8 @@ const websocketServer = new WebsocketServer(express, bodyParser, cors, logger)
 const app = express()
 
 // Cross-orign setup - For developent use *
-var corsOptions = {
-  origin: "*"
+const corsOptions = {
+  origin: '*'
 }
 
 app.use(cors(corsOptions))
@@ -37,11 +37,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 // Init DB
 
-const db = require("./models")
+const db = require('./models')
 db.sequelize.sync()
 
 db.sequelize.sync({ force: true }).then(() => {
-  console.log("Drop and re-sync db.")
+  console.log('Drop and re-sync db.')
 })
 
 const ps2ws = require('./src/censusSocket/wsHandler')
@@ -52,8 +52,8 @@ ps2ws.createStream()
 // qApi.getRegionForZone(2);
 
 // simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to ps2alerts websocket application." })
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to ps2alerts websocket application.' })
 })
 
 //require("./app/routes/charLogin.routes")(app);

@@ -6,7 +6,7 @@
  */
 
 module.exports = (sequelize, Sequelize) => {
-    const PlayerLogin = sequelize.define("PlayerLogin", {
+    const PlayerLogin = sequelize.define('PlayerLogin', {
         timestamp: {
             type: Sequelize.BIGINT
         },

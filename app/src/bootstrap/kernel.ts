@@ -1,6 +1,6 @@
 import { Container, injectable, multiInject } from 'inversify';
 import { getLogger } from '../logger';
-import KernelInterface from "../interfaces/kernelinterface";
+import KernelInterface from '../interfaces/kernelinterface';
 import Runnable, { RUNNABLE } from '../interfaces/runnable';
 import config from '../config';
 

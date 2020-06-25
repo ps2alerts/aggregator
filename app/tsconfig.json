@@ -1,25 +1,27 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES6",
-    "strict": true,
-    "noImplicitAny": false,
-    "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "dist",
-    "baseUrl": ".",
     "paths": {
       "*": [
         "node_modules/*"
       ]
     },
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "forceConsistentCasingInFileNames": true
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "types": ["reflect-metadata"],
+    "target": "ES6"
   },
   "include": [
-    "lib/**/*"
+    "src/**/*"
   ]
 }
