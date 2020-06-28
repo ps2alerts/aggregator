@@ -36,7 +36,7 @@ export default class Kernel implements KernelInterface {
      */
     public constructor(
         private readonly container: Container,
-        // @multiInject(RUNNABLE) private readonly runnables: Runnable[],
+        @multiInject(RUNNABLE) private readonly runnables: Runnable[],
     ) {
     }
 
@@ -52,7 +52,7 @@ export default class Kernel implements KernelInterface {
         Kernel.logger.info(`Starting! == VERSION: ${Kernel.version}, ENV: ${config.app.environment}`)
 
         try {
-            throw new ApplicationException('Foobar!', 'Kernel', 1234)
+
         } catch (e) {
             switch (e.constructor.name) {
                 case 'ApplicationException': {
@@ -64,9 +64,6 @@ export default class Kernel implements KernelInterface {
                 }
             }
         }
-
-        // Fire ze lazors
-
     }
 
     /**
