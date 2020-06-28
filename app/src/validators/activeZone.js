@@ -1,4 +1,4 @@
-const features = require('../src/config/features');
+const features = require('../config/features');
 
 function validate (payload) {
     if (payload.hasOwnProperty('zone_id')) {

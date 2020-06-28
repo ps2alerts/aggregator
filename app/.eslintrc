@@ -10,7 +10,10 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    "no-console": 2,
-    "@typescript-eslint/quotes": ["error", "single"]
+    "no-console": "error",
+    "@typescript-eslint/quotes": ["error", "single"],
+    "camelcase": ["error", {"properties": "always"}],
+    "yoda": ["error", "always"],
+    "comma-dangle": ["warn", "always-multiline"]
   }
 }

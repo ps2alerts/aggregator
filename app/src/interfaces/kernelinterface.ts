@@ -1,4 +1,4 @@
-import KernelException from '../exceptions/kernelexception';
+import Applicationexception from '../exceptions/ApplicationException';
 
 export default interface KernelInterface {
     /**
@@ -12,7 +12,7 @@ export default interface KernelInterface {
      * Terminates the app
      *
      * @return {Promise<void>}
-     * @param err KernelException
+     * @param code number
      */
-    terminate(err: KernelException): Promise<void>;
+    terminate(code:number): Promise<void>;
 }

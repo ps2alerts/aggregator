@@ -10,6 +10,7 @@ export default class App {
     public get modules(): ContainerModule[] {
         return [
             // require('../database').default,
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             // require('../collector').default,
         ];
     }

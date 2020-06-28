@@ -1,4 +1,4 @@
-const db = require('../../models');
+const db = require('../models');
 const features = require('../config/features');
 const process = require('process');
 
