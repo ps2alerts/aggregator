@@ -51,7 +51,7 @@ export default class Kernel implements KernelInterface {
 
         this.state = RunningStates.Booting;
 
-        Kernel.logger.info(`Starting! == VERSION: ${Kernel.version}, ENV: ${config.app.environment}`);
+        Kernel.logger.info(`Starting! == VERSION: ${Kernel.version}, ENV: ${config.app.environment} ==`);
 
         try {
             Kernel.logger.info('Booting services');

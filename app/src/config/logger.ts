@@ -1,3 +1,6 @@
+import { get } from '../utils/env';
+
 export default class Logger {
-    public readonly level: string = process.env.LOG_LEVEL ?? 'info';
+    // eslint-disable-next-line yoda
+    public readonly level: string = get('NODE_ENV') === 'development' ? 'debug' : 'info';
 }

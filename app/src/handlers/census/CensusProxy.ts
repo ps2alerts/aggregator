@@ -5,6 +5,8 @@ import ApplicationException from '../../exceptions/ApplicationException';
 
 @injectable()
 export default class CensusProxy {
+    private static readonly logger = getLogger('CensusProxy');
+
     public constructor(
         private worldCheck:WorldValidator
     ) {

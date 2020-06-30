@@ -9,7 +9,7 @@ const defaultLogger = createLogger({
     format: format.combine(
         format.colorize(),
         format.timestamp(),
-        format.printf(({timestamp, label, level, message}) => `${timestamp} | ${label} | ${level} | ${message}`),
+        format.printf(({timestamp, level, label, message}) => `${timestamp} | ${level} | ${label} >> ${message}`),
     ),
     transports: [
         new transports.Console(),
