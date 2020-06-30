@@ -1,12 +1,14 @@
 ---
 - hosts: localhost
+  vars_files:
+    - ../../vars.local.yml
   tasks:
     - name: Start Websocket Dev Image
       docker_container:
         name: ps2alerts-websocket
         image: ps2alerts/websocket:dev
         state: started
-        restart: yes
+        restart: no
         recreate: yes
         restart_policy: "no"
         volumes:
@@ -29,7 +31,7 @@
           REDIS_HOST: "ps2alerts-redis"
           REDIS_DB: "1"
           BASE_URL: "http://api.dev.ps2alerts.com"
-#          CENSUS_SERVICE_ID: "{{ census_service_id }}"
+          CENSUS_SERVICE_ID: "{{ census_service_id }}"
         labels:
           traefik.enable: "true"
           traefik.http.routers.ps2alerts-websocket.rule: "Host(`wss.dev.ps2alerts.com`)"

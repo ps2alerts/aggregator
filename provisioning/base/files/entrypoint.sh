@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "=============== STARTING WEBSOCKET ==================="
-npm start
+echo "=============== STARTING WEBSOCKET (DEV) ==================="
+cd app && npm run start:dev
