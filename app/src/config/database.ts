@@ -1,7 +1,7 @@
 import {
     get,
     getBool,
-    getInt
+    getInt,
 } from '../utils/env'
 
 export default class Database {

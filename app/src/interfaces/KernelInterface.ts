@@ -1,5 +1,3 @@
-import Applicationexception from '../exceptions/ApplicationException';
-
 export default interface KernelInterface {
     /**
      * Starts running the app

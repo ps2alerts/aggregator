@@ -1,4 +1,4 @@
-const db = require('../models');
+const db = require('./models');
 
 function handleAlertEvent(event) {
     //if new alert event

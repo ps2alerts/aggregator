@@ -1,5 +1,5 @@
-const db = require('../models');
-const features = require('../config/features');
+const db = require('./models');
+const features = require('../src/config/features');
 const process = require('process');
 
 function storeLogout(character_id, event_name, timestamp, world_id) {

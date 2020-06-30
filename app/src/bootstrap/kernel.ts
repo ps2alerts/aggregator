@@ -1,7 +1,7 @@
 import { Container, injectable, multiInject } from 'inversify';
 import { getLogger } from '../logger';
-import KernelInterface from '../interfaces/kernelinterface';
-import Runnable, { RUNNABLE } from '../interfaces/runnable';
+import KernelInterface from '../interfaces/KernelInterface';
+import Service, { SERVICE } from '../interfaces/Service';
 import config from '../config';
 import ApplicationException from '../exceptions/ApplicationException';
 
@@ -32,11 +32,11 @@ export default class Kernel implements KernelInterface {
     /**
      * Constructor.
      * @param {Container} container the IoC Container
-     * @param {Runnable} runnables
+     * @param {Service } services
      */
     public constructor(
         private readonly container: Container,
-        @multiInject(RUNNABLE) private readonly runnables: Runnable[],
+        @multiInject(SERVICE) private readonly services: Service[],
     ) {
     }
 
@@ -52,7 +52,23 @@ export default class Kernel implements KernelInterface {
         Kernel.logger.info(`Starting! == VERSION: ${Kernel.version}, ENV: ${config.app.environment}`)
 
         try {
+            Kernel.logger.info('Booting services');
+            await Promise.all(
+                this.services.map(
+                    service => service.boot?.apply(
+                        service, [this.container])
+                )
+            );
 
+            Kernel.logger.info('Starting services');
+            await Promise.all(
+                this.services.map(
+                    service => service.start?.apply(
+                        service, [this.container])
+                )
+            );
+
+            this.state = RunningStates.Running;
         } catch (e) {
             switch (e.constructor.name) {
                 case 'ApplicationException': {

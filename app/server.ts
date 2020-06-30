@@ -37,14 +37,14 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 // Init DB
 
-const db = require('./src/models')
+const db = require('./temp/models')
 db.sequelize.sync()
 
 db.sequelize.sync({ force: true }).then(() => {
   console.log('Drop and re-sync db.')
 })
 
-const ps2ws = require('./src/censusSocket/wsHandler')
+const ps2ws = require('./temp/wsHandler')
 ps2ws.createStream()
 
 //for testing purpose
