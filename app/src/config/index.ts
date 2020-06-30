@@ -1,4 +1,4 @@
-import App from './app'
+import App from './app';
 import Census from './census'
 import Database from './database'
 import Features from './features'
@@ -11,7 +11,7 @@ export class Config {
     public readonly app: App = new App()
     public readonly census: Census = new Census()
     // public readonly database: Database = new Database()
-    // public readonly features = Features
+    public readonly features = Features
     public readonly logger: Logger = new Logger()
 }
 

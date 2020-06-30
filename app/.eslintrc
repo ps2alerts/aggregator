@@ -12,8 +12,9 @@
   "rules": {
     "no-console": "error",
     "@typescript-eslint/quotes": ["error", "single"],
-    "camelcase": ["error", {"properties": "always"}],
+    "camelcase": ["warn", {"properties": "always"}],
     "yoda": ["error", "always"],
-    "comma-dangle": ["warn", "always-multiline"]
+    "comma-dangle": ["warn", "always-multiline"],
+    "semi": ["error", "always"]
   }
 }

@@ -48,18 +48,20 @@ export default class censusStreamService implements Service {
     }
 
     public async boot(): Promise<void> {
-        censusStreamService.logger.info('Booting Census Stream Service')
+        censusStreamService.logger.info('Booting Census Stream Service');
     }
 
     public async start(): Promise<void> {
-        censusStreamService.logger.info('Starting Census Stream Service')
-        console.log("Census hello world!");
-        // await this.wsClient.connect();
-        censusStreamService.logger.info('Census Stream Service connected!')
+        censusStreamService.logger.info('Starting Census Stream Service');
+        await this.wsClient.connect();
+        this.wsClient.on('event', (event) => {
+            censusStreamService.logger.info(JSON.stringify(event));
+        });
+        censusStreamService.logger.info('Census Stream Service connected!');
     }
 
     public async terminate(): Promise<void> {
-        censusStreamService.logger.info('Terminating Census Stream Service!')
+        censusStreamService.logger.info('Terminating Census Stream Service!');
 
         try {
             await this.wsClient.destroy();
