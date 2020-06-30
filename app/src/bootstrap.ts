@@ -1,7 +1,7 @@
-require ('reflect-metadata')
+require ('reflect-metadata');
 
 import { Container } from 'inversify';
-import Kernel from './bootstrap/kernel';
+import Kernel from './bootstrap/Kernel';
 import config from './config';
 
 // Initialize container

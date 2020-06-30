@@ -1,6 +1,6 @@
 import app from './bootstrap';
-import Kernel from './bootstrap/kernel';
-const kernel = app.resolve(Kernel)
+import Kernel from './bootstrap/Kernel';
+const kernel = app.resolve(Kernel);
 
 kernel.run().then(() => {
     process.on('unhandledRejection', e => {
