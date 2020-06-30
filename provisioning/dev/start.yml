@@ -17,6 +17,7 @@
           - "1337"
         networks:
           - name: "ps2alerts"
+        tty: true
         env:
           ENVIRONMENT: "development"
           VERSION: "12345"
