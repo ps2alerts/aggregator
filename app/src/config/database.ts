@@ -2,7 +2,7 @@ import {
     get,
     getBool,
     getInt,
-} from '../utils/env'
+} from '../utils/env';
 
 export default class Database {
     public readonly drivers: Record<string, unknown> = {
@@ -18,12 +18,8 @@ export default class Database {
                 max: 100,
                 min: 0,
                 acquire: 30000,
-                idle: 10000
-            }
+                idle: 10000,
+            },
         },
-        'flags': {
-            query_debug: true,
-            terminate_on_error: true
-        }
     }
 }

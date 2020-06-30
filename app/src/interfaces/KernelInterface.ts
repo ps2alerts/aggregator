@@ -1,3 +1,4 @@
+/* eslint-disable */
 export default interface KernelInterface {
     /**
      * Starts running the app

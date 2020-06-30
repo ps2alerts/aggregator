@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Container } from 'inversify';
 
 export default interface Service {

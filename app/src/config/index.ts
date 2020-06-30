@@ -1,8 +1,8 @@
 import App from './app';
-import Census from './census'
-import Database from './database'
-import Features from './features'
-import Logger from './logger'
+import Census from './census';
+// import Database from './database';
+import Features from './features';
+import Logger from './logger';
 
 /**
  * Holds the configuration information for various aspects of the application.
@@ -16,4 +16,4 @@ export class Config {
 }
 
 // This is needed here otherwise we get circular reference issues (e.g. logger calling config for logger information...)
-export default new Config()
+export default new Config();

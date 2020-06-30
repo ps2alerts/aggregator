@@ -1,5 +1,5 @@
-import { createLogger, transports, format, Logger } from 'winston'
-import config from '../config'
+import { createLogger, transports, format, Logger } from 'winston';
+import config from '../config';
 
 /**
  * A default instance of the index

@@ -1,5 +1,5 @@
 import { ContainerModule } from 'inversify';
-import { get } from '../utils/env'
+import { get } from '../utils/env';
 
 export default class App {
     public readonly environment: string = get('DEV')

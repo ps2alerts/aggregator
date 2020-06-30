@@ -32,7 +32,7 @@
 //     }
 // }
 
-import Service, { SERVICE } from '../../interfaces/Service';
+import Service from '../../interfaces/Service';
 import PS2EventClient from 'ps2census/dist/client/Client'; // TODO: Await microwave's type fixes
 import { getLogger } from '../../logger';
 import { injectable } from 'inversify';

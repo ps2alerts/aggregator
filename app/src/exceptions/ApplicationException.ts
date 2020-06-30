@@ -3,7 +3,7 @@ export default class ApplicationException {
     private _origin: string|null;
     private _code: number|null;
 
-    get message() {
+    get message(): string {
         return this._message;
     }
 
