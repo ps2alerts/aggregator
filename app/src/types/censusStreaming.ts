@@ -25,21 +25,22 @@ export enum WorldsPC {
     COBALT = 13,
     EMERALD = 17,
     JAEGER = 19,
+    // BRIGGS = 25,
     SOLTECH = 40,
 }
 
 export enum WorldsPS4US {
     GENUDINE = 1000,
-    PALOS = 1001,
-    CRUX = 1002,
-    SEARHUS = 1003,
-    XELAS = 1004,
+    // PALOS = 1001,
+    // CRUX = 1002,
+    // SEARHUS = 1003,
+    // XELAS = 1004,
 }
 
 export enum WorldsPS4EU {
     CERES = 2000,
-    LITHCORP = 2001,
-    RASHNU = 2002, // I think
+    // LITHCORP = 2001,
+    // RASHNU = 2002
 }
 export enum ClientEvents {
     CLIENT_READY = 'ready',
