@@ -1,34 +1,40 @@
 import WorldValidator from '../../validators/WorldValidator';
 import { GenericEvent } from 'ps2census/dist/client/utils/PS2Events';
 import { injectable } from 'inversify';
-import ApplicationException from '../../exceptions/ApplicationException';
+import DeathEventHandler from './DeathEventHandler';
+import { getLogger } from '../../logger';
+import config from '../../config';
 
 @injectable()
 export default class CensusProxy {
     private static readonly logger = getLogger('CensusProxy');
 
     public constructor(
-        private worldCheck:WorldValidator
+        private worldCheck:WorldValidator,
+        private deathEventHandler: DeathEventHandler
     ) {
 
     }
 
-    public handle(payload:GenericEvent): boolean {
-        // Validate if the message is relevent for what we want, e.g. worlds and zones with active alerts on.
-        if (!this.worldCheck.validate(parseInt(payload.world_id))) {
+    public handle(event: GenericEvent): boolean {
+        if (config.features.LOGGING.CENSUS_INCOMING_EVENTS) {
+            CensusProxy.logger.debug(`INCOMING EVENT ${event.event_name}`);
+        }
+        // Validate if the message is relevant for what we want, e.g. worlds and zones with active alerts on.
+        if (!this.worldCheck.validate(parseInt(event.world_id))) {
             return false;
         }
 
-        switch (payload.event_name) {
+        switch (event.event_name) {
             case 'AchievementEarned':
                 // eventStore.storeAchievementEarned(payload);
-                break;
-            case 'BattleRankUp':
+                break;case 'BattleRankUp':
                 // eventStore.storeBattleRankUp(payload);
                 break;
             case 'Death':
-
                 // eventStore.storeDeath(payload);
+
+                this.deathEventHandler.handle(event);
                 break;
             case 'FacilityControl':
                 // eventStore.storeFacilityControl(payload);

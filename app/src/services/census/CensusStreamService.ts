@@ -31,7 +31,6 @@ export default class CensusStreamService implements Service {
 
         // Set up event handlers
         this.wsClient.on('event', (event) => {
-            CensusStreamService.logger.info(JSON.stringify(event));
             this.censusProxy.handle(event);
         });
 
