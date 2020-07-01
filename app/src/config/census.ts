@@ -2,7 +2,7 @@ import { get } from '../utils/env';
 import { PS2ClientSubscription, PS2wsConfig } from '../types/censusStreaming';
 
 export default class Census {
-    public readonly serviceID: string = get('CENSUS_SERVICE_ID')
+    public readonly serviceID: string = get('CENSUS_SERVICE_ID');
 
     /**
      * @type {PS2ClientSubscription[]} Subscriptions that are made when starting the websocket

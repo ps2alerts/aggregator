@@ -23,5 +23,5 @@ export default class Database {
                 idle: 10000,
             },
         },
-    }
+    };
 }
