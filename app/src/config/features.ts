@@ -21,6 +21,7 @@ export default {
     LOGGING: {
         VALIDATION_REJECTS: true,
         CENSUS_INCOMING_EVENTS: true,
+        CENSUS_EVENT_CONTENT: true,
     },
     MONITORED_SERVERS: new Set([1,10,13,17,19,40,1000,2000]),
     MONITORED_ZONES: new Set([2,4,6,8]),
