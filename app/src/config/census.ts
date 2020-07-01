@@ -5,7 +5,7 @@ export default class Census {
     public readonly serviceID: string = get('CENSUS_SERVICE_ID')
 
     /**
-     * @type {SubscribeAction[]} Subscriptions that are made when starting the websocket
+     * @type {PS2ClientSubscription[]} Subscriptions that are made when starting the websocket
      */
     public readonly subscriptions: Array<PS2ClientSubscription> = [{
         eventNames: ['Death'],
