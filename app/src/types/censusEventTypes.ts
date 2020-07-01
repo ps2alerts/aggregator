@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /** Character centric events */
 
 export type AchievementEarned = {
@@ -7,7 +8,7 @@ export type AchievementEarned = {
     world_id: string,
     achievement_id: string,
     zone_id: string
-}
+};
 
 export type BattleRankUp = {
     battle_rank: string,
@@ -16,7 +17,7 @@ export type BattleRankUp = {
     timestamp: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type Death = {
     attacker_character_id: string,
@@ -33,7 +34,7 @@ export type Death = {
     // vehicle_id: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type GainExperience = {
     amount: string,
@@ -45,7 +46,7 @@ export type GainExperience = {
     timestamp: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type ItemAdded = {
     character_id: string,
@@ -56,7 +57,7 @@ export type ItemAdded = {
     timestamp: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type PlayerFacilityCapture = {
     character_id: string,
@@ -66,7 +67,7 @@ export type PlayerFacilityCapture = {
     timestamp: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type PlayerFacilityDefend = {
     character_id: string,
@@ -76,21 +77,21 @@ export type PlayerFacilityDefend = {
     timestamp: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type PlayerLogin = {
     character_id: string,
     event_name: 'PlayerLogin',
     timestamp: string,
     world_id: string
-}
+};
 
 export type PlayerLogout = {
     character_id: string,
     event_name: 'PlayerLogout',
     timestamp: string,
     world_id: string
-}
+};
 
 export type SkillAdded = {
     character_id: string,
@@ -99,7 +100,7 @@ export type SkillAdded = {
     timestamp: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type VehicleDestroy = {
     attacker_character_id: string,
@@ -114,7 +115,7 @@ export type VehicleDestroy = {
     vehicle_id: string,
     world_id: string,
     zone_id: string
-}
+};
 
 
 /** World centric events */
@@ -131,7 +132,7 @@ export type ContinentLock = {
     vs_population: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type ContinentUnlock = {
     event_name: 'ContinentUnlock',
@@ -145,7 +146,7 @@ export type ContinentUnlock = {
     vs_population: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type FacilityControl = {
     duration_held: string,
@@ -157,7 +158,7 @@ export type FacilityControl = {
     timestamp: string,
     world_id: string,
     zone_id: string
-}
+};
 
 export type MetagameEvent = {
     event_name: 'MetagameEvent',
@@ -171,7 +172,7 @@ export type MetagameEvent = {
     timestamp: string,
     world_id: string,
     // zone_id: string
-}
+};
 
 export type GenericEvent =
     AchievementEarned
