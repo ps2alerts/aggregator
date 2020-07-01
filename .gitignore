@@ -1,5 +1,16 @@
-.idea
 app/node_modules
+app/dist
 app/config/census.serviceid.js
 app/config/db.config.js
 app/config/flags.js
+app/src/censusSocket/api_key.ts
+app/npm-debug.log
+
+vars.local.yml
+
+# IDE #
+.idea
+.DS_STORE
+
+#If we have been running locally with sqlite
+app/database.sqlite
