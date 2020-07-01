@@ -5,7 +5,7 @@ THIS PROJECT IS UNDERGOING A VAST RE-REWITE. If you wish to contribute, please j
 
 ## Preface
 
-This project powers the PS2Alerts website. It's primary purpose is to act as a Data Collector, which listens in on events coming in from [Census](https://census.daybreakgames.com) and formats that data into a legible format, commits it to a database, which in turn the [API](https://github.com/PS2Alerts/api) will serve to the [frontend website](https://github.com/PS2Alerts/website).
+This project powers the PS2Alerts website. Its primary purpose is to act as a Data Collector, which listens in on events coming in from [Census](https://census.daybreakgames.com) and formats that data into a legible format, commits it to a database, which in turn the [API](https://github.com/PS2Alerts/api) will serve to the [frontend website](https://github.com/PS2Alerts/website).
 
 ## Installation
 
