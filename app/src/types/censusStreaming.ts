@@ -10,48 +10,39 @@ export type PS2ClientSubscription = {
     eventNames: string[]
 };
 
-export enum State {
-    IDLE,
-    CONNECTING,
-    NEARLY,
-    RECONNECTING,
-    READY,
-    DISCONNECTED
-}
-
 export enum WorldsPC {
-    CONNERY = 1,
-    MILLER = 10,
-    COBALT = 13,
-    EMERALD = 17,
-    JAEGER = 19,
-    // BRIGGS = 25,
-    SOLTECH = 40,
+    connery = 1,
+    miller = 10,
+    cobalt = 13,
+    emerald = 17,
+    jaeger = 19,
+    // briggs = 25,
+    soltech = 40,
 }
 
 export enum WorldsPS4US {
-    GENUDINE = 1000,
-    // PALOS = 1001,
-    // CRUX = 1002,
-    // SEARHUS = 1003,
-    // XELAS = 1004,
+    genudine = 1000,
+    // palos = 1001,
+    // crux = 1002,
+    // searhus = 1003,
+    // xelas = 1004,
 }
 
 export enum WorldsPS4EU {
-    CERES = 2000,
-    // LITHCORP = 2001,
-    // RASHNU = 2002
+    ceres = 2000,
+    // lithcorp = 2001,
+    // rashnu = 2002
 }
 export enum ClientEvents {
-    CLIENT_READY = 'ready',
-    CLIENT_DISCONNECTED = 'disconnected',
-    CLIENT_RECONNECTING = 'reconnecting',
-    ERROR = 'error',
-    WARN = 'warn',
-    DEBUG = 'debug',
-    PS2_EVENT = 'event',
-    PS2_DUPLICATE = 'duplicate',
-    PS2_SUBSCRIBED = 'subscribed'
+    clientReady = 'ready',
+    clientDisconnected = 'disconnected',
+    clientReconnecting = 'reconnecting',
+    error = 'error',
+    warn = 'warn',
+    debug = 'debug',
+    ps2Event = 'event',
+    ps2Duplicate = 'duplicate',
+    ps2Subscribed = 'subscribed'
 }
 
 export type PS2wsConfig = {
