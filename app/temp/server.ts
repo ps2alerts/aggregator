@@ -1,7 +1,7 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const logger = require('winston')
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const logger = require('winston');
 
 class WebsocketServer {
   constructor(
@@ -16,36 +16,36 @@ class WebsocketServer {
   }
 }
 
-const websocketServer = new WebsocketServer(express, bodyParser, cors, logger)
+const websocketServer = new WebsocketServer(express, bodyParser, cors, logger);
 
 
 
-const app = express()
+const app = express();
 
 // Cross-orign setup - For developent use *
 const corsOptions = {
-  origin: '*'
-}
+  origin: '*',
+};
 
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Init DB
 
-const db = require('./temp/models')
-db.sequelize.sync()
+const db = require('./models/index');
+db.sequelize.sync();
 
 db.sequelize.sync({ force: true }).then(() => {
-  console.log('Drop and re-sync db.')
-})
+  console.log('Drop and re-sync db.');
+});
 
-const ps2ws = require('./temp/wsHandler')
-ps2ws.createStream()
+const ps2ws = require('./wsHandler');
+ps2ws.createStream();
 
 //for testing purpose
 // const qApi = require('./app/censusSocket/queryApiHandler');
@@ -53,14 +53,14 @@ ps2ws.createStream()
 
 // simple route
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to ps2alerts websocket application.' })
-})
+  res.json({ message: 'Welcome to ps2alerts websocket application.' });
+});
 
 //require("./app/routes/charLogin.routes")(app);
 
 
 // set port, listen for requests
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port ${PORT}.`);
 // });
