@@ -9,10 +9,10 @@ import ApplicationException from '../exceptions/ApplicationException';
  * Denotes the running states of the application.
  */
 enum RunningStates {
-    Idle,
-    Booting,
-    Running,
-    Terminating
+    idle,
+    booting,
+    running,
+    terminating
 }
 
 /**
@@ -27,7 +27,7 @@ export default class Kernel implements KernelInterface {
     /**
      * @type {RunningStates} Running state of the kernel
      */
-    private state: RunningStates = RunningStates.Idle;
+    private state: RunningStates = RunningStates.idle;
 
     /**
      * Constructor.
@@ -45,11 +45,11 @@ export default class Kernel implements KernelInterface {
      */
     public async run(): Promise<void> {
         // If already booting, stop here.
-        if (this.state != RunningStates.Idle) {
+        if (this.state != RunningStates.idle) {
             return;
         }
 
-        this.state = RunningStates.Booting;
+        this.state = RunningStates.booting;
 
         Kernel.logger.info(`Starting! == VERSION: ${config.app.version}, ENV: ${config.app.environment} ==`);
 
@@ -71,7 +71,7 @@ export default class Kernel implements KernelInterface {
                 )
             );
 
-            this.state = RunningStates.Running;
+            this.state = RunningStates.running;
         } catch (e) {
             switch (e.constructor.name) {
                 case 'ApplicationException': {
@@ -92,10 +92,10 @@ export default class Kernel implements KernelInterface {
     public async terminate(code = 0): Promise<void> {
 
         // If Idle or already terminating, we don't care as we're dead anyway sonny jim! :(
-        if (this.state === RunningStates.Idle || this.state === RunningStates.Terminating) return;
+        if (this.state === RunningStates.idle || this.state === RunningStates.terminating) return;
 
         // Set app as terminating!
-        this.state = RunningStates.Terminating;
+        this.state = RunningStates.terminating;
 
         Kernel.logger.info(`TERMINATING! CODE: ${code}`);
 
