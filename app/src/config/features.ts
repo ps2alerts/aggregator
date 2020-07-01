@@ -1,7 +1,6 @@
 export default {
-    ACCEPT_ADMIN_CONNECTION: true,
-    DB_DEBUG: true,
-    EVENTS: {
+    events: {
+        /* eslint-disable */
         AchievementEarned: true,
         BattleRankUp: true,
         ContinentLock: true,
@@ -17,13 +16,13 @@ export default {
         PlayerLogout: true,
         SkillAdded: true,
         VehicleDestroy: true,
+        /* eslint-enable */
     },
-    LOGGING: {
-        VALIDATION_REJECTS: true,
-        CENSUS_INCOMING_EVENTS: true,
-        CENSUS_EVENT_CONTENT: true,
+    logging: {
+        validationRejects: true,
+        censusIncomingEvents: true,
+        censusEventContent: true,
     },
-    MONITORED_SERVERS: new Set([1,10,13,17,19,40,1000,2000]),
-    MONITORED_ZONES: new Set([2,4,6,8]),
-    VALIDATION_DEBUG: true,
+    monitoredServers: new Set([1,10,13,17,19,40,1000,2000]),
+    monitoredZones: new Set([2,4,6,8]),
 };

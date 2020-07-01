@@ -17,7 +17,7 @@ export default class CensusProxy {
     }
 
     public handle(event: GenericEvent): boolean {
-        if (config.features.LOGGING.CENSUS_INCOMING_EVENTS) {
+        if (config.features.logging.censusIncomingEvents) {
             CensusProxy.logger.debug(`INCOMING EVENT ${event.event_name}`);
         }
         // Validate if the message is relevant for what we want, e.g. worlds and zones with active alerts on.

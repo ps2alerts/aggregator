@@ -7,8 +7,8 @@ export default class ZoneValidator {
     private static readonly logger = getLogger('ZoneValidator');
 
     public validate(zone: number): boolean {
-        if (!config.features.MONITORED_ZONES.has(zone)) {
-            if (config.features.LOGGING.VALIDATION_REJECTS) {
+        if (!config.features.monitoredZones.has(zone)) {
+            if (config.features.logging.validationRejects) {
                 ZoneValidator.logger.warn(`Got event from zone ${zone}, which we don't monitor!`);
             }
             return false;

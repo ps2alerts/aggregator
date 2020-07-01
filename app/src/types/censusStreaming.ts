@@ -8,7 +8,7 @@ export type PS2ClientSubscription = {
     characters?: string[],
     worlds: string[],
     eventNames: string[]
-}
+};
 
 export enum State {
     IDLE,

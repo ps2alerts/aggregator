@@ -9,7 +9,7 @@ import CensusProxy from '../../handlers/census/CensusProxy';
 @injectable()
 export default class CensusStreamService implements Service {
     private static readonly logger = getLogger('ps2census');
-    private subscriptions = []
+    private subscriptions = [];
 
     public constructor(
         private readonly wsClient: PS2EventClient,
