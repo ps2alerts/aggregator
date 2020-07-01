@@ -3,6 +3,7 @@ import { get } from '../utils/env';
 
 export default class App {
     public readonly environment: string = get('ENVIRONMENT')
+    public readonly version: string = '0.0.1-revive';
 
     /**
      * @return {ContainerModule[]} Modules used by the app

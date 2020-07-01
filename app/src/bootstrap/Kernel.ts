@@ -22,7 +22,7 @@ enum RunningStates {
 export default class Kernel implements KernelInterface {
     private static readonly logger = getLogger('kernel');
 
-    public static readonly version: string = '0.0.1-revive';
+
 
     /**
      * @type {RunningStates} Running state of the kernel
@@ -51,9 +51,10 @@ export default class Kernel implements KernelInterface {
 
         this.state = RunningStates.Booting;
 
-        Kernel.logger.info(`Starting! == VERSION: ${Kernel.version}, ENV: ${config.app.environment} ==`);
+        Kernel.logger.info(`Starting! == VERSION: ${config.app.version}, ENV: ${config.app.environment} ==`);
 
         try {
+            // @See config/app/.ts
             Kernel.logger.info('Booting services');
             await Promise.all(
                 this.services.map(
