@@ -11,6 +11,8 @@ This is the start of updating and restructuring the websocket server for ps2aler
 
 Run `ps2alerts-start` to start all associated services and this module. Dependencies will be handled via the bootstrap process.
 
+To start the websocket for development, run `ps2alerts-websocket-dev`. This will bootstrap the container with ENV vars etc and tail the docker logs, as you would if you ran it manually via NPM.
+
 For local development, you're recommended to have the following installed:
 
 * [NPM](https://www.npmjs.com/get-npm)
