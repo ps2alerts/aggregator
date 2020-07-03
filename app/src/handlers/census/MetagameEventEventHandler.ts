@@ -19,8 +19,7 @@ import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
-import MetagameEvent, {MetagameEventState} from './events/MetagameEventEvent';
-import MetagameEventEvent from './events/MetagameEventEvent';
+import MetagameEventEvent, {MetagameEventState} from './events/MetagameEventEvent';
 
 declare type Alert = {
     worldId: number;

@@ -5,6 +5,8 @@ import DeathEventHandler from './DeathEventHandler';
 import { getLogger } from '../../logger';
 import config from '../../config';
 import MetagameEventEventHandler from './MetagameEventEventHandler';
+import PlayerLoginEventHandler from './PlayerLoginEventHandler';
+import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -12,7 +14,9 @@ export default class CensusProxy {
     public constructor(
         private worldCheck:WorldValidator,
         private deathEventHandler: DeathEventHandler,
-        private metagameEventEventHandler: MetagameEventEventHandler
+        private metagameEventEventHandler: MetagameEventEventHandler,
+        private playerLoginEventHandler: PlayerLoginEventHandler,
+        private playerLogoutEventHandler: PlayerLogoutEventHandler,
     ) {
 
     }
@@ -56,10 +60,10 @@ export default class CensusProxy {
                 // eventStore.storePlayerFacilityDefend(payload);
                 break;
             case 'PlayerLogin':
-                // eventStore.storeLogin(payload.character_id,payload.event_name,payload.timestamp,payload.world_id);
+                this.playerLoginEventHandler.handle(event);
                 break;
             case 'PlayerLogout':
-                // eventStore.storeLogout(payload.character_id,payload.event_name,payload.timestamp,payload.world_id);
+                this.playerLogoutEventHandler.handle(event);
                 break;
             case 'SkillAdded':
                 // eventStore.storeSkillAdded(payload);
