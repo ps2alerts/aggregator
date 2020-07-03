@@ -4,7 +4,7 @@ import { injectable } from 'inversify';
 import DeathEventHandler from './DeathEventHandler';
 import { getLogger } from '../../logger';
 import config from '../../config';
-import MetagameEventEventHandler from "./MetagameEventEventHandler";
+import MetagameEventEventHandler from './MetagameEventEventHandler';
 
 @injectable()
 export default class CensusProxy {

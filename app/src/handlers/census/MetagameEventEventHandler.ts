@@ -19,13 +19,13 @@ import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
-import MetagameEvent, {MetagameEventState} from "./events/MetagameEventEvent";
-import MetagameEventEvent from "./events/MetagameEventEvent";
+import MetagameEvent, {MetagameEventState} from './events/MetagameEventEvent';
+import MetagameEventEvent from './events/MetagameEventEvent';
 
 declare type Alert = {
     worldId: number;
     instanceId: number;
-}
+};
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface {
@@ -41,7 +41,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
             const mge = new MetagameEventEvent(event);
             return this.storeEvent(mge);
         } catch (e) {
-            MetagameEventEventHandler.logger.warn("Error parsing MetagameEvent: " + e.message + "\r\n" + jsonLogOutput(event));
+            MetagameEventEventHandler.logger.warn('Error parsing MetagameEvent: ' + e.message + '\r\n' + jsonLogOutput(event));
             return false;
         }
     }
@@ -51,7 +51,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
             if (!this.alertExists(mge)) {
                 return this.startAlert(mge);
             } else {
-                MetagameEventEventHandler.logger.error("Alert already found:" + jsonLogOutput(mge));
+                MetagameEventEventHandler.logger.error('Alert already found:' + jsonLogOutput(mge));
                 return false;
             }
         }
@@ -59,11 +59,11 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
             if (this.alertExists(mge)) {
                 return this.endAlert(mge);
             } else {
-                MetagameEventEventHandler.logger.error("Alert not found:" + jsonLogOutput(mge));
+                MetagameEventEventHandler.logger.error('Alert not found:' + jsonLogOutput(mge));
                 return false;
             }
         }
-        MetagameEventEventHandler.logger.warn("MetagameEvent was not stored \r\n" + jsonLogOutput(mge));
+        MetagameEventEventHandler.logger.warn('MetagameEvent was not stored \r\n' + jsonLogOutput(mge));
         return false;
     }
 
@@ -78,17 +78,17 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
         MetagameEventEventHandler.logger.debug('================== STARTING ALERT! ==================');
         this._alerts.push({instanceId: mge.instanceId, worldId: mge.worldId});
         // TODO Call database
-        MetagameEventEventHandler.logger.debug("================ INSERTED NEW ALERT " + mge.worldId + " " + mge.instanceId + " ================");
+        MetagameEventEventHandler.logger.debug('================ INSERTED NEW ALERT ' + mge.worldId + ' ' + mge.instanceId + ' ================');
         return true;
     }
 
     private endAlert(mge: MetagameEventEvent): boolean {
         MetagameEventEventHandler.logger.debug('================== ENDING ALERT! ==================');
         this._alerts = this._alerts.filter((alert) => {
-            return !(alert.worldId === mge.worldId && alert.instanceId === mge.instanceId)
+            return !(alert.worldId === mge.worldId && alert.instanceId === mge.instanceId);
         });
         //TODO Call database
-        MetagameEventEventHandler.logger.debug("================ SUCCESSFULLY ENDED ALERT " + mge.worldId + " " + mge.instanceId + " ================");
+        MetagameEventEventHandler.logger.debug('================ SUCCESSFULLY ENDED ALERT ' + mge.worldId + ' ' + mge.instanceId + ' ================');
         return true;
     }
 }
