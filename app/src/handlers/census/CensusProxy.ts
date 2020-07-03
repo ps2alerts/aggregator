@@ -4,14 +4,15 @@ import { injectable } from 'inversify';
 import DeathEventHandler from './DeathEventHandler';
 import { getLogger } from '../../logger';
 import config from '../../config';
+import MetagameEventEventHandler from "./MetagameEventEventHandler";
 
 @injectable()
 export default class CensusProxy {
     private static readonly logger = getLogger('CensusProxy');
-
     public constructor(
         private worldCheck:WorldValidator,
-        private deathEventHandler: DeathEventHandler
+        private deathEventHandler: DeathEventHandler,
+        private metagameEventEventHandler: MetagameEventEventHandler
     ) {
 
     }
@@ -46,7 +47,7 @@ export default class CensusProxy {
                 // eventStore.storeItemAdded(payload);
                 break;
             case 'MetagameEvent':
-                // eventStore.storeMetagameEvent(payload);
+                this.metagameEventEventHandler.handle(event);
                 break;
             case 'PlayerFacilityCapture':
                 // eventStore.storePlayerFacilityCapture(payload);
