@@ -3,7 +3,7 @@ import AlertHandlerInterface from '../interfaces/AlertHandlerInterface';
 import MetagameEventEvent, { MetagameEventState } from './census/events/MetagameEventEvent';
 import { jsonLogOutput } from '../utils/json';
 import { getLogger } from '../logger';
-import IllegalArgumentException from '../exceptions/IllegalArgumentException';
+import ApplicationException from '../exceptions/ApplicationException';
 
 declare type Alert = {
     worldId: number;
@@ -32,7 +32,7 @@ export default class AlertHandler implements AlertHandlerInterface {
                 return false;
             }
         }
-        throw new IllegalArgumentException('MetagameEvent was not stored \r\n' + jsonLogOutput(mge));
+        throw new ApplicationException('MetagameEvent was not stored \r\n' + jsonLogOutput(mge));
     }
 
     private alertExists(mge: MetagameEventEvent): boolean {
