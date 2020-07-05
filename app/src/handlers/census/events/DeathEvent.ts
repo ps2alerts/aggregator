@@ -7,7 +7,4 @@ export default class DeathEvent {
         private event: GenericEvent
     ) {
     }
-
-    
-
 }

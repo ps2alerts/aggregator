@@ -13,14 +13,14 @@
  * ### END ###
  **/
 
-import {inject, injectable} from 'inversify';
+import { inject, injectable } from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
-import {getLogger} from '../../logger';
+import { GenericEvent } from 'ps2census/dist/client/utils/PS2Events';
+import { getLogger } from '../../logger';
 import config from '../../config';
-import {jsonLogOutput} from '../../utils/json';
+import { jsonLogOutput } from '../../utils/json';
 import MetagameEventEvent from './events/MetagameEventEvent';
-import {TYPES} from '../../constants/types';
+import { TYPES } from '../../constants/types';
 import AlertHandlerInterface from '../../interfaces/AlertHandlerInterface';
 
 @injectable()

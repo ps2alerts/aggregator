@@ -28,7 +28,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     public handle(event: GenericEvent): boolean {
         FacilityControlEventHandler.logger.debug('Parsing message...');
         if (config.features.logging.censusEventContent) {
-            FacilityControlEventHandler.logger.debug(jsonLogOutput(event), { message: 'eventData'});
+            FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
         try {
             const facilityControl = new FacilityControlEvent(event);

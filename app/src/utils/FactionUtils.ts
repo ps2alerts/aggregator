@@ -1,11 +1,11 @@
-import {Faction} from '../constants/faction';
+import { Faction } from '../constants/faction';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 
 export default class FactionUtils {
     public static parse(value: number): Faction {
         switch (value) {
             case Faction.none:
-                return  Faction.none;
+                return Faction.none;
             case Faction.newConglomerate:
                 return Faction.newConglomerate;
             case Faction.nSOperatives:

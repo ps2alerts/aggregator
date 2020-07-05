@@ -13,8 +13,9 @@ import FacilityControlEventHandler from './FacilityControlEventHandler';
 @injectable()
 export default class CensusProxy {
     private static readonly logger = getLogger('CensusProxy');
+
     public constructor(
-        private worldCheck:WorldValidator,
+        private worldCheck: WorldValidator,
         private deathEventHandler: DeathEventHandler,
         private metagameEventEventHandler: MetagameEventEventHandler,
         private playerLoginEventHandler: PlayerLoginEventHandler,
@@ -37,7 +38,8 @@ export default class CensusProxy {
         switch (event.event_name) {
             case 'AchievementEarned':
                 // eventStore.storeAchievementEarned(payload);
-                break;case 'BattleRankUp':
+                break;
+            case 'BattleRankUp':
                 // eventStore.storeBattleRankUp(payload);
                 break;
             case 'Death':

@@ -1,7 +1,7 @@
 import { ContainerModule } from 'inversify';
 import PlayerHandlerInterface from '../interfaces/PlayerHandlerInterface';
 import PlayerHandler from './PlayerHandler';
-import {TYPES} from '../constants/types';
+import { TYPES } from '../constants/types';
 import AlertHandlerInterface from '../interfaces/AlertHandlerInterface';
 import AlertHandler from './AlertHandler';
 

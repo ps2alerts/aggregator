@@ -1,10 +1,10 @@
-import {injectable} from 'inversify';
-import {ContinentLock, GenericEvent} from '../../../types/censusEventTypes';
+import { injectable } from 'inversify';
+import { ContinentLock, GenericEvent } from '../../../types/censusEventTypes';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
-import {Zone} from '../../../constants/zone';
+import { Zone } from '../../../constants/zone';
 import FactionUtils from '../../../utils/FactionUtils';
-import {Faction} from '../../../constants/faction';
+import { Faction } from '../../../constants/faction';
 import ZoneUtils from '../../../utils/ZoneUtils';
 
 @injectable()
@@ -16,6 +16,7 @@ export default class ContinentLockEvent {
     public readonly vsPopulation: number;
     public readonly ncPopulation: number;
     public readonly trPopulation: number;
+
     public constructor(
         event: GenericEvent
     ) {

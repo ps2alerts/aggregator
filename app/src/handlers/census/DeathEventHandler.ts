@@ -32,7 +32,7 @@ export default class DeathEventHandler implements EventHandlerInterface {
     public handle(event: GenericEvent): boolean {
         DeathEventHandler.logger.debug('Parsing message...');
         if (config.features.logging.censusEventContent) {
-            DeathEventHandler.logger.debug(jsonLogOutput(event), { message: 'eventData'});
+            DeathEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
         // TODO: Microwave is going to convert Census library to pass through DeathEvent object etc
         return true;

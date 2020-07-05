@@ -30,7 +30,7 @@ export default class ContinentLockHandler implements EventHandlerInterface {
     public handle(event: GenericEvent): boolean {
         ContinentLockHandler.logger.debug('Parsing message...');
         if (config.features.logging.censusEventContent) {
-            ContinentLockHandler.logger.debug(jsonLogOutput(event), { message: 'eventData'});
+            ContinentLockHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
         try {
             const continentLockEvent = new ContinentLockEvent(event);

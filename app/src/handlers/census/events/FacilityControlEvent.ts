@@ -1,16 +1,16 @@
 import { injectable } from 'inversify';
-import {FacilityControl, GenericEvent} from '../../../types/censusEventTypes';
+import { FacilityControl, GenericEvent } from '../../../types/censusEventTypes';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {Zone} from '../../../constants/zone';
+import { Zone } from '../../../constants/zone';
 import FactionUtils from '../../../utils/FactionUtils';
-import {Faction} from '../../../constants/faction';
+import { Faction } from '../../../constants/faction';
 
 @injectable()
 export default class FacilityControlEvent {
     public readonly worldId: number;
-    public readonly  zone: Zone;
+    public readonly zone: Zone;
     public readonly timestamp: number;
     public readonly facilityId: number;
     public readonly outfitId: number;

@@ -1,8 +1,9 @@
-import {injectable} from 'inversify';
+import { injectable } from 'inversify';
 import AlertHandlerInterface from '../interfaces/AlertHandlerInterface';
-import MetagameEventEvent, {MetagameEventState} from './census/events/MetagameEventEvent';
-import {jsonLogOutput} from '../utils/json';
-import {getLogger} from '../logger';
+import MetagameEventEvent, { MetagameEventState } from './census/events/MetagameEventEvent';
+import { jsonLogOutput } from '../utils/json';
+import { getLogger } from '../logger';
+import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 
 declare type Alert = {
     worldId: number;
@@ -31,8 +32,7 @@ export default class AlertHandler implements AlertHandlerInterface {
                 return false;
             }
         }
-        AlertHandler.logger.warn('MetagameEvent was not stored \r\n' + jsonLogOutput(mge));
-        return false;
+        throw new IllegalArgumentException('MetagameEvent was not stored \r\n' + jsonLogOutput(mge));
     }
 
     private alertExists(mge: MetagameEventEvent): boolean {
@@ -51,7 +51,7 @@ export default class AlertHandler implements AlertHandlerInterface {
     }
 
     private endAlert(mge: MetagameEventEvent): boolean {
-        AlertHandler.logger.debug('================== ENDING ALERT! ==================');
+        AlertHandler.logger.debug('================== ENDING ALERT ' + mge.worldId + ' ' + mge.instanceId + ' ==================');
         this._alerts = this._alerts.filter((alert) => {
             return !(alert.worldId === mge.worldId && alert.instanceId === mge.instanceId);
         });

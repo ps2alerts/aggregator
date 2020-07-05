@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import { injectable } from 'inversify';
 import PlayerHandlerInterface from '../interfaces/PlayerHandlerInterface';
 import PlayerLoginEvent from './census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from './census/events/PlayerLogoutEvent';
@@ -18,9 +18,10 @@ export default class PlayerHandler implements PlayerHandlerInterface {
             return player.worldId === worldId && player.characterId === characterId;
         });
     }
+
     handleLogin(loginEvent: PlayerLoginEvent): boolean {
         if (!this.containsPlayer(loginEvent.worldId, loginEvent.characterId)) {
-            this._players.push({worldId:loginEvent.worldId, characterId:loginEvent.characterId, outfitId:-1});
+            this._players.push({worldId: loginEvent.worldId, characterId: loginEvent.characterId, outfitId: -1});
             return true;
         }
         return false;

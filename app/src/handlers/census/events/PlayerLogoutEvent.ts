@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { GenericEvent } from '../../../types/censusEventTypes';
-import {PlayerLogin} from 'ps2census/dist/client/utils/PS2Events';
+import { PlayerLogin } from 'ps2census/dist/client/utils/PS2Events';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 

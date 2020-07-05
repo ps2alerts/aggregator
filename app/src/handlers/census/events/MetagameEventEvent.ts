@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
 import { GenericEvent } from '../../../types/censusEventTypes';
-import {MetagameEvent} from 'ps2census/dist/client/utils/PS2Events';
+import { MetagameEvent } from 'ps2census/dist/client/utils/PS2Events';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import EventId from '../../../utils/eventId';
 import Parser from '../../../utils/parser';
-import {Zone} from '../../../constants/zone';
+import { Zone } from '../../../constants/zone';
 import ZoneUtils from '../../../utils/ZoneUtils';
 
 export enum MetagameEventState {
@@ -31,14 +31,14 @@ export default class MetagameEventEvent {
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id');
         }
-        if (mge.metagame_event_state_name === null || undefined === mge.metagame_event_state_name) {
+        if (mge.metagame_event_state_name === null || mge.metagame_event_state_name === undefined) {
             throw new IllegalArgumentException('metagame_event_state_name');
         }
         const eventStateName = mge.metagame_event_state_name;
         if (eventStateName !== 'started' && eventStateName !== 'ended') {
             throw new IllegalArgumentException('metagame_event_state_name');
         }
-        this.eventState = eventStateName === 'started'? MetagameEventState.started: MetagameEventState.ended;
+        this.eventState = eventStateName === 'started' ? MetagameEventState.started : MetagameEventState.ended;
         this.factionNc = Parser.parseArgumentAsNumber(mge.faction_nc, true);
         if (isNaN(this.factionNc)) {
             throw new IllegalArgumentException('faction_nc');
