@@ -15,7 +15,7 @@ import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import PlayerLoginEvent from './events/PlayerLoginEvent';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
-import {TYPES} from '../../utils/types';
+import {TYPES} from '../../constants/types';
 
 @injectable()
 export default class PlayerLoginEventHandler implements EventHandlerInterface {

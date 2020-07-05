@@ -15,7 +15,7 @@ export default class AlertHandler implements AlertHandlerInterface {
     private _alerts: Alert[] = [];
 
     handleMetagameEvent(mge: MetagameEventEvent): boolean {
-        if (mge.eventState === MetagameEventState.Started) {
+        if (mge.eventState === MetagameEventState.started) {
             if (!this.alertExists(mge)) {
                 return this.startAlert(mge);
             } else {
@@ -23,7 +23,7 @@ export default class AlertHandler implements AlertHandlerInterface {
                 return false;
             }
         }
-        if (mge.eventState === MetagameEventState.Ended) {
+        if (mge.eventState === MetagameEventState.ended) {
             if (this.alertExists(mge)) {
                 return this.endAlert(mge);
             } else {

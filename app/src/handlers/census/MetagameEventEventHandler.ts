@@ -20,7 +20,7 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import MetagameEventEvent from './events/MetagameEventEvent';
-import {TYPES} from '../../utils/types';
+import {TYPES} from '../../constants/types';
 import AlertHandlerInterface from '../../interfaces/AlertHandlerInterface';
 
 @injectable()
