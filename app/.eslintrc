@@ -14,7 +14,7 @@
     "@typescript-eslint/quotes": ["error", "single"],
     "@typescript-eslint/naming-convention": "warn",
     "@typescript-eslint/semi": "error",
-    "yoda": ["error", "always"],
+    "yoda": ["error", "never"],
     "comma-dangle": ["warn", "always-multiline"]
   }
 }
