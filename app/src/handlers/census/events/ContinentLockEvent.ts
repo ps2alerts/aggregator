@@ -22,29 +22,29 @@ export default class ContinentLockEvent {
         const continentLockEvent = event as ContinentLock;
         this.worldId = Parser.parseArgumentAsNumber(continentLockEvent.world_id);
         if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('IllegalArgument: world_id');
+            throw new IllegalArgumentException('world_id');
         }
         // No need to check, ZoneUtils will validate the argument
         this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(continentLockEvent.zone_id));
         this.timestamp = Parser.parseArgumentAsNumber(continentLockEvent.timestamp);
         if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('IllegalArgument: timestamp');
+            throw new IllegalArgumentException('timestamp');
         }
         this.vsPopulation = Parser.parseArgumentAsNumber(continentLockEvent.vs_population);
         if (isNaN(this.vsPopulation)) {
-            throw new IllegalArgumentException('IllegalArgument: vs_population');
+            throw new IllegalArgumentException('vs_population');
         }
         this.ncPopulation = Parser.parseArgumentAsNumber(continentLockEvent.nc_population);
         if (isNaN(this.ncPopulation)) {
-            throw new IllegalArgumentException('IllegalArgument: nc_population');
+            throw new IllegalArgumentException('nc_population');
         }
         this.vsPopulation = Parser.parseArgumentAsNumber(continentLockEvent.vs_population);
         if (isNaN(this.vsPopulation)) {
-            throw new IllegalArgumentException('IllegalArgument: vs_population');
+            throw new IllegalArgumentException('vs_population');
         }
         this.trPopulation = Parser.parseArgumentAsNumber(continentLockEvent.tr_population);
         if (isNaN(this.trPopulation)) {
-            throw new IllegalArgumentException('IllegalArgument: tr_population');
+            throw new IllegalArgumentException('tr_population');
         }
         // No need to check, FactionUtils will validate the argument
         this.triggeringFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(continentLockEvent.triggering_faction));

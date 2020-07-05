@@ -2,6 +2,6 @@ import ApplicationException from './ApplicationException';
 
 export default class IllegalArgumentException extends ApplicationException {
     public constructor(message:string) {
-        super(message);
+        super('IllegalArgument: ' + message);
     }
 }

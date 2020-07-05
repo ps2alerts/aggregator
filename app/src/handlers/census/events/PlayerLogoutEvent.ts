@@ -15,11 +15,11 @@ export default class PlayerLogoutEvent {
         const playerLogin = event as PlayerLogin;
         this.characterId = Parser.parseArgumentAsNumber(playerLogin.character_id);
         if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('IllegalArgument: character_id');
+            throw new IllegalArgumentException('character_id');
         }
         this.worldId = Parser.parseArgumentAsNumber(playerLogin.world_id);
         if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('IllegalArgument: world_id');
+            throw new IllegalArgumentException('world_id');
         }
     }
 }

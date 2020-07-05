@@ -29,42 +29,42 @@ export default class MetagameEventEvent {
         const mge = event as MetagameEvent;
         this.worldId = Parser.parseArgumentAsNumber(mge.world_id);
         if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('IllegalArgument: world_id');
+            throw new IllegalArgumentException('world_id');
         }
         if (mge.metagame_event_state_name === null || undefined === mge.metagame_event_state_name) {
-            throw new IllegalArgumentException('IllegalArgument: metagame_event_state_name');
+            throw new IllegalArgumentException('metagame_event_state_name');
         }
         const eventStateName = mge.metagame_event_state_name;
         if (eventStateName !== 'started' && eventStateName !== 'ended') {
-            throw new IllegalArgumentException('IllegalArgument: metagame_event_state_name');
+            throw new IllegalArgumentException('metagame_event_state_name');
         }
         this.eventState = eventStateName === 'started'? MetagameEventState.started: MetagameEventState.ended;
         this.factionNc = Parser.parseArgumentAsNumber(mge.faction_nc, true);
         if (isNaN(this.factionNc)) {
-            throw new IllegalArgumentException('IllegalArgument: faction_nc');
+            throw new IllegalArgumentException('faction_nc');
         }
         this.factionTr = Parser.parseArgumentAsNumber(mge.faction_tr, true);
         if (isNaN(this.factionTr)) {
-            throw new IllegalArgumentException('IllegalArgument: faction_tr');
+            throw new IllegalArgumentException('faction_tr');
         }
         this.factionVs = Parser.parseArgumentAsNumber(mge.faction_vs, true);
         if (isNaN(this.factionVs)) {
-            throw new IllegalArgumentException('IllegalArgument: faction_vs');
+            throw new IllegalArgumentException('faction_vs');
         }
         this.timestamp = Parser.parseArgumentAsNumber(mge.timestamp);
         if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('IllegalArgument: timestamp');
+            throw new IllegalArgumentException('timestamp');
         }
         const eventId = Parser.parseArgumentAsNumber(mge.metagame_event_id);
         if (isNaN(eventId)) {
-            throw new IllegalArgumentException('IllegalArgument: metagame_event_id');
+            throw new IllegalArgumentException('metagame_event_id');
         }
         // TODO InstanceID are missing in the declaration
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         this.instanceId = Parser.parseArgumentAsNumber(mge.instance_id);
         if (isNaN(this.instanceId)) {
-            throw new IllegalArgumentException('IllegalArgument: instance_id');
+            throw new IllegalArgumentException('instance_id');
         }
         // No check needed since ZoneUtils will validate it
         this.zone = ZoneUtils.parse(EventId.eventIdToZoneId(eventId));
