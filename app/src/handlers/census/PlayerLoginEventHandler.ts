@@ -9,24 +9,28 @@
 
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import { GenericEvent } from 'ps2census/dist/client/utils/PS2Events';
-import { getLogger } from '../../logger';
+import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
+import {getLogger} from '../../logger';
 import config from '../../config';
-import { jsonLogOutput } from '../../utils/json';
+import {jsonLogOutput} from '../../utils/json';
 import PlayerLoginEvent from './events/PlayerLoginEvent';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import {TYPES} from '../../utils/types';
 
 @injectable()
 export default class PlayerLoginEventHandler implements EventHandlerInterface {
-    
-    constructor(@inject('PlayerHandlerInterface') private playerHandler: PlayerHandlerInterface) {
+
+    constructor(
+        @inject(TYPES.PlayerHandlerInterface) private playerHandler: PlayerHandlerInterface
+    ) {
     }
+
     private static readonly logger = getLogger('PlayerLoginEventHandler');
 
     public handle(event: GenericEvent): boolean {
         PlayerLoginEventHandler.logger.debug('Parsing message...');
         if (config.features.logging.censusEventContent) {
-            PlayerLoginEventHandler.logger.debug(jsonLogOutput(event), { message: 'eventData'});
+            PlayerLoginEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
         try {
             const playerLogin = new PlayerLoginEvent(event);

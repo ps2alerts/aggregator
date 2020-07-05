@@ -1,7 +1,7 @@
-export default class IllegalArgumentException {
-    public readonly message: string;
+import ApplicationException from './ApplicationException';
 
+export default class IllegalArgumentException extends ApplicationException {
     public constructor(message:string) {
-        this.message = message;
+        super(message);
     }
 }

@@ -9,7 +9,7 @@ export default class PlayerLogoutEvent {
     public readonly worldId: number;
 
     public constructor(
-        private event: GenericEvent
+        event: GenericEvent
     ) {
         const playerLogin = event as PlayerLogin;
         this.characterId = PlayerLogoutEvent.parseArgumentAsNumber(playerLogin.character_id);
@@ -23,7 +23,7 @@ export default class PlayerLogoutEvent {
     }
 
     private static parseArgumentAsNumber(argument: string): number {
-        if (null === argument || argument === undefined) {
+        if (null === argument || undefined === argument) {
             return NaN;
         }
         return parseInt(argument);

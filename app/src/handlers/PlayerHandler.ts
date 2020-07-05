@@ -1,5 +1,4 @@
 import {injectable} from 'inversify';
-import 'reflect-metadata';
 import PlayerHandlerInterface from '../interfaces/PlayerHandlerInterface';
 import PlayerLoginEvent from './census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from './census/events/PlayerLogoutEvent';
@@ -33,5 +32,4 @@ export default class PlayerHandler implements PlayerHandlerInterface {
         });
         return true;
     }
-
 }

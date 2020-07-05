@@ -5,7 +5,9 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import EventId from '../../../utils/eventId';
 
 export enum MetagameEventState {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     Started,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     Ended
 }
 
@@ -28,7 +30,7 @@ export default class MetagameEventEvent {
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('IllegalArgument: world_id');
         }
-        if (null === mge.metagame_event_state_name || mge.metagame_event_state_name === undefined) {
+        if (null === mge.metagame_event_state_name || undefined === mge.metagame_event_state_name) {
             throw new IllegalArgumentException('IllegalArgument: metagame_event_state_name');
         }
         const eventStateName = mge.metagame_event_state_name;
@@ -69,7 +71,7 @@ export default class MetagameEventEvent {
         }
     }
     private static parseArgumentAsNumber(argument: string, float = false): number {
-        if (null === argument || argument === undefined) {
+        if (null === argument || undefined === argument) {
             return NaN;
         }
         return float? parseFloat(argument):parseInt(argument);

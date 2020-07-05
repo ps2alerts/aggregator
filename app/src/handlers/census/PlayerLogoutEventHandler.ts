@@ -15,12 +15,15 @@ import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import PlayerLogoutEvent from './events/PlayerLogoutEvent';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import {TYPES} from '../../utils/types';
 
 @injectable()
 export default class PlayerLogoutEventHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('PlayerLogoutEventHandler');
 
-    constructor(@inject('PlayerHandlerInterface') private playerHandler: PlayerHandlerInterface) {
+    constructor(
+        @inject(TYPES.PlayerHandlerInterface) private playerHandler: PlayerHandlerInterface
+    ) {
     }
 
     public handle(event: GenericEvent): boolean {

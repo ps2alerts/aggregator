@@ -27,7 +27,7 @@ export default class ApplicationException {
         this._code = value;
     }
 
-    public constructor(message:string, origin:string|null, code:number|null) {
+    public constructor(message:string, origin:string|null = null, code:number|null = null) {
         this.message = message;
         this.origin = origin;
         this.code = code;
