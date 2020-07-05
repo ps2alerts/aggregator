@@ -36,7 +36,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface {
             const playerLogin = new PlayerLoginEvent(event);
             this.playerHandler.handleLogin(playerLogin);
         } catch (e) {
-            PlayerLoginEventHandler.logger.warn('Error parsing PlayerLoginEvent: ' + e.message + '\r\n' + jsonLogOutput(event));
+            PlayerLoginEventHandler.logger.warn('Error parsing FacilityControlEvent: ' + e.message + '\r\n' + jsonLogOutput(event));
             return false;
         }
         return true;

@@ -7,6 +7,8 @@ import config from '../../config';
 import MetagameEventEventHandler from './MetagameEventEventHandler';
 import PlayerLoginEventHandler from './PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
+import ContinentLockHandler from './ContinentLockHandler';
+import FacilityControlEventHandler from './FacilityControlEventHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -17,6 +19,8 @@ export default class CensusProxy {
         private metagameEventEventHandler: MetagameEventEventHandler,
         private playerLoginEventHandler: PlayerLoginEventHandler,
         private playerLogoutEventHandler: PlayerLogoutEventHandler,
+        private continentLockHandler: ContinentLockHandler,
+        private facilityControlEventHandler: FacilityControlEventHandler,
     ) {
 
     }
@@ -37,12 +41,10 @@ export default class CensusProxy {
                 // eventStore.storeBattleRankUp(payload);
                 break;
             case 'Death':
-                // eventStore.storeDeath(payload);
-
                 this.deathEventHandler.handle(event);
                 break;
             case 'FacilityControl':
-                // eventStore.storeFacilityControl(payload);
+                this.facilityControlEventHandler.handle(event);
                 break;
             case 'GainExperience':
                 // eventStore.storeGainExperience(payload);
@@ -72,7 +74,7 @@ export default class CensusProxy {
                 // eventStore.storeVehicleDestroy(payload);
                 break;
             case 'ContinentLock':
-                // eventStore.storeContinentLock(payload);
+                this.continentLockHandler.handle(event);
                 break;
             // Documented but never happens
             // case 'ContinentUnlock':
