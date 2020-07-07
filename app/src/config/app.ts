@@ -12,6 +12,8 @@ export default class App {
         return [
             // eslint-disable-next-line @typescript-eslint/no-var-requires
             require('../services/census').default,
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            require('../handlers').default,
         ];
     }
 }
