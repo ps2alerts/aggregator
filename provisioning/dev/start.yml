@@ -1,5 +1,7 @@
 ---
 - hosts: localhost
+  vars:
+    root_dir: "{{ playbook_dir }}/../../"
   vars_files:
     - ../../vars.local.yml
   tasks:
@@ -12,7 +14,7 @@
         recreate: yes
         restart_policy: "no"
         volumes:
-          - "{{ playbook_dir }}/../../app:/app:rw"
+          - "{{ root_dir | realpath }}/app:/app:rw"
         ports:
           - "1337"
         networks:
