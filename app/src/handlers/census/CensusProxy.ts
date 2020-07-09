@@ -9,6 +9,7 @@ import PlayerLoginEventHandler from './PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 import ContinentLockHandler from './ContinentLockHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
+import GainExperienceHandler from './GainExperienceHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -22,6 +23,7 @@ export default class CensusProxy {
         private playerLogoutEventHandler: PlayerLogoutEventHandler,
         private continentLockHandler: ContinentLockHandler,
         private facilityControlEventHandler: FacilityControlEventHandler,
+        private gainExperienceHandler: GainExperienceHandler
     ) {
 
     }
@@ -49,7 +51,7 @@ export default class CensusProxy {
                 this.facilityControlEventHandler.handle(event);
                 break;
             case 'GainExperience':
-                // eventStore.storeGainExperience(payload);
+                this.gainExperienceHandler.handle(event);
                 break;
             case 'ItemAdded':
                 // eventStore.storeItemAdded(payload);
