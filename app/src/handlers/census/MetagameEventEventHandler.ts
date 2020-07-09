@@ -1,18 +1,3 @@
-/**
- *  ### CENSUS RESPONSE ATTRIBUTES ####
- "event_name":"MetagameEvent",
- "experience_bonus":"",
- "faction_nc":"",
- "faction_tr":"",
- "faction_vs":"",
- "metagame_event_id":"",
- "metagame_event_state":"",
- "timestamp":"",
- "world_id":"",
- "zone_id":""
- * ### END ###
- **/
-
 import { inject, injectable } from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import { GenericEvent } from 'ps2census/dist/client/utils/PS2Events';
