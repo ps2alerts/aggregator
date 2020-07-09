@@ -40,6 +40,7 @@
     - name: Get user's current UID
       command: "id -u {{ ansible_user_id }}"
       register: id
+      when: id is undefined
 
     - name: Run npm install for Websocket deps
       docker_container:
