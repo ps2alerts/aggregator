@@ -1,3 +1,14 @@
+/**
+ *  ### CENSUS RESPONSE ATTRIBUTES ####
+ "event_name":"",
+ "character_id":"",
+ "timestamp":"",
+ "world_id":"",
+ "achievement_id":"",
+ "zone_id":""
+ * ### END ###
+ **/
+
 import { inject, injectable } from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import { getLogger } from '../../logger';
