@@ -17,7 +17,7 @@
 
     - name: Build Websocket Base image (grab a snickers)
       docker_image:
-        name: ps2alerts/websocket # local image
+        name: ps2alerts/websocket
         state: present
         source: build
         tag: base
