@@ -13,6 +13,7 @@ import GainExperienceHandler from './GainExperienceHandler';
 import PlayerFacilityCaptureHandler from './PlayerFacilityCaptureHandler';
 import PlayerFacilityDefendHandler from './PlayerFacilityDefendHandler';
 import ContinentUnlockHandler from './ContinentUnlockHandler';
+import AchievementEarnedHandler from './AchievementEarnedHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -29,7 +30,8 @@ export default class CensusProxy {
         private facilityControlEventHandler: FacilityControlEventHandler,
         private gainExperienceHandler: GainExperienceHandler,
         private playerFacilityCaptureHandler: PlayerFacilityCaptureHandler,
-        private playerFacilityDefendHandler: PlayerFacilityDefendHandler
+        private playerFacilityDefendHandler: PlayerFacilityDefendHandler,
+        private achievementEarnedHandler: AchievementEarnedHandler
     ) {
 
     }
@@ -45,7 +47,7 @@ export default class CensusProxy {
 
         switch (event.event_name) {
             case 'AchievementEarned':
-                // eventStore.storeAchievementEarned(payload);
+                this.achievementEarnedHandler.handle(event);
                 break;
             case 'BattleRankUp':
                 // eventStore.storeBattleRankUp(payload);
