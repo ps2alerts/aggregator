@@ -49,7 +49,7 @@ export default class GainExperienceHandler implements EventHandlerInterface {
 
     private handleExperienceEvent(gainExperienceEvent: GainExperienceEvent) {
         // Update last seen
-        this.playerHandler.handleExperienceEvent(gainExperienceEvent);
+        this.playerHandler.updateLastSeen(gainExperienceEvent.worldId, gainExperienceEvent.characterId);
         return this.storeEvent(gainExperienceEvent);
     }
 
