@@ -1,6 +1,6 @@
 # PS2Alerts Websocket
 
-![Discord](https://img.shields.io/discord/708061542649954315) ![Ansible Linter](https://github.com/ps2alerts/websocket/workflows/Ansible%20Linter/badge.svg) ![ESLint](https://github.com/ps2alerts/websocket/workflows/ESLint/badge.svg) ![Yaml Linter](https://github.com/ps2alerts/websocket/workflows/Yaml%20Linter/badge.svg)
+![Discord](https://img.shields.io/discord/708061542649954315?label=Discord) ![Ansible Linter](https://github.com/ps2alerts/websocket/workflows/Ansible%20Linter/badge.svg) ![ESLint](https://github.com/ps2alerts/websocket/workflows/ESLint/badge.svg) ![Yaml Linter](https://github.com/ps2alerts/websocket/workflows/Yaml%20Linter/badge.svg)
 
 The websocket collection script that powers PS2Alerts.com.
 
