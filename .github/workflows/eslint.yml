@@ -1,14 +1,11 @@
 name: ESLint
-
 on:
   push:
-    branches: [ staging, master]
+    branches: [staging, master, revive]
   pull_request:
-
 defaults:
   run:
     working-directory: ./app
-
 jobs:
   eslint:
     runs-on: ubuntu-latest
