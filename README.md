@@ -4,7 +4,7 @@
 
 The websocket collection script that powers PS2Alerts.com.
 
-THIS PROJECT IS UNDERGOING A VAST RE-REWITE. If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
+**This project is undergoing a full rewrite**. If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
 
 ## Preface
 
