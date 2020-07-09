@@ -138,7 +138,7 @@ module.exports = {
                 "FunctionExpression": {
                     "parameters": "first"
                 },
-                "flatTernaryExpressions": true,
+                "flatTernaryExpressions": true
             }
         ],
         "@typescript-eslint/keyword-spacing": "error",
