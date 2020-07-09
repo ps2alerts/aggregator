@@ -1,3 +1,16 @@
+/**
+ *  ### CENSUS RESPONSE ATTRIBUTES ####
+ "timestamp":"",
+ "world_id":"",
+ "old_faction_id":"",
+ "outfit_id":"",
+ "new_faction_id":"",
+ "facility_id":"",
+ "duration_held":"",
+ "zone_id":""
+ * ### END ###
+ **/
+
 import { injectable } from 'inversify';
 import { FacilityControl, GenericEvent } from '../../../types/censusEventTypes';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
@@ -24,25 +37,25 @@ export default class FacilityControlEvent {
         const facilityControl = event as FacilityControl;
         this.worldId = Parser.parseArgumentAsNumber(facilityControl.world_id);
         if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('world_id');
+            throw new IllegalArgumentException('world_id', 'FacilityControlEvent');
         }
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(facilityControl.zone_id));
         this.timestamp = Parser.parseArgumentAsNumber(facilityControl.timestamp);
         if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('timestamp');
+            throw new IllegalArgumentException('timestamp', 'FacilityControlEvent');
         }
         this.facilityId = Parser.parseArgumentAsNumber(facilityControl.facility_id);
         if (isNaN(this.facilityId)) {
-            throw new IllegalArgumentException('facility_id');
+            throw new IllegalArgumentException('facility_id', 'FacilityControlEvent');
         }
         this.outfitId = Parser.parseArgumentAsNumber(facilityControl.outfit_id);
         if (isNaN(this.outfitId)) {
-            throw new IllegalArgumentException('outfit_id');
+            throw new IllegalArgumentException('outfit_id', 'FacilityControlEvent');
         }
         this.durationHeld = Parser.parseArgumentAsNumber(facilityControl.duration_held);
         if (isNaN(this.durationHeld)) {
-            throw new IllegalArgumentException('durationHeld');
+            throw new IllegalArgumentException('durationHeld', 'FacilityControlEvent');
         }
         this.oldFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(facilityControl.old_faction_id));
         this.newFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(facilityControl.new_faction_id));

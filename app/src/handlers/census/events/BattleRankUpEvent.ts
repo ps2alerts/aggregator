@@ -1,3 +1,13 @@
+/**
+ *  ### CENSUS RESPONSE ATTRIBUTES ####
+ "battle_rank":"",
+ "character_id":"",
+ "timestamp":"",
+ "world_id":"",
+ "zone_id":""
+ * ### END ###
+ **/
+
 import { injectable } from 'inversify';
 import { GenericEvent } from '../../../types/censusEventTypes';
 import { BattleRankUp } from 'ps2census/dist/client/utils/PS2Events';
@@ -20,21 +30,21 @@ export default class BattleRankUpEvent {
         const battleRankUpEvent = event as BattleRankUp;
         this.worldId = Parser.parseArgumentAsNumber(battleRankUpEvent.world_id);
         if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('world_id');
+            throw new IllegalArgumentException('world_id', 'BattleRankUpEvent');
         }
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(battleRankUpEvent.zone_id));
         this.characterId = Parser.parseArgumentAsNumber(battleRankUpEvent.character_id);
         if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('character_id');
+            throw new IllegalArgumentException('character_id', 'BattleRankUpEvent');
         }
         this.timestamp = Parser.parseArgumentAsNumber(battleRankUpEvent.timestamp);
         if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('timestamp');
+            throw new IllegalArgumentException('timestamp', 'BattleRankUpEvent');
         }
         this.battleRank = Parser.parseArgumentAsNumber(battleRankUpEvent.battle_rank);
         if (isNaN(this.battleRank)) {
-            throw new IllegalArgumentException('battle_rank');
+            throw new IllegalArgumentException('battle_rank', 'BattleRankUpEvent');
         }
     }
 }

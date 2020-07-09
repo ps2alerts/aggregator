@@ -1,14 +1,3 @@
-/**
- *  ### CENSUS RESPONSE ATTRIBUTES ####
- "battle_rank":"",
- "character_id":"",
- "event_name":"BattleRankUp",
- "timestamp":"",
- "world_id":"",
- "zone_id":""
- * ### END ###
- **/
-
 import { inject, injectable } from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import { getLogger } from '../../logger';

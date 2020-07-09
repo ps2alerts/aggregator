@@ -1,3 +1,14 @@
+/**
+ *  ### CENSUS RESPONSE ATTRIBUTES ####
+ "character_id":"",
+ "facility_id":"",
+ "outfit_id":"",
+ "timestamp":"",
+ "world_id":"",
+ "zone_id":""
+ * ### END ###
+ **/
+
 import { injectable } from 'inversify';
 import { GenericEvent } from '../../../types/censusEventTypes';
 import { PlayerFacilityDefend } from 'ps2census/dist/client/utils/PS2Events';
@@ -21,25 +32,25 @@ export default class PlayerFacilityDefendEvent {
         const playerFacilityDefend = event as PlayerFacilityDefend;
         this.worldId = Parser.parseArgumentAsNumber(playerFacilityDefend.world_id);
         if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('world_id');
+            throw new IllegalArgumentException('world_id', 'PlayerFacilityDefendEvent');
         }
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(playerFacilityDefend.zone_id));
         this.timestamp = Parser.parseArgumentAsNumber(playerFacilityDefend.timestamp);
         if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('timestamp');
+            throw new IllegalArgumentException('timestamp', 'PlayerFacilityDefendEvent');
         }
         this.characterId = Parser.parseArgumentAsNumber(playerFacilityDefend.character_id);
         if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('character_id');
+            throw new IllegalArgumentException('character_id', 'PlayerFacilityDefendEvent');
         }
         this.facilityId = Parser.parseArgumentAsNumber(playerFacilityDefend.facility_id);
         if (isNaN(this.facilityId)) {
-            throw new IllegalArgumentException('facility_id');
+            throw new IllegalArgumentException('facility_id', 'PlayerFacilityDefendEvent');
         }
         this.outfitId = Parser.parseArgumentAsNumber(playerFacilityDefend.outfit_id);
         if (isNaN(this.outfitId)) {
-            throw new IllegalArgumentException('outfit_id');
+            throw new IllegalArgumentException('outfit_id', 'PlayerFacilityDefendEvent');
         }
     }
 }

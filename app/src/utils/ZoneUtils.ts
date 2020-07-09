@@ -19,6 +19,6 @@ export default class ZoneUtils {
             case Zone.vrTrainingVS:
                 return Zone.vrTrainingVS;
         }
-        throw new IllegalArgumentException('Unknown zone: ' + value);
+        throw new IllegalArgumentException('Unknown zone: ' + value, 'ZoneUtils.parse');
     }
 }
