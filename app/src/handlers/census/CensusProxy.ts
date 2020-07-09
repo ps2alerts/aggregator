@@ -9,12 +9,6 @@ import PlayerLoginEventHandler from './PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 import ContinentLockHandler from './ContinentLockHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
-import GainExperienceHandler from './GainExperienceHandler';
-import PlayerFacilityCaptureHandler from './PlayerFacilityCaptureHandler';
-import PlayerFacilityDefendHandler from './PlayerFacilityDefendHandler';
-import ContinentUnlockHandler from './ContinentUnlockHandler';
-import AchievementEarnedHandler from './AchievementEarnedHandler';
-import BattleRankUpHandler from './BattleRankUpHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -27,13 +21,7 @@ export default class CensusProxy {
         private playerLoginEventHandler: PlayerLoginEventHandler,
         private playerLogoutEventHandler: PlayerLogoutEventHandler,
         private continentLockHandler: ContinentLockHandler,
-        private continentUnlockHandler: ContinentUnlockHandler,
         private facilityControlEventHandler: FacilityControlEventHandler,
-        private gainExperienceHandler: GainExperienceHandler,
-        private playerFacilityCaptureHandler: PlayerFacilityCaptureHandler,
-        private playerFacilityDefendHandler: PlayerFacilityDefendHandler,
-        private achievementEarnedHandler: AchievementEarnedHandler,
-        private battleRankUpHandler: BattleRankUpHandler
     ) {
 
     }
@@ -49,10 +37,10 @@ export default class CensusProxy {
 
         switch (event.event_name) {
             case 'AchievementEarned':
-                this.achievementEarnedHandler.handle(event);
+                // eventStore.storeAchievementEarned(payload);
                 break;
             case 'BattleRankUp':
-                this.battleRankUpHandler.handle(event);
+                // eventStore.storeBattleRankUp(payload);
                 break;
             case 'Death':
                 this.deathEventHandler.handle(event);
@@ -61,7 +49,7 @@ export default class CensusProxy {
                 this.facilityControlEventHandler.handle(event);
                 break;
             case 'GainExperience':
-                this.gainExperienceHandler.handle(event);
+                // eventStore.storeGainExperience(payload);
                 break;
             case 'ItemAdded':
                 // eventStore.storeItemAdded(payload);
@@ -70,10 +58,10 @@ export default class CensusProxy {
                 this.metagameEventEventHandler.handle(event);
                 break;
             case 'PlayerFacilityCapture':
-                this.playerFacilityCaptureHandler.handle(event);
+                // eventStore.storePlayerFacilityCapture(payload);
                 break;
             case 'PlayerFacilityDefend':
-                this.playerFacilityDefendHandler.handle(event);
+                // eventStore.storePlayerFacilityDefend(payload);
                 break;
             case 'PlayerLogin':
                 this.playerLoginEventHandler.handle(event);
@@ -90,10 +78,10 @@ export default class CensusProxy {
             case 'ContinentLock':
                 this.continentLockHandler.handle(event);
                 break;
-            // Will be fixed with #36
-            //case 'ContinentUnlock':
-            //this.continentUnlockHandler.handle(event);
-            //break;
+            // Documented but never happens
+            // case 'ContinentUnlock':
+            //     eventStore.storeContinentUnlock(payload);
+            //     break;
             default:
                 return false;
         }
