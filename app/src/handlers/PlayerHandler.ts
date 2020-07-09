@@ -2,6 +2,7 @@ import { injectable } from 'inversify';
 import PlayerHandlerInterface from '../interfaces/PlayerHandlerInterface';
 import PlayerLoginEvent from './census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from './census/events/PlayerLogoutEvent';
+import GainExperienceEvent from './census/events/GainExperienceEvent';
 
 declare type Player = {
     worldId: number;
