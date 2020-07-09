@@ -24,7 +24,7 @@ Please check the issues list for where you can contribute to this project. For m
 
 # **Points of note**
 
-If you don't quite understand IoC, I suggest you create a application as per the Inversify tutorials, hopefully it'll click.
+If you don't quite understand IoC, I suggest you create an application as per the [Inversify tutorials](https://github.com/inversify/inversify-basic-example), hopefully it'll click. Feel free to ask any of the collaborators for help.
 
 ## File structure 
 
@@ -42,7 +42,7 @@ This is where the IoC container is instantiated and told to load the modules via
 
 ### `/index.ts`
 
-This is where the fun begins. Index.ts loads the Kernel, which in turn loads the Container, which in turn sets everything up, and then once that's all running, listens for kernel level exceptions which we haven't catched within the application and logs it, then gracefully terminates the application.
+This is where the fun begins. Index.ts loads the Kernel, which in turn loads the Container, which in turn sets everything up, and then once that's all running, listens for kernel level exceptions which we haven't caught within the application and logs it, then gracefully terminates the application.
 
 ### `/bootstrap`
 
