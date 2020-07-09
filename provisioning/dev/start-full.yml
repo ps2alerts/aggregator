@@ -1,5 +1,7 @@
 ---
 - hosts: localhost
+  vars:
+    root_dir: "{{ playbook_dir }}/../../"
   vars_files:
     - ../../vars.local.yml
   tasks:
@@ -22,7 +24,7 @@
         force_source: yes
         build:
           pull: no
-          path: "{{ playbook_dir }}/../base"
+          path: "{{ root_dir | realpath }}/provisioning/base"
 
     - name: Build Websocket Dev image
       docker_image:
@@ -44,7 +46,7 @@
         name: ps2alerts-websocket-npm
         image: node:11
         volumes:
-          - "{{ playbook_dir }}/../../app:/app:rw"
+          - "{{ root_dir | realpath }}/app:/app:rw"
         user: "{{ id.stdout }}:{{ id.stdout }}"
         command: "npm --prefix /app install"
         labels:
@@ -59,7 +61,7 @@
         recreate: yes
         restart_policy: "no"
         volumes:
-          - "{{ playbook_dir }}/../../app:/app:rw"
+          - "{{ root_dir | realpath }}/app:/app:rw"
         ports:
           - "1337"
         networks:
