@@ -14,14 +14,13 @@
  * ### END ###
  **/
 
-import { injectable } from 'inversify';
+import {injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import { GenericEvent } from 'ps2census/dist/client/utils/PS2Events';
-import { getLogger } from '../../logger';
+import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
+import {getLogger} from '../../logger';
 import config from '../../config';
-import { jsonLogOutput } from '../../utils/json';
+import {jsonLogOutput} from '../../utils/json';
 import ContinentLockEvent from './events/ContinentLockEvent';
-
 
 @injectable()
 export default class ContinentLockHandler implements EventHandlerInterface {
@@ -29,14 +28,16 @@ export default class ContinentLockHandler implements EventHandlerInterface {
 
     public handle(event: GenericEvent): boolean {
         ContinentLockHandler.logger.debug('Parsing message...');
+
         if (config.features.logging.censusEventContent) {
             ContinentLockHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
+
         try {
             const continentLockEvent = new ContinentLockEvent(event);
             return true;
         } catch (e) {
-            ContinentLockHandler.logger.warn('Error parsing ContinentLockEvent: ' + e.message + '\r\n' + jsonLogOutput(event));
+            ContinentLockHandler.logger.warn(`Error parsing ContinentLockEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             return false;
         }
     }

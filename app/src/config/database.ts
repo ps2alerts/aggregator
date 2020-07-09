@@ -8,7 +8,7 @@ import {
 
 export default class Database {
     public readonly drivers: Record<string, unknown> = {
-        'primary': {
+        primary: {
             host: get('DATABASE_HOST'),
             port: getInt('DATABASE_PORT', 3306),
             user: get('DATABASE_USER', 'root'),

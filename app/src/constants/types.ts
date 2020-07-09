@@ -3,4 +3,4 @@ const TYPES = {
     AlertHandlerInterface: Symbol.for('AlertHandlerInterface'),
 };
 
-export { TYPES };
+export {TYPES};

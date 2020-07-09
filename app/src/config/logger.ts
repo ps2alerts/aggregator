@@ -1,4 +1,4 @@
-import { get } from '../utils/env';
+import {get} from '../utils/env';
 
 export default class Logger {
     // eslint-disable-next-line yoda

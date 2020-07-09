@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default interface KernelInterface {
     /**
      * Starts running the app
@@ -13,5 +12,5 @@ export default interface KernelInterface {
      * @return {Promise<void>}
      * @param code number
      */
-    terminate(code:number): Promise<void>;
+    terminate(code: number): Promise<void>;
 }

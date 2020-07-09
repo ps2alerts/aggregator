@@ -38,6 +38,19 @@ module.exports = {
                 }
             }
         ],
+        "@typescript-eslint/member-delimiter-style": [
+            "error",
+            {
+                "multiline": {
+                    "delimiter": "semi",
+                    "requireLast": true
+                },
+                "singleline": {
+                    "delimiter": "comma",
+                    "requireLast": false
+                }
+            }
+        ],
         "@typescript-eslint/member-ordering": [
             "error",
             {
@@ -68,7 +81,10 @@ module.exports = {
                 ]
             }
         ],
-        "@typescript-eslint/method-signature-style": "error",
+        "@typescript-eslint/method-signature-style": [
+            "error",
+            "method"
+        ],
         "@typescript-eslint/naming-convention": [
             "error",
             {
@@ -89,6 +105,12 @@ module.exports = {
             },
             {
                 "selector": "parameter",
+                "format": ["camelCase"],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "memberLike",
+                "modifiers": ["private"],
                 "format": ["camelCase"],
                 "leadingUnderscore": "allow"
             },
@@ -119,7 +141,6 @@ module.exports = {
         "@typescript-eslint/prefer-string-starts-ends-with": "error",
         "@typescript-eslint/switch-exhaustiveness-check": "error",
         "@typescript-eslint/type-annotation-spacing": "error",
-        "@typescript-eslint/typedef": "error",
 
         // @typescript-eslint extension rules
         "@typescript-eslint/brace-style": "error",
@@ -142,7 +163,12 @@ module.exports = {
             }
         ],
         "@typescript-eslint/keyword-spacing": "error",
-        "@typescript-eslint/lines-between-class-members": "error",
+        "@typescript-eslint/lines-between-class-members": [
+            "error",
+            {
+                "exceptAfterSingleLine": true
+            }
+        ],
         "@typescript-eslint/no-dupe-class-members": "error",
         "@typescript-eslint/no-extra-parens": [
             "error",

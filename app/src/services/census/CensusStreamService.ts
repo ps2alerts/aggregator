@@ -2,21 +2,24 @@
 
 import Service from '../../interfaces/Service';
 import PS2EventClient from 'ps2census/dist/client/Client'; // TODO: Await microwave's type fixes
-import { getLogger } from '../../logger';
-import { injectable } from 'inversify';
+import {getLogger} from '../../logger';
+import {injectable} from 'inversify';
 import CensusProxy from '../../handlers/census/CensusProxy';
 
 @injectable()
 export default class CensusStreamService implements Service {
     private static readonly logger = getLogger('ps2census');
-    private subscriptions = [];
 
-    public constructor(
-        private readonly wsClient: PS2EventClient,
-        private readonly censusProxy: CensusProxy
-    ) {
+    private readonly wsClient: PS2EventClient;
+    private readonly censusProxy: CensusProxy;
+    private readonly subscriptions = [];
+
+    constructor(wsClient: PS2EventClient, censusProxy: CensusProxy) {
+        this.wsClient = wsClient;
+        this.censusProxy = censusProxy;
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
         CensusStreamService.logger.info('Booting Census Stream Service...');
     }
@@ -51,11 +54,12 @@ export default class CensusStreamService implements Service {
         });
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async terminate(): Promise<void> {
         CensusStreamService.logger.info('Terminating Census Stream Service!');
 
         try {
-            await this.wsClient.destroy();
+            this.wsClient.destroy();
         } catch {
             // Fucked
         }

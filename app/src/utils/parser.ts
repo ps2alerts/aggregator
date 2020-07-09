@@ -3,6 +3,7 @@ export default class Parser {
         if (argument === null || argument === undefined) {
             return NaN;
         }
-        return float ? parseFloat(argument) : parseInt(argument);
+
+        return float ? parseFloat(argument) : parseInt(argument, 10);
     }
 }

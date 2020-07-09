@@ -1,8 +1,8 @@
 import WorldValidator from '../../validators/WorldValidator';
-import { GenericEvent } from 'ps2census/dist/client/utils/PS2Events';
-import { injectable } from 'inversify';
+import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
+import {injectable} from 'inversify';
 import DeathEventHandler from './DeathEventHandler';
-import { getLogger } from '../../logger';
+import {getLogger} from '../../logger';
 import config from '../../config';
 import MetagameEventEventHandler from './MetagameEventEventHandler';
 import PlayerLoginEventHandler from './PlayerLoginEventHandler';
@@ -14,24 +14,40 @@ import FacilityControlEventHandler from './FacilityControlEventHandler';
 export default class CensusProxy {
     private static readonly logger = getLogger('CensusProxy');
 
-    public constructor(
-        private worldCheck: WorldValidator,
-        private deathEventHandler: DeathEventHandler,
-        private metagameEventEventHandler: MetagameEventEventHandler,
-        private playerLoginEventHandler: PlayerLoginEventHandler,
-        private playerLogoutEventHandler: PlayerLogoutEventHandler,
-        private continentLockHandler: ContinentLockHandler,
-        private facilityControlEventHandler: FacilityControlEventHandler,
-    ) {
+    private readonly worldCheck: WorldValidator;
+    private readonly deathEventHandler: DeathEventHandler;
+    private readonly metagameEventEventHandler: MetagameEventEventHandler;
+    private readonly playerLoginEventHandler: PlayerLoginEventHandler;
+    private readonly playerLogoutEventHandler: PlayerLogoutEventHandler;
+    private readonly continentLockHandler: ContinentLockHandler;
+    private readonly facilityControlEventHandler: FacilityControlEventHandler;
 
+    constructor(
+        // TODO: make this into a single object parameter
+        worldCheck: WorldValidator,
+        deathEventHandler: DeathEventHandler,
+        metagameEventEventHandler: MetagameEventEventHandler,
+        playerLoginEventHandler: PlayerLoginEventHandler,
+        playerLogoutEventHandler: PlayerLogoutEventHandler,
+        continentLockHandler: ContinentLockHandler,
+        facilityControlEventHandler: FacilityControlEventHandler,
+    ) {
+        this.worldCheck = worldCheck;
+        this.deathEventHandler = deathEventHandler;
+        this.metagameEventEventHandler = metagameEventEventHandler;
+        this.playerLoginEventHandler = playerLoginEventHandler;
+        this.playerLogoutEventHandler = playerLogoutEventHandler;
+        this.continentLockHandler = continentLockHandler;
+        this.facilityControlEventHandler = facilityControlEventHandler;
     }
 
     public handle(event: GenericEvent): boolean {
         if (config.features.logging.censusIncomingEvents) {
             CensusProxy.logger.debug(`INCOMING EVENT ${event.event_name}`);
         }
+
         // Validate if the message is relevant for what we want, e.g. worlds and zones with active alerts on.
-        if (!this.worldCheck.validate(parseInt(event.world_id))) {
+        if (!this.worldCheck.validate(parseInt(event.world_id, 10))) {
             return false;
         }
 
@@ -85,6 +101,7 @@ export default class CensusProxy {
             default:
                 return false;
         }
+
         return true;
     }
 }

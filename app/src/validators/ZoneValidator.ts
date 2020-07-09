@@ -1,6 +1,6 @@
 import config from '../config';
-import { injectable } from 'inversify';
-import { getLogger } from '../logger';
+import {injectable} from 'inversify';
+import {getLogger} from '../logger';
 
 @injectable()
 export default class ZoneValidator {
@@ -11,6 +11,7 @@ export default class ZoneValidator {
             if (config.features.logging.validationRejects) {
                 ZoneValidator.logger.warn(`Got event from zone ${zone}, which we don't monitor!`);
             }
+
             return false;
         }
 
