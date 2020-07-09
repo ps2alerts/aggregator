@@ -5,4 +5,6 @@ export default interface PlayerHandlerInterface {
     handleLogin(loginEvent: PlayerLoginEvent): boolean;
 
     handleLogout(logoutEvent: PlayerLogoutEvent): boolean;
+
+    updateLastSeen(worldId: number, characterId: number): void;
 }

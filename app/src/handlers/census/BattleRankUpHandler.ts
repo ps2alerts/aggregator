@@ -24,7 +24,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         }
         try {
             const battleRankUpEvent = new BattleRankUpEvent(event);
-            this.handleBattleRaunkUp(battleRankUpEvent);
+            this.handleBattleRankUp(battleRankUpEvent);
         } catch (e) {
             BattleRankUpHandler.logger.warn('Error parsing BattleRankEvent: ' + e.message + '\r\n' + jsonLogOutput(event));
             return false;
@@ -32,7 +32,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         return true;
     }
 
-    private handleBattleRaunkUp(battleRankUpEvent: BattleRankUpEvent): void {
+    private handleBattleRankUp(battleRankUpEvent: BattleRankUpEvent): void {
         // Update last seen
         this.playerHandler.updateLastSeen(battleRankUpEvent.worldId, battleRankUpEvent.characterId);
         this.storeEvent(battleRankUpEvent);

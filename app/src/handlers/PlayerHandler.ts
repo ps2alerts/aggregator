@@ -33,4 +33,8 @@ export default class PlayerHandler implements PlayerHandlerInterface {
         });
         return true;
     }
+
+    updateLastSeen(worldId: number, characterId: number): void {
+        // TODO Update last seen for https://github.com/ps2alerts/websocket/issues/31 #31
+    }
 }
