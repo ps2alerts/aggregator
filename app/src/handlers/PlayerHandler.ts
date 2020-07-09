@@ -2,7 +2,6 @@ import { injectable } from 'inversify';
 import PlayerHandlerInterface from '../interfaces/PlayerHandlerInterface';
 import PlayerLoginEvent from './census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from './census/events/PlayerLogoutEvent';
-import GainExperienceEvent from './census/events/GainExperienceEvent';
 
 declare type Player = {
     worldId: number;
@@ -33,9 +32,5 @@ export default class PlayerHandler implements PlayerHandlerInterface {
             return (player.worldId !== logoutEvent.worldId || player.characterId !== logoutEvent.characterId);
         });
         return true;
-    }
-
-    handleExperienceEvent(gainExperienceEvent: GainExperienceEvent): void {
-        // TODO Update last seen for https://github.com/ps2alerts/websocket/issues/31 #31
     }
 }
