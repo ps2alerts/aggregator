@@ -9,7 +9,7 @@ import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 import ContinentLockEventHandler from './ContinentLockEventHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
 import GainExperienceEventHandler from './GainExperienceEventHandler';
-import {PlayerLogin, PS2Event} from 'ps2census';
+import {PS2Event} from 'ps2census';
 import AchievementEarnedHandler from './AchievementEarnedHandler';
 import BattleRankUpHandler from './BattleRankUpHandler';
 import PlayerFacilityCaptureHandler from './PlayerFacilityCaptureHandler';
