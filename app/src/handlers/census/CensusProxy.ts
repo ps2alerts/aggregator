@@ -1,5 +1,4 @@
 import WorldValidator from '../../validators/WorldValidator';
-import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
 import {injectable} from 'inversify';
 import DeathEventHandler from './DeathEventHandler';
 import {getLogger} from '../../logger';
@@ -10,6 +9,12 @@ import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 import ContinentLockEventHandler from './ContinentLockEventHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
 import GainExperienceEventHandler from './GainExperienceEventHandler';
+import {PlayerLogin, PS2Event} from 'ps2census';
+import AchievementEarnedHandler from './AchievementEarnedHandler';
+import BattleRankUpHandler from './BattleRankUpHandler';
+import PlayerFacilityCaptureHandler from './PlayerFacilityCaptureHandler';
+import PlayerFacilityDefendHandler from './PlayerFacilityDefendHandler';
+import ContinentUnlockHandler from './ContinentUnlockHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -23,6 +28,11 @@ export default class CensusProxy {
     private readonly continentLockHandler: ContinentLockEventHandler;
     private readonly facilityControlEventHandler: FacilityControlEventHandler;
     private readonly gainExperienceEventHandler: GainExperienceEventHandler;
+    private readonly achievementEarnedHandler: AchievementEarnedHandler;
+    private readonly battleRankUpHandler: BattleRankUpHandler;
+    private readonly playerFacilityCapture: PlayerFacilityCaptureHandler;
+    private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
+    private readonly coninentUnlockHandler: ContinentUnlockHandler;
 
     constructor(
         // TODO: make this into a single object parameter
@@ -34,6 +44,11 @@ export default class CensusProxy {
         continentLockHandler: ContinentLockEventHandler,
         facilityControlEventHandler: FacilityControlEventHandler,
         gainExperienceEventHandler: GainExperienceEventHandler,
+        achievementEarnedHandler: AchievementEarnedHandler,
+        battleRankUpHandler: BattleRankUpHandler,
+        playerFacilityCapture: PlayerFacilityCaptureHandler,
+        playerFacilityDefend: PlayerFacilityDefendHandler,
+        continentUnlockHandler: ContinentUnlockHandler,
     ) {
         this.worldCheck = worldCheck;
         this.deathEventHandler = deathEventHandler;
@@ -43,24 +58,28 @@ export default class CensusProxy {
         this.continentLockHandler = continentLockHandler;
         this.facilityControlEventHandler = facilityControlEventHandler;
         this.gainExperienceEventHandler = gainExperienceEventHandler;
+        this.achievementEarnedHandler = achievementEarnedHandler;
+        this.battleRankUpHandler = battleRankUpHandler;
+        this.playerFacilityCapture = playerFacilityCapture;
+        this.playerFacilityDefend = playerFacilityDefend;
+        this.coninentUnlockHandler = continentUnlockHandler;
     }
 
-    public handle(event: GenericEvent): boolean {
+    public handle(event: PS2Event): boolean {
         if (config.features.logging.censusIncomingEvents) {
             CensusProxy.logger.debug(`INCOMING EVENT ${event.event_name}`);
         }
 
-        // Validate if the message is relevant for what we want, e.g. worlds and zones with active alerts on.
-        if (!this.worldCheck.validate(parseInt(event.world_id, 10))) {
-            return false;
-        }
+        // if (!this.worldCheck.validate(parseInt(event.world_id, 10))) {
+        //    return false;
+        // }
 
         switch (event.event_name) {
             case 'AchievementEarned':
-                // eventStore.storeAchievementEarned(payload);
+                this.achievementEarnedHandler.handle(event);
                 break;
             case 'BattleRankUp':
-                // eventStore.storeBattleRankUp(payload);
+                this.battleRankUpHandler.handle(event);
                 break;
             case 'Death':
                 this.deathEventHandler.handle(event);
@@ -78,10 +97,10 @@ export default class CensusProxy {
                 this.metagameEventEventHandler.handle(event);
                 break;
             case 'PlayerFacilityCapture':
-                // eventStore.storePlayerFacilityCapture(payload);
+                this.playerFacilityCapture.handle(event);
                 break;
             case 'PlayerFacilityDefend':
-                // eventStore.storePlayerFacilityDefend(payload);
+                this.playerFacilityDefend.handle(event);
                 break;
             case 'PlayerLogin':
                 this.playerLoginEventHandler.handle(event);
@@ -98,10 +117,9 @@ export default class CensusProxy {
             case 'ContinentLock':
                 this.continentLockHandler.handle(event);
                 break;
-            // Documented but never happens
-            // case 'ContinentUnlock':
-            //     eventStore.storeContinentUnlock(payload);
-            //     break;
+            case 'ContinentUnlock':
+                this.coninentUnlockHandler.handle(event);
+                break;
             default:
                 return false;
         }

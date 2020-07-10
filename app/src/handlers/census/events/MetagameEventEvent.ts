@@ -13,13 +13,12 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {MetagameEvent} from 'ps2census/dist/client/utils/PS2Events';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import EventId from '../../../utils/eventId';
 import Parser from '../../../utils/parser';
 import {Zone} from '../../../constants/zone';
 import ZoneUtils from '../../../utils/ZoneUtils';
+import {MetagameEvent, PS2Event} from 'ps2census';
 
 export enum MetagameEventState {
     STARTED,
@@ -45,7 +44,7 @@ export default class MetagameEventEvent {
     public readonly zone: Zone;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const mge = event as MetagameEvent;
         this.worldId = Parser.parseArgumentAsNumber(mge.world_id);

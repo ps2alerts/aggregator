@@ -12,13 +12,13 @@
  **/
 
 import {injectable} from 'inversify';
-import {FacilityControl, GenericEvent} from '../../../types/censusEventTypes';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
+import {FacilityControl, PS2Event} from 'ps2census';
 
 @injectable()
 export default class FacilityControlEvent {
@@ -39,7 +39,7 @@ export default class FacilityControlEvent {
     public readonly newFaction: Faction;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const facilityControl = event as FacilityControl;
         this.worldId = Parser.parseArgumentAsNumber(facilityControl.world_id);

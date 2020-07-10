@@ -13,12 +13,11 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {GainExperience} from 'ps2census/dist/client/utils/PS2Events';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
+import {GainExperience, PS2Event} from 'ps2census';
 
 @injectable()
 export default class GainExperienceEvent {
@@ -31,7 +30,7 @@ export default class GainExperienceEvent {
     public readonly amount: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const gainExperienceEvent = event as GainExperience;
         this.worldId = Parser.parseArgumentAsNumber(gainExperienceEvent.world_id);

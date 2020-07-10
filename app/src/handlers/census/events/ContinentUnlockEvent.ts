@@ -14,14 +14,13 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import {Zone} from '../../../constants/zone';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {ContinentUnlock} from 'ps2census/dist/client/utils/PS2Events';
+import {ContinentUnlock, PS2Event} from 'ps2census';
 
 @injectable()
 export default class ContinentUnlockEvent {
@@ -34,10 +33,9 @@ export default class ContinentUnlockEvent {
     public readonly trPopulation: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
-        // Already fixed in master. Will be fixed with #36
-        const continentUnlockEvent = event as unknown as ContinentUnlock;
+        const continentUnlockEvent = event as ContinentUnlock;
         this.worldId = Parser.parseArgumentAsNumber(continentUnlockEvent.world_id);
 
         if (isNaN(this.worldId)) {

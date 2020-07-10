@@ -7,10 +7,9 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {PlayerLogin} from 'ps2census/dist/client/utils/PS2Events';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
+import {PlayerLogin, PS2Event} from 'ps2census';
 
 @injectable()
 export default class PlayerLogoutEvent {
@@ -19,7 +18,7 @@ export default class PlayerLogoutEvent {
     public readonly worldId: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const playerLogin = event as PlayerLogin;
         this.characterId = Parser.parseArgumentAsNumber(playerLogin.character_id);

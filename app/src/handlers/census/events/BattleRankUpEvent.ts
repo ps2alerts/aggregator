@@ -9,12 +9,11 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {BattleRankUp} from 'ps2census/dist/client/utils/PS2Events';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
+import {BattleRankUp, PS2Event} from 'ps2census';
 
 @injectable()
 export default class BattleRankUpEvent {
@@ -25,7 +24,7 @@ export default class BattleRankUpEvent {
     public readonly battleRank: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const battleRankUpEvent = event as BattleRankUp;
         this.worldId = Parser.parseArgumentAsNumber(battleRankUpEvent.world_id);

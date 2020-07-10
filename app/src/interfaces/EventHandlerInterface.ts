@@ -1,5 +1,5 @@
-import {GenericEvent} from '../types/censusEventTypes';
+import {PS2Event} from 'ps2census';
 
 export default interface EventHandlerInterface {
-    handle(event: GenericEvent): boolean;
+    handle(event: PS2Event): boolean;
 }

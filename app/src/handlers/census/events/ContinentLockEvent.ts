@@ -14,13 +14,13 @@
  **/
 
 import {injectable} from 'inversify';
-import {ContinentLock, GenericEvent} from '../../../types/censusEventTypes';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import {Zone} from '../../../constants/zone';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import ZoneUtils from '../../../utils/ZoneUtils';
+import {ContinentLock, PS2Event} from 'ps2census';
 
 @injectable()
 export default class ContinentLockEvent {
@@ -39,7 +39,7 @@ export default class ContinentLockEvent {
     public readonly trPopulation: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const continentLockEvent = event as ContinentLock;
         this.worldId = Parser.parseArgumentAsNumber(continentLockEvent.world_id);

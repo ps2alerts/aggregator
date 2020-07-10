@@ -17,12 +17,11 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {Death} from 'ps2census/dist/client/utils/PS2Events';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
+import {Death, PS2Event} from 'ps2census';
 
 @injectable()
 export default class DeathEvent {
@@ -47,7 +46,7 @@ export default class DeathEvent {
     public readonly isHeadshot: boolean;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const deathEvent = event as Death;
         this.worldId = Parser.parseArgumentAsNumber(deathEvent.world_id);

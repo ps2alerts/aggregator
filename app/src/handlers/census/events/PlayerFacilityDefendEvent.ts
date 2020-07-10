@@ -10,12 +10,11 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {PlayerFacilityDefend} from 'ps2census/dist/client/utils/PS2Events';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
+import {PlayerFacilityDefend, PS2Event} from 'ps2census';
 
 @injectable()
 export default class PlayerFacilityDefendEvent {
@@ -27,7 +26,7 @@ export default class PlayerFacilityDefendEvent {
     public readonly outfitId: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const playerFacilityDefend = event as PlayerFacilityDefend;
         this.worldId = Parser.parseArgumentAsNumber(playerFacilityDefend.world_id);

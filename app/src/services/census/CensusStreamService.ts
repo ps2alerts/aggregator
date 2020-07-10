@@ -26,14 +26,14 @@ export default class CensusStreamService implements ServiceInterface {
 
     public async start(): Promise<void> {
         CensusStreamService.logger.info('Starting Census Stream Service...');
-        await this.wsClient.connect();
+        await this.wsClient.watch();
 
         this.wsClient.on('ready', () => {
             CensusStreamService.logger.info('Census Stream Service connected!');
         });
 
         // Set up event handlers
-        this.wsClient.on('event', (event) => {
+        this.wsClient.on('ps2Event', (event) => {
             this.censusProxy.handle(event);
         });
 

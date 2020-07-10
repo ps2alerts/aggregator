@@ -9,12 +9,11 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {AchievementEarned} from 'ps2census/dist/client/utils/PS2Events';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
+import {AchievementEarned, PS2Event} from 'ps2census';
 
 @injectable()
 export default class AchievementEarnedEvent {
@@ -25,7 +24,7 @@ export default class AchievementEarnedEvent {
     public readonly timestamp: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
         const achievementEarnedEvent = event as AchievementEarned;
         this.worldId = Parser.parseArgumentAsNumber(achievementEarnedEvent.world_id);
