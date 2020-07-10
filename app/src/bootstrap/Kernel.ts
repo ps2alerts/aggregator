@@ -106,6 +106,13 @@ export default class Kernel implements KernelInterface {
         process.exit(code);
     }
 
+    /* eslint-disable */
+    public terminateWithUnhandledRejection(error: {} | null | undefined): void {
+        // @ts-ignore
+        Kernel.logger.error('unhandledRejection detected!', error.message ?? error.toString());
+    }
+    /* eslint-enable */
+
     /**
      * Executes logging and termination of the application.
      * @param err any
