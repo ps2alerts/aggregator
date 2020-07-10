@@ -108,8 +108,8 @@ export default class Kernel implements KernelInterface {
      * @param err any
      * @param code number
      */
-    public terminateWithError(err: any, code = 1): void {
-        Kernel.logger.error(err.stack ?? err.message ?? err.code ?? err.toString());
+    public terminateWithError(err: Error, code = 1): void {
+        Kernel.logger.error(err.stack ?? err.message);
 
         this.terminate(code);
     }
