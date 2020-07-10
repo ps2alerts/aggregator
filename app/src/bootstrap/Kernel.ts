@@ -1,7 +1,7 @@
 import {Container, injectable, multiInject} from 'inversify';
 import {getLogger} from '../logger';
 import KernelInterface from '../interfaces/KernelInterface';
-import Service, {SERVICE} from '../interfaces/Service';
+import ServiceInterface, {SERVICE} from '../interfaces/ServiceInterface';
 import config from '../config';
 import ApplicationException from '../exceptions/ApplicationException';
 
@@ -24,7 +24,7 @@ export default class Kernel implements KernelInterface {
 
     private readonly container: Container;
 
-    private readonly services: Service[];
+    private readonly services: ServiceInterface[];
 
     /**
      * @type {RunningStates} Running state of the kernel
@@ -34,11 +34,11 @@ export default class Kernel implements KernelInterface {
     /**
      * Constructor.
      * @param {Container} container the IoC Container
-     * @param {Service } services
+     * @param {ServiceInterface } services
      */
     constructor(
         container: Container,
-        @multiInject(SERVICE) services: Service[],
+        @multiInject(SERVICE) services: ServiceInterface[],
     ) {
         this.container = container;
         this.services = services;
@@ -93,13 +93,7 @@ export default class Kernel implements KernelInterface {
      * Public interface to execute a termination. An ApplicationException object must be supplied, giving the correct data.
      * @param code number
      */
-    public async terminate(code = 0): Promise<void> {
-
-        // If Idle or already terminating, we don't care as we're dead anyway sonny jim! :(
-        if (this.state === RunningStates.IDLE || this.state === RunningStates.TERMINATING) {
-            return;
-        }
-
+    public terminate(code = 0): never {
         // Set app as terminating!
         this.state = RunningStates.TERMINATING;
 
@@ -114,21 +108,21 @@ export default class Kernel implements KernelInterface {
      * @param err any
      * @param code number
      */
-    public async terminateWithError(err: any, code = 1): Promise<void> {
+    public terminateWithError(err: any, code = 1): void {
         Kernel.logger.error(err.stack ?? err.message ?? err.code ?? err.toString());
 
-        await this.terminate(code);
+        this.terminate(code);
     }
 
     /**
      * Application level errors will be catched here, echoed out and displayed correctly
      * @param exception ApplicationException
      */
-    private async handleApplicationException(exception: ApplicationException): Promise<void> {
+    private handleApplicationException(exception: ApplicationException): void {
         Kernel.logger.error(`MESSAGE: ${exception.message}`);
         Kernel.logger.error(`ORIGIN: ${exception.origin ?? 'null'}`);
         Kernel.logger.error(`CODE: ${exception.code ?? 'null'}`);
 
-        await this.terminate(exception.code ?? 1);
+        this.terminate(exception.code ?? 1);
     }
 }

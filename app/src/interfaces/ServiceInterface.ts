@@ -1,6 +1,6 @@
 import {Container} from 'inversify';
 
-export default interface Service {
+export default interface ServiceInterface {
     /**
      * Run when booting the application
      *
@@ -25,4 +25,4 @@ export default interface Service {
     terminate?(): Promise<void>;
 }
 
-export const SERVICE = Symbol.for('interfaces.Service');
+export const SERVICE: symbol = Symbol.for('interfaces.Service');

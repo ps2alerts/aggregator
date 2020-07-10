@@ -9,8 +9,8 @@ export default interface KernelInterface {
     /**
      * Terminates the app
      *
-     * @return {Promise<void>}
+     * @return void
      * @param code number
      */
-    terminate(code: number): Promise<void>;
+    terminate(code: number): void;
 }

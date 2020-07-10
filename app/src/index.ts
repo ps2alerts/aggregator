@@ -3,7 +3,7 @@ import Kernel from './bootstrap/Kernel';
 
 const kernel = app.resolve(Kernel);
 
-kernel.run().then(() => {
+void kernel.run().then(() => {
     process.on('unhandledRejection', (e) => {
         kernel.terminateWithError(e);
     }).on('uncaughtException', (e) => {

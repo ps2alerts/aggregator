@@ -1,13 +1,13 @@
 // @See https://github.com/microwavekonijn/ps2census for further commands (wsClient)
 
-import Service from '../../interfaces/Service';
+import ServiceInterface from '../../interfaces/ServiceInterface';
 import PS2EventClient from 'ps2census/dist/client/Client'; // TODO: Await microwave's type fixes
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
 import CensusProxy from '../../handlers/census/CensusProxy';
 
 @injectable()
-export default class CensusStreamService implements Service {
+export default class CensusStreamService implements ServiceInterface {
     private static readonly logger = getLogger('ps2census');
 
     private readonly wsClient: PS2EventClient;
