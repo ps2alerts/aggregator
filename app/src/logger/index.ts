@@ -9,7 +9,9 @@ const defaultLogger = createLogger({
     format: format.combine(
         format.colorize(),
         format.timestamp(),
-        format.printf(({timestamp, level, label, message}) => `${timestamp} | ${level} | ${label} >> ${message}`),
+        format.printf(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            ({timestamp, level, label, message}) => `${timestamp} | ${level} | ${label} >> ${message}`),
     ),
     transports: [
         new transports.Console(),
