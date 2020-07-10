@@ -304,7 +304,7 @@ module.exports = {
         "prefer-const": "error",
         "prefer-rest-params": "error",
         "prefer-spread": "error",
-        "prefer-template": "error",
+        "prefer-template": "warn",
         "rest-spread-spacing": "error",
         "template-curly-spacing": "error",
 
