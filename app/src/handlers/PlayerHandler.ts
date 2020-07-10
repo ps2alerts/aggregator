@@ -34,4 +34,8 @@ export default class PlayerHandler implements PlayerHandlerInterface {
             return player.worldId === worldId && player.characterId === characterId;
         });
     }
+
+    public updateLastSeen(worldId: number, characterId: number): void {
+        // TODO Update last seen for https://github.com/ps2alerts/websocket/issues/31 #31
+    }
 }

@@ -1,3 +1,17 @@
+/**
+ *  ### CENSUS RESPONSE ATTRIBUTES ####
+ "experience_bonus":"",
+ "faction_nc":"",
+ "faction_tr":"",
+ "faction_vs":"",
+ "metagame_event_id":"",
+ "metagame_event_state":"",
+ "timestamp":"",
+ "world_id":"",
+ "zone_id":""
+ * ### END ###
+ **/
+
 import {injectable} from 'inversify';
 import {GenericEvent} from '../../../types/censusEventTypes';
 import {MetagameEvent} from 'ps2census/dist/client/utils/PS2Events';
@@ -37,48 +51,48 @@ export default class MetagameEventEvent {
         this.worldId = Parser.parseArgumentAsNumber(mge.world_id);
 
         if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('world_id');
+            throw new IllegalArgumentException('world_id', 'MetagameEventEvent');
         }
 
         if (mge.metagame_event_state_name === null || mge.metagame_event_state_name === undefined) {
-            throw new IllegalArgumentException('metagame_event_state_name');
+            throw new IllegalArgumentException('metagame_event_state_name', 'MetagameEventEvent');
         }
 
         const eventStateName = mge.metagame_event_state_name;
 
         if (eventStateName !== 'started' && eventStateName !== 'ended') {
-            throw new IllegalArgumentException('metagame_event_state_name');
+            throw new IllegalArgumentException('metagame_event_state_name', 'MetagameEventEvent');
         }
 
         this.eventState = eventStateName === 'started' ? MetagameEventState.STARTED : MetagameEventState.ENDED;
         this.factionNc = Parser.parseArgumentAsNumber(mge.faction_nc, true);
 
         if (isNaN(this.factionNc)) {
-            throw new IllegalArgumentException('faction_nc');
+            throw new IllegalArgumentException('faction_nc', 'MetagameEventEvent');
         }
 
         this.factionTr = Parser.parseArgumentAsNumber(mge.faction_tr, true);
 
         if (isNaN(this.factionTr)) {
-            throw new IllegalArgumentException('faction_tr');
+            throw new IllegalArgumentException('faction_tr', 'MetagameEventEvent');
         }
 
         this.factionVs = Parser.parseArgumentAsNumber(mge.faction_vs, true);
 
         if (isNaN(this.factionVs)) {
-            throw new IllegalArgumentException('faction_vs');
+            throw new IllegalArgumentException('faction_vs', 'MetagameEventEvent');
         }
 
         this.timestamp = Parser.parseArgumentAsNumber(mge.timestamp);
 
         if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('timestamp');
+            throw new IllegalArgumentException('timestamp', 'MetagameEventEvent');
         }
 
         const eventId = Parser.parseArgumentAsNumber(mge.metagame_event_id);
 
         if (isNaN(eventId)) {
-            throw new IllegalArgumentException('metagame_event_id');
+            throw new IllegalArgumentException('metagame_event_id', 'MetagameEventEvent');
         }
 
         // TODO InstanceID are missing in the declaration
@@ -87,7 +101,7 @@ export default class MetagameEventEvent {
         this.instanceId = Parser.parseArgumentAsNumber(mge.instance_id);
 
         if (isNaN(this.instanceId)) {
-            throw new IllegalArgumentException('instance_id');
+            throw new IllegalArgumentException('instance_id', 'MetagameEventEvent');
         }
 
         // No check needed since ZoneUtils will validate it

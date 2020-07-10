@@ -1,7 +1,10 @@
 # PS2Alerts Websocket
+
+![Discord](https://img.shields.io/discord/708061542649954315?label=Discord) ![Ansible Linter](https://github.com/ps2alerts/websocket/workflows/Ansible%20Linter/badge.svg) ![ESLint](https://github.com/ps2alerts/websocket/workflows/ESLint/badge.svg) ![Yaml Linter](https://github.com/ps2alerts/websocket/workflows/Yaml%20Linter/badge.svg)
+
 The websocket collection script that powers PS2Alerts.com.
 
-THIS PROJECT IS UNDERGOING A VAST RE-REWITE. If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
+**This project is undergoing a full rewrite**. If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
 
 ## Preface
 
@@ -27,7 +30,7 @@ Please check the issues list for where you can contribute to this project. For m
 
 # **Points of note**
 
-If you don't quite understand IoC, I suggest you create a application as per the Inversify tutorials, hopefully it'll click.
+If you don't quite understand IoC, I suggest you create an application as per the [Inversify tutorials](https://github.com/inversify/inversify-basic-example), hopefully it'll click. Feel free to ask any of the collaborators for help.
 
 ## File structure 
 
@@ -45,7 +48,7 @@ This is where the IoC container is instantiated and told to load the modules via
 
 ### `/index.ts`
 
-This is where the fun begins. Index.ts loads the Kernel, which in turn loads the Container, which in turn sets everything up, and then once that's all running, listens for kernel level exceptions which we haven't catched within the application and logs it, then gracefully terminates the application.
+This is where the fun begins. Index.ts loads the Kernel, which in turn loads the Container, which in turn sets everything up, and then once that's all running, listens for kernel level exceptions which we haven't caught within the application and logs it, then gracefully terminates the application.
 
 ### `/bootstrap`
 

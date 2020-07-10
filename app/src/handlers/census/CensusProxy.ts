@@ -9,6 +9,7 @@ import PlayerLoginEventHandler from './PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 import ContinentLockEventHandler from './ContinentLockEventHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
+import GainExperienceHandler from './GainExperienceHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -47,7 +48,8 @@ export default class CensusProxy {
         }
 
         // Validate if the message is relevant for what we want, e.g. worlds and zones with active alerts on.
-        if (!this.worldCheck.validate(parseInt(event.world_id, 10))) {
+        // TODO: CHECK!
+        if (!this.worldCheck.validate(parseInt(event.world_id))) {
             return false;
         }
 
@@ -65,7 +67,7 @@ export default class CensusProxy {
                 this.facilityControlEventHandler.handle(event);
                 break;
             case 'GainExperience':
-                // eventStore.storeGainExperience(payload);
+                this.gainExperienceHandler.handle(event);
                 break;
             case 'ItemAdded':
                 // eventStore.storeItemAdded(payload);

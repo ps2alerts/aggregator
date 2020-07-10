@@ -21,5 +21,6 @@ export default class ZoneUtils {
             default:
                 throw new IllegalArgumentException(`Unknown zone: ${value}`);
         }
+        throw new IllegalArgumentException('Unknown zone: ' + value, 'ZoneUtils.parse');
     }
 }

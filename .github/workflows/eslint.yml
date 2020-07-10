@@ -1,13 +1,11 @@
+---
 name: ESLint
-
 on:
   push:
   pull_request:
-
 defaults:
   run:
     working-directory: ./app
-
 jobs:
   eslint:
     runs-on: ubuntu-latest

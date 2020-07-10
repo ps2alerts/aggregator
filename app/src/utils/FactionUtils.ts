@@ -16,6 +16,6 @@ export default class FactionUtils {
                 return Faction.VANU_SOVEREIGNTY;
         }
 
-        throw new IllegalArgumentException(`Unknown faction: ${value}`);
+        throw new IllegalArgumentException(`Unknown faction: ${value}`, 'FactionUtils.parse');
     }
 }
