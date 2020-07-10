@@ -10,10 +10,11 @@ export default class App {
      * @return {ContainerModule[]} Modules used by the app
      */
     get modules(): ContainerModule[] {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return [
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            // eslint-disable-next-line
             require('../services/census').default,
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            // eslint-disable-next-line
             require('../handlers').default,
         ];
     }
