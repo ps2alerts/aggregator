@@ -7,7 +7,7 @@ import config from '../../config';
 import MetagameEventEventHandler from './MetagameEventEventHandler';
 import PlayerLoginEventHandler from './PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
-import ContinentLockHandler from './ContinentLockHandler';
+import ContinentLockEventHandler from './ContinentLockEventHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
 
 @injectable()
@@ -19,7 +19,7 @@ export default class CensusProxy {
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly playerLoginEventHandler: PlayerLoginEventHandler;
     private readonly playerLogoutEventHandler: PlayerLogoutEventHandler;
-    private readonly continentLockHandler: ContinentLockHandler;
+    private readonly continentLockHandler: ContinentLockEventHandler;
     private readonly facilityControlEventHandler: FacilityControlEventHandler;
 
     constructor(
@@ -29,7 +29,7 @@ export default class CensusProxy {
         metagameEventEventHandler: MetagameEventEventHandler,
         playerLoginEventHandler: PlayerLoginEventHandler,
         playerLogoutEventHandler: PlayerLogoutEventHandler,
-        continentLockHandler: ContinentLockHandler,
+        continentLockHandler: ContinentLockEventHandler,
         facilityControlEventHandler: FacilityControlEventHandler,
     ) {
         this.worldCheck = worldCheck;

@@ -35,7 +35,12 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             const facilityControl = new FacilityControlEvent(event);
             this.storeEvent(facilityControl);
         } catch (e) {
-            FacilityControlEventHandler.logger.warn(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+            if (e instanceof Error) {
+                FacilityControlEventHandler.logger.warn(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+            } else {
+                FacilityControlEventHandler.logger.error('UNEXPECTED ERROR parsing FacilityControlEvent!');
+            }
+
             return false;
         }
 

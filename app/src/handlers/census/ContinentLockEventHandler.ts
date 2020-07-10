@@ -23,14 +23,14 @@ import {jsonLogOutput} from '../../utils/json';
 import ContinentLockEvent from './events/ContinentLockEvent';
 
 @injectable()
-export default class ContinentLockHandler implements EventHandlerInterface {
-    private static readonly logger = getLogger('ContinentLockHandler');
+export default class ContinentLockEventHandler implements EventHandlerInterface {
+    private static readonly logger = getLogger('ContinentLockEventHandler');
 
     public handle(event: GenericEvent): boolean {
-        ContinentLockHandler.logger.debug('Parsing message...');
+        ContinentLockEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
-            ContinentLockHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
+            ContinentLockEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
         try {
@@ -38,7 +38,12 @@ export default class ContinentLockHandler implements EventHandlerInterface {
             this.storeEvent(continentLockEvent);
             return true;
         } catch (e) {
-            ContinentLockHandler.logger.warn(`Error parsing ContinentLockEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+            if (e instanceof Error) {
+                ContinentLockEventHandler.logger.warn(`Error parsing ContinentLockEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+            } else {
+                ContinentLockEventHandler.logger.error('UNEXPECTED ERROR parsing ContinentLockEvent!');
+            }
+
             return false;
         }
     }

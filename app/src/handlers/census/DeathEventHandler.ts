@@ -41,7 +41,12 @@ export default class DeathEventHandler implements EventHandlerInterface {
             const deathEvent = new DeathEvent(event);
             this.storeEvent(deathEvent);
         } catch (e) {
-            DeathEventHandler.logger.warn(`Error parsing DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+            if (e instanceof Error) {
+                DeathEventHandler.logger.warn(`Error parsing DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+            } else {
+                DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent!');
+            }
+
             return false;
         }
 

@@ -38,7 +38,12 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface {
             const playerLogout = new PlayerLogoutEvent(event);
             this.playerHandler.handleLogout(playerLogout);
         } catch (e) {
-            PlayerLogoutEventHandler.logger.warn(`Error parsing PlayerLogoutEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+            if (e instanceof Error) {
+                PlayerLogoutEventHandler.logger.warn(`Error parsing PlayerLogoutEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+            } else {
+                PlayerLogoutEventHandler.logger.error('UNEXPECTED ERROR parsing PlayerLogoutEvent!');
+            }
+
             return false;
         }
 
