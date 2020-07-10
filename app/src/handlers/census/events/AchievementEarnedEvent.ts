@@ -26,28 +26,31 @@ export default class AchievementEarnedEvent {
     constructor(
         event: PS2Event,
     ) {
-        const achievementEarnedEvent = event as AchievementEarned;
-        this.worldId = Parser.parseArgumentAsNumber(achievementEarnedEvent.world_id);
+        if (!(event instanceof AchievementEarned)) {
+            throw new IllegalArgumentException('event', 'AchievementEarnedEvent');
+        }
+
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'AchievementEarnedEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(achievementEarnedEvent.zone_id));
-        this.characterId = Parser.parseArgumentAsNumber(achievementEarnedEvent.character_id);
+        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
+        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
 
         if (isNaN(this.characterId)) {
             throw new IllegalArgumentException('character_id', 'AchievementEarnedEvent');
         }
 
-        this.achievementId = Parser.parseArgumentAsNumber(achievementEarnedEvent.achievement_id);
+        this.achievementId = Parser.parseArgumentAsNumber(event.achievement_id);
 
         if (isNaN(this.achievementId)) {
             throw new IllegalArgumentException('achievement_id', 'AchievementEarnedEvent');
         }
 
-        this.timestamp = Parser.parseArgumentAsNumber(achievementEarnedEvent.timestamp);
+        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'AchievementEarnedEvent');

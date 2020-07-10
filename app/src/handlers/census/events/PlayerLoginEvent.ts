@@ -20,14 +20,17 @@ export default class PlayerLoginEvent {
     constructor(
         event: PS2Event,
     ) {
-        const playerLogin = event as PlayerLogin;
-        this.characterId = Parser.parseArgumentAsNumber(playerLogin.character_id);
+        if (!(event instanceof PlayerLogin)) {
+            throw new IllegalArgumentException('event', 'PlayerLoginEvent');
+        }
+
+        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
 
         if (isNaN(this.characterId)) {
             throw new IllegalArgumentException('character_id', 'PlayerLoginEvent');
         }
 
-        this.worldId = Parser.parseArgumentAsNumber(playerLogin.world_id);
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'PlayerLoginEvent');

@@ -48,59 +48,62 @@ export default class DeathEvent {
     constructor(
         event: PS2Event,
     ) {
-        const deathEvent = event as Death;
-        this.worldId = Parser.parseArgumentAsNumber(deathEvent.world_id);
+        if (!(event instanceof Death)) {
+            throw new IllegalArgumentException('event', 'DeathEvent');
+        }
+
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'DeathEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(deathEvent.zone_id));
-        this.timestamp = Parser.parseArgumentAsNumber(deathEvent.timestamp);
+        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
+        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'DeathEvent');
         }
 
-        this.characterId = Parser.parseArgumentAsNumber(deathEvent.character_id);
+        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
 
         if (isNaN(this.characterId)) {
             throw new IllegalArgumentException('character_id', 'DeathEvent');
         }
 
-        this.characterLoadoutId = Parser.parseArgumentAsNumber(deathEvent.character_loadout_id);
+        this.characterLoadoutId = Parser.parseArgumentAsNumber(event.character_loadout_id);
 
         if (isNaN(this.characterLoadoutId)) {
             throw new IllegalArgumentException('character_loadout_id', 'DeathEvent');
         }
 
-        this.attackerCharacterId = Parser.parseArgumentAsNumber(deathEvent.attacker_character_id);
+        this.attackerCharacterId = Parser.parseArgumentAsNumber(event.attacker_character_id);
 
         if (isNaN(this.attackerCharacterId)) {
             throw new IllegalArgumentException('attacker_character_id', 'DeathEvent');
         }
 
-        this.attackerLoadoutId = Parser.parseArgumentAsNumber(deathEvent.attacker_loadout_id);
+        this.attackerLoadoutId = Parser.parseArgumentAsNumber(event.attacker_loadout_id);
 
         if (isNaN(this.attackerLoadoutId)) {
             throw new IllegalArgumentException('attacker_loadout_id', 'DeathEvent');
         }
 
-        this.attackerVehicleId = Parser.parseArgumentAsNumber(deathEvent.attacker_vehicle_id);
+        this.attackerVehicleId = Parser.parseArgumentAsNumber(event.attacker_vehicle_id);
 
         if (isNaN(this.attackerVehicleId)) {
             throw new IllegalArgumentException('attacker_vehicle_id', 'DeathEvent');
         }
 
-        this.attackerWeaponId = Parser.parseArgumentAsNumber(deathEvent.attacker_weapon_id);
+        this.attackerWeaponId = Parser.parseArgumentAsNumber(event.attacker_weapon_id);
 
         if (isNaN(this.attackerWeaponId)) {
             throw new IllegalArgumentException('attacker_weapon_id', 'DeathEvent');
         }
 
         // No check needed, is boolean
-        this.isHeadshot = Parser.parseArgumentAsBoolean(deathEvent.is_headshot);
+        this.isHeadshot = Parser.parseArgumentAsBoolean(event.is_headshot);
         // attacker_fire_mode_id is not needed right now
     }
 }

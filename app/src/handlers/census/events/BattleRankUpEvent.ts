@@ -26,28 +26,31 @@ export default class BattleRankUpEvent {
     constructor(
         event: PS2Event,
     ) {
-        const battleRankUpEvent = event as BattleRankUp;
-        this.worldId = Parser.parseArgumentAsNumber(battleRankUpEvent.world_id);
+        if (!(event instanceof BattleRankUp)) {
+            throw new IllegalArgumentException('event', 'BattleRankUpEvent');
+        }
+
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'BattleRankUpEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(battleRankUpEvent.zone_id));
-        this.characterId = Parser.parseArgumentAsNumber(battleRankUpEvent.character_id);
+        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
+        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
 
         if (isNaN(this.characterId)) {
             throw new IllegalArgumentException('character_id', 'BattleRankUpEvent');
         }
 
-        this.timestamp = Parser.parseArgumentAsNumber(battleRankUpEvent.timestamp);
+        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'BattleRankUpEvent');
         }
 
-        this.battleRank = Parser.parseArgumentAsNumber(battleRankUpEvent.battle_rank);
+        this.battleRank = Parser.parseArgumentAsNumber(event.battle_rank);
 
         if (isNaN(this.battleRank)) {
             throw new IllegalArgumentException('battle_rank', 'BattleRankUpEvent');

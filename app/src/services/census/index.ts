@@ -2,7 +2,7 @@ import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import config from '../../config';
 import CensusStreamService from './CensusStreamService';
-import Client from 'ps2census/dist/client/Client';
+import {Client} from 'ps2census';
 import {EventStreamManagerConfig} from 'ps2census/dist/client/utils/Types';
 
 export default new ContainerModule((bind) => {

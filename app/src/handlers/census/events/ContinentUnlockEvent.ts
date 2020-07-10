@@ -35,47 +35,50 @@ export default class ContinentUnlockEvent {
     constructor(
         event: PS2Event,
     ) {
-        const continentUnlockEvent = event as ContinentUnlock;
-        this.worldId = Parser.parseArgumentAsNumber(continentUnlockEvent.world_id);
+        if (!(event instanceof ContinentUnlock)) {
+            throw new IllegalArgumentException('event', 'ContinentUnlockEvent');
+        }
+
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'ContinentUnlockEvent');
         }
 
         // No need to check, ZoneUtils will validate the argument
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(continentUnlockEvent.zone_id));
-        this.timestamp = Parser.parseArgumentAsNumber(continentUnlockEvent.timestamp);
+        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
+        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'ContinentUnlockEvent');
         }
 
-        this.vsPopulation = Parser.parseArgumentAsNumber(continentUnlockEvent.vs_population);
+        this.vsPopulation = Parser.parseArgumentAsNumber(event.vs_population);
 
         if (isNaN(this.vsPopulation)) {
             throw new IllegalArgumentException('vs_population', 'ContinentUnlockEvent');
         }
 
-        this.ncPopulation = Parser.parseArgumentAsNumber(continentUnlockEvent.nc_population);
+        this.ncPopulation = Parser.parseArgumentAsNumber(event.nc_population);
 
         if (isNaN(this.ncPopulation)) {
             throw new IllegalArgumentException('nc_population', 'ContinentUnlockEvent');
         }
 
-        this.vsPopulation = Parser.parseArgumentAsNumber(continentUnlockEvent.vs_population);
+        this.vsPopulation = Parser.parseArgumentAsNumber(event.vs_population);
 
         if (isNaN(this.vsPopulation)) {
             throw new IllegalArgumentException('vs_population', 'ContinentUnlockEvent');
         }
 
-        this.trPopulation = Parser.parseArgumentAsNumber(continentUnlockEvent.tr_population);
+        this.trPopulation = Parser.parseArgumentAsNumber(event.tr_population);
 
         if (isNaN(this.trPopulation)) {
             throw new IllegalArgumentException('tr_population', 'ContinentUnlockEvent');
         }
 
         // No need to check, FactionUtils will validate the argument
-        this.triggeringFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(continentUnlockEvent.triggering_faction));
+        this.triggeringFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(event.triggering_faction));
         // No use for metagame_event_id. Data suggests it is not really interesting
         // previous_faction is always 0
     }
