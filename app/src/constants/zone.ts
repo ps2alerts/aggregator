@@ -1,9 +1,9 @@
 export enum Zone {
-    indar = 2,
-    hossin = 4,
-    amerish = 6,
-    esamir = 8,
-    vrTrainingNC = 96,
-    vrTrainingTR = 97,
-    vrTrainingVS = 98
+    INDAR = 2,
+    HOSSIN = 4,
+    AMERISH = 6,
+    ESAMIR = 8,
+    VR_TRAINING_NC = 96,
+    VR_TRAINING_TR = 97,
+    VR_TRAINING_VS = 98,
 }

@@ -1,11 +1,10 @@
-require ('reflect-metadata');
-
-import { Container } from 'inversify';
+import 'reflect-metadata';
+import {Container} from 'inversify';
 import Kernel from './bootstrap/Kernel';
 import config from './config';
 
 // Initialize container
-const app = new Container({ autoBindInjectable: true, skipBaseClassChecks: true});
+const app = new Container({autoBindInjectable: true, skipBaseClassChecks: true});
 
 // Bind container to app const
 app.bind<Container>(Container).toConstantValue(app);

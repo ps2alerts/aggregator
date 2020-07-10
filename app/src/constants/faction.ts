@@ -1,7 +1,7 @@
 export enum Faction {
-    none,
-    vanuSovereignty,
-    newConglomerate,
-    terranRepublic,
-    nSOperatives
+    NONE,
+    VANU_SOVEREIGNTY,
+    NEW_CONGLOMERATE,
+    TERRAN_REPUBLIC,
+    NS_OPERATIVES,
 }

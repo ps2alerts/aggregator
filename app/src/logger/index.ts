@@ -1,4 +1,4 @@
-import { createLogger, transports, format, Logger } from 'winston';
+import {createLogger, transports, format, Logger} from 'winston';
 import config from '../config';
 
 /**
@@ -9,6 +9,7 @@ const defaultLogger = createLogger({
     format: format.combine(
         format.colorize(),
         format.timestamp(),
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         format.printf(({timestamp, level, label, message}) => `${timestamp} | ${level} | ${label} >> ${message}`),
     ),
     transports: [

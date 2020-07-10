@@ -1,22 +1,25 @@
 // @See https://github.com/microwavekonijn/ps2census for further commands (wsClient)
 
-import Service from '../../interfaces/Service';
+import ServiceInterface from '../../interfaces/ServiceInterface';
 import PS2EventClient from 'ps2census/dist/client/Client'; // TODO: Await microwave's type fixes
-import { getLogger } from '../../logger';
-import { injectable } from 'inversify';
+import {getLogger} from '../../logger';
+import {injectable} from 'inversify';
 import CensusProxy from '../../handlers/census/CensusProxy';
 
 @injectable()
-export default class CensusStreamService implements Service {
+export default class CensusStreamService implements ServiceInterface {
     private static readonly logger = getLogger('ps2census');
-    private subscriptions = [];
 
-    public constructor(
-        private readonly wsClient: PS2EventClient,
-        private readonly censusProxy: CensusProxy
-    ) {
+    private readonly wsClient: PS2EventClient;
+    private readonly censusProxy: CensusProxy;
+    private readonly subscriptions = [];
+
+    constructor(wsClient: PS2EventClient, censusProxy: CensusProxy) {
+        this.wsClient = wsClient;
+        this.censusProxy = censusProxy;
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
         CensusStreamService.logger.info('Booting Census Stream Service...');
     }
@@ -42,20 +45,20 @@ export default class CensusStreamService implements Service {
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
-        this.wsClient.on('error', (error) => {
-            CensusStreamService.logger.error(`Census stream error! ${error}`);
+        this.wsClient.on('error', (error: Error) => {
+            CensusStreamService.logger.error(`Census stream error! ${error.message}`);
         });
 
-        this.wsClient.on('warn', (error) => {
-            CensusStreamService.logger.warn(`Census stream warn! ${error}`);
+        this.wsClient.on('warn', (error: Error) => {
+            CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
         });
     }
 
-    public async terminate(): Promise<void> {
+    public terminate(): void {
         CensusStreamService.logger.info('Terminating Census Stream Service!');
 
         try {
-            await this.wsClient.destroy();
+            this.wsClient.destroy();
         } catch {
             // Fucked
         }

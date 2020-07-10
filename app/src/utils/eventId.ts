@@ -56,6 +56,7 @@ export default class EventId {
             case 134:
                 return 4;
         }
+
         return -1;
     }
 }

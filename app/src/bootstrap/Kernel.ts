@@ -1,7 +1,7 @@
-import { Container, injectable, multiInject } from 'inversify';
-import { getLogger } from '../logger';
+import {Container, injectable, multiInject} from 'inversify';
+import {getLogger} from '../logger';
 import KernelInterface from '../interfaces/KernelInterface';
-import Service, { SERVICE } from '../interfaces/Service';
+import ServiceInterface, {SERVICE} from '../interfaces/ServiceInterface';
 import config from '../config';
 import ApplicationException from '../exceptions/ApplicationException';
 
@@ -9,10 +9,10 @@ import ApplicationException from '../exceptions/ApplicationException';
  * Denotes the running states of the application.
  */
 enum RunningStates {
-    idle,
-    booting,
-    running,
-    terminating
+    IDLE,
+    BOOTING,
+    RUNNING,
+    TERMINATING,
 }
 
 /**
@@ -22,22 +22,26 @@ enum RunningStates {
 export default class Kernel implements KernelInterface {
     private static readonly logger = getLogger('kernel');
 
+    private readonly container: Container;
 
+    private readonly services: ServiceInterface[];
 
     /**
      * @type {RunningStates} Running state of the kernel
      */
-    private state: RunningStates = RunningStates.idle;
+    private state: RunningStates = RunningStates.IDLE;
 
     /**
      * Constructor.
      * @param {Container} container the IoC Container
-     * @param {Service } services
+     * @param {ServiceInterface } services
      */
-    public constructor(
-        private readonly container: Container,
-        @multiInject(SERVICE) private readonly services: Service[],
+    constructor(
+        container: Container,
+        @multiInject(SERVICE) services: ServiceInterface[],
     ) {
+        this.container = container;
+        this.services = services;
     }
 
     /**
@@ -45,11 +49,11 @@ export default class Kernel implements KernelInterface {
      */
     public async run(): Promise<void> {
         // If already booting, stop here.
-        if (this.state != RunningStates.idle) {
+        if (this.state !== RunningStates.IDLE) {
             return;
         }
 
-        this.state = RunningStates.booting;
+        this.state = RunningStates.BOOTING;
 
         Kernel.logger.info(`Starting! == VERSION: ${config.app.version}, ENV: ${config.app.environment} ==`);
 
@@ -58,26 +62,29 @@ export default class Kernel implements KernelInterface {
             Kernel.logger.info('Booting services');
             await Promise.all(
                 this.services.map(
-                    service => service.boot?.apply(
-                        service, [this.container])
-                )
+                    (service) => service.boot?.apply(service, [this.container]),
+                ),
             );
 
             Kernel.logger.info('Starting services');
             await Promise.all(
                 this.services.map(
-                    service => service.start?.apply(
-                        service, [this.container])
-                )
+                    (service) => service.start?.apply(
+                        service, [this.container]),
+                ),
             );
 
-            this.state = RunningStates.running;
+            this.state = RunningStates.RUNNING;
         } catch (e) {
-            switch (e.constructor.name) {
-                case 'ApplicationException': {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+            const name: string = e.name;
+
+            switch (name) {
+                case 'ApplicationException':
+                case 'InvalidArgumentException':
                     this.handleApplicationException(e);
                     break;
-                }
+
                 default: {
                     this.terminate(1);
                 }
@@ -89,13 +96,9 @@ export default class Kernel implements KernelInterface {
      * Public interface to execute a termination. An ApplicationException object must be supplied, giving the correct data.
      * @param code number
      */
-    public async terminate(code = 0): Promise<void> {
-
-        // If Idle or already terminating, we don't care as we're dead anyway sonny jim! :(
-        if (this.state === RunningStates.idle || this.state === RunningStates.terminating) return;
-
+    public terminate(code = 0): never {
         // Set app as terminating!
-        this.state = RunningStates.terminating;
+        this.state = RunningStates.TERMINATING;
 
         Kernel.logger.info(`TERMINATING! CODE: ${code}`);
 
@@ -103,26 +106,34 @@ export default class Kernel implements KernelInterface {
         process.exit(code);
     }
 
+    public terminateWithUnhandledRejection(error: unknown): void {
+        if (error instanceof Error) {
+            Kernel.logger.error('unhandledRejection detected!', error.message);
+        } else {
+            Kernel.logger.error('unhandledRejection detected!', error);
+        }
+    }
+
     /**
      * Executes logging and termination of the application.
      * @param err any
      * @param code number
      */
-    public async terminateWithError(err: any, code = 1): Promise<void> {
-        Kernel.logger.error(err.stack ?? err.message ?? err.code ?? err.toString());
+    public terminateWithError(err: Error, code = 1): void {
+        Kernel.logger.error(err.stack ?? err.message);
 
-        await this.terminate(code);
+        this.terminate(code);
     }
 
     /**
      * Application level errors will be catched here, echoed out and displayed correctly
      * @param exception ApplicationException
      */
-    private async handleApplicationException(exception: ApplicationException): Promise<void> {
+    private handleApplicationException(exception: ApplicationException): void {
         Kernel.logger.error(`MESSAGE: ${exception.message}`);
-        Kernel.logger.error(`ORIGIN: ${exception.origin}`);
-        Kernel.logger.error(`CODE: ${exception.code}`);
+        Kernel.logger.error(`ORIGIN: ${exception.origin ?? 'null'}`);
+        Kernel.logger.error(`CODE: ${exception.code ?? 'null'}`);
 
-        await this.terminate(exception.code ?? 1);
+        this.terminate(exception.code ?? 1);
     }
 }

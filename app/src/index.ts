@@ -1,11 +1,12 @@
 import app from './bootstrap';
 import Kernel from './bootstrap/Kernel';
+
 const kernel = app.resolve(Kernel);
 
-kernel.run().then(() => {
-    process.on('unhandledRejection', e => {
-        kernel.terminateWithError(e);
-    }).on('uncaughtException', e => {
+void kernel.run().then(() => {
+    process.on('unhandledRejection', (e) => {
+        kernel.terminateWithUnhandledRejection(e);
+    }).on('uncaughtException', (e) => {
         kernel.terminateWithError(e);
     }).on('exit', () => {
         kernel.terminate();

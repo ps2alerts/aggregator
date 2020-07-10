@@ -1,13 +1,15 @@
-export default class ApplicationException {
+export default class ApplicationException extends Error {
     private _message: string;
+
     private _origin: string|null;
+
     private _code: number|null;
 
     get message(): string {
         return this._message;
     }
 
-    set message(value :string) {
+    set message(value: string) {
         this._message = value;
     }
 
@@ -15,7 +17,7 @@ export default class ApplicationException {
         return this._origin;
     }
 
-    set origin(value :string|null) {
+    set origin(value: string|null) {
         this._origin = value;
     }
 
@@ -27,9 +29,11 @@ export default class ApplicationException {
         this._code = value;
     }
 
-    public constructor(message:string, origin:string|null = null, code:number|null = null) {
+    constructor(message: string, origin: string|null = null, code: number|null = null) {
+        super(message);
         this.message = message;
         this.origin = origin;
         this.code = code;
+        this.name = 'ApplicationException';
     }
 }

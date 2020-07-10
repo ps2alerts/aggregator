@@ -1,7 +1,6 @@
-/* eslint-disable */
-import { Container } from 'inversify';
+import {Container} from 'inversify';
 
-export default interface Service {
+export default interface ServiceInterface {
     /**
      * Run when booting the application
      *
@@ -21,9 +20,9 @@ export default interface Service {
     /**
      * Run when terminating the application
      *
-     * @return {Promise<void>}
+     * @return void
      */
-    terminate?(): Promise<void>;
+    terminate?(): void;
 }
 
-export const SERVICE = Symbol.for('interfaces.Service');
+export const SERVICE: symbol = Symbol.for('interfaces.Service');
