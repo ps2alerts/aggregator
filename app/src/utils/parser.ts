@@ -13,6 +13,7 @@ export default class Parser {
         if (argument === null || argument === undefined) {
             throw new IllegalArgumentException('Argument cannot be null or undefined', 'Parser.parseArgumentAsBoolean');
         }
+
         return argument.toLowerCase() === 'true';
     }
 }

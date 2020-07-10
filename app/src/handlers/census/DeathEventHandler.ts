@@ -8,14 +8,14 @@ import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 
-
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('DeathEventHandler');
 
-    constructor(
-        @inject(TYPES.PlayerHandlerInterface) private playerHandler: PlayerHandlerInterface
-    ) {
+    private readonly playerHandler: PlayerHandlerInterface;
+
+    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
+        this.playerHandler = playerHandler;
     }
 
     public handle(event: GenericEvent): boolean {
@@ -35,12 +35,14 @@ export default class DeathEventHandler implements EventHandlerInterface {
             } else {
                 DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent!');
             }
+
             return false;
         }
+
         return true;
     }
 
-    private handleDeath(deathEvent: DeathEvent) {
+    private handleDeath(deathEvent: DeathEvent): void {
         this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.attackerCharacterId);
         this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.characterId);
 
@@ -49,7 +51,7 @@ export default class DeathEventHandler implements EventHandlerInterface {
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(death: DeathEvent): void {
+    private storeEvent(deathEvent: DeathEvent): void {
         // TODO Store in database
     }
 }

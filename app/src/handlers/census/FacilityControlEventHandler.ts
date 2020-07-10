@@ -35,7 +35,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(facilityControl: FacilityControlEvent): void {
+    private storeEvent(facilityControlEvent: FacilityControlEvent): void {
         // TODO Store in database
     }
 }

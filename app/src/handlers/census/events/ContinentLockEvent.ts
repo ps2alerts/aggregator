@@ -47,6 +47,7 @@ export default class ContinentLockEvent {
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'ContinentLockEvent');
         }
+
         // No need to check, ZoneUtils will validate the argument
         this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(continentLockEvent.zone_id));
         this.timestamp = Parser.parseArgumentAsNumber(continentLockEvent.timestamp);

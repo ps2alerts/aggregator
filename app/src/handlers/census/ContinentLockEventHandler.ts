@@ -50,7 +50,7 @@ export default class ContinentLockEventHandler implements EventHandlerInterface 
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(continentLock: ContinentLockEvent): void {
+    private storeEvent(continentLockEvent: ContinentLockEvent): void {
         // TODO Store in database
     }
 }

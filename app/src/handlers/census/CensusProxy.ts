@@ -9,7 +9,7 @@ import PlayerLoginEventHandler from './PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 import ContinentLockEventHandler from './ContinentLockEventHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
-import GainExperienceHandler from './GainExperienceHandler';
+import GainExperienceEventHandler from './GainExperienceEventHandler';
 
 @injectable()
 export default class CensusProxy {
@@ -22,6 +22,7 @@ export default class CensusProxy {
     private readonly playerLogoutEventHandler: PlayerLogoutEventHandler;
     private readonly continentLockHandler: ContinentLockEventHandler;
     private readonly facilityControlEventHandler: FacilityControlEventHandler;
+    private readonly gainExperienceEventHandler: GainExperienceEventHandler;
 
     constructor(
         // TODO: make this into a single object parameter
@@ -32,6 +33,7 @@ export default class CensusProxy {
         playerLogoutEventHandler: PlayerLogoutEventHandler,
         continentLockHandler: ContinentLockEventHandler,
         facilityControlEventHandler: FacilityControlEventHandler,
+        gainExperienceEventHandler: GainExperienceEventHandler,
     ) {
         this.worldCheck = worldCheck;
         this.deathEventHandler = deathEventHandler;
@@ -40,6 +42,7 @@ export default class CensusProxy {
         this.playerLogoutEventHandler = playerLogoutEventHandler;
         this.continentLockHandler = continentLockHandler;
         this.facilityControlEventHandler = facilityControlEventHandler;
+        this.gainExperienceEventHandler = gainExperienceEventHandler;
     }
 
     public handle(event: GenericEvent): boolean {
@@ -48,8 +51,7 @@ export default class CensusProxy {
         }
 
         // Validate if the message is relevant for what we want, e.g. worlds and zones with active alerts on.
-        // TODO: CHECK!
-        if (!this.worldCheck.validate(parseInt(event.world_id))) {
+        if (!this.worldCheck.validate(parseInt(event.world_id, 10))) {
             return false;
         }
 
@@ -67,7 +69,7 @@ export default class CensusProxy {
                 this.facilityControlEventHandler.handle(event);
                 break;
             case 'GainExperience':
-                this.gainExperienceHandler.handle(event);
+                this.gainExperienceEventHandler.handle(event);
                 break;
             case 'ItemAdded':
                 // eventStore.storeItemAdded(payload);

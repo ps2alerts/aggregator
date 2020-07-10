@@ -29,13 +29,15 @@ export default class PlayerHandler implements PlayerHandlerInterface {
         return true;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public updateLastSeen(worldId: number, characterId: number): void {
+        // TODO Update last seen for https://github.com/ps2alerts/websocket/issues/31 #31
+    }
+
     private containsPlayer(worldId: number, characterId: number): boolean {
         return this._players.some((player) => {
             return player.worldId === worldId && player.characterId === characterId;
         });
     }
 
-    public updateLastSeen(worldId: number, characterId: number): void {
-        // TODO Update last seen for https://github.com/ps2alerts/websocket/issues/31 #31
-    }
 }

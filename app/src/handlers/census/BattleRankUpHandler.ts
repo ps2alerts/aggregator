@@ -1,34 +1,43 @@
-import { inject, injectable } from 'inversify';
+import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import { getLogger } from '../../logger';
-import { GenericEvent } from 'ps2census/dist/client/utils/PS2Events';
-import { TYPES } from '../../constants/types';
+import {getLogger} from '../../logger';
+import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
+import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import config from '../../config';
-import { jsonLogOutput } from '../../utils/json';
+import {jsonLogOutput} from '../../utils/json';
 import BattleRankUpEvent from './events/BattleRankUpEvent';
 
 @injectable()
 export default class BattleRankUpHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('BattleRankUpHandler');
 
-    constructor(
-        @inject(TYPES.PlayerHandlerInterface) private playerHandler: PlayerHandlerInterface
-    ) {
+    private readonly playerHandler: PlayerHandlerInterface;
+
+    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
+        this.playerHandler = playerHandler;
     }
 
     public handle(event: GenericEvent): boolean {
         BattleRankUpHandler.logger.debug('Parsing message...');
+
         if (config.features.logging.censusEventContent) {
             BattleRankUpHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
+
         try {
             const battleRankUpEvent = new BattleRankUpEvent(event);
             this.handleBattleRankUp(battleRankUpEvent);
         } catch (e) {
-            BattleRankUpHandler.logger.warn('Error parsing BattleRankEvent: ' + e.message + '\r\n' + jsonLogOutput(event));
+            if (e instanceof Error) {
+                BattleRankUpHandler.logger.warn(`Error parsing BattleRankEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+            } else {
+                BattleRankUpHandler.logger.error('UNEXPECTED ERROR parsing BattleRankUp!');
+            }
+
             return false;
         }
+
         return true;
     }
 
@@ -38,6 +47,8 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         this.storeEvent(battleRankUpEvent);
     }
 
+    // WIP
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private storeEvent(battleRankUpEvent: BattleRankUpEvent): void {
         // TODO Store in database
     }
