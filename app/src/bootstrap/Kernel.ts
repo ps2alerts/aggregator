@@ -22,6 +22,10 @@ enum RunningStates {
 export default class Kernel implements KernelInterface {
     private static readonly logger = getLogger('kernel');
 
+    private readonly container: Container;
+
+    private readonly services: Service[];
+
     /**
      * @type {RunningStates} Running state of the kernel
      */
@@ -33,9 +37,11 @@ export default class Kernel implements KernelInterface {
      * @param {Service } services
      */
     constructor(
-        private readonly container: Container,
-        @multiInject(SERVICE) private readonly services: Service[],
+        container: Container,
+        @multiInject(SERVICE) services: Service[],
     ) {
+        this.container = container;
+        this.services = services;
     }
 
     /**
