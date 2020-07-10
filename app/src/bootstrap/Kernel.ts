@@ -76,11 +76,14 @@ export default class Kernel implements KernelInterface {
 
             this.state = RunningStates.RUNNING;
         } catch (e) {
-            switch (e.constructor.name) {
-                case 'ApplicationException': {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+            const name: string = e.name;
+
+            switch (name) {
+                case 'ApplicationException':
+                case 'InvalidArgumentException':
                     this.handleApplicationException(e);
                     break;
-                }
 
                 default: {
                     this.terminate(1);

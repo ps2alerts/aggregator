@@ -34,5 +34,6 @@ export default class ApplicationException extends Error {
         this.message = message;
         this.origin = origin;
         this.code = code;
+        this.name = 'ApplicationException';
     }
 }
