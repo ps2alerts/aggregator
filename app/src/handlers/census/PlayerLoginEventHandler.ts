@@ -1,12 +1,3 @@
-/**
- *  ### CENSUS RESPONSE ATTRIBUTES ####
- "character_id":"",
- "event_name":"PlayerLogin",
- "timestamp":"",
- "world_id":""
- * ### END ###
- **/
-
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';

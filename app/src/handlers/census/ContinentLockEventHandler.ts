@@ -1,19 +1,3 @@
-/**
- *  ### CENSUS RESPONSE ATTRIBUTES ####
- "event_name":"",
- "timestamp":"",
- "world_id":"",
- "zone_id":"",
- "triggering_faction":"",
- "previous_faction":"",
- "vs_population":"",
- "nc_population":"",
- "tr_population":"",
- "metagame_event_id":"",
- "event_type":""
- * ### END ###
- **/
-
 import {injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';

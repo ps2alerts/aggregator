@@ -39,5 +39,4 @@ export default class PlayerHandler implements PlayerHandlerInterface {
             return player.worldId === worldId && player.characterId === characterId;
         });
     }
-
 }

@@ -1,3 +1,17 @@
+/**
+ *  ### CENSUS RESPONSE ATTRIBUTES ####
+ "amount":"",
+ "character_id":"",
+ "event_name":"GainExperience",
+ "experience_id":"",
+ "loadout_id":"",
+ "other_id":"",
+ "timestamp":"",
+ "world_id":"",
+ "zone_id":""
+ * ### END ###
+ **/
+
 import {injectable} from 'inversify';
 import {GenericEvent} from '../../../types/censusEventTypes';
 import {GainExperience} from 'ps2census/dist/client/utils/PS2Events';
