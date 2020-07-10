@@ -1,6 +1,6 @@
 const TYPES = {
-    PlayerHandlerInterface: Symbol.for('PlayerHandlerInterface'),
-    AlertHandlerInterface: Symbol.for('AlertHandlerInterface'),
+    playerHandlerInterface: Symbol.for('PlayerHandlerInterface'),
+    alertHandlerInterface: Symbol.for('AlertHandlerInterface'),
 };
 
 export {TYPES};

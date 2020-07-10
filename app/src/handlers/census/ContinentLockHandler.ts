@@ -35,10 +35,17 @@ export default class ContinentLockHandler implements EventHandlerInterface {
 
         try {
             const continentLockEvent = new ContinentLockEvent(event);
+            this.storeEvent(continentLockEvent);
             return true;
         } catch (e) {
             ContinentLockHandler.logger.warn(`Error parsing ContinentLockEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             return false;
         }
+    }
+
+    // WIP
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    private storeEvent(continentLock: ContinentLockEvent): void {
+        // TODO Store in database
     }
 }

@@ -19,13 +19,13 @@ import {TYPES} from '../../constants/types';
 
 @injectable()
 export default class PlayerLoginEventHandler implements EventHandlerInterface {
-
-    constructor(
-        @inject(TYPES.PlayerHandlerInterface) private readonly playerHandler: PlayerHandlerInterface,
-    ) {
-    }
-
     private static readonly logger = getLogger('PlayerLoginEventHandler');
+
+    private readonly playerHandler: PlayerHandlerInterface;
+
+    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
+        this.playerHandler = playerHandler;
+    }
 
     public handle(event: GenericEvent): boolean {
         PlayerLoginEventHandler.logger.debug('Parsing message...');

@@ -3,8 +3,9 @@ import {GenericEvent} from '../../../types/censusEventTypes';
 
 @injectable()
 export default class DeathEvent {
-    constructor(
-        private readonly event: GenericEvent,
-    ) {
+    private readonly event: GenericEvent;
+
+    constructor(event: GenericEvent) {
+        this.event = event;
     }
 }

@@ -21,9 +21,10 @@ import {TYPES} from '../../constants/types';
 export default class PlayerLogoutEventHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('PlayerLogoutEventHandler');
 
-    constructor(
-        @inject(TYPES.PlayerHandlerInterface) private readonly playerHandler: PlayerHandlerInterface,
-    ) {
+    private readonly playerHandler: PlayerHandlerInterface;
+
+    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
+        this.playerHandler = playerHandler;
     }
 
     public handle(event: GenericEvent): boolean {

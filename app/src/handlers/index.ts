@@ -6,6 +6,6 @@ import AlertHandlerInterface from '../interfaces/AlertHandlerInterface';
 import AlertHandler from './AlertHandler';
 
 export default new ContainerModule((bind) => {
-    bind<PlayerHandlerInterface>(TYPES.PlayerHandlerInterface).to(PlayerHandler).inSingletonScope();
-    bind<AlertHandlerInterface>(TYPES.AlertHandlerInterface).to(AlertHandler).inSingletonScope();
+    bind<PlayerHandlerInterface>(TYPES.playerHandlerInterface).to(PlayerHandler).inSingletonScope();
+    bind<AlertHandlerInterface>(TYPES.alertHandlerInterface).to(AlertHandler).inSingletonScope();
 });

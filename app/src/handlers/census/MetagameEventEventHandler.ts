@@ -27,9 +27,10 @@ import AlertHandlerInterface from '../../interfaces/AlertHandlerInterface';
 export default class MetagameEventEventHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('MetagameEventEventHandler');
 
-    constructor(
-        @inject(TYPES.AlertHandlerInterface) private readonly alertHandler: AlertHandlerInterface,
-    ) {
+    private readonly alertHandler: AlertHandlerInterface;
+
+    constructor(@inject(TYPES.alertHandlerInterface) alertHandler: AlertHandlerInterface) {
+        this.alertHandler = alertHandler;
     }
 
     public handle(event: GenericEvent): boolean {

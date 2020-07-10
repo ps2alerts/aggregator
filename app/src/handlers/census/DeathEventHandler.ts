@@ -23,6 +23,7 @@ import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
+import DeathEvent from './events/DeathEvent';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface {
@@ -36,6 +37,20 @@ export default class DeathEventHandler implements EventHandlerInterface {
         }
 
         // TODO: Microwave is going to convert Census library to pass through DeathEvent object etc
+        try {
+            const deathEvent = new DeathEvent(event);
+            this.storeEvent(deathEvent);
+        } catch (e) {
+            DeathEventHandler.logger.warn(`Error parsing DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+            return false;
+        }
+
         return true;
+    }
+
+    // WIP
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    private storeEvent(death: DeathEvent): void {
+        // TODO Store in database
     }
 }
