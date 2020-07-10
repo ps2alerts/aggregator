@@ -45,12 +45,12 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
-        this.wsClient.on('error', (error) => {
-            CensusStreamService.logger.error(`Census stream error! ${error}`);
+        this.wsClient.on('error', (error: Error) => {
+            CensusStreamService.logger.error(`Census stream error! ${error.message}`);
         });
 
-        this.wsClient.on('warn', (error) => {
-            CensusStreamService.logger.warn(`Census stream warn! ${error}`);
+        this.wsClient.on('warn', (error: Error) => {
+            CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
         });
     }
 
