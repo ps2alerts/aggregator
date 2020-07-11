@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import {PS2Event} from 'ps2census';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface {
@@ -18,14 +18,13 @@ export default class DeathEventHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: GenericEvent): boolean {
+    public handle(event: PS2Event): boolean {
         DeathEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             DeathEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
-        // TODO: Microwave is going to convert Census library to pass through DeathEvent object etc
         try {
             const deathEvent = new DeathEvent(event);
             this.handleDeath(deathEvent);

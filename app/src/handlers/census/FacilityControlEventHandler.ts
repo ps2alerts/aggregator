@@ -1,16 +1,16 @@
 import {injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
+import {PS2Event} from 'ps2census';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('FacilityControlEventHandler');
 
-    public handle(event: GenericEvent): boolean {
+    public handle(event: PS2Event): boolean {
         FacilityControlEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {

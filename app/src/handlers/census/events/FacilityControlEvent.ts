@@ -12,13 +12,13 @@
  **/
 
 import {injectable} from 'inversify';
-import {FacilityControl, GenericEvent} from '../../../types/censusEventTypes';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
+import {FacilityControl, PS2Event} from 'ps2census';
 
 @injectable()
 export default class FacilityControlEvent {
@@ -39,43 +39,46 @@ export default class FacilityControlEvent {
     public readonly newFaction: Faction;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
-        const facilityControl = event as FacilityControl;
-        this.worldId = Parser.parseArgumentAsNumber(facilityControl.world_id);
+        if (!(event instanceof FacilityControl)) {
+            throw new IllegalArgumentException('event', 'FacilityControlEvent');
+        }
+
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'FacilityControlEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(facilityControl.zone_id));
-        this.timestamp = Parser.parseArgumentAsNumber(facilityControl.timestamp);
+        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
+        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'FacilityControlEvent');
         }
 
-        this.facilityId = Parser.parseArgumentAsNumber(facilityControl.facility_id);
+        this.facilityId = Parser.parseArgumentAsNumber(event.facility_id);
 
         if (isNaN(this.facilityId)) {
             throw new IllegalArgumentException('facility_id', 'FacilityControlEvent');
         }
 
-        this.outfitId = Parser.parseArgumentAsNumber(facilityControl.outfit_id);
+        this.outfitId = Parser.parseArgumentAsNumber(event.outfit_id);
 
         if (isNaN(this.outfitId)) {
             throw new IllegalArgumentException('outfit_id', 'FacilityControlEvent');
         }
 
-        this.durationHeld = Parser.parseArgumentAsNumber(facilityControl.duration_held);
+        this.durationHeld = Parser.parseArgumentAsNumber(event.duration_held);
 
         if (isNaN(this.durationHeld)) {
             throw new IllegalArgumentException('durationHeld', 'FacilityControlEvent');
         }
 
-        this.oldFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(facilityControl.old_faction_id));
-        this.newFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(facilityControl.new_faction_id));
+        this.oldFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(event.old_faction_id));
+        this.newFaction = FactionUtils.parse(Parser.parseArgumentAsNumber(event.new_faction_id));
     }
 
 }

@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
-import {GenericEvent} from 'ps2census/dist/client/utils/PS2Events';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import BattleRankUpEvent from './events/BattleRankUpEvent';
+import {PS2Event} from 'ps2census';
 
 @injectable()
 export default class BattleRankUpHandler implements EventHandlerInterface {
@@ -18,7 +18,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: GenericEvent): boolean {
+    public handle(event: PS2Event): boolean {
         BattleRankUpHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
