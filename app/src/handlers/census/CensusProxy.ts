@@ -9,7 +9,7 @@ import PlayerLogoutEventHandler from './PlayerLogoutEventHandler';
 import ContinentLockEventHandler from './ContinentLockEventHandler';
 import FacilityControlEventHandler from './FacilityControlEventHandler';
 import GainExperienceEventHandler from './GainExperienceEventHandler';
-import {PS2Event} from 'ps2census';
+import {ContinentLock, ContinentUnlock, MetagameEvent, PS2Event} from 'ps2census';
 import AchievementEarnedHandler from './AchievementEarnedHandler';
 import BattleRankUpHandler from './BattleRankUpHandler';
 import PlayerFacilityCaptureHandler from './PlayerFacilityCaptureHandler';
@@ -70,9 +70,12 @@ export default class CensusProxy {
             CensusProxy.logger.debug(`INCOMING EVENT ${event.event_name}`);
         }
 
-        // if (!this.worldCheck.validate(parseInt(event.world_id, 10))) {
-        //    return false;
-        // }
+        // worldCheck.validate will check against active alarms --> skip alert start/end events
+        if (!(event instanceof ContinentUnlock || event instanceof MetagameEvent || event instanceof ContinentLock)) {
+            if (!this.worldCheck.validate(parseInt(event.world_id, 10))) {
+                return false;
+            }
+        }
 
         switch (event.event_name) {
             case 'AchievementEarned':
