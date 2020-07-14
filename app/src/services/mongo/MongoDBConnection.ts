@@ -22,8 +22,9 @@ export default class MongoDBConnection {
             try {
                 void MongoDBConnection.connect();
                 return MongoDBConnection.db;
-            } catch (e) {
-                throw new ApplicationException(`CRITICAL: UNABLE TO OPEN DATABASE CONNECTION! ${e.message}`, 'database/mongo-connection', 1);
+            } catch (error) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`CRITICAL: UNABLE TO OPEN DATABASE CONNECTION! ${error.message ?? error}`, 'database/mongo-connection', 1);
             }
         }
     }
