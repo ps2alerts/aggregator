@@ -10,12 +10,11 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {PlayerFacilityDefend} from 'ps2census/dist/client/utils/PS2Events';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
+import {PlayerFacilityDefend, PS2Event} from 'ps2census';
 
 @injectable()
 export default class PlayerFacilityDefendEvent {
@@ -27,36 +26,39 @@ export default class PlayerFacilityDefendEvent {
     public readonly outfitId: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
-        const playerFacilityDefend = event as PlayerFacilityDefend;
-        this.worldId = Parser.parseArgumentAsNumber(playerFacilityDefend.world_id);
+        if (!(event instanceof PlayerFacilityDefend)) {
+            throw new IllegalArgumentException('event', 'PlayerFacilityDefendEvent');
+        }
+
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'PlayerFacilityDefendEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(playerFacilityDefend.zone_id));
-        this.timestamp = Parser.parseArgumentAsNumber(playerFacilityDefend.timestamp);
+        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
+        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'PlayerFacilityDefendEvent');
         }
 
-        this.characterId = Parser.parseArgumentAsNumber(playerFacilityDefend.character_id);
+        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
 
         if (isNaN(this.characterId)) {
             throw new IllegalArgumentException('character_id', 'PlayerFacilityDefendEvent');
         }
 
-        this.facilityId = Parser.parseArgumentAsNumber(playerFacilityDefend.facility_id);
+        this.facilityId = Parser.parseArgumentAsNumber(event.facility_id);
 
         if (isNaN(this.facilityId)) {
             throw new IllegalArgumentException('facility_id', 'PlayerFacilityDefendEvent');
         }
 
-        this.outfitId = Parser.parseArgumentAsNumber(playerFacilityDefend.outfit_id);
+        this.outfitId = Parser.parseArgumentAsNumber(event.outfit_id);
 
         if (isNaN(this.outfitId)) {
             throw new IllegalArgumentException('outfit_id', 'PlayerFacilityDefendEvent');

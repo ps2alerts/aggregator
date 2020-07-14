@@ -35,7 +35,7 @@
     "lodash": "^4.17.15",
     "mongoose": "^5.9.24",
     "mysql2": "^2.1.0",
-    "ps2census": "^0.1.2",
+    "ps2census": "^0.2.6",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.21.7",
     "sqlite3": "^4.2.0",

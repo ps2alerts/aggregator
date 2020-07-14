@@ -13,12 +13,11 @@
  **/
 
 import {injectable} from 'inversify';
-import {GenericEvent} from '../../../types/censusEventTypes';
-import {GainExperience} from 'ps2census/dist/client/utils/PS2Events';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
+import {GainExperience, PS2Event} from 'ps2census';
 
 @injectable()
 export default class GainExperienceEvent {
@@ -31,42 +30,45 @@ export default class GainExperienceEvent {
     public readonly amount: number;
 
     constructor(
-        event: GenericEvent,
+        event: PS2Event,
     ) {
-        const gainExperienceEvent = event as GainExperience;
-        this.worldId = Parser.parseArgumentAsNumber(gainExperienceEvent.world_id);
+        if (!(event instanceof GainExperience)) {
+            throw new IllegalArgumentException('event', 'GainExperienceEvent');
+        }
+
+        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(gainExperienceEvent.zone_id));
-        this.timestamp = Parser.parseArgumentAsNumber(gainExperienceEvent.timestamp);
+        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
+        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp');
         }
 
-        this.characterId = Parser.parseArgumentAsNumber(gainExperienceEvent.character_id);
+        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
 
         if (isNaN(this.characterId)) {
             throw new IllegalArgumentException('character_id');
         }
 
-        this.experienceId = Parser.parseArgumentAsNumber(gainExperienceEvent.experience_id);
+        this.experienceId = Parser.parseArgumentAsNumber(event.experience_id);
 
         if (isNaN(this.experienceId)) {
             throw new IllegalArgumentException('experience_id');
         }
 
-        this.loadoutId = Parser.parseArgumentAsNumber(gainExperienceEvent.loadout_id);
+        this.loadoutId = Parser.parseArgumentAsNumber(event.loadout_id);
 
         if (isNaN(this.loadoutId)) {
             throw new IllegalArgumentException('loadout_id');
         }
 
-        this.amount = Parser.parseArgumentAsNumber(gainExperienceEvent.amount);
+        this.amount = Parser.parseArgumentAsNumber(event.amount);
 
         if (isNaN(this.amount)) {
             throw new IllegalArgumentException('amount');
