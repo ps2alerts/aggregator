@@ -49,8 +49,7 @@ export default class MongoDBConnection {
         const config: DatabaseConfig = MongoDBConnection.dbConfig.config;
 
         const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}?authSource=admin`;
-
-        MongoDBConnection.logger.info(connStr);
+        MongoDBConnection.logger.debug(connStr);
 
         mongoose.connection.on('connected', function() {
             MongoDBConnection.isConnected = true;
