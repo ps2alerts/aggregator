@@ -16,7 +16,7 @@ export default class MongoDBConnection {
         MongoDBConnection.dbConfig = dbConfig;
     }
 
-    public getConnection(): Mongoose|boolean {
+    public async getConnection(): Promise<Mongoose|boolean> {
         if (MongoDBConnection.connecting) {
             MongoDBConnection.logger.info('MongoDBConnection is currently connecting, aborting connection.');
             return false;
@@ -26,7 +26,7 @@ export default class MongoDBConnection {
             return MongoDBConnection.db;
         } else {
             try {
-                void MongoDBConnection.connect();
+                await MongoDBConnection.connect();
                 return MongoDBConnection.db;
             } catch (error) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
@@ -35,14 +35,14 @@ export default class MongoDBConnection {
         }
     }
 
-    public terminateConnection(): boolean {
+    public async terminateConnection(): Promise<boolean> {
         if (!MongoDBConnection.isConnected) {
             MongoDBConnection.logger.error('terminateConnection was called when not connected!');
             return true;
         }
 
         try {
-            void MongoDBConnection.db.connection.close();
+            await MongoDBConnection.db.connection.close();
         } catch (error) {
             MongoDBConnection.logger.emerg('Was unable to close the database connection! FUBAR');
             throw new ApplicationException('CRITICAL: UNABLE TO CLOSE DATABASE CONNECTION! FUBAR!', 'database/mongo-connection', 1);
