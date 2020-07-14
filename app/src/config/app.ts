@@ -16,6 +16,8 @@ export default class App {
             require('../services/census').default,
             // eslint-disable-next-line
             require('../handlers').default,
+            // eslint-disable-next-line
+            require('../services/mongo').default,
         ];
     }
 }

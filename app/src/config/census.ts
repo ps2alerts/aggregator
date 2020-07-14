@@ -17,7 +17,6 @@ export default class Census {
     constructor() {
         this.subscriptions = [{
             eventNames: ['Death'],
-            characters: ['all'],
             worlds: ['10'],
         }];
         this.ps2WsConfig = {
