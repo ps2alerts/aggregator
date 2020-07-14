@@ -8,6 +8,7 @@ import Database, {DatabaseConfig} from '../../config/database';
 export default class MongoDBConnection {
     private static readonly logger = getLogger('DatabaseConnection');
     private static isConnected = false;
+    private static connecting = false;
     private static db: Mongoose;
     private static dbConfig: Database;
 
@@ -15,7 +16,12 @@ export default class MongoDBConnection {
         MongoDBConnection.dbConfig = dbConfig;
     }
 
-    public getConnection(): Mongoose {
+    public getConnection(): Mongoose|boolean {
+        if (MongoDBConnection.connecting) {
+            MongoDBConnection.logger.info('MongoDBConnection is currently connecting, aborting connection.');
+            return false;
+        }
+
         if (MongoDBConnection.isConnected) {
             return MongoDBConnection.db;
         } else {
@@ -47,6 +53,8 @@ export default class MongoDBConnection {
 
     private static async connect(): Promise<void> {
         MongoDBConnection.logger.info('Starting connection...');
+        MongoDBConnection.connecting = true;
+
         const config: DatabaseConfig = MongoDBConnection.dbConfig.config;
 
         const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}?authSource=admin`;
@@ -54,6 +62,7 @@ export default class MongoDBConnection {
 
         mongoose.connection.on('connected', function() {
             MongoDBConnection.isConnected = true;
+            MongoDBConnection.connecting = false;
             MongoDBConnection.logger.info('Successfully connected to MongoDB database.');
         });
 
