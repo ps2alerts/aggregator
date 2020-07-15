@@ -1,13 +1,13 @@
 import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import config from '../../config';
-import TypeOrmService from './TypeOrmService';
+import TypeOrmConnection from './TypeOrmConnection';
 
 export default new ContainerModule((bind) => {
-    bind<ServiceInterface>(SERVICE).to(TypeOrmService);
+    bind<ServiceInterface>(SERVICE).to(TypeOrmConnection);
 
-    bind(TypeOrmService)
-        .toDynamicValue(() => new TypeOrmService(
+    bind(TypeOrmConnection)
+        .toDynamicValue(() => new TypeOrmConnection(
             config.database,
         ))
         .inSingletonScope();

@@ -4,13 +4,11 @@ import {Connection, ConnectionOptions, createConnection} from 'typeorm';
 import Database from '../../config/database';
 import {injectable} from 'inversify';
 import {Alert} from '../../entities/Alert';
-import {World} from '../../constants/world';
-import {AlertState} from '../../constants/alertState';
-import {Zone} from '../../constants/zone';
-import {getUnixTimestamp} from '../../utils/time';
 
 @injectable()
-export default class TypeOrmService implements ServiceInterface {
+export default class TypeOrmConnection implements ServiceInterface {
+    public connection: Connection;
+
     private static readonly logger = getLogger('typeorm');
 
     private readonly dbConfig: Database;
@@ -21,11 +19,11 @@ export default class TypeOrmService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        TypeOrmService.logger.info('Booting TypeORM (NOT IMPLEMENTED)');
+        TypeOrmConnection.logger.info('Booting TypeORM (NOT IMPLEMENTED)');
     }
 
     public async start(): Promise<void> {
-        TypeOrmService.logger.info('Starting TypeORM Service...');
+        TypeOrmConnection.logger.info('Starting TypeORM Service...');
         const config = this.dbConfig.config;
         const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}/${config.schema}`;
 
@@ -43,25 +41,16 @@ export default class TypeOrmService implements ServiceInterface {
             useNewUrlParser: true,
         };
 
-        createConnection(connectionOptions).then((connection: Connection) => {
-            TypeOrmService.logger.info('TypeORM connected to Mongo');
-
-            const alert = new Alert();
-            alert.worldId = World.MILLER;
-            alert.zoneId = Zone.INDAR;
-            alert.state = AlertState.STARTED;
-            alert.timestampStarted = getUnixTimestamp();
-
-            connection.manager.save(alert).then((alert) => {
-                console.log(`Alert saved! ID: ${alert.id}`);
-            });
+        await createConnection(connectionOptions).then((connection: Connection) => {
+            TypeOrmConnection.logger.info('TypeORM connected to Mongo and available');
+            this.connection = connection;
         }).catch((error) => {
-            TypeOrmService.logger.error('TypeORM unable to connect to Mongo!');
-            console.log(error);
+            TypeOrmConnection.logger.error('TypeORM unable to connect to Mongo!');
+            TypeOrmConnection.logger.error(error);
         });
     }
 
     public terminate(): void {
-        TypeOrmService.logger.info('Terminating TypeORM Service (NOT IMPLEMENTED)');
+        TypeOrmConnection.logger.info('Terminating TypeORM Service (NOT IMPLEMENTED)');
     }
 }
