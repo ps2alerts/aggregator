@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility,@typescript-eslint/no-unused-vars */
 import {Entity, Column} from 'typeorm';
 import {Faction} from '../../constants/faction';
 

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility,@typescript-eslint/no-unused-vars */
-import {Entity, Column, OneToOne, ManyToOne} from 'typeorm';
+import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
 import StaticPlayer from './static/StaticPlayer';
@@ -14,7 +13,7 @@ export class AlertDeath {
             nullable: false,
         },
     )
-    @JoinColumn
+    @JoinColumn()
     alertId: Alert;
 
     @Column({
@@ -29,7 +28,7 @@ export class AlertDeath {
             nullable: false,
         },
     )
-    @JoinColumn
+    @JoinColumn()
     attacker: StaticPlayer;
 
     @ManyToOne(
@@ -39,7 +38,7 @@ export class AlertDeath {
             nullable: false,
         },
     )
-    @JoinColumn
+    @JoinColumn()
     player: StaticPlayer;
 
     @Column()

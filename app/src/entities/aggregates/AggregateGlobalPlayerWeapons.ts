@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import StaticPlayer from '../static/StaticPlayer';
@@ -11,8 +10,8 @@ export class AggregateGlobalPlayerWeapons {
     @ManyToOne(
         (type) => StaticPlayer,
         (player) => player.id,
-    ),
-    @JoinColumn
+    )
+    @JoinColumn()
     player: StaticPlayer;
 
     // Need to figure out how to composite key these...
@@ -20,7 +19,7 @@ export class AggregateGlobalPlayerWeapons {
         (type) => StaticWeapon,
         (weapon) => weapon.id,
     )
-    @JoinColumn
+    @JoinColumn()
     weapon: StaticWeapon;
 
     // Kills player has made with weapon

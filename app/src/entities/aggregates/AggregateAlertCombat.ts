@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
-import {Entity, Column, OneToOne, PrimaryGeneratedColumn} from 'typeorm';
+import {Entity, Column, OneToOne} from 'typeorm';
 import {Alert} from '../Alert';
 import {JoinColumn} from 'typeorm/browser';
 
@@ -12,7 +11,7 @@ export class AggregateAlertCombat {
             primary: true,
         },
     )
-    @JoinColumn
+    @JoinColumn()
     alertId: Alert;
 
     @Column('simple-json')

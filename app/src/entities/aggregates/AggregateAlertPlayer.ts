@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from '../Alert';
@@ -13,7 +12,7 @@ export class AggregateAlertPlayer {
         (type) => Alert,
         (alert) => alert.id,
     )
-    @JoinColumn
+    @JoinColumn()
     alertId: Alert;
 
     // Need to figure out how to composite key these...
@@ -21,7 +20,7 @@ export class AggregateAlertPlayer {
         (type) => StaticPlayer,
         (player) => player.id,
     )
-    @JoinColumn
+    @JoinColumn()
 
     player: StaticPlayer;
 
@@ -32,7 +31,7 @@ export class AggregateAlertPlayer {
             nullable: true,
         },
     )
-    @JoinColumn
+    @JoinColumn()
     outfit: StaticOutfit;
 
     @Column()

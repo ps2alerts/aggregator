@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility,@typescript-eslint/no-unused-vars */
-import {Entity, ObjectIdColumn, ObjectID, Column, OneToOne, ManyToOne} from 'typeorm';
+import {Entity, Column, OneToOne, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
 import {Faction} from '../constants/faction';
@@ -14,7 +13,7 @@ export class AlertFacilityControl {
             primary: true,
         },
     )
-    @JoinColumn
+    @JoinColumn()
     alertId: Alert;
 
     @Column()

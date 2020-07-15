@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
-import {Alert} from '../Alert';
 import StaticPlayer from '../static/StaticPlayer';
 import StaticVehicle from '../static/StaticVehicle';
 
@@ -13,7 +11,7 @@ export class AggregateGlobalPlayerVehicles {
         (type) => StaticPlayer,
         (player) => player.id,
     )
-    @JoinColumn
+    @JoinColumn()
     player: StaticPlayer;
 
     // Need to figure out how to composite key these...
@@ -21,7 +19,7 @@ export class AggregateGlobalPlayerVehicles {
         (type) => StaticVehicle,
         (vehicle) => vehicle.id,
     )
-    @JoinColumn
+    @JoinColumn()
     weapon: StaticVehicle;
 
     // Number of other players player has killed in this vehicle

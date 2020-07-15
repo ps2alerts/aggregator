@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility,@typescript-eslint/no-unused-vars */
 import {Entity, ObjectIdColumn, ObjectID, Column} from 'typeorm';
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';

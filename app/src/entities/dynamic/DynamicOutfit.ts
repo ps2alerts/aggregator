@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility,@typescript-eslint/no-unused-vars */
 import StaticOutfit from '../static/StaticOutfit';
 import StaticPlayer from '../static/StaticPlayer';
 import {Column, Entity, JoinColumn, OneToMany, OneToOne} from 'typeorm';
@@ -9,7 +8,7 @@ export default class DynamicOutfit {
 
     // Maps to ingame outfit ID
     @OneToOne((type) => StaticOutfit)
-    @JoinColumn()
+    @JoinColumn()()
     id: StaticOutfit;
 
     @Column({
@@ -19,7 +18,7 @@ export default class DynamicOutfit {
     tag: string;
 
     @OneToOne((type) => StaticPlayer)
-    @JoinColumn()
+    @JoinColumn()()
     leader: StaticPlayer;
 
     @OneToMany(
