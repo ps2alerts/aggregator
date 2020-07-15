@@ -3,6 +3,7 @@ import {
     getInt,
 } from '../utils/env';
 import {ConnectionOptions} from 'mongoose';
+import {injectable} from 'inversify';
 
 export interface DatabaseConfig {
     host: string;
@@ -12,6 +13,7 @@ export interface DatabaseConfig {
     schema: string;
 }
 
+@injectable()
 export default class Database {
     public readonly config: DatabaseConfig;
     public readonly connectionOptions: ConnectionOptions;
@@ -27,7 +29,7 @@ export default class Database {
 
         this.connectionOptions = {
             useNewUrlParser: true,
-            useUnifiedTopology: true,
+            useUnifiedTopology: false,
             useCreateIndex: true,
             useFindAndModify: false,
             autoIndex: false,
@@ -35,6 +37,9 @@ export default class Database {
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
             family: 4,
+            keepAlive: true,
+            keepAliveInitialDelay: 30000, // 30 sec
+            reconnectTries: 30,
         };
     }
 }

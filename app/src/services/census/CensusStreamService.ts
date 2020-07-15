@@ -21,7 +21,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        CensusStreamService.logger.info('Booting Census Stream Service...');
+        CensusStreamService.logger.info('Booting Census Stream Service... (NOT IMPLEMENTED)');
     }
 
     public async start(): Promise<void> {

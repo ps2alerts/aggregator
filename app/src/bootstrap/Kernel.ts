@@ -59,20 +59,24 @@ export default class Kernel implements KernelInterface {
 
         try {
             // @See config/app/.ts
-            Kernel.logger.info('Booting services');
+            Kernel.logger.info('==== Booting services ====');
             await Promise.all(
                 this.services.map(
                     (service) => service.boot?.apply(service, [this.container]),
                 ),
             );
 
-            Kernel.logger.info('Starting services');
+            Kernel.logger.info('==== Services booted! ====');
+
+            Kernel.logger.info('==== Starting services ====');
             await Promise.all(
                 this.services.map(
                     (service) => service.start?.apply(
                         service, [this.container]),
                 ),
             );
+
+            Kernel.logger.info('==== Services started! ====');
 
             this.state = RunningStates.RUNNING;
         } catch (e) {
