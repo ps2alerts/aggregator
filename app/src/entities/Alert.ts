@@ -9,12 +9,23 @@ export class Alert {
     @ObjectIdColumn()
     id: ObjectID;
 
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: World,
+    })
     worldId: World;
 
+    @Column({
+        type: 'enum',
+        enum: Zone,
+    })
     @Column()
     zoneId: Zone;
 
+    @Column({
+        type: 'enum',
+        enum: AlertState,
+    })
     @Column()
     state: AlertState;
 

@@ -3,7 +3,9 @@ import {Entity, Column} from 'typeorm';
 @Entity()
 export class AlertCombatAggregate {
 
-    @Column
+    @Column({
+        unique: true,
+    })
     alertId: number;
 
     @Column('simple-json')
