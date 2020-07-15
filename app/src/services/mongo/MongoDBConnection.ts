@@ -1,33 +1,61 @@
 import mongoose, {Mongoose} from 'mongoose';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {getLogger} from '../../logger';
-import {injectable} from 'inversify';
-import Database, {DatabaseConfig} from '../../config/database';
+import {inject, injectable} from 'inversify';
+import Database from '../../config/database';
 
 @injectable()
 export default class MongoDBConnection {
     private static readonly logger = getLogger('DatabaseConnection');
-    private static isConnected = false;
-    private static connecting = false;
-    private static db: Mongoose;
-    private static dbConfig: Database;
 
-    constructor(dbConfig: Database) {
-        MongoDBConnection.dbConfig = dbConfig;
+    /**
+     * @type {boolean} true if connected successfully
+     */
+    private isConnected = false;
+
+    /**
+     * @type {boolean} true if currently connecting
+     */
+    private isConnecting = false;
+
+    /**
+     * @type {Mongoose} mongoose instance
+     */
+    private readonly db: Mongoose;
+
+    /**
+     * @type {Database} configuration used while connecting
+     */
+    private readonly dbConfig: Database;
+
+    /**
+     * @param {Mongoose} db mongoose instance
+     * @param {Database} dbConfig configuration used while connecting
+     */
+    constructor(db: Mongoose, @inject('mongooseConfig') dbConfig: Database) {
+        this.db = db;
+        this.dbConfig = dbConfig;
+
+        this.prepareMongoose();
     }
 
-    public async getConnection(): Promise<Mongoose|boolean> {
-        if (MongoDBConnection.connecting) {
+    /**
+     * Get current connection or not
+     *
+     * @return {Promise<Mongoose | boolean>}
+     */
+    public async getConnection(): Promise<Mongoose | boolean> {
+        if (this.isConnecting) {
             MongoDBConnection.logger.info('MongoDBConnection is currently connecting, aborting connection.');
             return false;
         }
 
-        if (MongoDBConnection.isConnected) {
-            return MongoDBConnection.db;
+        if (this.isConnected) {
+            return this.db;
         } else {
             try {
-                await MongoDBConnection.connect();
-                return MongoDBConnection.db;
+                await this.connect();
+                return this.db;
             } catch (error) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`CRITICAL: UNABLE TO OPEN DATABASE CONNECTION! ${error.message ?? error}`, 'database/mongo-connection', 1);
@@ -35,54 +63,64 @@ export default class MongoDBConnection {
         }
     }
 
+    /**
+     * Destroy current connection
+     *
+     * @return {Promise<boolean>}
+     */
     public async terminateConnection(): Promise<boolean> {
-        if (!MongoDBConnection.isConnected) {
+        if (!this.isConnected) {
             MongoDBConnection.logger.error('terminateConnection was called when not connected!');
             return true;
         }
 
         try {
-            await MongoDBConnection.db.connection.close();
+            await this.db.connection.close();
         } catch (error) {
-            MongoDBConnection.logger.emerg('Was unable to close the database connection! FUBAR');
+            MongoDBConnection.logger.error('Was unable to close the database connection! FUBAR');
             throw new ApplicationException('CRITICAL: UNABLE TO CLOSE DATABASE CONNECTION! FUBAR!', 'database/mongo-connection', 1);
         }
 
         return true;
     }
 
-    private static async connect(): Promise<void> {
+    /**
+     * Initiates connection
+     */
+    private async connect(): Promise<void> {
         MongoDBConnection.logger.info('Starting connection...');
-        MongoDBConnection.connecting = true;
+        this.isConnecting = true;
 
-        const config: DatabaseConfig = MongoDBConnection.dbConfig.config;
+        const {config} = this.dbConfig;
 
         const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}?authSource=admin`;
         MongoDBConnection.logger.debug(connStr);
 
-        mongoose.connection.on('connected', function() {
-            MongoDBConnection.isConnected = true;
-            MongoDBConnection.connecting = false;
-            MongoDBConnection.logger.info('Successfully connected to MongoDB database.');
-        });
-
-        mongoose.connection.on('disconnected', function() {
-            MongoDBConnection.isConnected = false;
-            MongoDBConnection.logger.error('Database connection lost!');
-            // await MongoDBConnection.connect();
-        });
-
-        mongoose.connection.on('error', function(err: Error) {
-            MongoDBConnection.logger.error(`Mongo Error! ${err.message}`);
-        });
-
         try {
-            await mongoose.connect(connStr, MongoDBConnection.dbConfig.connectionOptions).then((dbConn: Mongoose) => {
-                MongoDBConnection.db = dbConn;
-            });
+            await mongoose.connect(connStr, this.dbConfig.connectionOptions);
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Was unable to create a connection to Mongo! ${error.message}`, 'database/mongo-connection');
         }
+    }
+
+    /**
+     * Add some listeners to mongoose connection
+     */
+    private prepareMongoose(): void {
+        mongoose.connection.on('connected', () => {
+            this.isConnected = true;
+            this.isConnecting = false;
+            MongoDBConnection.logger.info('Successfully connected to MongoDB database.');
+        });
+
+        mongoose.connection.on('disconnected', () => {
+            this.isConnected = false;
+            MongoDBConnection.logger.error('Database connection lost!');
+        });
+
+        mongoose.connection.on('error', (err: Error) => {
+            MongoDBConnection.logger.error(`Mongo Error! ${err.message}`);
+        });
     }
 }
