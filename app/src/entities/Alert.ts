@@ -1,9 +1,10 @@
 import {Entity, ObjectIdColumn, ObjectID, Column} from 'typeorm';
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
+import {AlertState} from '../constants/alertState';
 
 @Entity()
-export class AlertEntity {
+export class Alert {
 
     @ObjectIdColumn()
     id: ObjectID;
@@ -13,6 +14,9 @@ export class AlertEntity {
 
     @Column()
     zoneId: Zone;
+
+    @Column()
+    state: AlertState;
 
     @Column()
     timestampStarted: number;
