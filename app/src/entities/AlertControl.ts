@@ -12,7 +12,7 @@ export class AlertControl {
         },
     )
     @JoinColumn()
-    alertId: Alert;
+    alert: Alert;
 
     @Column()
     controlVs: number;

@@ -12,7 +12,7 @@ export class AggregateAlertCombat {
         },
     )
     @JoinColumn()
-    alertId: Alert;
+    alert: Alert;
 
     @Column('simple-json')
     kills: {

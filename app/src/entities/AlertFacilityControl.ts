@@ -1,20 +1,26 @@
-import {Entity, Column, OneToOne, ManyToOne} from 'typeorm';
+import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
 import {Faction} from '../constants/faction';
 import StaticOutfit from './static/StaticOutfit';
+import StaticFacility from "./static/StaticFacility";
 
 @Entity()
 export class AlertFacilityControl {
 
-    @OneToOne(
+    @ManyToOne(
         (type) => Alert,
-        {
-            primary: true,
-        },
+        (alert) => alert.id,
     )
     @JoinColumn()
-    alertId: Alert;
+    alert: Alert;
+
+    @ManyToOne(
+        (type) => StaticFacility,
+        (facility) => facility.id
+    )
+    @JoinColumn()
+    facility: StaticFacility
 
     @Column()
     timestamp: number;

@@ -20,7 +20,7 @@ export class AggregateGlobalPlayerVehicles {
         (vehicle) => vehicle.id,
     )
     @JoinColumn()
-    weapon: StaticVehicle;
+    vehicle: StaticVehicle;
 
     // Number of other players player has killed in this vehicle
     @Column()

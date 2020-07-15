@@ -13,7 +13,7 @@ export class AggregateAlertPlayerVehicles {
         (alert) => alert.id,
     )
     @JoinColumn()
-    alertId: Alert;
+    alert: Alert;
 
     // Need to figure out how to composite key these...
     @ManyToOne(
@@ -32,7 +32,7 @@ export class AggregateAlertPlayerVehicles {
         },
     )
     @JoinColumn()
-    weapon: StaticVehicle;
+    vehicle: StaticVehicle;
 
     // Number of other players player has killed in this vehicle
     @Column()

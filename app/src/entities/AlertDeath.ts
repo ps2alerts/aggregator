@@ -2,6 +2,7 @@ import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
 import StaticPlayer from './static/StaticPlayer';
+import {Loadout} from '../constants/loadout';
 
 @Entity()
 export class AlertDeath {
@@ -14,7 +15,7 @@ export class AlertDeath {
         },
     )
     @JoinColumn()
-    alertId: Alert;
+    alert: Alert;
 
     @Column({
         type: 'timestamp',
@@ -44,8 +45,10 @@ export class AlertDeath {
     @Column()
     attackerFiremode: number;
 
-    // Convert into Entity eventually
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: Loadout
+    })
     attackerLoadout: number;
 
     // Convert into Entity eventually
@@ -53,8 +56,10 @@ export class AlertDeath {
     @Column()
     weapon: number;
 
-    // Convert into Entity eventually
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: Loadout
+    })
     playerLoadout: number;
 
     // Not sure this is used...

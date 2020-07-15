@@ -13,7 +13,7 @@ export class AggregateAlertPlayerWeapons {
         (alert) => alert.id,
     )
     @JoinColumn()
-    alertId: Alert;
+    alert: Alert;
 
     // Need to figure out how to composite key these...
     @ManyToOne(

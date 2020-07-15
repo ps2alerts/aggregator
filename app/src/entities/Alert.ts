@@ -13,13 +13,13 @@ export class Alert {
         type: 'enum',
         enum: World,
     })
-    worldId: World;
+    world: World;
 
     @Column({
         type: 'enum',
         enum: Zone,
     })
-    zoneId: Zone;
+    zone: Zone;
 
     @Column({
         type: 'enum',
