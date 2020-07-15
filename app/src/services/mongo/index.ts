@@ -1,9 +1,9 @@
-import { ContainerModule } from 'inversify';
-import ServiceInterface, { SERVICE } from '../../interfaces/ServiceInterface';
+import {ContainerModule} from 'inversify';
+import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import MongoDatabaseConnectionService from './MongoDatabaseConnectionService';
 import MongoDBConnection from './MongoDBConnection';
 import config from '../../config';
-import { Mongoose } from 'mongoose';
+import {Mongoose} from 'mongoose';
 import Database from '../../config/database';
 
 export default new ContainerModule((bind) => {

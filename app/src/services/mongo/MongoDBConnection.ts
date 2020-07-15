@@ -1,7 +1,7 @@
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose, {Mongoose} from 'mongoose';
 import ApplicationException from '../../exceptions/ApplicationException';
-import { getLogger } from '../../logger';
-import { inject, injectable } from 'inversify';
+import {getLogger} from '../../logger';
+import {inject, injectable} from 'inversify';
 import Database from '../../config/database';
 
 @injectable()
@@ -37,26 +37,6 @@ export default class MongoDBConnection {
         this.dbConfig = dbConfig;
 
         this.prepareMongoose();
-    }
-
-    /**
-     * Add some listeners to mongoose connection
-     */
-    private prepareMongoose(): void {
-        mongoose.connection.on('connected', () => {
-            this.isConnected = true;
-            this.isConnecting = false;
-            MongoDBConnection.logger.info('Successfully connected to MongoDB database.');
-        });
-
-        mongoose.connection.on('disconnected', () => {
-            this.isConnected = false;
-            MongoDBConnection.logger.error('Database connection lost!');
-        });
-
-        mongoose.connection.on('error', (err: Error) => {
-            MongoDBConnection.logger.error(`Mongo Error! ${err.message}`);
-        });
     }
 
     /**
@@ -111,7 +91,7 @@ export default class MongoDBConnection {
         MongoDBConnection.logger.info('Starting connection...');
         this.isConnecting = true;
 
-        const { config } = this.dbConfig;
+        const {config} = this.dbConfig;
 
         const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}?authSource=admin`;
         MongoDBConnection.logger.debug(connStr);
@@ -122,5 +102,25 @@ export default class MongoDBConnection {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Was unable to create a connection to Mongo! ${error.message}`, 'database/mongo-connection');
         }
+    }
+
+    /**
+     * Add some listeners to mongoose connection
+     */
+    private prepareMongoose(): void {
+        mongoose.connection.on('connected', () => {
+            this.isConnected = true;
+            this.isConnecting = false;
+            MongoDBConnection.logger.info('Successfully connected to MongoDB database.');
+        });
+
+        mongoose.connection.on('disconnected', () => {
+            this.isConnected = false;
+            MongoDBConnection.logger.error('Database connection lost!');
+        });
+
+        mongoose.connection.on('error', (err: Error) => {
+            MongoDBConnection.logger.error(`Mongo Error! ${err.message}`);
+        });
     }
 }
