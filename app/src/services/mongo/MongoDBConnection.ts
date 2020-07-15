@@ -19,12 +19,12 @@ export default class MongoDBConnection {
     private isConnecting = false;
 
     /**
-     * @type{Mongoose} mongoose instance
+     * @type {Mongoose} mongoose instance
      */
     private readonly db: Mongoose;
 
     /**
-     * @type{Database} configuration used while connecting
+     * @type {Database} configuration used while connecting
      */
     private readonly dbConfig: Database;
 
