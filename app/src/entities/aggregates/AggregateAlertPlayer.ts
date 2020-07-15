@@ -34,18 +34,23 @@ export class AggregateAlertPlayer {
     @JoinColumn()
     outfit: StaticOutfit;
 
+    // Kills player has made in the alert
     @Column()
     kills: number;
 
+    // Times the player has died in the aelrt
     @Column()
     deaths: number;
 
+    // Teamkills player has performed in the alert
     @Column()
     teamKills: number;
 
+    // Suicides the player has commited during the alert
     @Column()
     suicides: number;
 
+    // Headshots the player has achieved in the alert
     @Column()
     headshots: number;
 }

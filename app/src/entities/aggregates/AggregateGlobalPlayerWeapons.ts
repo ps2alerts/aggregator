@@ -34,7 +34,7 @@ export class AggregateGlobalPlayerWeapons {
     @Column()
     teamKills: number;
 
-    // Player has killed themself with the weapon (e.g. C4 gone wrong)
+    // Player has killed themselves with the weapon (e.g. C4 gone wrong)
     @Column()
     suicides: number;
 
