@@ -1,4 +1,4 @@
-import mongoose, {Mongoose} from 'mongoose';
+import {Mongoose} from 'mongoose';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {getLogger} from '../../logger';
 import {inject, injectable} from 'inversify';
@@ -97,7 +97,7 @@ export default class MongoDBConnection {
         MongoDBConnection.logger.debug(connStr);
 
         try {
-            await mongoose.connect(connStr, this.dbConfig.connectionOptions);
+            await this.db.connect(connStr, this.dbConfig.connectionOptions);
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Was unable to create a connection to Mongo! ${error.message}`, 'database/mongo-connection');
@@ -108,18 +108,18 @@ export default class MongoDBConnection {
      * Add some listeners to mongoose connection
      */
     private prepareMongoose(): void {
-        mongoose.connection.on('connected', () => {
+        this.db.connection.on('connected', () => {
             this.isConnected = true;
             this.isConnecting = false;
             MongoDBConnection.logger.info('Successfully connected to MongoDB database.');
         });
 
-        mongoose.connection.on('disconnected', () => {
+        this.db.connection.on('disconnected', () => {
             this.isConnected = false;
             MongoDBConnection.logger.error('Database connection lost!');
         });
 
-        mongoose.connection.on('error', (err: Error) => {
+        this.db.connection.on('error', (err: Error) => {
             MongoDBConnection.logger.error(`Mongo Error! ${err.message}`);
         });
     }
