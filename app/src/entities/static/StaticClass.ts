@@ -1,15 +1,15 @@
 import {Entity, Column} from 'typeorm';
 import {Faction} from '../../constants/faction';
-import {Vehicle} from '../../constants/vehicle';
+import {Loadout} from "../../constants/loadout";
 
 @Entity()
-export default class StaticVehicle {
+export default class StaticClass {
 
-    // Maps to ingame vehicle ID
+    // Maps to ingame loadout ID
     @Column({
         primary: true,
         type: 'enum',
-        enum: Vehicle,
+        enum: Loadout
     })
     id: number;
 

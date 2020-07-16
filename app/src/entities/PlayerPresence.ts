@@ -1,19 +1,10 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
-import {Alert} from './Alert';
 import StaticPlayer from './static/StaticPlayer';
-import {PlayerFacility} from '../constants/playerFacility';
+import {PlayerPresenceStates} from '../constants/playerPresenceStates';
 
 @Entity()
-export class AlertPlayerFacility {
-
-    // Need to figure out how to composite key these...
-    @ManyToOne(
-        (type) => Alert,
-        (alert) => alert.id,
-    )
-    @JoinColumn()
-    alert: Alert;
+export class PlayerPresence {
 
     // Need to figure out how to composite key these...
     @ManyToOne(
@@ -29,9 +20,10 @@ export class AlertPlayerFacility {
     })
     timestamp: number;
 
+    // Log if the player has logged in / out or was timed out automatically.
     @Column({
         type: 'enum',
-        enum: PlayerFacility,
+        enum: PlayerPresenceStates,
     })
-    type: PlayerFacility;
+    type: PlayerPresenceStates;
 }

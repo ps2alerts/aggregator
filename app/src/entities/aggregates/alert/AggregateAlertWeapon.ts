@@ -1,11 +1,10 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
-import {Alert} from '../Alert';
-import StaticPlayer from '../static/StaticPlayer';
-import StaticWeapon from '../static/StaticWeapon';
+import {Alert} from '../../Alert';
+import StaticWeapon from '../../static/StaticWeapon';
 
 @Entity()
-export class AggregateAlertPlayerWeapons {
+export class AggregateAlertWeapon {
 
     // Need to figure out how to composite key these...
     @ManyToOne(
@@ -14,14 +13,6 @@ export class AggregateAlertPlayerWeapons {
     )
     @JoinColumn()
     alert: Alert;
-
-    // Need to figure out how to composite key these...
-    @ManyToOne(
-        (type) => StaticPlayer,
-        (player) => player.id,
-    )
-    @JoinColumn()
-    player: StaticPlayer;
 
     // Need to figure out how to composite key these...
     @ManyToOne(

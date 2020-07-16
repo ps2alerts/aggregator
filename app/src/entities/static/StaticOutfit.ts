@@ -1,4 +1,4 @@
-import {Entity, Column, OneToMany} from 'typeorm';
+import {Entity, Column} from 'typeorm';
 import {World} from '../../constants/world';
 import {Faction} from '../../constants/faction';
 

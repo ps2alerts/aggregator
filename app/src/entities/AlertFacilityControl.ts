@@ -3,7 +3,7 @@ import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
 import {Faction} from '../constants/faction';
 import StaticOutfit from './static/StaticOutfit';
-import StaticFacility from "./static/StaticFacility";
+import StaticFacility from './static/StaticFacility';
 
 @Entity()
 export class AlertFacilityControl {
@@ -17,10 +17,10 @@ export class AlertFacilityControl {
 
     @ManyToOne(
         (type) => StaticFacility,
-        (facility) => facility.id
+        (facility) => facility.id,
     )
     @JoinColumn()
-    facility: StaticFacility
+    facility: StaticFacility;
 
     @Column()
     timestamp: number;

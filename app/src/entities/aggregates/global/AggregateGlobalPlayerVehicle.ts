@@ -1,19 +1,10 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
-import {Alert} from '../Alert';
-import StaticPlayer from '../static/StaticPlayer';
-import StaticVehicle from '../static/StaticVehicle';
+import StaticPlayer from '../../static/StaticPlayer';
+import StaticVehicle from '../../static/StaticVehicle';
 
 @Entity()
-export class AggregateAlertPlayerVehicles {
-
-    // Need to figure out how to composite key these...
-    @ManyToOne(
-        (type) => Alert,
-        (alert) => alert.id,
-    )
-    @JoinColumn()
-    alert: Alert;
+export class AggregateGlobalPlayerVehicle {
 
     // Need to figure out how to composite key these...
     @ManyToOne(
@@ -27,9 +18,6 @@ export class AggregateAlertPlayerVehicles {
     @ManyToOne(
         (type) => StaticVehicle,
         (vehicle) => vehicle.id,
-        {
-            nullable: true,
-        },
     )
     @JoinColumn()
     vehicle: StaticVehicle;

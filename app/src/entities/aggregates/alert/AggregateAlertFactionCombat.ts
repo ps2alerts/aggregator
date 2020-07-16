@@ -1,9 +1,9 @@
 import {Entity, Column, OneToOne} from 'typeorm';
-import {Alert} from '../Alert';
+import {Alert} from '../../Alert';
 import {JoinColumn} from 'typeorm/browser';
 
 @Entity()
-export class AggregateAlertCombat {
+export class AggregateAlertFactionCombat {
 
     @OneToOne(
         (type) => Alert,

@@ -1,21 +1,11 @@
-import {Entity, Column, ManyToOne} from 'typeorm';
+import {Entity, Column, OneToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
-import StaticPlayer from '../static/StaticPlayer';
-import StaticWeapon from '../static/StaticWeapon';
+import StaticWeapon from '../../static/StaticWeapon';
 
 @Entity()
-export class AggregateGlobalPlayerWeapons {
+export class AggregateGlobalWeapon {
 
-    // Need to figure out how to composite key these...
-    @ManyToOne(
-        (type) => StaticPlayer,
-        (player) => player.id,
-    )
-    @JoinColumn()
-    player: StaticPlayer;
-
-    // Need to figure out how to composite key these...
-    @ManyToOne(
+    @OneToOne(
         (type) => StaticWeapon,
         (weapon) => weapon.id,
     )
@@ -41,6 +31,4 @@ export class AggregateGlobalPlayerWeapons {
     // Headshots player has made with the weapon
     @Column()
     headshots: number;
-
-    // TODO: OR, we make a JSON object / array holding all the records rather than individual records... unsure here.
 }

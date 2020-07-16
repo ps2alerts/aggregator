@@ -1,11 +1,11 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
-import {Alert} from '../Alert';
-import StaticPlayer from '../static/StaticPlayer';
-import StaticOutfit from '../static/StaticOutfit';
+import {Alert} from '../../Alert';
+import StaticPlayer from '../../static/StaticPlayer';
+import StaticWeapon from '../../static/StaticWeapon';
 
 @Entity()
-export class AggregateAlertPlayer {
+export class AggregateAlertPlayerWeapon {
 
     // Need to figure out how to composite key these...
     @ManyToOne(
@@ -21,36 +21,36 @@ export class AggregateAlertPlayer {
         (player) => player.id,
     )
     @JoinColumn()
-
     player: StaticPlayer;
 
+    // Need to figure out how to composite key these...
     @ManyToOne(
-        (type) => StaticOutfit,
-        (outfit) => outfit.id,
+        (type) => StaticWeapon,
+        (weapon) => weapon.id,
         {
             nullable: true,
         },
     )
     @JoinColumn()
-    outfit: StaticOutfit;
+    weapon: StaticWeapon;
 
-    // Kills player has made in the alert
+    // Kills player has made with weapon
     @Column()
     kills: number;
 
-    // Times the player has died in the aelrt
+    // Player has died to the same weapon (common pool)
     @Column()
     deaths: number;
 
-    // Teamkills player has performed in the alert
+    // Teamkills player has made with the weapon
     @Column()
     teamKills: number;
 
-    // Suicides the player has commited during the alert
+    // Player has killed themselves with the weapon (e.g. C4 gone wrong)
     @Column()
     suicides: number;
 
-    // Headshots the player has achieved in the alert
+    // Headshots player has made with the weapon
     @Column()
     headshots: number;
 }
