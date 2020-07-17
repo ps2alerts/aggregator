@@ -11,7 +11,7 @@ export class AggregateGlobalOutfit {
         (outfit) => outfit.id,
     )
     @JoinColumn()
-    player: StaticOutfit;
+    outfit: StaticOutfit;
 
     // Number of kills as this class, globally
     @Column()

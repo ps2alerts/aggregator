@@ -6,9 +6,7 @@ export default class StaticWeapon {
 
     // Maps to ingame weapon ID
     // Potentially convert into a massive enum... :cry:
-    @Column({
-        primary: true,
-    })
+    @Column()
     id: number;
 
     @Column()

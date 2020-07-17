@@ -7,7 +7,6 @@ export default class StaticVehicle {
 
     // Maps to ingame vehicle ID
     @Column({
-        primary: true,
         type: 'enum',
         enum: Vehicle,
     })

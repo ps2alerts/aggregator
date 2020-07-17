@@ -10,9 +10,7 @@ export class AggregateWorldVehicle {
     @ManyToOne(
         (type) => StaticVehicle,
         (vehicle) => vehicle.id,
-        {
-            nullable: true,
-        },
+
     )
     @JoinColumn()
     vehicle: StaticVehicle;

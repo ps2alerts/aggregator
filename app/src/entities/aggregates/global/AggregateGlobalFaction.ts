@@ -1,18 +1,8 @@
-import {Entity, Column, ManyToOne} from 'typeorm';
-import {JoinColumn} from 'typeorm/browser';
-import {Alert} from '../../Alert';
+import {Entity, Column} from 'typeorm';
 import {Faction} from '../../../constants/faction';
 
 @Entity()
 export class AggregateGlobalFaction {
-
-    // Need to figure out how to composite key these...
-    @ManyToOne(
-        (type) => Alert,
-        (alert) => alert.id,
-    )
-    @JoinColumn()
-    alert: Alert;
 
     @Column({
         type: 'enum',

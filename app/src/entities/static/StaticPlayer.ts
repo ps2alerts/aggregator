@@ -6,9 +6,7 @@ import {Faction} from '../../constants/faction';
 export default class StaticPlayer {
 
     // Maps to ingame player ID
-    @Column({
-        primary: true,
-    })
+    @Column()
     id: number;
 
     @Column()

@@ -1,14 +1,12 @@
 import {Entity, Column} from 'typeorm';
-import {Zone} from "../../constants/zone";
-import {FacilityType} from "../../constants/facilityType";
+import {Zone} from '../../constants/zone';
+import {FacilityType} from '../../constants/facilityType';
 
 @Entity()
 export default class StaticFacility {
 
     // Maps to ingame facility ID
-    @Column({
-        primary: true,
-    })
+    @Column()
     id: number;
 
     @Column()
@@ -16,9 +14,9 @@ export default class StaticFacility {
 
     @Column({
         type: 'enum',
-        enum: FacilityType
+        enum: FacilityType,
     })
-    type: FacilityType
+    type: FacilityType;
 
     // **Potentailly** not needed as facility IDs are unique world wide
     @Column({

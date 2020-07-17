@@ -7,9 +7,7 @@ export class AlertControl {
 
     @OneToOne(
         (type) => Alert,
-        {
-            primary: true,
-        },
+        (alert) => alert.id,
     )
     @JoinColumn()
     alert: Alert;

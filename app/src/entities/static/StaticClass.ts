@@ -1,15 +1,14 @@
 import {Entity, Column} from 'typeorm';
 import {Faction} from '../../constants/faction';
-import {Loadout} from "../../constants/loadout";
+import {Loadout} from '../../constants/loadout';
 
 @Entity()
 export default class StaticClass {
 
     // Maps to ingame loadout ID
     @Column({
-        primary: true,
         type: 'enum',
-        enum: Loadout
+        enum: Loadout,
     })
     id: number;
 

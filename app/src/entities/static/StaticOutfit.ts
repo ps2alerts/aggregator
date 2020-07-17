@@ -6,9 +6,7 @@ import {Faction} from '../../constants/faction';
 export default class StaticOutfit {
 
     // Maps to ingame outfit ID
-    @Column({
-        primary: true,
-    })
+    @Column()
     id: number;
 
     @Column()
