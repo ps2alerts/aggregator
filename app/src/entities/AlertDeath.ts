@@ -47,7 +47,7 @@ export class AlertDeath {
 
     @Column({
         type: 'enum',
-        enum: Loadout
+        enum: Loadout,
     })
     attackerLoadout: number;
 
@@ -58,7 +58,7 @@ export class AlertDeath {
 
     @Column({
         type: 'enum',
-        enum: Loadout
+        enum: Loadout,
     })
     playerLoadout: number;
 
