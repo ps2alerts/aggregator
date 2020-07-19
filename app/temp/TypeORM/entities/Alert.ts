@@ -1,7 +1,7 @@
 import {Entity, ObjectIdColumn, ObjectID, Column} from 'typeorm';
-import {World} from '../constants/world';
-import {Zone} from '../constants/zone';
-import {AlertState} from '../constants/alertState';
+import {World} from '../../../src/constants/world';
+import {Zone} from '../../../src/constants/zone';
+import {AlertState} from '../../../src/constants/alertState';
 
 @Entity()
 export class Alert {

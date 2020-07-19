@@ -2,7 +2,7 @@ import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
 import StaticPlayer from './static/StaticPlayer';
-import {Loadout} from '../constants/loadout';
+import {Loadout} from '../../../src/constants/loadout';
 
 @Entity()
 export class AlertDeath {
@@ -16,11 +16,6 @@ export class AlertDeath {
     )
     @JoinColumn()
     alert: Alert;
-
-    @Column({
-        type: 'timestamp',
-        nullable: false,
-    })
 
     @ManyToOne(
         (type) => StaticPlayer,

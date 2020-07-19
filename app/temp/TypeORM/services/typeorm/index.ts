@@ -1,6 +1,6 @@
 import {ContainerModule} from 'inversify';
-import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
-import config from '../../config';
+import ServiceInterface, {SERVICE} from '../../../../src/interfaces/ServiceInterface';
+import config from '../../../../src/config';
 import TypeOrmConnection from './TypeOrmConnection';
 
 export default new ContainerModule((bind) => {

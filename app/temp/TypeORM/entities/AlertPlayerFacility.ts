@@ -2,7 +2,7 @@ import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
 import StaticPlayer from './static/StaticPlayer';
-import {PlayerFacility} from '../constants/playerFacility';
+import {PlayerFacility} from '../../../src/constants/playerFacility';
 
 @Entity()
 export class AlertPlayerFacility {

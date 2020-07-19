@@ -1,7 +1,7 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import {Alert} from './Alert';
-import {Faction} from '../constants/faction';
+import {Faction} from '../../../src/constants/faction';
 import StaticOutfit from './static/StaticOutfit';
 import StaticFacility from './static/StaticFacility';
 

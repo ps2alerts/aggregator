@@ -1,7 +1,7 @@
-import {getLogger} from '../../logger';
-import ServiceInterface from '../../interfaces/ServiceInterface';
+import {getLogger} from '../../../../src/logger';
+import ServiceInterface from '../../../../src/interfaces/ServiceInterface';
 import {Connection, ConnectionOptions, createConnection} from 'typeorm';
-import Database from '../../config/database';
+import Database from '../../../../src/config/database';
 import {injectable} from 'inversify';
 import {Alert} from '../../entities/Alert';
 

@@ -1,6 +1,6 @@
 import {Entity, Column} from 'typeorm';
-import {Zone} from '../../constants/zone';
-import {FacilityType} from '../../constants/facilityType';
+import {Zone} from '../../../../src/constants/zone';
+import {FacilityType} from '../../../../src/constants/facilityType';
 
 @Entity()
 export default class StaticFacility {

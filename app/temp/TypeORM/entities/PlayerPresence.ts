@@ -1,7 +1,7 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import StaticPlayer from './static/StaticPlayer';
-import {PlayerPresenceStates} from '../constants/playerPresenceStates';
+import {PlayerPresenceStates} from '../../../src/constants/playerPresenceStates';
 
 @Entity()
 export class PlayerPresence {

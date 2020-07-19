@@ -1,7 +1,7 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import StaticWeapon from '../../static/StaticWeapon';
-import {World} from '../../../constants/world';
+import {World} from '../../../../../src/constants/world';
 
 @Entity()
 export class AggregateWorldWeapon {

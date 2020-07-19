@@ -1,6 +1,6 @@
 import {Entity, Column} from 'typeorm';
-import {World} from '../../constants/world';
-import {Faction} from '../../constants/faction';
+import {World} from '../../../../src/constants/world';
+import {Faction} from '../../../../src/constants/faction';
 
 @Entity()
 export default class StaticPlayer {

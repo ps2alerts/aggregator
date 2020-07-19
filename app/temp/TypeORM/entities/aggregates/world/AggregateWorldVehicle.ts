@@ -1,7 +1,7 @@
 import {Entity, Column, ManyToOne} from 'typeorm';
 import {JoinColumn} from 'typeorm/browser';
 import StaticVehicle from '../../static/StaticVehicle';
-import {World} from '../../../constants/world';
+import {World} from '../../../../../src/constants/world';
 
 @Entity()
 export class AggregateWorldVehicle {

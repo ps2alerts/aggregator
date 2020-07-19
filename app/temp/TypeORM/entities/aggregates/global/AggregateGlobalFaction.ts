@@ -1,5 +1,5 @@
 import {Entity, Column} from 'typeorm';
-import {Faction} from '../../../constants/faction';
+import {Faction} from '../../../../../src/constants/faction';
 
 @Entity()
 export class AggregateGlobalFaction {
