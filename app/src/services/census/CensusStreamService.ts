@@ -4,7 +4,7 @@ import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
 import CensusProxy from '../../handlers/census/CensusProxy';
-import {Client, Events, MetagameEvent} from 'ps2census';
+import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {EventStreamSubscribed} from 'ps2census/dist/client/utils/Types';
 
@@ -45,25 +45,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     private prepareClient(): void {
         this.wsClient.on('ready', () => {
-            CensusStreamService.logger.info('Census Stream Service connected!');
-
-            // TEMP TEMP TEMP
-            const event = new MetagameEvent(this.wsClient, {
-                event_name: 'MetagameEvent',
-                experience_bonus: '25.000000',
-                faction_nc: '6.274510',
-                faction_tr: '19.607843',
-                faction_vs: '9.803922',
-                instance_id: '12358',
-                metagame_event_id: '190',
-                metagame_event_state: '137',
-                metagame_event_state_name: 'started',
-                timestamp: String(getUnixTimestamp()),
-                world_id: '10',
-            });
-            this.wsClient.emit(Events.PS2_META_EVENT, event);
-            CensusStreamService.logger.debug('Emitted Metagame Start event');
-
+            CensusStreamService.logger.info('Census Stream Service connected, but not yet subscribed.');
         });
 
         // Set up event handlers
@@ -91,8 +73,29 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.debug(`Census stream debug: ${message}`);
         });
 
+        this.wsClient.on('duplicate', (event: PS2Event) => {
+            CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
+        });
+
         this.wsClient.on('subscribed', (subscription: EventStreamSubscribed) => {
             CensusStreamService.logger.debug('Census stream subscribed!');
+
+            // TEMP TEMP TEMP
+            const event = new MetagameEvent(this.wsClient, {
+                event_name: 'MetagameEvent',
+                experience_bonus: '25.000000',
+                faction_nc: '6.274510',
+                faction_tr: '19.607843',
+                faction_vs: '9.803922',
+                instance_id: '12358',
+                metagame_event_id: '190',
+                metagame_event_state: '137',
+                metagame_event_state_name: 'started',
+                timestamp: String(getUnixTimestamp()),
+                world_id: '10',
+            });
+            this.wsClient.emit(Events.PS2_EVENT, event);
+            CensusStreamService.logger.debug('Emitted Metagame Start event');
         });
     }
 }
