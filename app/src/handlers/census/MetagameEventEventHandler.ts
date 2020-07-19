@@ -18,7 +18,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
         this.alertHandler = alertHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean> {
         MetagameEventEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,7 +27,8 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
 
         try {
             const mge = new MetagameEventEvent(event);
-            return this.alertHandler.handleMetagameEvent(mge);
+            await this.alertHandler.handleMetagameEvent(mge);
+            return true;
         } catch (e) {
             if (e instanceof Error) {
                 MetagameEventEventHandler.logger.warn(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

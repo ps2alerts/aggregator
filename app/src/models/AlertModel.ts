@@ -1,9 +1,10 @@
-import mongoose, {Document, Schema} from 'mongoose';
+import {Document, Schema} from 'mongoose';
 import {AlertState} from '../constants/alertState';
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
 
 export interface AlertInterface extends Document {
+    alertId: string;
     world: World;
     zone: Zone;
     state: AlertState;
@@ -11,7 +12,11 @@ export interface AlertInterface extends Document {
     timeEnded: number;
 }
 
-const alertModel: Schema = new Schema({
+export const alertSchema: Schema = new Schema({
+    alertId: {
+        type: String,
+        required: true,
+    },
     world: {
         type: Number,
         required: true,
@@ -32,5 +37,3 @@ const alertModel: Schema = new Schema({
         type: Number,
     },
 });
-
-export default mongoose.model<AlertInterface>('Alert', alertModel);

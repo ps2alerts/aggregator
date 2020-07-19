@@ -1,4 +1,4 @@
-import mongoose, {Document, Schema} from 'mongoose';
+import {Document, Schema} from 'mongoose';
 import {AlertInterface} from './AlertModel';
 import {Loadout} from '../constants/loadout';
 import {PlayerInterface} from './static/PlayerModel';
@@ -17,7 +17,7 @@ export interface AlertDeathInterface extends Document {
     vehicle: number;
 }
 
-const alertDeathModel: Schema = new Schema({
+export const alertDeathModel: Schema = new Schema({
     alert: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -63,5 +63,3 @@ const alertDeathModel: Schema = new Schema({
         type: Number,
     },
 });
-
-export default mongoose.model<AlertDeathInterface>('AlertDeath', alertDeathModel);

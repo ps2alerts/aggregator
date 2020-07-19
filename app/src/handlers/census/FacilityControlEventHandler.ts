@@ -10,7 +10,7 @@ import {PS2Event} from 'ps2census';
 export default class FacilityControlEventHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('FacilityControlEventHandler');
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         FacilityControlEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -19,7 +19,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
         try {
             const facilityControl = new FacilityControlEvent(event);
-            this.storeEvent(facilityControl);
+            await this.storeEvent(facilityControl);
         } catch (e) {
             if (e instanceof Error) {
                 FacilityControlEventHandler.logger.warn(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -35,7 +35,8 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(facilityControlEvent: FacilityControlEvent): void {
+    private async storeEvent(facilityControlEvent: FacilityControlEvent): Promise<boolean> {
+        return true;
         // TODO Store in database
     }
 }

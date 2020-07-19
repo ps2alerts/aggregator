@@ -18,7 +18,7 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         PlayerFacilityDefendHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,7 +27,11 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
 
         try {
             const playerFacilityDefendEvent = new PlayerFacilityDefendEvent(event);
-            this.handlePlayerFacilityDefend(playerFacilityDefendEvent);
+            await Promise.all([
+                this.playerHandler.updateLastSeen(playerFacilityDefendEvent.worldId, playerFacilityDefendEvent.characterId),
+                this.storeEvent(playerFacilityDefendEvent),
+            ]);
+            return true;
         } catch (e) {
             if (e instanceof Error) {
                 PlayerFacilityDefendHandler.logger.warn(`Error parsing PlayerFacilityDefend: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -39,12 +43,6 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
         }
 
         return true;
-    }
-
-    private handlePlayerFacilityDefend(playerFacilityDefendEvent: PlayerFacilityDefendEvent): void {
-        // Update last seen
-        this.playerHandler.updateLastSeen(playerFacilityDefendEvent.worldId, playerFacilityDefendEvent.characterId);
-        return this.storeEvent(playerFacilityDefendEvent);
     }
 
     // WIP

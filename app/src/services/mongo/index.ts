@@ -5,6 +5,9 @@ import MongoDBConnection from './MongoDBConnection';
 import config from '../../config';
 import {Mongoose} from 'mongoose';
 import Database from '../../config/database';
+import MongooseModelFactory from '../../factories/MongooseModelFactory';
+import {AlertInterface, alertSchema} from '../../models/AlertModel';
+import {Context} from 'inversify/dts/planning/context';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -17,5 +20,21 @@ export default new ContainerModule((bind) => {
 
     bind(MongoDBConnection)
         .toSelf()
+        .inSingletonScope();
+
+    bind <MongooseModelFactory<AlertInterface>>('AlertModelFactory')
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'Alert',
+            alertSchema,
+        ))
+        .inSingletonScope();
+
+    bind <MongooseModelFactory<AlertInterface>>('AlertDeathModelFactory')
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'AlertDeath',
+            alertSchema,
+        ))
         .inSingletonScope();
 });

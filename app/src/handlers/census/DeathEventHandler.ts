@@ -18,7 +18,7 @@ export default class DeathEventHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean> {
         DeathEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,7 +27,11 @@ export default class DeathEventHandler implements EventHandlerInterface {
 
         try {
             const deathEvent = new DeathEvent(event);
-            this.handleDeath(deathEvent);
+            await Promise.all([
+                this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.attackerCharacterId),
+                this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.characterId),
+                this.storeEvent(deathEvent),
+            ]);
         } catch (e) {
             if (e instanceof Error) {
                 DeathEventHandler.logger.warn(`Error parsing DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -41,16 +45,10 @@ export default class DeathEventHandler implements EventHandlerInterface {
         return true;
     }
 
-    private handleDeath(deathEvent: DeathEvent): void {
-        this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.attackerCharacterId);
-        this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.characterId);
-
-        this.storeEvent(deathEvent);
-    }
-
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(deathEvent: DeathEvent): void {
+    private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
         // TODO Store in database
+        return true;
     }
 }

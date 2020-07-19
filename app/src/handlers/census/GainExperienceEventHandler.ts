@@ -18,7 +18,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         GainExperienceEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,7 +27,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
 
         try {
             const gainExperienceEvent = new GainExperienceEvent(event);
-            this.handleExperienceEvent(gainExperienceEvent);
+            await this.handleExperienceEvent(gainExperienceEvent);
         } catch (e) {
             if (e instanceof Error) {
                 GainExperienceEventHandler.logger.warn(`Error parsing GainExperienceEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -41,15 +41,17 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
         return true;
     }
 
-    private handleExperienceEvent(gainExperienceEvent: GainExperienceEvent): void {
+    private async handleExperienceEvent(gainExperienceEvent: GainExperienceEvent): Promise<boolean> {
         // Update last seen
-        this.playerHandler.updateLastSeen(gainExperienceEvent.worldId, gainExperienceEvent.characterId);
-        return this.storeEvent(gainExperienceEvent);
+        await this.playerHandler.updateLastSeen(gainExperienceEvent.worldId, gainExperienceEvent.characterId);
+        await this.storeEvent(gainExperienceEvent);
+        return true;
     }
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(gainExperienceEvent: GainExperienceEvent): void {
+    private async storeEvent(gainExperienceEvent: GainExperienceEvent): Promise<boolean> {
+        return true;
         // TODO Save to database
     }
 }

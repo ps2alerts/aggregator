@@ -18,7 +18,7 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         PlayerFacilityCaptureHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,7 +27,10 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
 
         try {
             const playerFacilityCaptureEvent = new PlayerFacilityCaptureEvent(event);
-            this.handlePlayerFacilityCapture(playerFacilityCaptureEvent);
+            await Promise.all([
+                this.playerHandler.updateLastSeen(playerFacilityCaptureEvent.worldId, playerFacilityCaptureEvent.characterId),
+                this.storeEvent(playerFacilityCaptureEvent),
+            ]);
         } catch (e) {
             if (e instanceof Error) {
                 PlayerFacilityCaptureHandler.logger.warn(`Error parsing PlayerFacilityCapture: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -41,15 +44,10 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
         return true;
     }
 
-    private handlePlayerFacilityCapture(playerFacilityCaptureEvent: PlayerFacilityCaptureEvent): void {
-        // Update last seen
-        this.playerHandler.updateLastSeen(playerFacilityCaptureEvent.worldId, playerFacilityCaptureEvent.characterId);
-        return this.storeEvent(playerFacilityCaptureEvent);
-    }
-
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(playerFacilityCaptureEvent: PlayerFacilityCaptureEvent): void {
+    private async storeEvent(playerFacilityCaptureEvent: PlayerFacilityCaptureEvent): Promise<boolean> {
+        return true;
         // TODO Save to database
     }
 }

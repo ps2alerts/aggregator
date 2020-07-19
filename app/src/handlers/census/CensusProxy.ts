@@ -65,7 +65,7 @@ export default class CensusProxy {
         this.coninentUnlockHandler = continentUnlockHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         if (config.features.logging.censusIncomingEvents) {
             CensusProxy.logger.debug(`INCOMING EVENT ${event.event_name}`);
         }
@@ -79,37 +79,41 @@ export default class CensusProxy {
 
         switch (event.event_name) {
             case 'AchievementEarned':
-                this.achievementEarnedHandler.handle(event);
+                // this.achievementEarnedHandler.handle(event);
                 break;
             case 'BattleRankUp':
-                this.battleRankUpHandler.handle(event);
+                // this.battleRankUpHandler.handle(event);
                 break;
             case 'Death':
-                this.deathEventHandler.handle(event);
+                await this.deathEventHandler.handle(event).then(function() {
+                    return true;
+                });
                 break;
             case 'FacilityControl':
-                this.facilityControlEventHandler.handle(event);
+                // this.facilityControlEventHandler.handle(event);
                 break;
             case 'GainExperience':
-                this.gainExperienceEventHandler.handle(event);
+                // this.gainExperienceEventHandler.handle(event);
                 break;
             case 'ItemAdded':
                 // eventStore.storeItemAdded(payload);
                 break;
             case 'MetagameEvent':
-                this.metagameEventEventHandler.handle(event);
+                await this.metagameEventEventHandler.handle(event).then(function() {
+                    return true;
+                });
                 break;
             case 'PlayerFacilityCapture':
-                this.playerFacilityCapture.handle(event);
+                // this.playerFacilityCapture.handle(event);
                 break;
             case 'PlayerFacilityDefend':
-                this.playerFacilityDefend.handle(event);
+                // this.playerFacilityDefend.handle(event);
                 break;
             case 'PlayerLogin':
-                this.playerLoginEventHandler.handle(event);
+                // this.playerLoginEventHandler.handle(event);
                 break;
             case 'PlayerLogout':
-                this.playerLogoutEventHandler.handle(event);
+                // this.playerLogoutEventHandler.handle(event);
                 break;
             case 'SkillAdded':
                 // eventStore.storeSkillAdded(payload);
@@ -118,10 +122,10 @@ export default class CensusProxy {
                 // eventStore.storeVehicleDestroy(payload);
                 break;
             case 'ContinentLock':
-                this.continentLockHandler.handle(event);
+                // this.continentLockHandler.handle(event);
                 break;
             case 'ContinentUnlock':
-                this.coninentUnlockHandler.handle(event);
+                // this.coninentUnlockHandler.handle(event);
                 break;
             default:
                 return false;

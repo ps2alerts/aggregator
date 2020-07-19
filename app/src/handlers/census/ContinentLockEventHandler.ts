@@ -10,7 +10,7 @@ import {PS2Event} from 'ps2census';
 export default class ContinentLockEventHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('ContinentLockEventHandler');
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean> {
         ContinentLockEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -19,7 +19,7 @@ export default class ContinentLockEventHandler implements EventHandlerInterface 
 
         try {
             const continentLockEvent = new ContinentLockEvent(event);
-            this.storeEvent(continentLockEvent);
+            await this.storeEvent(continentLockEvent);
             return true;
         } catch (e) {
             if (e instanceof Error) {
@@ -34,7 +34,8 @@ export default class ContinentLockEventHandler implements EventHandlerInterface 
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(continentLockEvent: ContinentLockEvent): void {
+    private async storeEvent(continentLockEvent: ContinentLockEvent): Promise<boolean> {
         // TODO Store in database
+        return true;
     }
 }

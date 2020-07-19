@@ -18,7 +18,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         AchievementEarnedHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,7 +27,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface {
 
         try {
             const achievementEarnedEvent = new AchievementEarnedEvent(event);
-            this.handleAchievementEarned(achievementEarnedEvent);
+            await this.handleAchievementEarned(achievementEarnedEvent);
         } catch (e) {
             if (e instanceof Error) {
                 AchievementEarnedHandler.logger.warn(`Error parsing AchievementEarnedEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -41,15 +41,17 @@ export default class AchievementEarnedHandler implements EventHandlerInterface {
         return true;
     }
 
-    private handleAchievementEarned(achievementEarnedEvent: AchievementEarnedEvent): void {
+    private async handleAchievementEarned(achievementEarnedEvent: AchievementEarnedEvent): Promise<boolean> {
         // Update last seen
-        this.playerHandler.updateLastSeen(achievementEarnedEvent.worldId, achievementEarnedEvent.characterId);
-        this.storeEvent(achievementEarnedEvent);
+        await this.playerHandler.updateLastSeen(achievementEarnedEvent.worldId, achievementEarnedEvent.characterId);
+        await this.storeEvent(achievementEarnedEvent);
+        return true;
     }
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(achievementEarnedEvent: AchievementEarnedEvent): void {
+    private async storeEvent(achievementEarnedEvent: AchievementEarnedEvent): Promise<boolean> {
+        return true;
         // TODO Store in database
     }
 }

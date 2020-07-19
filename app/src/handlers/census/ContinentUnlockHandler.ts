@@ -10,7 +10,7 @@ import {PS2Event} from 'ps2census';
 export default class ContinentUnlockHandler implements EventHandlerInterface {
     private static readonly logger = getLogger('ContinentUnlockHandler');
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         ContinentUnlockHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -19,7 +19,7 @@ export default class ContinentUnlockHandler implements EventHandlerInterface {
 
         try {
             const continentUnlockEvent = new ContinentUnlockEvent(event);
-            this.storeEvent(continentUnlockEvent);
+            await this.storeEvent(continentUnlockEvent);
         } catch (e) {
             if (e instanceof Error) {
                 ContinentUnlockHandler.logger.warn(`Error parsing ContinentUnlock: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -35,7 +35,8 @@ export default class ContinentUnlockHandler implements EventHandlerInterface {
 
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(continentUnlockEvent: ContinentUnlockEvent): void {
+    private async storeEvent(continentUnlockEvent: ContinentUnlockEvent): Promise<boolean> {
+        return true;
         // TODO Add to database
     }
 }
