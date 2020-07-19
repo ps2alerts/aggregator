@@ -17,6 +17,8 @@ export default class CensusStreamService implements ServiceInterface {
     constructor(wsClient: Client, censusProxy: CensusProxy) {
         this.wsClient = wsClient;
         this.censusProxy = censusProxy;
+
+        this.prepareClient();
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -27,7 +29,19 @@ export default class CensusStreamService implements ServiceInterface {
     public async start(): Promise<void> {
         CensusStreamService.logger.info('Starting Census Stream Service...');
         await this.wsClient.watch();
+    }
 
+    public terminate(): void {
+        CensusStreamService.logger.info('Terminating Census Stream Service!');
+
+        try {
+            this.wsClient.destroy();
+        } catch {
+            // Fucked
+        }
+    }
+
+    private prepareClient(): void {
         this.wsClient.on('ready', () => {
             CensusStreamService.logger.info('Census Stream Service connected!');
         });
@@ -52,15 +66,5 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient.on('warn', (error: Error) => {
             CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
         });
-    }
-
-    public terminate(): void {
-        CensusStreamService.logger.info('Terminating Census Stream Service!');
-
-        try {
-            this.wsClient.destroy();
-        } catch {
-            // Fucked
-        }
     }
 }
