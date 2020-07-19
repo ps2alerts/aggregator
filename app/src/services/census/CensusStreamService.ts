@@ -6,6 +6,7 @@ import {injectable} from 'inversify';
 import CensusProxy from '../../handlers/census/CensusProxy';
 import {Client, Events, MetagameEvent} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
+import {EventStreamSubscribed} from 'ps2census/dist/client/utils/Types';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -61,7 +62,7 @@ export default class CensusStreamService implements ServiceInterface {
                 world_id: '10',
             });
             this.wsClient.emit(Events.PS2_META_EVENT, event);
-            CensusStreamService.logger.info('Emitted Metagame Start event');
+            CensusStreamService.logger.debug('Emitted Metagame Start event');
 
         });
 
@@ -84,6 +85,14 @@ export default class CensusStreamService implements ServiceInterface {
 
         this.wsClient.on('warn', (error: Error) => {
             CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
+        });
+
+        this.wsClient.on('debug', (message: string) => {
+            CensusStreamService.logger.debug(`Census stream debug: ${message}`);
+        });
+
+        this.wsClient.on('subscribed', (subscription: EventStreamSubscribed) => {
+            CensusStreamService.logger.debug('Census stream subscribed!');
         });
     }
 }
