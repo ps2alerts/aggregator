@@ -6,9 +6,9 @@ export default class EventId {
             case 1: // Territory Control
                 return Zone.INDAR;
             case 2: // Territory Control
-                return Zone.AMERISH;
-            case 3: // Territory Control
                 return Zone.ESAMIR;
+            case 3: // Territory Control
+                return Zone.AMERISH;
             case 4: // Territory Control
                 return Zone.HOSSIN;
             case 7: // Biolab Control
@@ -27,7 +27,7 @@ export default class EventId {
                 return Zone.ESAMIR;
             case 14: // Amp Station Control
                 return Zone.ESAMIR;
-            // No 15 in the API
+            // No 15 in the API, only one tech plant on Esamir presumably
             case 16: // Biolab Control
                 return Zone.HOSSIN;
             case 17: // Tech Plant Control
@@ -54,6 +54,7 @@ export default class EventId {
                 return Zone.AMERISH;
             case 147: // Indar Territory Control
             case 148:
+            case 149:
                 return Zone.INDAR;
             case 150: // Esamir Territory Control
             case 151:
@@ -61,6 +62,7 @@ export default class EventId {
                 return Zone.ESAMIR;
             case 153: // Hossin Territory Control
             case 154:
+            case 155:
                 return Zone.HOSSIN;
             case 156: // Amerish Territoryt Control
             case 157:
@@ -74,7 +76,7 @@ export default class EventId {
                 return Zone.INDAR;
             case 162: // Hossin Warpgates Stabilizing
                 return Zone.HOSSIN;
-            case 164: // Tech Plant Control
+            case 164: // Tech Plant Control... wut
                 return Zone.ESAMIR;
             case 167: // Aerial Anomalies
             case 168: // Eye of the Storm
@@ -111,25 +113,26 @@ export default class EventId {
                 return Zone.HOSSIN;
             case 192: // Amerish Unstable Meltdown
                 return Zone.AMERISH;
-            case 193: // Indar Unstable Metldown
+            case 193: // Indar Unstable Meltdown
                 return Zone.INDAR;
             case 194: // Refine and refuel
-            case 195:
-            case 196:
-            case 197:
+            case 195: // Refine and refuel
+            case 196: // Refine and refuel
+            case 197: // Refine and refuel
                 return -1;
             case 198: // "Maximum Pressure" aka Kill everyone
-            case 199:
-            case 200:
-            case 201:
+            case 199: // "Maximum Pressure" aka Kill everyone
+            case 200: // "Maximum Pressure" aka Kill everyone
+            case 201: // "Maximum Pressure" aka Kill everyone
                 return -1;
-            case 204: // Outfit wars!
+            case 204: // Outfit wars begin (500 points)
             case 205: // Outfit wars pre-match
             case 206: // Outfit wars relics changing
-            case 207: // Outfit wars BEGIN (750 points)
+            case 207: // Outfit wars begin (750 points)
                 return Zone.DESOLATION;
-            case 209: // Koltyr Territory Control
-            case 210:
+            case 208: // Koltyr Territory Control NC Triggered
+            case 209: // Koltyr Territory Control TR Triggered
+            case 210: // Koltyr Territory Control VS Triggered
                 return Zone.KOLTYR;
         }
 
