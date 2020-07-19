@@ -19,7 +19,7 @@ export default class App {
             // eslint-disable-next-line
             require('../services/mongo').default,
             // eslint-disable-next-line
-            require('../services/typeorm').default,
+            // require('../../temp/TypeORM/services/typeorm').default,
         ];
     }
 }

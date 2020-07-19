@@ -16,8 +16,9 @@ export default class Census {
 
     constructor() {
         this.subscriptions = [{
-            eventNames: ['Death'],
+            eventNames: ['MetagameEvent'],
             worlds: ['10'],
+            characters: ['all'],
         }];
         this.ps2WsConfig = {
             environment: 'ps2',
