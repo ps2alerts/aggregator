@@ -7,9 +7,7 @@ import {Client, EventStreamManagerConfig} from 'ps2census';
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(CensusStreamService);
 
-    const streamManagerConfig: EventStreamManagerConfig = {
-        subscriptions: config.census.ps2WsConfig.subscriptions,
-    };
+    const streamManagerConfig: EventStreamManagerConfig = config.census.streamManagerConfig;
 
     bind(Client)
         .toDynamicValue(() => new Client({

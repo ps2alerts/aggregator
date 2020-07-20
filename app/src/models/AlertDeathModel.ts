@@ -7,6 +7,7 @@ export interface AlertDeathInterface extends Document {
     alert: AlertInterface['_id'];
     attacker: PlayerInterface['_id'];
     player: PlayerInterface['_id'];
+    timestamp: number;
     attackerFiremode: number;
     attackerLoadout: number;
     weapon: number;
@@ -28,6 +29,10 @@ export const alertDeathSchema: Schema = new Schema({
     },
     player: {
         type: Schema.Types.ObjectId,
+        required: true,
+    },
+    timestamp: {
+        type: Number,
         required: true,
     },
     attackerFiremode: {

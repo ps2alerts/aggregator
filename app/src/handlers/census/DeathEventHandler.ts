@@ -27,6 +27,8 @@ export default class DeathEventHandler implements EventHandlerInterface {
 
         try {
             const deathEvent = new DeathEvent(event);
+            console.log(event);
+            process.exit(1);
             await Promise.all([
                 this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.attackerCharacterId),
                 this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.characterId),

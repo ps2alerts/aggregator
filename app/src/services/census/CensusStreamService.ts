@@ -6,7 +6,6 @@ import {injectable} from 'inversify';
 import CensusProxy from '../../handlers/census/CensusProxy';
 import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
-import {EventStreamSubscribed} from 'ps2census/dist/client/utils/Types';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -14,7 +13,6 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly wsClient: Client;
     private readonly censusProxy: CensusProxy;
-    private readonly subscriptions = [];
 
     constructor(wsClient: Client, censusProxy: CensusProxy) {
         this.wsClient = wsClient;

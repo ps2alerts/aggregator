@@ -1,27 +1,37 @@
 import {get} from '../utils/env';
-import {PS2ClientSubscription, PS2wsConfig} from '../types/censusStreaming';
+import {ClientConfig, EventStreamManagerConfig, EventStreamSubscription} from 'ps2census';
 
 export default class Census {
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
 
     /**
-     * @type {PS2ClientSubscription[]} Subscriptions that are made when starting the websocket
+     * @type {EventStreamSubscription[]} Subscriptions that are made when starting the websocket
      */
-    public readonly subscriptions: PS2ClientSubscription[];
+    public readonly subscriptions: EventStreamSubscription[];
 
     /**
-     * @type {PS2wsConfig} Configuration for PS2 Census websocket
+     * @type {ClientConfig} Configuration for PS2 Census websocket client
      */
-    public readonly ps2WsConfig: PS2wsConfig;
+    public readonly clientConfig: ClientConfig;
+
+    /**
+     * @type {EventStreamManagerConfig} Configuration for event stream subscriptions
+     */
+    public readonly streamManagerConfig: EventStreamManagerConfig;
 
     constructor() {
         this.subscriptions = [{
-            eventNames: ['MetagameEvent'],
+            eventNames: ['MetagameEvent', 'Death'],
             worlds: ['10'],
             characters: ['all'],
+            logicalAndCharactersWithWorlds: true,
         }];
-        this.ps2WsConfig = {
+        this.clientConfig = {
             environment: 'ps2',
+            serviceId: this.serviceID,
+            streamManagerConfig: this.streamManagerConfig,
+        };
+        this.streamManagerConfig = {
             subscriptions: this.subscriptions,
         };
     }
