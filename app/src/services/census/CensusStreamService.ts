@@ -48,7 +48,7 @@ export default class CensusStreamService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('ps2Event', (event) => {
-            this.censusProxy.handle(event);
+            void this.censusProxy.handle(event);
         });
 
         this.wsClient.on('reconnecting', () => {
@@ -79,6 +79,7 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.debug('Census stream subscribed!');
 
             // TEMP TEMP TEMP
+            /* eslint-disable */
             const event = new MetagameEvent(this.wsClient, {
                 event_name: 'MetagameEvent',
                 experience_bonus: '25.000000',
@@ -92,6 +93,7 @@ export default class CensusStreamService implements ServiceInterface {
                 timestamp: String(getUnixTimestamp()),
                 world_id: '10',
             });
+            /* eslint-enable */
             this.wsClient.emit(Events.PS2_EVENT, event);
             CensusStreamService.logger.debug('Emitted Metagame Start event');
         });

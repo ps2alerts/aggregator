@@ -33,7 +33,7 @@ export default class ContinentLockEventHandler implements EventHandlerInterface 
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(continentLockEvent: ContinentLockEvent): Promise<boolean> {
         // TODO Store in database
         return true;

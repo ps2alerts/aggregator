@@ -78,6 +78,7 @@ export default class AlertHandler implements AlertHandlerInterface {
             AlertHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
             return true;
         } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to insert alert into DB! ${err}`);
         }
     }
@@ -94,6 +95,7 @@ export default class AlertHandler implements AlertHandlerInterface {
         try {
             const alertModel = this.factory.model;
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const res = await alertModel.updateOne(
                 {alertId: alertId(mge)},
                 {
@@ -102,6 +104,7 @@ export default class AlertHandler implements AlertHandlerInterface {
                 },
             );
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!res.nModified) {
                 AlertHandler.logger.error(`No alerts were modified on end message! ${alertId(mge)}`);
                 return false;
@@ -110,6 +113,7 @@ export default class AlertHandler implements AlertHandlerInterface {
             AlertHandler.logger.debug(`================ SUCCESSFULLY ENDED ALERT ${alertId(mge)} ================`);
             return true;
         } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to finish alert ${alertId(mge)}! ${err}`);
         }
     }

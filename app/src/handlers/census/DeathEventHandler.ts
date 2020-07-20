@@ -27,8 +27,6 @@ export default class DeathEventHandler implements EventHandlerInterface {
 
         try {
             const deathEvent = new DeathEvent(event);
-            console.log(event);
-            process.exit(1);
             await Promise.all([
                 this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.attackerCharacterId),
                 this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.characterId),
@@ -48,7 +46,7 @@ export default class DeathEventHandler implements EventHandlerInterface {
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
         // TODO Store in database
         return true;

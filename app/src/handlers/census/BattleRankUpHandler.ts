@@ -52,7 +52,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(battleRankUpEvent: BattleRankUpEvent): Promise<boolean> {
         return true;
         // TODO Store in database

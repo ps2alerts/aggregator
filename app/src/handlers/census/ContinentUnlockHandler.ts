@@ -34,7 +34,7 @@ export default class ContinentUnlockHandler implements EventHandlerInterface {
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(continentUnlockEvent: ContinentUnlockEvent): Promise<boolean> {
         return true;
         // TODO Add to database

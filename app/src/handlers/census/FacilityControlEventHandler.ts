@@ -34,7 +34,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(facilityControlEvent: FacilityControlEvent): Promise<boolean> {
         return true;
         // TODO Store in database

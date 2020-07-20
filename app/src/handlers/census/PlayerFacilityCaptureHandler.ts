@@ -45,7 +45,7 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(playerFacilityCaptureEvent: PlayerFacilityCaptureEvent): Promise<boolean> {
         return true;
         // TODO Save to database

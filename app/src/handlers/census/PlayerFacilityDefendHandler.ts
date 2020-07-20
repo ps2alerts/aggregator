@@ -31,7 +31,6 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
                 this.playerHandler.updateLastSeen(playerFacilityDefendEvent.worldId, playerFacilityDefendEvent.characterId),
                 this.storeEvent(playerFacilityDefendEvent),
             ]);
-            return true;
         } catch (e) {
             if (e instanceof Error) {
                 PlayerFacilityDefendHandler.logger.warn(`Error parsing PlayerFacilityDefend: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -46,8 +45,9 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(playerFacilityDefendEvent: PlayerFacilityDefendEvent): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
+    private async storeEvent(playerFacilityDefendEvent: PlayerFacilityDefendEvent): Promise<boolean> {
+        return true;
         // TODO Save to database
     }
 }
