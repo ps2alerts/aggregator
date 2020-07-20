@@ -316,12 +316,5 @@ module.exports = {
                 "argsIgnorePattern": "^_"
             }
         ]
-    },
-    "overrides": [{
-        "files": ["**/src/entities/**/*"],
-        "rules": {
-            "@typescript-eslint/no-unused-vars": "off",
-            "@typescript-eslint/explicit-member-accessibility": "off",
-        }
-    }]
+    }
 }
