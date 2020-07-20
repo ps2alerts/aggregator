@@ -18,8 +18,6 @@ export default class App {
             require('../handlers').default,
             // eslint-disable-next-line
             require('../services/mongo').default,
-            // eslint-disable-next-line
-            // require('../../temp/TypeORM/services/typeorm').default,
         ];
     }
 }
