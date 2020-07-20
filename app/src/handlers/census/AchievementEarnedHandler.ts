@@ -30,7 +30,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface {
             await this.handleAchievementEarned(achievementEarnedEvent);
         } catch (e) {
             if (e instanceof Error) {
-                AchievementEarnedHandler.logger.warn(`Error parsing AchievementEarnedEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                AchievementEarnedHandler.logger.error(`Error parsing AchievementEarnedEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 AchievementEarnedHandler.logger.error('UNKNOWN ERROR parsing AchievementEarnedEvent!');
             }

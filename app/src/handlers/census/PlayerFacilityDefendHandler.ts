@@ -33,7 +33,7 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
             ]);
         } catch (e) {
             if (e instanceof Error) {
-                PlayerFacilityDefendHandler.logger.warn(`Error parsing PlayerFacilityDefend: ${e.message}\r\n${jsonLogOutput(event)}`);
+                PlayerFacilityDefendHandler.logger.error(`Error parsing PlayerFacilityDefend: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 PlayerFacilityDefendHandler.logger.error('UNEXPECTED ERROR parsing PlayerFacilityDefend!');
             }

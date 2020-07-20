@@ -22,7 +22,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             await this.storeEvent(facilityControl);
         } catch (e) {
             if (e instanceof Error) {
-                FacilityControlEventHandler.logger.warn(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                FacilityControlEventHandler.logger.error(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 FacilityControlEventHandler.logger.error('UNEXPECTED ERROR parsing FacilityControlEvent!');
             }

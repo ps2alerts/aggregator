@@ -30,7 +30,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
             await this.handleExperienceEvent(gainExperienceEvent);
         } catch (e) {
             if (e instanceof Error) {
-                GainExperienceEventHandler.logger.warn(`Error parsing GainExperienceEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                GainExperienceEventHandler.logger.error(`Error parsing GainExperienceEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 GainExperienceEventHandler.logger.error('UNEXPECTED ERROR parsing GainExperienceEvent!');
             }

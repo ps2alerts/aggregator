@@ -22,7 +22,7 @@ export default class ContinentUnlockHandler implements EventHandlerInterface {
             await this.storeEvent(continentUnlockEvent);
         } catch (e) {
             if (e instanceof Error) {
-                ContinentUnlockHandler.logger.warn(`Error parsing ContinentUnlock: ${e.message}\r\n${jsonLogOutput(event)}`);
+                ContinentUnlockHandler.logger.error(`Error parsing ContinentUnlock: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 ContinentUnlockHandler.logger.error('UNKNOWN ERROR parsing ContinentUnlock!');
             }

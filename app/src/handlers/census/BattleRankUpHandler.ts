@@ -30,7 +30,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
             await this.handleBattleRankUp(battleRankUpEvent);
         } catch (e) {
             if (e instanceof Error) {
-                BattleRankUpHandler.logger.warn(`Error parsing BattleRankEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                BattleRankUpHandler.logger.error(`Error parsing BattleRankEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 BattleRankUpHandler.logger.error('UNEXPECTED ERROR parsing BattleRankUp!');
             }

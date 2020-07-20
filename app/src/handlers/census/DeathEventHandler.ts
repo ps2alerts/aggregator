@@ -34,7 +34,7 @@ export default class DeathEventHandler implements EventHandlerInterface {
             ]);
         } catch (e) {
             if (e instanceof Error) {
-                DeathEventHandler.logger.warn(`Error parsing DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+                DeathEventHandler.logger.error(`Error parsing DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent!');
             }

@@ -30,7 +30,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface {
             await this.playerHandler.handleLogin(playerLogin);
         } catch (e) {
             if (e instanceof Error) {
-                PlayerLoginEventHandler.logger.warn(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                PlayerLoginEventHandler.logger.error(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 PlayerLoginEventHandler.logger.error('UNEXPECTED ERROR parsing PlayerLoginEvent!');
             }

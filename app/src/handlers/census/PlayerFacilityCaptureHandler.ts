@@ -33,7 +33,7 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
             ]);
         } catch (e) {
             if (e instanceof Error) {
-                PlayerFacilityCaptureHandler.logger.warn(`Error parsing PlayerFacilityCapture: ${e.message}\r\n${jsonLogOutput(event)}`);
+                PlayerFacilityCaptureHandler.logger.error(`Error parsing PlayerFacilityCapture: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 PlayerFacilityCaptureHandler.logger.error('UNEXPECTED ERROR parsing PlayerFacilityCapture!');
             }

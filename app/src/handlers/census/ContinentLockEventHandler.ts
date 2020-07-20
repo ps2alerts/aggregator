@@ -23,7 +23,7 @@ export default class ContinentLockEventHandler implements EventHandlerInterface 
             return true;
         } catch (e) {
             if (e instanceof Error) {
-                ContinentLockEventHandler.logger.warn(`Error parsing ContinentLockEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                ContinentLockEventHandler.logger.error(`Error parsing ContinentLockEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 ContinentLockEventHandler.logger.error('UNEXPECTED ERROR parsing ContinentLockEvent!');
             }
