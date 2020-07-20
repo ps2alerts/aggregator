@@ -77,7 +77,7 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
         });
 
-        this.wsClient.on('subscribed', (subscription: EventStreamSubscribed) => {
+        this.wsClient.on('subscribed', () => {
             CensusStreamService.logger.debug('Census stream subscribed!');
 
             // TEMP TEMP TEMP
@@ -87,7 +87,7 @@ export default class CensusStreamService implements ServiceInterface {
                 faction_nc: '6.274510',
                 faction_tr: '19.607843',
                 faction_vs: '9.803922',
-                instance_id: '12358',
+                instance_id: String(Math.floor(Math.random() * 100000) + 1),
                 metagame_event_id: '190',
                 metagame_event_state: '137',
                 metagame_event_state_name: 'started',
@@ -96,25 +96,6 @@ export default class CensusStreamService implements ServiceInterface {
             });
             this.wsClient.emit(Events.PS2_EVENT, event);
             CensusStreamService.logger.debug('Emitted Metagame Start event');
-
-            setTimeout(() => {
-                // TEMP TEMP TEMP
-                const eventEnded = new MetagameEvent(this.wsClient, {
-                    event_name: 'MetagameEvent',
-                    experience_bonus: '25.000000',
-                    faction_nc: '6.274510',
-                    faction_tr: '19.607843',
-                    faction_vs: '9.803922',
-                    instance_id: '12358',
-                    metagame_event_id: '190',
-                    metagame_event_state: '138',
-                    metagame_event_state_name: 'ended',
-                    timestamp: String(getUnixTimestamp()),
-                    world_id: '10',
-                });
-                this.wsClient.emit(Events.PS2_EVENT, eventEnded);
-                CensusStreamService.logger.debug('Emitted Metagame Ended event');
-            }, 1000);
         });
     }
 }
