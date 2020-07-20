@@ -93,7 +93,7 @@ export default class MongoDBConnection {
 
         const {config} = this.dbConfig;
 
-        const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}?authSource=admin`;
+        const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}/${config.schema}?authSource=admin`;
         MongoDBConnection.logger.debug(connStr);
 
         try {

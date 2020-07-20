@@ -17,7 +17,7 @@ export interface AlertDeathInterface extends Document {
     vehicle: number;
 }
 
-export const alertDeathModel: Schema = new Schema({
+export const alertDeathSchema: Schema = new Schema({
     alert: {
         type: Schema.Types.ObjectId,
         required: true,

@@ -7,6 +7,7 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {AlertInterface} from '../models/AlertModel';
 import {AlertState} from '../constants/alertState';
 import {getUnixTimestamp} from '../utils/time';
+import {alertId} from '../utils/alert';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 
 interface Alert {
@@ -35,16 +36,16 @@ export default class AlertHandler implements AlertHandlerInterface {
             if (!this.alertExists(mge)) {
                 return await this.startAlert(mge);
             } else {
-                AlertHandler.logger.error(`Alert already found:${jsonLogOutput(mge)}`);
+                AlertHandler.logger.error(`Alert already found: ${jsonLogOutput(mge)}`);
                 return false;
             }
         }
 
         if (mge.eventState === AlertState.FINISHED) {
             if (this.alertExists(mge)) {
-                return this.endAlert(mge);
+                return await this.endAlert(mge);
             } else {
-                AlertHandler.logger.error(`Alert not found:${jsonLogOutput(mge)}`);
+                AlertHandler.logger.error(`Alert not found: ${jsonLogOutput(mge)}`);
                 return false;
             }
         }
@@ -53,30 +54,27 @@ export default class AlertHandler implements AlertHandlerInterface {
     }
 
     private alertExists(mge: MetagameEventEvent): boolean {
-        this._alerts.some((alert) => {
+        return this._alerts.some((alert) => {
             return alert.worldId === mge.worldId && alert.instanceId === mge.instanceId;
         });
-        return false;
     }
 
     private async startAlert(mge: MetagameEventEvent): Promise<boolean> {
         AlertHandler.logger.debug('================== STARTING ALERT! ==================');
+
         this._alerts.push({
             instanceId: mge.instanceId,
             worldId: mge.worldId,
         });
-        const alert = this.factory.build({
-            alertId: `${mge.worldId}-${mge.instanceId}`,
-            world: mge.worldId,
-            zone: mge.zone,
-            state: AlertState.STARTED,
-            timeStarted: getUnixTimestamp(),
-        });
-
-        AlertHandler.logger.debug('Starting promise...');
 
         try {
-            const row = await alert.save();
+            const row = await this.factory.saveDocument({
+                alertId: alertId(mge),
+                world: mge.worldId,
+                zone: mge.zone,
+                state: AlertState.STARTED,
+                timeStarted: getUnixTimestamp(),
+            });
             AlertHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
             return true;
         } catch (err) {
@@ -84,13 +82,35 @@ export default class AlertHandler implements AlertHandlerInterface {
         }
     }
 
-    private endAlert(mge: MetagameEventEvent): boolean {
-        AlertHandler.logger.debug(`================== ENDING ALERT ${mge.worldId}${mge.instanceId} ==================`);
+    private async endAlert(mge: MetagameEventEvent): Promise<boolean> {
+        AlertHandler.logger.debug(`================== ENDING ALERT ${alertId(mge)} ==================`);
+
+        // Remove alert from in-memory list
         this._alerts = this._alerts.filter((alert) => {
             return !(alert.worldId === mge.worldId && alert.instanceId === mge.instanceId);
         });
-        // TODO Call database
-        AlertHandler.logger.debug(`================ SUCCESSFULLY ENDED ALERT ${mge.worldId}${mge.instanceId} ================`);
-        return true;
+
+        // Find alert and update
+        try {
+            const alertModel = this.factory.model;
+
+            const res = await alertModel.updateOne(
+                {alertId: alertId(mge)},
+                {
+                    state: AlertState.FINISHED,
+                    timeEnded: getUnixTimestamp(),
+                },
+            );
+
+            if (!res.nModified) {
+                AlertHandler.logger.error(`No alerts were modified on end message! ${alertId(mge)}`);
+                return false;
+            }
+
+            AlertHandler.logger.debug(`================ SUCCESSFULLY ENDED ALERT ${alertId(mge)} ================`);
+            return true;
+        } catch (err) {
+            throw new ApplicationException(`Unable to finish alert ${alertId(mge)}! ${err}`);
+        }
     }
 }
