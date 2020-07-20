@@ -85,10 +85,7 @@ export default class CensusProxy {
                 // this.battleRankUpHandler.handle(event);
                 break;
             case 'Death':
-                await this.deathEventHandler.handle(event).then(function() {
-                    return true;
-                });
-                break;
+                return await this.deathEventHandler.handle(event);
             case 'FacilityControl':
                 // this.facilityControlEventHandler.handle(event);
                 break;
@@ -99,10 +96,7 @@ export default class CensusProxy {
                 // eventStore.storeItemAdded(payload);
                 break;
             case 'MetagameEvent':
-                await this.metagameEventEventHandler.handle(event).then(function() {
-                    return true;
-                });
-                break;
+                return await this.metagameEventEventHandler.handle(event);
             case 'PlayerFacilityCapture':
                 // this.playerFacilityCapture.handle(event);
                 break;
