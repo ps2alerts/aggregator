@@ -31,7 +31,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
             return true;
         } catch (e) {
             if (e instanceof Error) {
-                MetagameEventEventHandler.logger.warn(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                MetagameEventEventHandler.logger.error(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 MetagameEventEventHandler.logger.error('UNEXPECTED ERROR parsing MetagameEvent!');
             }

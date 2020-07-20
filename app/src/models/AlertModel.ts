@@ -16,6 +16,7 @@ export const alertSchema: Schema = new Schema({
     alertId: {
         type: String,
         required: true,
+        unique: true,
     },
     world: {
         type: Number,

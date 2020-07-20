@@ -1,5 +1,6 @@
 import {
     get,
+    getBool,
     getInt,
 } from '../utils/env';
 import {ConnectionOptions} from 'mongoose';
@@ -11,6 +12,7 @@ export interface DatabaseConfig {
     user: string;
     pass: string;
     schema: string;
+    debug: boolean;
 }
 
 @injectable()
@@ -25,6 +27,7 @@ export default class Database {
             user: get('DB_USER', 'root'),
             pass: get('DB_PASS', 'foobar'),
             schema: get('DB_SCHEMA', 'ps2alerts'),
+            debug: getBool('DB_DEBUG', false),
         };
 
         this.connectionOptions = {
@@ -32,7 +35,8 @@ export default class Database {
             useUnifiedTopology: false,
             useCreateIndex: true,
             useFindAndModify: false,
-            autoIndex: false,
+            autoIndex: true,
+            autoCreate: true,
             poolSize: getInt('DB_POOL_SIZE', 10),
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
