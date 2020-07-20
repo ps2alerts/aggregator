@@ -1,5 +1,5 @@
 import {Document, Schema} from 'mongoose';
-import {AlertState} from '../constants/alertState';
+import {MetagameEventState} from '../constants/metagameEventState';
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
 
@@ -7,7 +7,7 @@ export interface AlertInterface extends Document {
     alertId: string;
     world: World;
     zone: Zone;
-    state: AlertState;
+    state: MetagameEventState;
     timeStarted: number;
     timeEnded: number;
 }

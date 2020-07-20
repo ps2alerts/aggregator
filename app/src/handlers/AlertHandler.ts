@@ -5,7 +5,7 @@ import {jsonLogOutput} from '../utils/json';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
 import {AlertInterface} from '../models/AlertModel';
-import {AlertState} from '../constants/alertState';
+import {MetagameEventState} from '../constants/metagameEventState';
 import {getUnixTimestamp} from '../utils/time';
 import {alertId} from '../utils/alert';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
@@ -32,7 +32,7 @@ export default class AlertHandler implements AlertHandlerInterface {
     }
 
     public async handleMetagameEvent(mge: MetagameEventEvent): Promise<boolean> {
-        if (mge.eventState === AlertState.STARTED) {
+        if (mge.eventState === MetagameEventState.STARTED) {
             if (!this.alertExists(mge)) {
                 return await this.startAlert(mge);
             } else {
@@ -41,7 +41,7 @@ export default class AlertHandler implements AlertHandlerInterface {
             }
         }
 
-        if (mge.eventState === AlertState.FINISHED) {
+        if (mge.eventState === MetagameEventState.FINISHED) {
             if (this.alertExists(mge)) {
                 return await this.endAlert(mge);
             } else {
@@ -72,7 +72,7 @@ export default class AlertHandler implements AlertHandlerInterface {
                 alertId: alertId(mge),
                 world: mge.worldId,
                 zone: mge.zone,
-                state: AlertState.STARTED,
+                state: MetagameEventState.STARTED,
                 timeStarted: getUnixTimestamp(),
             });
             AlertHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
@@ -99,7 +99,7 @@ export default class AlertHandler implements AlertHandlerInterface {
             const res = await alertModel.updateOne(
                 {alertId: alertId(mge)},
                 {
-                    state: AlertState.FINISHED,
+                    state: MetagameEventState.FINISHED,
                     timeEnded: getUnixTimestamp(),
                 },
             );
