@@ -12,6 +12,7 @@ const playerModel: Schema = new Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     world: {
         type: Number,
