@@ -98,7 +98,10 @@ export default class MongoDBConnection {
 
         try {
             await this.db.connect(connStr, this.dbConfig.connectionOptions);
-            this.db.set('debug', true);
+
+            if (config.debug) {
+                this.db.set('debug', true);
+            }
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Was unable to create a connection to Mongo! ${error.message}`, 'database/mongo-connection');
