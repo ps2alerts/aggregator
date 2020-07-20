@@ -38,7 +38,6 @@
     "ps2census": "^0.2.6",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^4.2.0",
-    "typeorm": "^0.2.25",
     "usage": "^0.7.1",
     "utf-8-validate": "^5.0.2",
     "winston": "^3.2.1",
