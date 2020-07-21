@@ -78,14 +78,14 @@ export default class CensusStreamService implements ServiceInterface {
                 faction_tr: '19.607843',
                 faction_vs: '9.803922',
                 instance_id: String(Math.floor(Math.random() * 100000) + 1),
-                metagame_event_id: '190',
+                metagame_event_id: '186',
                 metagame_event_state: '137',
                 metagame_event_state_name: 'started',
                 timestamp: String(getUnixTimestamp()),
-                world_id: '10',
+                world_id: '13',
             });
             /* eslint-enable */
-            this.wsClient.emit(Events.PS2_META_EVENT, event);
+            // this.wsClient.emit(Events.PS2_META_EVENT, event);
             CensusStreamService.logger.debug('Emitted Metagame Start event');
         });
     }

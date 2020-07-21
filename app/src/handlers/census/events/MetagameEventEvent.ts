@@ -47,7 +47,7 @@ export default class MetagameEventEvent {
             throw new IllegalArgumentException('event', 'MetagameEventEvent');
         }
 
-        this.world = Parser.parseArgumentAsNumber(event.world_id);
+        this.world = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.world)) {
             throw new IllegalArgumentException('world_id', 'MetagameEventEvent');
@@ -64,31 +64,31 @@ export default class MetagameEventEvent {
         }
 
         this.eventState = eventStateName === 'started' ? MetagameEventState.STARTED : MetagameEventState.FINISHED;
-        this.factionNc = Parser.parseArgumentAsNumber(event.faction_nc, true);
+        this.factionNc = Parser.parseNumericalArgument(event.faction_nc, true);
 
         if (isNaN(this.factionNc)) {
             throw new IllegalArgumentException('faction_nc', 'MetagameEventEvent');
         }
 
-        this.factionTr = Parser.parseArgumentAsNumber(event.faction_tr, true);
+        this.factionTr = Parser.parseNumericalArgument(event.faction_tr, true);
 
         if (isNaN(this.factionTr)) {
             throw new IllegalArgumentException('faction_tr', 'MetagameEventEvent');
         }
 
-        this.factionVs = Parser.parseArgumentAsNumber(event.faction_vs, true);
+        this.factionVs = Parser.parseNumericalArgument(event.faction_vs, true);
 
         if (isNaN(this.factionVs)) {
             throw new IllegalArgumentException('faction_vs', 'MetagameEventEvent');
         }
 
-        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
+        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'MetagameEventEvent');
         }
 
-        const eventId = Parser.parseArgumentAsNumber(event.metagame_event_id);
+        const eventId = Parser.parseNumericalArgument(event.metagame_event_id);
 
         if (isNaN(eventId)) {
             throw new IllegalArgumentException('metagame_event_id', 'MetagameEventEvent');
@@ -97,7 +97,7 @@ export default class MetagameEventEvent {
         // TODO InstanceID are missing in the declaration
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        this.instanceId = Parser.parseArgumentAsNumber(event.instance_id);
+        this.instanceId = Parser.parseNumericalArgument(event.instance_id);
 
         if (isNaN(this.instanceId)) {
             throw new IllegalArgumentException('instance_id', 'MetagameEventEvent');

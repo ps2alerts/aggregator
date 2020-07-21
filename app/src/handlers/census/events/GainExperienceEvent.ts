@@ -24,7 +24,7 @@ export default class GainExperienceEvent {
     public readonly zone: Zone;
     public readonly worldId: number;
     public readonly timestamp: number;
-    public readonly characterId: number;
+    public readonly characterId: string;
     public readonly experienceId: number;
     public readonly loadoutId: number;
     public readonly amount: number;
@@ -36,39 +36,35 @@ export default class GainExperienceEvent {
             throw new IllegalArgumentException('event', 'GainExperienceEvent');
         }
 
-        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
+        this.worldId = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
-        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
+        this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
+        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp');
         }
 
-        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
+        this.characterId = event.character_id; // This is a string on purpose
 
-        if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('character_id');
-        }
-
-        this.experienceId = Parser.parseArgumentAsNumber(event.experience_id);
+        this.experienceId = Parser.parseNumericalArgument(event.experience_id);
 
         if (isNaN(this.experienceId)) {
             throw new IllegalArgumentException('experience_id');
         }
 
-        this.loadoutId = Parser.parseArgumentAsNumber(event.loadout_id);
+        this.loadoutId = Parser.parseNumericalArgument(event.loadout_id);
 
         if (isNaN(this.loadoutId)) {
             throw new IllegalArgumentException('loadout_id');
         }
 
-        this.amount = Parser.parseArgumentAsNumber(event.amount);
+        this.amount = Parser.parseNumericalArgument(event.amount);
 
         if (isNaN(this.amount)) {
             throw new IllegalArgumentException('amount');

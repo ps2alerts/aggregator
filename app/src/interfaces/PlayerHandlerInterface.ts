@@ -6,5 +6,5 @@ export default interface PlayerHandlerInterface {
 
     handleLogout(logoutEvent: PlayerLogoutEvent): Promise<boolean>;
 
-    updateLastSeen(worldId: number, characterId: number): Promise<boolean>;
+    updateLastSeen(worldId: number, characterId: string): Promise<boolean>;
 }

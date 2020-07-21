@@ -1,12 +1,12 @@
 import {Document, Schema} from 'mongoose';
 import {AlertSchemaInterface} from './AlertModel';
-import {Loadout} from '../constants/loadout';
-import {PlayerInterface} from './static/PlayerModel';
+import {Loadout, LoadoutArray} from '../constants/loadout';
+import {FactionArray} from '../constants/faction';
 
 export interface AlertDeathSchemaInterface extends Document {
     alert: AlertSchemaInterface['alertId'];
-    attacker: PlayerInterface['_id'];
-    player: PlayerInterface['_id'];
+    attacker: string;
+    player: string;
     timestamp: number;
     attackerFiremode: number;
     attackerLoadout: number;
@@ -14,6 +14,7 @@ export interface AlertDeathSchemaInterface extends Document {
     playerLoadout: Loadout;
     isHeadshot: boolean;
     isSuicide: boolean;
+    isTeamkill: boolean;
     vehicle: number;
 }
 
@@ -23,11 +24,11 @@ export const alertDeathSchema: Schema = new Schema({
         required: true,
     },
     attacker: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
     },
     player: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
     },
     timestamp: {
@@ -42,13 +43,23 @@ export const alertDeathSchema: Schema = new Schema({
         type: Number,
         required: true,
     },
+    attackerFaction: {
+        type: Number,
+        enum: FactionArray,
+        required: true,
+    },
     weapon: {
         type: Number,
         required: true,
     },
     playerLoadout: {
         type: Number,
-        enum: Loadout,
+        enum: LoadoutArray,
+        required: true,
+    },
+    playerFaction: {
+        type: Number,
+        enum: FactionArray,
         required: true,
     },
     isHeadshot: {
@@ -56,6 +67,10 @@ export const alertDeathSchema: Schema = new Schema({
         required: true,
     },
     isSuicide: {
+        type: Boolean,
+        required: true,
+    },
+    isTeamkill: {
         type: Boolean,
         required: true,
     },

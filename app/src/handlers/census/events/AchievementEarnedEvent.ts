@@ -18,7 +18,7 @@ import {AchievementEarned, PS2Event} from 'ps2census';
 @injectable()
 export default class AchievementEarnedEvent {
     public readonly worldId: number;
-    public readonly characterId: number;
+    public readonly characterId: string;
     public readonly zone: Zone;
     public readonly achievementId: number;
     public readonly timestamp: number;
@@ -30,27 +30,23 @@ export default class AchievementEarnedEvent {
             throw new IllegalArgumentException('event', 'AchievementEarnedEvent');
         }
 
-        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
+        this.worldId = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'AchievementEarnedEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
-        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
+        this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
+        this.characterId = event.character_id; // This is a string on purpose
 
-        if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('character_id', 'AchievementEarnedEvent');
-        }
-
-        this.achievementId = Parser.parseArgumentAsNumber(event.achievement_id);
+        this.achievementId = Parser.parseNumericalArgument(event.achievement_id);
 
         if (isNaN(this.achievementId)) {
             throw new IllegalArgumentException('achievement_id', 'AchievementEarnedEvent');
         }
 
-        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
+        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'AchievementEarnedEvent');

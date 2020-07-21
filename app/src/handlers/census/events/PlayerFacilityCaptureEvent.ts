@@ -21,7 +21,7 @@ export default class PlayerFacilityCaptureEvent {
     public readonly worldId: number;
     public readonly zone: Zone;
     public readonly timestamp: number;
-    public readonly characterId: number;
+    public readonly characterId: string;
     public readonly facilityId: number;
     public readonly outfitId: number;
 
@@ -32,33 +32,29 @@ export default class PlayerFacilityCaptureEvent {
             throw new IllegalArgumentException('event', 'PlayerFacilityCaptureEvent');
         }
 
-        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
+        this.worldId = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'PlayerFacilityCaptureEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
-        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
+        this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
+        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'PlayerFacilityCaptureEvent');
         }
 
-        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
+        this.characterId = event.character_id; // This is a string on purpose
 
-        if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('character_id', 'PlayerFacilityCaptureEvent');
-        }
-
-        this.facilityId = Parser.parseArgumentAsNumber(event.facility_id);
+        this.facilityId = Parser.parseNumericalArgument(event.facility_id);
 
         if (isNaN(this.facilityId)) {
             throw new IllegalArgumentException('facility_id', 'PlayerFacilityCaptureEvent');
         }
 
-        this.outfitId = Parser.parseArgumentAsNumber(event.outfit_id);
+        this.outfitId = Parser.parseNumericalArgument(event.outfit_id);
 
         if (isNaN(this.outfitId)) {
             throw new IllegalArgumentException('outfit_id', 'PlayerFacilityCaptureEvent');

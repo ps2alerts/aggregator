@@ -10,7 +10,7 @@ import {getUnixTimestamp} from '../utils/time';
 import {alertId} from '../utils/alert';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
-import ActiveAlertAuthorityInterface from '../interfaces/ActiveAlertAuthorityInterface';
+import ActiveAlertAuthority from '../authorities/ActiveAlertAuthority';
 
 @injectable()
 export default class AlertHandler implements AlertHandlerInterface {
@@ -19,11 +19,10 @@ export default class AlertHandler implements AlertHandlerInterface {
 
     private readonly factory: MongooseModelFactory<AlertSchemaInterface>;
 
-    private readonly activeAlerts: ActiveAlertAuthorityInterface;
+    private readonly activeAlerts: ActiveAlertAuthority;
 
-    constructor(
-    @inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertSchemaInterface>,
-        @inject(TYPES.activeAlertAuthority) activeAlerts: ActiveAlertAuthorityInterface,
+    constructor(@inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertSchemaInterface>,
+        @inject(TYPES.activeAlertAuthority) activeAlerts: ActiveAlertAuthority,
     ) {
         this.factory = factory;
         this.activeAlerts = activeAlerts;
@@ -49,12 +48,6 @@ export default class AlertHandler implements AlertHandlerInterface {
         }
 
         throw new ApplicationException(`MetagameEvent was not stored \r\n${jsonLogOutput(mge)}`);
-    }
-
-    private alertExists(mge: MetagameEventEvent): boolean {
-        return this._alerts.some((alert) => {
-            return alert.worldId === mge.worldId && alert.instanceId === mge.instanceId;
-        });
     }
 
     private async startAlert(mge: MetagameEventEvent): Promise<boolean> {

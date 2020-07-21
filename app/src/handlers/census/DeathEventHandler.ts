@@ -9,7 +9,6 @@ import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {AlertDeathSchemaInterface} from '../../models/AlertDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import ActiveAlertAuthorityInterface from '../../interfaces/ActiveAlertAuthorityInterface';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
@@ -19,22 +18,18 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>;
 
-    private readonly activeAlerts: ActiveAlertAuthorityInterface;
-
+    /* eslint-disable */
     constructor(
-    @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
+        @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
         @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>,
-        @inject(TYPES.activeAlertAuthority) activeAlertAuthority: ActiveAlertAuthorityInterface,
     ) {
+        /* eslint-enable */
         this.playerHandler = playerHandler;
         this.alertDeathModelFactory = alertDeathModelFactory;
-        this.activeAlerts = activeAlertAuthority;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        DeathEventHandler.logger.debug('Parsing message...');
-
-        if (config.features.logging.censusEventContent) {
+        if (config.features.logging.censusEventContent.deaths) {
             DeathEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
@@ -58,29 +53,27 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
     }
 
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
-        console.log(deathEvent);
-
         try {
-            const row = await this.alertDeathModelFactory.saveDocument({
+            await this.alertDeathModelFactory.saveDocument({
                 alert: deathEvent.alert.alertId,
                 attacker: deathEvent.attackerCharacterId,
                 player: deathEvent.characterId,
                 timestamp: deathEvent.timestamp,
                 attackerFiremode: deathEvent.attackerFiremodeId,
                 attackerLoadout: deathEvent.attackerLoadoutId,
+                attackerFaction: deathEvent.attackerFaction,
                 weapon: deathEvent.attackerWeaponId,
                 playerLoadout: deathEvent.characterLoadoutId,
+                playerFaction: deathEvent.characterFaction,
                 isHeadshot: deathEvent.isHeadshot,
                 isSuicide: deathEvent.isSuicide,
+                isTeamkill: deathEvent.isTeamkill,
                 vehicle: deathEvent.attackerVehicleId,
             });
-            // DeathEventHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to insert alert into DB! ${err}`);
         }
-
-        return true;
     }
 }

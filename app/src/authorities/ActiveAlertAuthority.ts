@@ -21,15 +21,14 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
 
     private readonly factory: MongooseModelFactory<ActiveAlertSchemaInterface>;
 
-    constructor(
-    @inject(TYPES.activeAlertDataModelFactory) activeAlertsModelFactory: MongooseModelFactory<ActiveAlertSchemaInterface>,
+    constructor(@inject(TYPES.activeAlertDataModelFactory) activeAlertsModelFactory: MongooseModelFactory<ActiveAlertSchemaInterface>,
     ) {
         this.factory = activeAlertsModelFactory;
-        void this.init();
+        void this.init(); // Hacky mchackface
     }
 
     public getAlert(world: number, zone: number): ActiveAlertInterface {
-        const foundAlert = this._activeAlerts.filter((alert) => {
+        const foundAlert = this._activeAlerts.find((alert) => {
             return alert.world === world && alert.zone === zone;
         });
 
@@ -37,15 +36,7 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
             throw new ApplicationException(`Unable to find the alert for W: ${world} | Z: ${zone}`);
         }
 
-        if (foundAlert.length > 1) {
-            throw new ApplicationException(`Multiple ActiveAlerts were returned for W: ${world} | Z: ${zone} which shouldn't be possible!`);
-        }
-
-        console.log(foundAlert);
-
-        process.exit(2);
-
-        return foundAlert[0];
+        return foundAlert;
     }
 
     public async addAlert(mge: MetagameEventEvent): Promise<boolean> {

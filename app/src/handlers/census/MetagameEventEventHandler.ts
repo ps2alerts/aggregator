@@ -20,7 +20,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
     public async handle(event: MetagameEventEvent): Promise<boolean> {
         MetagameEventEventHandler.logger.debug('Parsing message...');
 
-        if (config.features.logging.censusEventContent) {
+        if (config.features.logging.censusEventContent.metagame) {
             MetagameEventEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

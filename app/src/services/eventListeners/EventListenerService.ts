@@ -93,21 +93,39 @@ export default class EventListenerService implements ServiceInterface {
         // this.destructHandlers();
     }
 
+    // Here we pass all the events
     private constructListeners(): void {
+
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            const deathEvent = new DeathEvent(event, this.injectAlert(event));
+            if (!this.getAlert(event)) {
+                return false;
+            }
+
+            // EventListenerService.logger.debug('Passing Death to listener');
+            const deathEvent = new DeathEvent(event, this.getAlert(event));
             void this.deathEventHandler.handle(deathEvent);
         });
 
+        // this.wsClient.on('facilityControl', (event) => {
+        //     if (!this.getAlert(event)) {
+        //         return false;
+        //     }
+        //
+        //     EventListenerService.logger.debug('Passing FacilityControl to listener');
+        //     const facilityControl = new FacilityControlEvent(event, this.getAlert(event));
+        //     void this.facilityControlEventHandler.handle(facilityControl);
+        // });
+
         this.wsClient.on('metagameEvent', (event) => {
-            EventListenerService.logger.debug('Passing metagame event to listener');
+            EventListenerService.logger.debug('Passing MetagameEvent to listener');
             const metagameEvent = new MetagameEventEvent(event);
             void this.metagameEventEventHandler.handle(metagameEvent);
         });
     }
 
-    private injectAlert(event: PS2ZoneEvents): ActiveAlertInterface {
+    // Checks for compatible event types to see if alert is running on that World + Zone combo
+    private getAlert(event: PS2ZoneEvents): ActiveAlertInterface {
         return this.activeAlerts.getAlert(
             parseInt(event.world_id, 10),
             parseInt(event.zone_id, 10),

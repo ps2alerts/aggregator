@@ -1,7 +1,7 @@
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 
 export default class Parser {
-    public static parseArgumentAsNumber(argument: string, float = false): number {
+    public static parseNumericalArgument(argument: string, float = false): number {
         if (argument === null || argument === undefined) {
             return NaN;
         }
@@ -14,6 +14,6 @@ export default class Parser {
             throw new IllegalArgumentException('Argument cannot be null or undefined', 'Parser.parseArgumentAsBoolean');
         }
 
-        return argument.toLowerCase() === 'true';
+        return argument === '1';
     }
 }
