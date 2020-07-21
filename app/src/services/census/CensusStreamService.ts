@@ -3,7 +3,7 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
-import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
+import {Client, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 
 @injectable()
