@@ -22,7 +22,7 @@ export default class AlertHandler implements AlertHandlerInterface {
     private readonly activeAlerts: ActiveAlertAuthority;
 
     constructor(@inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertSchemaInterface>,
-        @inject(TYPES.activeAlertAuthority) activeAlerts: ActiveAlertAuthority,
+                                                 activeAlerts: ActiveAlertAuthority,
     ) {
         this.factory = factory;
         this.activeAlerts = activeAlerts;

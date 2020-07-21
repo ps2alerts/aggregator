@@ -1,7 +1,4 @@
 const TYPES = {
-    // Authorities
-    activeAlertAuthority: Symbol.for('ActiveAlertAuthority'),
-
     // Handler Interfaces
     alertHandlerInterface: Symbol.for('AlertHandlerInterface'),
     playerHandlerInterface: Symbol.for('PlayerHandlerInterface'),

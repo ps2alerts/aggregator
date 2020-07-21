@@ -124,8 +124,6 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
             });
         }
 
-        // Check the current "In Progress" alerts, and ensure they match
-
         ActiveAlertAuthority.logger.info('Initializing ActiveAlerts FINISHED');
         this.printActives();
         return true;
