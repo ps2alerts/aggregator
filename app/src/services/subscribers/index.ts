@@ -1,11 +1,11 @@
 import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
-import EventListenerService from './EventListenerService';
+import CensusEventSubscriberService from './CensusEventSubscriberService';
 
 export default new ContainerModule((bind) => {
-    bind<ServiceInterface>(SERVICE).to(EventListenerService);
+    bind<ServiceInterface>(SERVICE).to(CensusEventSubscriberService);
 
-    bind(EventListenerService)
+    bind(CensusEventSubscriberService)
         .toSelf()
         .inSingletonScope();
 });

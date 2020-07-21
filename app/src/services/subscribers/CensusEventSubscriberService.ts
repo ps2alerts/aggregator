@@ -23,7 +23,7 @@ import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent'
 import ActiveAlertAuthority from '../../authorities/ActiveAlertAuthority';
 
 @injectable()
-export default class EventListenerService implements ServiceInterface {
+export default class CensusEventSubscriberService implements ServiceInterface {
     private static readonly logger = getLogger('EventListenerService');
 
     private readonly wsClient: Client;
@@ -78,17 +78,17 @@ export default class EventListenerService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        EventListenerService.logger.info('Booting EventListenerService... (NOT IMPLEMENTED)');
+        CensusEventSubscriberService.logger.info('Booting EventListenerService... (NOT IMPLEMENTED)');
     }
 
     public async start(): Promise<void> {
-        EventListenerService.logger.info('Starting EventListenerService...');
+        CensusEventSubscriberService.logger.info('Starting EventListenerService...');
         // eslint-disable-next-line @typescript-eslint/await-thenable
         void await this.constructListeners();
     }
 
     public terminate(): void {
-        EventListenerService.logger.info('Terminating Census Stream Service!');
+        CensusEventSubscriberService.logger.info('Terminating Census Stream Service!');
 
         // this.destructHandlers();
     }
@@ -118,7 +118,7 @@ export default class EventListenerService implements ServiceInterface {
         // });
 
         this.wsClient.on('metagameEvent', (event) => {
-            EventListenerService.logger.debug('Passing MetagameEvent to listener');
+            CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
             const metagameEvent = new MetagameEventEvent(event);
             void this.metagameEventEventHandler.handle(metagameEvent);
         });
