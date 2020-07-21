@@ -48,7 +48,13 @@ export default class AlertHandler implements AlertHandlerInterface {
             }
         }
 
-        throw new ApplicationException(`MetagameEvent was not handled correctly! \r\n${jsonLogOutput(mge)}`);
+        throw new ApplicationException(`MetagameEvent was not stored \r\n${jsonLogOutput(mge)}`);
+    }
+
+    private alertExists(mge: MetagameEventEvent): boolean {
+        return this._alerts.some((alert) => {
+            return alert.worldId === mge.worldId && alert.instanceId === mge.instanceId;
+        });
     }
 
     private async startAlert(mge: MetagameEventEvent): Promise<boolean> {
