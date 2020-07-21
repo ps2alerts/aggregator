@@ -18,7 +18,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         BattleRankUpHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,10 +27,10 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
 
         try {
             const battleRankUpEvent = new BattleRankUpEvent(event);
-            this.handleBattleRankUp(battleRankUpEvent);
+            await this.handleBattleRankUp(battleRankUpEvent);
         } catch (e) {
             if (e instanceof Error) {
-                BattleRankUpHandler.logger.warn(`Error parsing BattleRankEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                BattleRankUpHandler.logger.error(`Error parsing BattleRankEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 BattleRankUpHandler.logger.error('UNEXPECTED ERROR parsing BattleRankUp!');
             }
@@ -41,15 +41,20 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         return true;
     }
 
-    private handleBattleRankUp(battleRankUpEvent: BattleRankUpEvent): void {
+    private async handleBattleRankUp(battleRankUpEvent: BattleRankUpEvent): Promise<boolean> {
         // Update last seen
-        this.playerHandler.updateLastSeen(battleRankUpEvent.worldId, battleRankUpEvent.characterId);
-        this.storeEvent(battleRankUpEvent);
+        await Promise.all([
+            this.playerHandler.updateLastSeen(battleRankUpEvent.worldId, battleRankUpEvent.characterId),
+            this.storeEvent(battleRankUpEvent),
+        ]);
+
+        return true;
     }
 
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(battleRankUpEvent: BattleRankUpEvent): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
+    private async storeEvent(battleRankUpEvent: BattleRankUpEvent): Promise<boolean> {
+        return true;
         // TODO Store in database
     }
 }

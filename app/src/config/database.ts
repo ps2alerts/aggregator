@@ -1,8 +1,10 @@
 import {
     get,
+    getBool,
     getInt,
 } from '../utils/env';
 import {ConnectionOptions} from 'mongoose';
+import {injectable} from 'inversify';
 
 export interface DatabaseConfig {
     host: string;
@@ -10,8 +12,10 @@ export interface DatabaseConfig {
     user: string;
     pass: string;
     schema: string;
+    debug: boolean;
 }
 
+@injectable()
 export default class Database {
     public readonly config: DatabaseConfig;
     public readonly connectionOptions: ConnectionOptions;
@@ -23,18 +27,23 @@ export default class Database {
             user: get('DB_USER', 'root'),
             pass: get('DB_PASS', 'foobar'),
             schema: get('DB_SCHEMA', 'ps2alerts'),
+            debug: getBool('DB_DEBUG', false),
         };
 
         this.connectionOptions = {
             useNewUrlParser: true,
-            useUnifiedTopology: true,
+            useUnifiedTopology: false,
             useCreateIndex: true,
             useFindAndModify: false,
-            autoIndex: false,
+            autoIndex: true,
+            autoCreate: true,
             poolSize: getInt('DB_POOL_SIZE', 10),
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
             family: 4,
+            keepAlive: true,
+            keepAliveInitialDelay: 30000, // 30 sec
+            reconnectTries: 30,
         };
     }
 }

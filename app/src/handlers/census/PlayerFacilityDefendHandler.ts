@@ -18,7 +18,7 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean>{
         PlayerFacilityDefendHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,10 +27,13 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
 
         try {
             const playerFacilityDefendEvent = new PlayerFacilityDefendEvent(event);
-            this.handlePlayerFacilityDefend(playerFacilityDefendEvent);
+            await Promise.all([
+                this.playerHandler.updateLastSeen(playerFacilityDefendEvent.worldId, playerFacilityDefendEvent.characterId),
+                this.storeEvent(playerFacilityDefendEvent),
+            ]);
         } catch (e) {
             if (e instanceof Error) {
-                PlayerFacilityDefendHandler.logger.warn(`Error parsing PlayerFacilityDefend: ${e.message}\r\n${jsonLogOutput(event)}`);
+                PlayerFacilityDefendHandler.logger.error(`Error parsing PlayerFacilityDefend: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 PlayerFacilityDefendHandler.logger.error('UNEXPECTED ERROR parsing PlayerFacilityDefend!');
             }
@@ -41,15 +44,10 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
         return true;
     }
 
-    private handlePlayerFacilityDefend(playerFacilityDefendEvent: PlayerFacilityDefendEvent): void {
-        // Update last seen
-        this.playerHandler.updateLastSeen(playerFacilityDefendEvent.worldId, playerFacilityDefendEvent.characterId);
-        return this.storeEvent(playerFacilityDefendEvent);
-    }
-
     // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private storeEvent(playerFacilityDefendEvent: PlayerFacilityDefendEvent): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
+    private async storeEvent(playerFacilityDefendEvent: PlayerFacilityDefendEvent): Promise<boolean> {
+        return true;
         // TODO Save to database
     }
 }

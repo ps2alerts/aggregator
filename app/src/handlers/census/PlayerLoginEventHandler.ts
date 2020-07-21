@@ -18,7 +18,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean> {
         PlayerLoginEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,10 +27,10 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface {
 
         try {
             const playerLogin = new PlayerLoginEvent(event);
-            this.playerHandler.handleLogin(playerLogin);
+            await this.playerHandler.handleLogin(playerLogin);
         } catch (e) {
             if (e instanceof Error) {
-                PlayerLoginEventHandler.logger.warn(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                PlayerLoginEventHandler.logger.error(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 PlayerLoginEventHandler.logger.error('UNEXPECTED ERROR parsing PlayerLoginEvent!');
             }

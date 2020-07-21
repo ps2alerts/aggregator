@@ -172,20 +172,3 @@ export interface MetagameEvent {
     world_id: string;
     // zone_id: string
 }
-
-export type GenericEvent =
-    AchievementEarned
-    | BattleRankUp
-    | Death
-    | GainExperience
-    | ItemAdded
-    | PlayerFacilityCapture
-    | PlayerFacilityDefend
-    | PlayerLogin
-    | PlayerLogout
-    | SkillAdded
-    | VehicleDestroy
-    | ContinentLock
-    // | ContinentUnlock
-    | FacilityControl
-    | MetagameEvent;

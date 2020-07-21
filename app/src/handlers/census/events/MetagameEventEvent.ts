@@ -19,11 +19,7 @@ import Parser from '../../../utils/parser';
 import {Zone} from '../../../constants/zone';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {MetagameEvent, PS2Event} from 'ps2census';
-
-export enum MetagameEventState {
-    STARTED,
-    ENDED,
-}
+import {MetagameEventState} from '../../../constants/metagameEventState';
 
 @injectable()
 export default class MetagameEventEvent {
@@ -66,7 +62,7 @@ export default class MetagameEventEvent {
             throw new IllegalArgumentException('metagame_event_state_name', 'MetagameEventEvent');
         }
 
-        this.eventState = eventStateName === 'started' ? MetagameEventState.STARTED : MetagameEventState.ENDED;
+        this.eventState = eventStateName === 'started' ? MetagameEventState.STARTED : MetagameEventState.FINISHED;
         this.factionNc = Parser.parseArgumentAsNumber(event.faction_nc, true);
 
         if (isNaN(this.factionNc)) {

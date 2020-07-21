@@ -93,11 +93,15 @@ export default class MongoDBConnection {
 
         const {config} = this.dbConfig;
 
-        const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}?authSource=admin`;
+        const connStr = `mongodb://${config.user}:${config.pass}@${config.host}:${config.port}/${config.schema}?authSource=admin`;
         MongoDBConnection.logger.debug(connStr);
 
         try {
             await this.db.connect(connStr, this.dbConfig.connectionOptions);
+
+            if (config.debug) {
+                this.db.set('debug', true);
+            }
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Was unable to create a connection to Mongo! ${error.message}`, 'database/mongo-connection');

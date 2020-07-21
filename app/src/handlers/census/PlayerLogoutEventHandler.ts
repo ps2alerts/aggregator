@@ -18,7 +18,7 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public handle(event: PS2Event): boolean {
+    public async handle(event: PS2Event): Promise<boolean> {
         PlayerLogoutEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -27,10 +27,10 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface {
 
         try {
             const playerLogout = new PlayerLogoutEvent(event);
-            this.playerHandler.handleLogout(playerLogout);
+            await this.playerHandler.handleLogout(playerLogout);
         } catch (e) {
             if (e instanceof Error) {
-                PlayerLogoutEventHandler.logger.warn(`Error parsing PlayerLogoutEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                PlayerLogoutEventHandler.logger.error(`Error parsing PlayerLogoutEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 PlayerLogoutEventHandler.logger.error('UNEXPECTED ERROR parsing PlayerLogoutEvent!');
             }

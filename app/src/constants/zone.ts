@@ -6,4 +6,6 @@ export enum Zone {
     VR_TRAINING_NC = 96,
     VR_TRAINING_TR = 97,
     VR_TRAINING_VS = 98,
+    KOLTYR = 1234, // FIND OUT
+    DESOLATION = 1235 // FIND OUT
 }
