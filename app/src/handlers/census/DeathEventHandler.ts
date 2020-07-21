@@ -7,6 +7,9 @@ import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import {PS2Event} from 'ps2census';
+import ApplicationException from '../../exceptions/ApplicationException';
+import {AlertDeathInterface} from '../../models/AlertDeathModel';
+import MongooseModelFactory from '../../factories/MongooseModelFactory';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface {
@@ -14,8 +17,14 @@ export default class DeathEventHandler implements EventHandlerInterface {
 
     private readonly playerHandler: PlayerHandlerInterface;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
+    private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>;
+
+    constructor(
+    @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
+        @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>,
+    ) {
         this.playerHandler = playerHandler;
+        this.alertDeathModelFactory = alertDeathModelFactory;
     }
 
     public async handle(event: PS2Event): Promise<boolean> {
@@ -48,7 +57,17 @@ export default class DeathEventHandler implements EventHandlerInterface {
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
-        // TODO Store in database
+        try {
+            const row = await this.alertDeathModelFactory.saveDocument({
+
+            });
+            DeathEventHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
+            return true;
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            throw new ApplicationException(`Unable to insert alert into DB! ${err}`);
+        }
+
         return true;
     }
 }
