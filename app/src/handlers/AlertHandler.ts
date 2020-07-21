@@ -75,6 +75,7 @@ export default class AlertHandler implements AlertHandlerInterface {
 
         // Find alert and update
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const res = await this.factory.model.updateOne(
                 {alertId: alertId(mge)},
                 {
