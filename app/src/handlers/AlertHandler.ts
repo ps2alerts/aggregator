@@ -9,6 +9,7 @@ import {MetagameEventState} from '../constants/metagameEventState';
 import {getUnixTimestamp} from '../utils/time';
 import {alertId} from '../utils/alert';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
+import {TYPES} from '../constants/types';
 
 interface Alert {
     worldId: number;
@@ -25,8 +26,7 @@ export default class AlertHandler implements AlertHandlerInterface {
     private _alerts: Alert[] = [];
 
     constructor(
-    @inject('AlertModelFactory')
-        factory: MongooseModelFactory<AlertInterface>,
+    @inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertInterface>,
     ) {
         this.factory = factory;
     }

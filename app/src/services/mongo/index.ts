@@ -9,6 +9,7 @@ import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import {AlertInterface, alertSchema} from '../../models/AlertModel';
 import {AlertDeathInterface, alertDeathSchema} from '../../models/AlertDeathModel';
 import {Context} from 'inversify/dts/planning/context';
+import {TYPES} from '../../constants/types';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -23,7 +24,7 @@ export default new ContainerModule((bind) => {
         .toSelf()
         .inSingletonScope();
 
-    bind<MongooseModelFactory<AlertInterface>>('AlertModelFactory')
+    bind<MongooseModelFactory<AlertInterface>>(TYPES.alertModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
             'Alert',
@@ -31,7 +32,7 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    bind<MongooseModelFactory<AlertDeathInterface>>('AlertDeathModelFactory')
+    bind<MongooseModelFactory<AlertDeathInterface>>(TYPES.alertDeathModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
             'AlertDeath',
