@@ -1,7 +1,7 @@
 import {Document, Schema} from 'mongoose';
 import {AlertSchemaInterface} from './AlertModel';
 import {Loadout, LoadoutArray} from '../constants/loadout';
-import {FactionArray} from '../constants/faction';
+import {factionArray} from '../constants/faction';
 
 export interface AlertDeathSchemaInterface extends Document {
     alert: AlertSchemaInterface['alertId'];
@@ -45,7 +45,7 @@ export const alertDeathSchema: Schema = new Schema({
     },
     attackerFaction: {
         type: Number,
-        enum: FactionArray,
+        enum: factionArray,
         required: true,
     },
     weapon: {
@@ -59,7 +59,7 @@ export const alertDeathSchema: Schema = new Schema({
     },
     playerFaction: {
         type: Number,
-        enum: FactionArray,
+        enum: factionArray,
         required: true,
     },
     isHeadshot: {

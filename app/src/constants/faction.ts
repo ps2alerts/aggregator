@@ -6,7 +6,7 @@ export enum Faction {
     NS_OPERATIVES,
 }
 
-export const FactionArray = [
+export const factionArray = [
     1,
     2,
     3,
