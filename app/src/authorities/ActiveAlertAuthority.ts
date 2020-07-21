@@ -11,19 +11,13 @@ import {alertId} from '../utils/alert';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
-
-interface ActiveAlert {
-    alertId: string;
-    instanceId: number;
-    world: number;
-    zone: number;
-}
+import ActiveAlertInterface from '../interfaces/ActiveAlertInterface';
 
 @injectable()
 export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterface {
     private static readonly logger = getLogger('ActiveAlertAuthority');
 
-    private _activeAlerts: ActiveAlert[] = [];
+    private _activeAlerts: ActiveAlertInterface[] = [];
 
     private readonly factory: MongooseModelFactory<ActiveAlertSchemaInterface>;
 
@@ -32,6 +26,26 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
     ) {
         this.factory = activeAlertsModelFactory;
         void this.init();
+    }
+
+    public getAlert(world: number, zone: number): ActiveAlertInterface {
+        const foundAlert = this._activeAlerts.filter((alert) => {
+            return alert.world === world && alert.zone === zone;
+        });
+
+        if (!foundAlert) {
+            throw new ApplicationException(`Unable to find the alert for W: ${world} | Z: ${zone}`);
+        }
+
+        if (foundAlert.length > 1) {
+            throw new ApplicationException(`Multiple ActiveAlerts were returned for W: ${world} | Z: ${zone} which shouldn't be possible!`);
+        }
+
+        console.log(foundAlert);
+
+        process.exit(2);
+
+        return foundAlert[0];
     }
 
     public async addAlert(mge: MetagameEventEvent): Promise<boolean> {

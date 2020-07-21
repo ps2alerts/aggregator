@@ -12,7 +12,7 @@ export interface ActiveAlertSchemaInterface extends Document {
 
 export const activeAlertSchema: Schema = new Schema({
     alertId: {
-        type: Schema.Types.String,
+        type: String,
         required: true,
     },
     instanceId: {

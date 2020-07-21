@@ -6,10 +6,9 @@ import {jsonLogOutput} from '../../utils/json';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import GainExperienceEvent from './events/GainExperienceEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class GainExperienceEventHandler implements EventHandlerInterface {
+export default class GainExperienceEventHandler implements EventHandlerInterface<GainExperienceEvent> {
     private static readonly logger = getLogger('GainExperienceHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
@@ -18,7 +17,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
         this.playerHandler = playerHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean>{
+    public async handle(event: GainExperienceEvent): Promise<boolean>{
         GainExperienceEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,8 +25,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
         }
 
         try {
-            const gainExperienceEvent = new GainExperienceEvent(event);
-            await this.handleExperienceEvent(gainExperienceEvent);
+            await this.handleExperienceEvent(event);
         } catch (e) {
             if (e instanceof Error) {
                 GainExperienceEventHandler.logger.error(`Error parsing GainExperienceEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

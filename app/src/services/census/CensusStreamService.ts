@@ -3,7 +3,6 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
-import CensusProxy from '../../handlers/census/CensusProxy';
 import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 
@@ -12,12 +11,9 @@ export default class CensusStreamService implements ServiceInterface {
     private static readonly logger = getLogger('ps2census');
 
     private readonly wsClient: Client;
-    private readonly censusProxy: CensusProxy;
 
-    constructor(wsClient: Client, censusProxy: CensusProxy) {
+    constructor(wsClient: Client) {
         this.wsClient = wsClient;
-        this.censusProxy = censusProxy;
-
         this.prepareClient();
     }
 
@@ -44,11 +40,6 @@ export default class CensusStreamService implements ServiceInterface {
     private prepareClient(): void {
         this.wsClient.on('ready', () => {
             CensusStreamService.logger.info('Census Stream Service connected, but not yet subscribed.');
-        });
-
-        // Set up event handlers
-        this.wsClient.on('ps2Event', (event) => {
-            void this.censusProxy.handle(event);
         });
 
         this.wsClient.on('reconnecting', () => {
@@ -94,7 +85,7 @@ export default class CensusStreamService implements ServiceInterface {
                 world_id: '10',
             });
             /* eslint-enable */
-            this.wsClient.emit(Events.PS2_EVENT, event);
+            this.wsClient.emit(Events.PS2_META_EVENT, event);
             CensusStreamService.logger.debug('Emitted Metagame Start event');
         });
     }

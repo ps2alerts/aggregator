@@ -4,13 +4,12 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import ContinentLockEvent from './events/ContinentLockEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class ContinentLockEventHandler implements EventHandlerInterface {
+export default class ContinentLockEventHandler implements EventHandlerInterface<ContinentLockEvent> {
     private static readonly logger = getLogger('ContinentLockEventHandler');
 
-    public async handle(event: PS2Event): Promise<boolean> {
+    public async handle(event: ContinentLockEvent): Promise<boolean> {
         ContinentLockEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -18,8 +17,7 @@ export default class ContinentLockEventHandler implements EventHandlerInterface 
         }
 
         try {
-            const continentLockEvent = new ContinentLockEvent(event);
-            await this.storeEvent(continentLockEvent);
+            await this.storeEvent(event);
             return true;
         } catch (e) {
             if (e instanceof Error) {

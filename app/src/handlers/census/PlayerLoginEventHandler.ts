@@ -6,10 +6,9 @@ import {jsonLogOutput} from '../../utils/json';
 import PlayerLoginEvent from './events/PlayerLoginEvent';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import {TYPES} from '../../constants/types';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class PlayerLoginEventHandler implements EventHandlerInterface {
+export default class PlayerLoginEventHandler implements EventHandlerInterface<PlayerLoginEvent> {
     private static readonly logger = getLogger('PlayerLoginEventHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
@@ -18,7 +17,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean> {
+    public async handle(event: PlayerLoginEvent): Promise<boolean> {
         PlayerLoginEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,8 +25,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface {
         }
 
         try {
-            const playerLogin = new PlayerLoginEvent(event);
-            await this.playerHandler.handleLogin(playerLogin);
+            await this.playerHandler.handleLogin(event);
         } catch (e) {
             if (e instanceof Error) {
                 PlayerLoginEventHandler.logger.error(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

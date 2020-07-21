@@ -6,10 +6,9 @@ import {jsonLogOutput} from '../../utils/json';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import PlayerFacilityCaptureEvent from './events/PlayerFacilityCaptureEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class PlayerFacilityCaptureHandler implements EventHandlerInterface {
+export default class PlayerFacilityCaptureHandler implements EventHandlerInterface<PlayerFacilityCaptureEvent> {
     private static readonly logger = getLogger('PlayerFacilityCaptureHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
@@ -18,7 +17,7 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
         this.playerHandler = playerHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean>{
+    public async handle(event: PlayerFacilityCaptureEvent): Promise<boolean>{
         PlayerFacilityCaptureHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,10 +25,9 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
         }
 
         try {
-            const playerFacilityCaptureEvent = new PlayerFacilityCaptureEvent(event);
             await Promise.all([
-                this.playerHandler.updateLastSeen(playerFacilityCaptureEvent.worldId, playerFacilityCaptureEvent.characterId),
-                this.storeEvent(playerFacilityCaptureEvent),
+                this.playerHandler.updateLastSeen(event.worldId, event.characterId),
+                this.storeEvent(event),
             ]);
         } catch (e) {
             if (e instanceof Error) {

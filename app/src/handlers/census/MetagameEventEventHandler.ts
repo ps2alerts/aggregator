@@ -6,10 +6,9 @@ import {jsonLogOutput} from '../../utils/json';
 import MetagameEventEvent from './events/MetagameEventEvent';
 import {TYPES} from '../../constants/types';
 import AlertHandlerInterface from '../../interfaces/AlertHandlerInterface';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class MetagameEventEventHandler implements EventHandlerInterface {
+export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
 
     private readonly alertHandler: AlertHandlerInterface;
@@ -18,7 +17,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
         this.alertHandler = alertHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean> {
+    public async handle(event: MetagameEventEvent): Promise<boolean> {
         MetagameEventEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,8 +25,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
         }
 
         try {
-            const mge = new MetagameEventEvent(event);
-            return await this.alertHandler.handleMetagameEvent(mge);
+            return await this.alertHandler.handleMetagameEvent(event);
         } catch (e) {
             if (e instanceof Error) {
                 MetagameEventEventHandler.logger.error(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

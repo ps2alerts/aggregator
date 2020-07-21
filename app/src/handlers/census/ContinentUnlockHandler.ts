@@ -4,13 +4,12 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import ContinentUnlockEvent from './events/ContinentUnlockEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class ContinentUnlockHandler implements EventHandlerInterface {
+export default class ContinentUnlockHandler implements EventHandlerInterface<ContinentUnlockEvent> {
     private static readonly logger = getLogger('ContinentUnlockHandler');
 
-    public async handle(event: PS2Event): Promise<boolean>{
+    public async handle(event: ContinentUnlockEvent): Promise<boolean>{
         ContinentUnlockHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -18,8 +17,7 @@ export default class ContinentUnlockHandler implements EventHandlerInterface {
         }
 
         try {
-            const continentUnlockEvent = new ContinentUnlockEvent(event);
-            await this.storeEvent(continentUnlockEvent);
+            await this.storeEvent(event);
         } catch (e) {
             if (e instanceof Error) {
                 ContinentUnlockHandler.logger.error(`Error parsing ContinentUnlock: ${e.message}\r\n${jsonLogOutput(event)}`);

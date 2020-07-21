@@ -6,28 +6,32 @@ import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
-import {PS2Event} from 'ps2census';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {AlertDeathInterface} from '../../models/AlertDeathModel';
+import {AlertDeathSchemaInterface} from '../../models/AlertDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
+import ActiveAlertAuthorityInterface from '../../interfaces/ActiveAlertAuthorityInterface';
 
 @injectable()
-export default class DeathEventHandler implements EventHandlerInterface {
+export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('DeathEventHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
 
-    private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>;
+    private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>;
+
+    private readonly activeAlerts: ActiveAlertAuthorityInterface;
 
     constructor(
     @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
-        @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>,
+        @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>,
+        @inject(TYPES.activeAlertAuthority) activeAlertAuthority: ActiveAlertAuthorityInterface,
     ) {
         this.playerHandler = playerHandler;
         this.alertDeathModelFactory = alertDeathModelFactory;
+        this.activeAlerts = activeAlertAuthority;
     }
 
-    public async handle(event: PS2Event): Promise<boolean> {
+    public async handle(event: DeathEvent): Promise<boolean> {
         DeathEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -35,11 +39,10 @@ export default class DeathEventHandler implements EventHandlerInterface {
         }
 
         try {
-            const deathEvent = new DeathEvent(event);
             await Promise.all([
-                this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.attackerCharacterId),
-                this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.characterId),
-                this.storeEvent(deathEvent),
+                this.playerHandler.updateLastSeen(event.world, event.attackerCharacterId),
+                this.playerHandler.updateLastSeen(event.world, event.characterId),
+                this.storeEvent(event),
             ]);
         } catch (e) {
             if (e instanceof Error) {
@@ -54,14 +57,24 @@ export default class DeathEventHandler implements EventHandlerInterface {
         return true;
     }
 
-    // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
+        console.log(deathEvent);
+
         try {
             const row = await this.alertDeathModelFactory.saveDocument({
-
+                alert: deathEvent.alert.alertId,
+                attacker: deathEvent.attackerCharacterId,
+                player: deathEvent.characterId,
+                timestamp: deathEvent.timestamp,
+                attackerFiremode: deathEvent.attackerFiremodeId,
+                attackerLoadout: deathEvent.attackerLoadoutId,
+                weapon: deathEvent.attackerWeaponId,
+                playerLoadout: deathEvent.characterLoadoutId,
+                isHeadshot: deathEvent.isHeadshot,
+                isSuicide: deathEvent.isSuicide,
+                vehicle: deathEvent.attackerVehicleId,
             });
-            DeathEventHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
+            // DeathEventHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

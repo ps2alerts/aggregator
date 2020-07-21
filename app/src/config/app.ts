@@ -19,6 +19,8 @@ export default class App {
             // eslint-disable-next-line
             require('../services/mongo').default,
             // eslint-disable-next-line
+            require('../services/eventListeners').default,
+            // eslint-disable-next-line
             require('../authorities').default,
         ];
     }

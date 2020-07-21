@@ -6,6 +6,9 @@ const TYPES = {
     alertHandlerInterface: Symbol.for('AlertHandlerInterface'),
     playerHandlerInterface: Symbol.for('PlayerHandlerInterface'),
 
+    // Event Handlers
+    deathEventHandler: Symbol.for('DeathEventHandler'),
+
     // Model Factory Symbols
     activeAlertDataModelFactory: Symbol.for('ActiveAlertDataModelFactory'),
     alertModelFactory: Symbol.for('AlertModelFactory'),

@@ -4,13 +4,12 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class FacilityControlEventHandler implements EventHandlerInterface {
+export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
 
-    public async handle(event: PS2Event): Promise<boolean>{
+    public async handle(event: FacilityControlEvent): Promise<boolean>{
         FacilityControlEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -18,8 +17,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         }
 
         try {
-            const facilityControl = new FacilityControlEvent(event);
-            await this.storeEvent(facilityControl);
+            await this.storeEvent(event);
         } catch (e) {
             if (e instanceof Error) {
                 FacilityControlEventHandler.logger.error(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

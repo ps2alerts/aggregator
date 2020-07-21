@@ -18,7 +18,7 @@ import EventId from '../../../utils/eventId';
 import Parser from '../../../utils/parser';
 import {Zone} from '../../../constants/zone';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {MetagameEvent, PS2Event} from 'ps2census';
+import {MetagameEvent, MetagameEventData} from 'ps2census';
 import {MetagameEventState} from '../../../constants/metagameEventState';
 import {World} from '../../../constants/world';
 
@@ -41,7 +41,7 @@ export default class MetagameEventEvent {
     public readonly zone: Zone;
 
     constructor(
-        event: PS2Event,
+        event: MetagameEventData,
     ) {
         if (!(event instanceof MetagameEvent)) {
             throw new IllegalArgumentException('event', 'MetagameEventEvent');

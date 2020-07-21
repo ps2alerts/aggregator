@@ -20,12 +20,16 @@ import {injectable} from 'inversify';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
+import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
-import {Death, PS2Event} from 'ps2census';
+import {Death, PS2EventData} from 'ps2census';
+import ActiveAlertInterface from '../../../interfaces/ActiveAlertInterface';
 
 @injectable()
 export default class DeathEvent {
-    public readonly worldId: number;
+    public readonly alert: ActiveAlertInterface;
+
+    public readonly world: World;
 
     public readonly zone: Zone;
 
@@ -37,6 +41,8 @@ export default class DeathEvent {
 
     public readonly attackerCharacterId: number;
 
+    public readonly attackerFiremodeId: number;
+
     public readonly attackerLoadoutId: number;
 
     public readonly attackerVehicleId: number;
@@ -45,16 +51,21 @@ export default class DeathEvent {
 
     public readonly isHeadshot: boolean;
 
+    public readonly isSuicide: boolean;
+
     constructor(
-        event: PS2Event,
+        event: PS2EventData,
+        alert: ActiveAlertInterface,
     ) {
         if (!(event instanceof Death)) {
             throw new IllegalArgumentException('event', 'DeathEvent');
         }
 
-        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
+        this.alert = alert;
 
-        if (isNaN(this.worldId)) {
+        this.world = Parser.parseArgumentAsNumber(event.world_id);
+
+        if (isNaN(this.world)) {
             throw new IllegalArgumentException('world_id', 'DeathEvent');
         }
 
@@ -84,13 +95,21 @@ export default class DeathEvent {
             throw new IllegalArgumentException('attacker_character_id', 'DeathEvent');
         }
 
+        this.attackerFiremodeId = Parser.parseArgumentAsNumber(event.attacker_fire_mode_id);
+
+        if (isNaN(this.attackerFiremodeId)) {
+            throw new IllegalArgumentException('attacker_fire_mode_id', 'DeathEvent');
+        }
+
         this.attackerLoadoutId = Parser.parseArgumentAsNumber(event.attacker_loadout_id);
 
         if (isNaN(this.attackerLoadoutId)) {
             throw new IllegalArgumentException('attacker_loadout_id', 'DeathEvent');
         }
 
-        this.attackerVehicleId = Parser.parseArgumentAsNumber(event.attacker_vehicle_id);
+        // This is optional, therefore requires extra figuring out
+        const vehicleId = Parser.parseArgumentAsNumber(event.attacker_vehicle_id);
+        this.attackerVehicleId = (!isNaN(vehicleId)) ? vehicleId : 0;
 
         if (isNaN(this.attackerVehicleId)) {
             throw new IllegalArgumentException('attacker_vehicle_id', 'DeathEvent');
@@ -102,8 +121,9 @@ export default class DeathEvent {
             throw new IllegalArgumentException('attacker_weapon_id', 'DeathEvent');
         }
 
-        // No check needed, is boolean
         this.isHeadshot = Parser.parseArgumentAsBoolean(event.is_headshot);
-        // attacker_fire_mode_id is not needed right now
+
+        // Additional logic to figure out things Census doesn't tell us...
+        this.isSuicide = this.characterId === this.attackerCharacterId;
     }
 }

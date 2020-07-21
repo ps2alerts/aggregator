@@ -1,10 +1,10 @@
 import {Document, Schema} from 'mongoose';
-import {AlertInterface} from './AlertModel';
+import {AlertSchemaInterface} from './AlertModel';
 import {Loadout} from '../constants/loadout';
 import {PlayerInterface} from './static/PlayerModel';
 
-export interface AlertDeathInterface extends Document {
-    alert: AlertInterface['_id'];
+export interface AlertDeathSchemaInterface extends Document {
+    alert: AlertSchemaInterface['alertId'];
     attacker: PlayerInterface['_id'];
     player: PlayerInterface['_id'];
     timestamp: number;
@@ -12,7 +12,6 @@ export interface AlertDeathInterface extends Document {
     attackerLoadout: number;
     weapon: number;
     playerLoadout: Loadout;
-    isCritical: boolean;
     isHeadshot: boolean;
     isSuicide: boolean;
     vehicle: number;
@@ -20,7 +19,7 @@ export interface AlertDeathInterface extends Document {
 
 export const alertDeathSchema: Schema = new Schema({
     alert: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
     },
     attacker: {
@@ -50,10 +49,6 @@ export const alertDeathSchema: Schema = new Schema({
     playerLoadout: {
         type: Number,
         enum: Loadout,
-        required: true,
-    },
-    isCritical: {
-        type: Boolean,
         required: true,
     },
     isHeadshot: {
