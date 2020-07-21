@@ -31,7 +31,7 @@ export enum Loadout {
     NSO_MAX = 45
 }
 
-export const LoadoutArray = [
+export const loadoutArray = [
     1,
     3,
     4,

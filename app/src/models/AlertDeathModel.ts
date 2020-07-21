@@ -1,6 +1,6 @@
 import {Document, Schema} from 'mongoose';
 import {AlertSchemaInterface} from './AlertModel';
-import {Loadout, LoadoutArray} from '../constants/loadout';
+import {Loadout, loadoutArray} from '../constants/loadout';
 import {factionArray} from '../constants/faction';
 
 export interface AlertDeathSchemaInterface extends Document {
@@ -54,7 +54,7 @@ export const alertDeathSchema: Schema = new Schema({
     },
     playerLoadout: {
         type: Number,
-        enum: LoadoutArray,
+        enum: loadoutArray,
         required: true,
     },
     playerFaction: {
