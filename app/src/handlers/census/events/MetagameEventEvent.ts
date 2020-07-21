@@ -20,10 +20,11 @@ import {Zone} from '../../../constants/zone';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {MetagameEvent, PS2Event} from 'ps2census';
 import {MetagameEventState} from '../../../constants/metagameEventState';
+import {World} from '../../../constants/world';
 
 @injectable()
 export default class MetagameEventEvent {
-    public readonly worldId: number;
+    public readonly world: World;
 
     public readonly eventState: MetagameEventState;
 
@@ -46,9 +47,9 @@ export default class MetagameEventEvent {
             throw new IllegalArgumentException('event', 'MetagameEventEvent');
         }
 
-        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
+        this.world = Parser.parseArgumentAsNumber(event.world_id);
 
-        if (isNaN(this.worldId)) {
+        if (isNaN(this.world)) {
             throw new IllegalArgumentException('world_id', 'MetagameEventEvent');
         }
 

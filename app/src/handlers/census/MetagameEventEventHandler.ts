@@ -27,8 +27,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface 
 
         try {
             const mge = new MetagameEventEvent(event);
-            await this.alertHandler.handleMetagameEvent(mge);
-            return true;
+            return await this.alertHandler.handleMetagameEvent(mge);
         } catch (e) {
             if (e instanceof Error) {
                 MetagameEventEventHandler.logger.error(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
