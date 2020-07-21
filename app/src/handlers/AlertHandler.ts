@@ -25,9 +25,7 @@ export default class AlertHandler implements AlertHandlerInterface {
 
     private _alerts: Alert[] = [];
 
-    constructor(
-    @inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertInterface>,
-    ) {
+    constructor(@inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertInterface>) {
         this.factory = factory;
     }
 

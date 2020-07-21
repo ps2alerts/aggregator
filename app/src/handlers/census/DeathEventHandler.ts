@@ -18,8 +18,7 @@ export default class DeathEventHandler implements EventHandlerInterface {
 
     private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>;
 
-    constructor(
-    @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
+    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
         @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>,
     ) {
         this.playerHandler = playerHandler;
