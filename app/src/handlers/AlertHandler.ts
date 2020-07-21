@@ -54,6 +54,7 @@ export default class AlertHandler implements AlertHandlerInterface {
         AlertHandler.logger.debug('================== STARTING ALERT! ==================');
 
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const row = await this.factory.saveDocument({
                 alertId: alertId(mge),
                 world: mge.world,
