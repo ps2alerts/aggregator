@@ -57,17 +57,6 @@ export default class DeathEventHandler implements EventHandlerInterface {
     // WIP
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
-        try {
-            const row = await this.alertDeathModelFactory.saveDocument({
-
-            });
-            DeathEventHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert alert into DB! ${err}`);
-        }
-
         return true;
     }
 }
