@@ -7,7 +7,6 @@ import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import {PS2Event} from 'ps2census';
-import ApplicationException from '../../exceptions/ApplicationException';
 import {AlertDeathInterface} from '../../models/AlertDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 
