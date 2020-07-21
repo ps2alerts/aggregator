@@ -28,7 +28,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
     private readonly wsClient: Client;
     private readonly worldCheck: WorldValidator;
-    private readonly activeAlerts: ActiveAlertAuthorityInterface;
+    private readonly activeAlerts: ActiveAlertAuthority;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly playerLoginEventHandler: PlayerLoginEventHandler;
@@ -98,13 +98,10 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (!this.getAlert(event)) {
-                return false;
+            if (this.checkAlert(event)) {
+                const deathEvent = new DeathEvent(event, this.getAlert(event));
+                void this.deathEventHandler.handle(deathEvent);
             }
-
-            // EventListenerService.logger.debug('Passing Death to listener');
-            const deathEvent = new DeathEvent(event, this.getAlert(event));
-            void this.deathEventHandler.handle(deathEvent);
         });
 
         // this.wsClient.on('facilityControl', (event) => {
@@ -122,6 +119,13 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             const metagameEvent = new MetagameEventEvent(event);
             void this.metagameEventEventHandler.handle(metagameEvent);
         });
+    }
+
+    private checkAlert(event: PS2ZoneEvents): boolean {
+        return this.activeAlerts.alertExists(
+            parseInt(event.world_id, 10),
+            parseInt(event.zone_id, 10),
+        );
     }
 
     // Checks for compatible event types to see if alert is running on that World + Zone combo

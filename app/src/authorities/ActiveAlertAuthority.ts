@@ -17,7 +17,7 @@ import ActiveAlertInterface from '../interfaces/ActiveAlertInterface';
 export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterface {
     private static readonly logger = getLogger('ActiveAlertAuthority');
 
-    private _activeAlerts: ActiveAlertInterface[] = [];
+    private readonly _activeAlerts: Map<string, ActiveAlertInterface> = new Map<string, ActiveAlertInterface>();
 
     private readonly factory: MongooseModelFactory<ActiveAlertSchemaInterface>;
 
@@ -27,20 +27,22 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
         void this.init(); // Hacky mchackface
     }
 
-    public getAlert(world: number, zone: number): ActiveAlertInterface {
-        const foundAlert = this._activeAlerts.find((alert) => {
-            return alert.world === world && alert.zone === zone;
-        });
+    public alertExists(world: number, zone: number): boolean {
+        return this._activeAlerts.has(this.mapKey(world, zone));
+    }
 
-        if (!foundAlert) {
-            throw new ApplicationException(`Unable to find the alert for W: ${world} | Z: ${zone}`);
+    public getAlert(world: number, zone: number): ActiveAlertInterface {
+        const alert = this._activeAlerts.get(this.mapKey(world, zone));
+
+        if (alert) {
+            return alert;
         }
 
-        return foundAlert;
+        throw new ApplicationException(`Unable to retrieve alert from active list! W: ${world} | Z: ${zone}`, 'ActiveAlertAuthority');
     }
 
     public async addAlert(mge: MetagameEventEvent): Promise<boolean> {
-        this._activeAlerts.push({
+        this._activeAlerts.set(this.mapKey(mge.world, mge.zone), {
             alertId: alertId(mge),
             instanceId: mge.instanceId,
             world: mge.world,
@@ -59,7 +61,7 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
 
             this.printActives();
 
-            return this.exists(mge);
+            return !!this.getAlert(mge.world, mge.zone);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to insert ActiveAlert into DB! ${err}`, 'ActiveAlertAuthority');
@@ -68,9 +70,7 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
 
     public async endAlert(mge: MetagameEventEvent): Promise<boolean> {
         // Remove alert from in-memory list
-        this._activeAlerts = this._activeAlerts.filter((alert) => {
-            return !(alert.world === mge.world && alert.instanceId === mge.instanceId);
-        });
+        this._activeAlerts.delete(this.mapKey(mge.world, mge.zone));
 
         // Remove from database
         try {
@@ -84,18 +84,12 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
                 return false;
             }
 
-            return !this.exists(mge);
+            return !this.getAlert(mge.world, mge.zone);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to insert alert into DB! ${err}`, 'ActiveAlertAuthority');
         }
 
-    }
-
-    public exists(mge: MetagameEventEvent): boolean {
-        return this._activeAlerts.some((alert) => {
-            return alert.world === mge.world && alert.instanceId === mge.instanceId;
-        });
     }
 
     private async init(): Promise<boolean> {
@@ -114,8 +108,8 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
         } else {
             res.forEach((i) => {
                 /* eslint-disable */
-                this._activeAlerts.push({
-                    alertId: alertId(null, i.world, i.instanceId),
+                this._activeAlerts.set(this.mapKey(i.world, i.zone), {
+                    alertId: i.alertId,
                     instanceId: i.instanceId,
                     world: i.world,
                     zone: i.zone,
@@ -131,6 +125,12 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
 
     private printActives(): void {
         ActiveAlertAuthority.logger.info('Current actives:');
-        ActiveAlertAuthority.logger.info(jsonLogOutput(this._activeAlerts));
+        this._activeAlerts.forEach((row: ActiveAlertInterface) => {
+            ActiveAlertAuthority.logger.info(jsonLogOutput(row));
+        });
+    }
+
+    private mapKey(world: number, zone: number): string {
+        return `${world}-${zone}`;
     }
 }

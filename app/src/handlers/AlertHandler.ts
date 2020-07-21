@@ -30,7 +30,7 @@ export default class AlertHandler implements AlertHandlerInterface {
 
     public async handleMetagameEvent(mge: MetagameEventEvent): Promise<boolean> {
         if (mge.eventState === MetagameEventState.STARTED) {
-            if (!this.activeAlerts.exists(mge)) {
+            if (!this.activeAlerts.alertExists(mge.world, mge.zone)) {
                 return await this.startAlert(mge);
             } else {
                 AlertHandler.logger.error(`Alert already found: ${jsonLogOutput(mge)}`);
@@ -39,7 +39,7 @@ export default class AlertHandler implements AlertHandlerInterface {
         }
 
         if (mge.eventState === MetagameEventState.FINISHED) {
-            if (this.activeAlerts.exists(mge)) {
+            if (this.activeAlerts.alertExists(mge.world, mge.zone)) {
                 return await this.endAlert(mge);
             } else {
                 AlertHandler.logger.error(`Alert not found: ${jsonLogOutput(mge)}`);

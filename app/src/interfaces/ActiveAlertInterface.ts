@@ -1,4 +1,4 @@
-export default interface ActiveAlert {
+export default interface ActiveAlertInterface {
     alertId: string;
     instanceId: number;
     world: number;
