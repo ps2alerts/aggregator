@@ -28,7 +28,7 @@ export default class ContinentLockEvent {
 
     public readonly zone: Zone;
 
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
 
     public readonly triggeringFaction: Faction;
 
@@ -53,9 +53,9 @@ export default class ContinentLockEvent {
 
         // No need to check, ZoneUtils will validate the argument
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'ContinentLockEvent');
         }
 

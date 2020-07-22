@@ -20,7 +20,7 @@ import {PlayerFacilityDefend, PS2Event} from 'ps2census';
 export default class PlayerFacilityDefendEvent {
     public readonly worldId: number;
     public readonly zone: Zone;
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
     public readonly characterId: string;
     public readonly facilityId: number;
     public readonly outfitId: number;
@@ -40,9 +40,9 @@ export default class PlayerFacilityDefendEvent {
 
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'PlayerFacilityDefendEvent');
         }
 

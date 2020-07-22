@@ -60,7 +60,7 @@ export default class AlertHandler implements AlertHandlerInterface {
                 world: mge.world,
                 zone: mge.zone,
                 state: MetagameEventState.STARTED,
-                timeStarted: getUnixTimestamp(),
+                timeStarted: Date.now(),
             });
             AlertHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
             return await this.activeAlerts.addAlert(mge);
@@ -80,7 +80,7 @@ export default class AlertHandler implements AlertHandlerInterface {
                 {alertId: alertId(mge)},
                 {
                     state: MetagameEventState.FINISHED,
-                    timeEnded: getUnixTimestamp(),
+                    timeEnded: Date.now(),
                 },
             );
 

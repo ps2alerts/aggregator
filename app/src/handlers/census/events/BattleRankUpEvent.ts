@@ -20,7 +20,7 @@ export default class BattleRankUpEvent {
     public readonly worldId: number;
     public readonly zone: Zone;
     public readonly characterId: string;
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
     public readonly battleRank: number;
 
     constructor(
@@ -40,9 +40,9 @@ export default class BattleRankUpEvent {
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
         this.characterId = event.character_id; // This is a string on purpose
 
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'BattleRankUpEvent');
         }
 

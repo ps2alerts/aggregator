@@ -30,11 +30,11 @@ export const alertSchema: Schema = new Schema({
         required: true,
     },
     timeStarted: {
-        type: Number,
+        type: Date,
         required: true,
     },
     timeEnded: {
-        type: Number,
+        type: Date,
     },
 }).index(
     {alertId: 1, world: 1, zone: 1},

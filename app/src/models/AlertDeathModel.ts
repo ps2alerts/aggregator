@@ -32,7 +32,7 @@ export const alertDeathSchema: Schema = new Schema({
         required: true,
     },
     timestamp: {
-        type: Number,
+        type: Date,
         required: true,
     },
     attackerFiremode: {

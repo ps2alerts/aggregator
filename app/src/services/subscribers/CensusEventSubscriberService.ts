@@ -98,22 +98,16 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            const worldId = parseInt(event.world_id, 10);
-            const zoneId = parseInt(event.zone_id, 10);
-
-            if (this.activeAlerts.alertExists(worldId, zoneId)) {
-                const deathEvent = new DeathEvent(event, this.activeAlerts.getAlert(worldId, zoneId));
+            if (this.alertExists(event.world_id, event.zone_id)) {
+                const deathEvent = new DeathEvent(event, this.getAlert(event.world_id, event.zone_id));
                 void this.deathEventHandler.handle(deathEvent);
             }
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            const worldId = parseInt(event.world_id, 10);
-            const zoneId = parseInt(event.zone_id, 10);
-
-            if (this.activeAlerts.alertExists(worldId, zoneId)) {
+            if (this.alertExists(event.world_id, event.zone_id)) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
-                const facilityControl = new FacilityControlEvent(event, this.activeAlerts.getAlert(worldId, zoneId));
+                const facilityControl = new FacilityControlEvent(event, this.getAlert(event.world_id, event.zone_id));
                 void this.facilityControlEventHandler.handle(facilityControl);
             }
         });
@@ -125,18 +119,17 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
     }
 
-    private checkAlert(event: PS2ZoneEvents): boolean {
+    private alertExists(worldId: string, zoneId: string): boolean {
         return this.activeAlerts.alertExists(
-            parseInt(event.world_id, 10),
-            parseInt(event.zone_id, 10),
+            parseInt(worldId, 10),
+            parseInt(zoneId, 10),
         );
     }
 
-    // Checks for compatible event types to see if alert is running on that World + Zone combo
-    private getAlert(event: PS2ZoneEvents): ActiveAlertInterface {
+    private getAlert(worldId: string, zoneId: string): ActiveAlertInterface {
         return this.activeAlerts.getAlert(
-            parseInt(event.world_id, 10),
-            parseInt(event.zone_id, 10),
+            parseInt(worldId, 10),
+            parseInt(zoneId, 10),
         );
     }
 }

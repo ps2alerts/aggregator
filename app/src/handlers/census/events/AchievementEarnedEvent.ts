@@ -21,7 +21,7 @@ export default class AchievementEarnedEvent {
     public readonly characterId: string;
     public readonly zone: Zone;
     public readonly achievementId: number;
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
 
     constructor(
         event: PS2Event,
@@ -46,9 +46,9 @@ export default class AchievementEarnedEvent {
             throw new IllegalArgumentException('achievement_id', 'AchievementEarnedEvent');
         }
 
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'AchievementEarnedEvent');
         }
     }

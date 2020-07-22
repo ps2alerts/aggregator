@@ -26,7 +26,7 @@ import {ContinentUnlock, PS2Event} from 'ps2census';
 export default class ContinentUnlockEvent {
     public readonly worldId: number;
     public readonly zone: Zone;
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
     public readonly triggeringFaction: Faction;
     public readonly vsPopulation: number;
     public readonly ncPopulation: number;
@@ -47,9 +47,9 @@ export default class ContinentUnlockEvent {
 
         // No need to check, ZoneUtils will validate the argument
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'ContinentUnlockEvent');
         }
 
