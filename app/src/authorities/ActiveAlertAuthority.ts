@@ -98,7 +98,7 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
         let res: any[] = [];
 
         try {
-            res = await this.factory.model.find();
+            res = await this.factory.model.find().exec();
         } catch (err) {
             ActiveAlertAuthority.logger.error('Unable to retrieve active alerts!');
         }
