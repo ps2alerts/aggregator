@@ -6,7 +6,6 @@ import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
 import {AlertSchemaInterface} from '../models/AlertModel';
 import {MetagameEventState} from '../constants/metagameEventState';
-import {getUnixTimestamp} from '../utils/time';
 import {alertId} from '../utils/alert';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
