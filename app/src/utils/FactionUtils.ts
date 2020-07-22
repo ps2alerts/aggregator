@@ -54,4 +54,22 @@ export default class FactionUtils {
 
         throw new IllegalArgumentException(`Could not parse Class ID to faction: ${classId}`, 'FactionUtils.parseFactionFromClass');
     }
+
+    public static parseFactionIdToShortName(value: Faction): string {
+        switch (value) {
+            case Faction.VANU_SOVEREIGNTY:
+                return 'vs';
+            case Faction.NEW_CONGLOMERATE:
+                return 'nc';
+            case Faction.TERRAN_REPUBLIC:
+                return 'tr';
+            case Faction.NS_OPERATIVES:
+                return 'nso';
+            case Faction.NONE:
+                return 'none';
+        }
+
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        throw new IllegalArgumentException(`Unable to parse faction numerical value to string: ${value}`, 'FactionUtils.parseFactionIdToShortName');
+    }
 }

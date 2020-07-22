@@ -89,6 +89,28 @@ export default class CensusStreamService implements ServiceInterface {
             /* eslint-enable */
             this.wsClient.emit(Events.PS2_META_EVENT, event);
             CensusStreamService.logger.debug('Emitted Metagame Start event');
+
+            setTimeout(() => {
+                /* eslint-disable */
+                const event = new Death(this.wsClient, {
+                    attacker_character_id: '5428011263287140193',
+                    attacker_fire_mode_id: '80158',
+                    attacker_loadout_id: '1',
+                    attacker_vehicle_id: '0',
+                    attacker_weapon_id: '804138',
+                    character_id: '5429018053103181729',
+                    character_loadout_id: '28',
+                    event_name: 'Death',
+                    is_headshot: '1',
+                    timestamp: '1595366357',
+                    world_id: '13',
+                    zone_id: '8',
+                });
+                /* eslint-enable */
+
+                this.wsClient.emit(Events.PS2_DEATH, event);
+                CensusStreamService.logger.debug('Emitted Death event');
+            }, 5000);
         });
     }
 }
