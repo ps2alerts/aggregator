@@ -4,24 +4,21 @@ import {get} from '../utils/env';
 export default class App {
     public readonly environment: string = get('ENVIRONMENT');
 
-    public readonly version: string = '0.0.1-revive';
+    public readonly version: string = '0.1.0-revive';
 
     /**
      * @return {ContainerModule[]} Modules used by the app
      */
     get modules(): ContainerModule[] {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        /* eslint-disable */
         return [
-            // eslint-disable-next-line
             require('../services/census').default,
-            // eslint-disable-next-line
             require('../handlers').default,
-            // eslint-disable-next-line
             require('../services/mongo').default,
-            // eslint-disable-next-line
             require('../services/subscribers').default,
-            // eslint-disable-next-line
             require('../authorities').default,
+            require('../handlers/aggregate').default,
         ];
+        /* eslint-enable */
     }
 }

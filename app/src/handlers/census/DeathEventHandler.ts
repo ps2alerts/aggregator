@@ -1,4 +1,4 @@
-import {inject, injectable} from 'inversify';
+import {inject, injectable, multiInject} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
@@ -18,14 +18,18 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>;
 
+    private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>;
+
     /* eslint-disable */
     constructor(
         @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
         @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>,
+        @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[]
     ) {
         /* eslint-enable */
         this.playerHandler = playerHandler;
         this.alertDeathModelFactory = alertDeathModelFactory;
+        this.aggregateHandlers = aggregateHandlers;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -48,6 +52,17 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
             return false;
         }
+
+        this.aggregateHandlers.map(
+            (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event)
+                .catch((e) => {
+                    if (e instanceof Error) {
+                        DeathEventHandler.logger.error(`Error parsing AggregateHandlers for DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    } else {
+                        DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent AggregateHandlers!');
+                    }
+                }),
+        );
 
         return true;
     }

@@ -10,6 +10,11 @@ const TYPES = {
     activeAlertDataModelFactory: Symbol.for('ActiveAlertDataModelFactory'),
     alertModelFactory: Symbol.for('AlertModelFactory'),
     alertDeathModelFactory: Symbol.for('AlertDeathModelFactory'),
+    alertFactionCombatAggregateFactory: Symbol.for('AlertFactionCombatAggregateFactory'),
+
+    // Aggregates
+    deathAggregates: Symbol.for('DeathAggregates'),
+    alertFactionCombatAggregate: Symbol.for('AlertFactionCombatAggregate'),
 };
 
 export {TYPES};
