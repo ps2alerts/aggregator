@@ -13,6 +13,7 @@ import {AlertDeathSchemaInterface, alertDeathSchema} from '../../models/AlertDea
 import {activeAlertSchema, ActiveAlertSchemaInterface} from '../../models/ActiveAlertModel';
 import {AlertFacilityControlInterface, alertFacilityControlSchema} from '../../models/AlertFacilityControlModel';
 import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/AlertFactionCombatAggregateModel';
+import {aggregateAlertFacilityControlSchema, AlertFacilityControlAggregateInterface} from '../../models/aggregate/AlertFacilityControlAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
