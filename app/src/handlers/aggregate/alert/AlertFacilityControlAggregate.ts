@@ -65,7 +65,7 @@ export default class AlertFacilityControlAggregate implements AggregateHandlerIn
 
         try {
             const row = await this.factory.saveDocument(data);
-            AlertFacilityControlAggregate.logger.info(`Inserted initial AlertFacilityControl aggregate record for alert ${row.alertId}`);
+            AlertFacilityControlAggregate.logger.info(`Inserted initial AlertFacilityControl aggregate record for alert ${row.alert}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
