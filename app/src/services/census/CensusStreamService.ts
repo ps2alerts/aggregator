@@ -3,8 +3,10 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
-import {Client, MetagameEvent, PS2Event, Death, Events} from 'ps2census';
+import {Client, MetagameEvent, PS2Event, Events} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
+import {World} from '../../constants/world';
+import {MetagameEventIds} from '../../constants/metagameEventIds';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -78,37 +80,15 @@ export default class CensusStreamService implements ServiceInterface {
                 faction_tr: '19.607843',
                 faction_vs: '9.803922',
                 instance_id: String(Math.floor(Math.random() * 100000) + 1),
-                metagame_event_id: '186',
+                metagame_event_id: String(MetagameEventIds.MELTDOWN_AMERISH),
                 metagame_event_state: '137',
                 metagame_event_state_name: 'started',
                 timestamp: String(getUnixTimestamp()),
-                world_id: '13',
+                world_id: String(World.MILLER),
             });
             /* eslint-enable */
             this.wsClient.emit(Events.PS2_META_EVENT, event);
             CensusStreamService.logger.debug('Emitted Metagame Start event');
-
-            setTimeout(() => {
-                /* eslint-disable */
-                const event = new Death(this.wsClient, {
-                    attacker_character_id: '5428011263287140193',
-                    attacker_fire_mode_id: '80158',
-                    attacker_loadout_id: '1',
-                    attacker_vehicle_id: '0',
-                    attacker_weapon_id: '804138',
-                    character_id: '5429018053103181729',
-                    character_loadout_id: '28',
-                    event_name: 'Death',
-                    is_headshot: '1',
-                    timestamp: '1595366357',
-                    world_id: '13',
-                    zone_id: '8',
-                });
-                /* eslint-enable */
-
-                this.wsClient.emit(Events.PS2_DEATH, event);
-                CensusStreamService.logger.debug('Emitted Death event');
-            }, 5000);
         });
     }
 }
