@@ -15,7 +15,7 @@ export interface AlertFacilityControlFactionAggregateInterface extends Document 
     defences: number;
 }
 
-export const aggregateFactionFacilityControlSchema: Schema = new Schema({
+export const alertFactionFacilityControlAggregateSchema: Schema = new Schema({
     captures: {
         type: Number,
         default: 0,
@@ -26,7 +26,7 @@ export const aggregateFactionFacilityControlSchema: Schema = new Schema({
     },
 });
 
-export const aggregateAlertFacilityControlSchema: Schema = new Schema({
+export const alertFacilityControlAggregateSchema: Schema = new Schema({
     alert: {
         type: String,
         required: true,
@@ -36,20 +36,20 @@ export const aggregateAlertFacilityControlSchema: Schema = new Schema({
         required: true,
     },
     vs: {
-        type: aggregateFactionFacilityControlSchema,
+        type: alertFactionFacilityControlAggregateSchema,
         required: true,
     },
     nc: {
-        type: aggregateFactionFacilityControlSchema,
+        type: alertFactionFacilityControlAggregateSchema,
         required: true,
     },
     tr: {
-        type: aggregateFactionFacilityControlSchema,
+        type: alertFactionFacilityControlAggregateSchema,
         required: true,
     },
     // No NSO, they cannot capture bases on behalf of their faction. Their outfits can though strangely!
     totals: {
-        type: aggregateFactionFacilityControlSchema,
+        type: alertFactionFacilityControlAggregateSchema,
         required: true,
     },
 }).index(
