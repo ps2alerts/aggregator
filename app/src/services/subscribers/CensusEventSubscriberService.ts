@@ -4,7 +4,6 @@ import {injectable} from 'inversify';
 import {Client} from 'ps2census';
 import DeathEventHandler from '../../handlers/census/DeathEventHandler';
 import WorldValidator from '../../validators/WorldValidator';
-import ActiveAlertAuthorityInterface from '../../interfaces/ActiveAlertAuthorityInterface';
 import MetagameEventEventHandler from '../../handlers/census/MetagameEventEventHandler';
 import PlayerLoginEventHandler from '../../handlers/census/PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from '../../handlers/census/PlayerLogoutEventHandler';

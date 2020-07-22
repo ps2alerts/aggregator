@@ -69,6 +69,7 @@ export default class FactionUtils {
                 return 'none';
         }
 
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         throw new IllegalArgumentException(`Unable to parse faction numerical value to string: ${value}`, 'FactionUtils.parseFactionIdToShortName');
     }
 }

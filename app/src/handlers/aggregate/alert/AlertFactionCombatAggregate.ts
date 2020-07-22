@@ -77,23 +77,22 @@ export default class AlertFactionCombatAggregate implements EventHandlerInterfac
                     doc,
                 );
             } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 AlertFactionCombatAggregate.logger.error(`Updating Aggregate Error! ${err}`);
             }
         }
-
-        // Increment victim deaths
 
         return true;
     }
 
     private async insertInitial(event: DeathEvent): Promise<boolean> {
         AlertFactionCombatAggregate.logger.debug('Adding Initial Combat Aggregate Record');
-        const keys = ['vs', 'nc', 'tr', 'nso', 'totals'];
+        const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
         const data = {
             alertId: event.alert.alertId,
         };
 
-        keys.forEach((i) => {
+        factionKeys.forEach((i) => {
             _.mergeWith(
                 data,
                 {
