@@ -65,7 +65,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Alert: ${event.alert.alertId} - ${err}`, 'FacilityControlEventHandler');
+            throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Alert: ${event.alert.alertId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
         }
     }
 }
