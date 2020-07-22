@@ -21,8 +21,8 @@ export default class Census {
 
     constructor() {
         this.subscriptions = [{
-            eventNames: ['MetagameEvent', 'Death'],
-            worlds: ['10'],
+            eventNames: ['Death'],
+            worlds: ['all'],
             characters: ['all'],
             logicalAndCharactersWithWorlds: true,
         }];

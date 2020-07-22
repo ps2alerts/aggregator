@@ -130,7 +130,7 @@ export default class DeathEvent {
         // Additional logic to figure out things Census doesn't tell us...
         this.isSuicide = this.characterId === this.attackerCharacterId;
 
-        // TK logic, does NOT include NSO.
-        this.isTeamkill = this.attackerFaction === this.characterFaction;
+        // TK logic, does NOT include NSO. If same faction but not same character
+        this.isTeamkill = this.attackerFaction === this.characterFaction && !this.isSuicide;
     }
 }

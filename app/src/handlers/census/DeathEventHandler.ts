@@ -44,15 +44,6 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                 this.storeEvent(event),
             ]);
 
-            // this.alertFactionCombatAggregate.handle(event)
-            // this.alertPlayerAggregate.handle(event)
-            // this.alertPlayerWeaponAggregate.handle(event)
-            // this.alertFactionCombatAggregate.handle(event)
-            // this.alertFactionCombatAggregate.handle(event)
-            // this.alertFactionCombatAggregate.handle(event)
-            // this.alertFactionCombatAggregate.handle(event)
-            // this.alertFactionCombatAggregate.handle(event)
-
             this.aggregateHandlers.map(
                 (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event),
             );
