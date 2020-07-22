@@ -6,15 +6,13 @@ import config from '../../config';
 import {Mongoose} from 'mongoose';
 import Database from '../../config/database';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import {AlertSchemaInterface, alertSchema} from '../../models/AlertModel';
-import {AlertDeathSchemaInterface, alertDeathSchema} from '../../models/AlertDeathModel';
 import {Context} from 'inversify/dts/planning/context';
 import {TYPES} from '../../constants/types';
+import {AlertSchemaInterface, alertSchema} from '../../models/AlertModel';
+import {AlertDeathSchemaInterface, alertDeathSchema} from '../../models/AlertDeathModel';
 import {activeAlertSchema, ActiveAlertSchemaInterface} from '../../models/ActiveAlertModel';
-import {
-    alertFactionCombatAggregateSchema,
-    AlertFactionCombatAggregateSchemaInterface,
-} from '../../models/aggregate/AlertFactionCombatAggregateModel';
+import {AlertFacilityControlInterface, alertFacilityControlSchema} from '../../models/AlertFacilityControlModel';
+import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/AlertFactionCombatAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -53,7 +51,14 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    // Handler Models
+    bind<MongooseModelFactory<AlertFacilityControlInterface>>(TYPES.alertFacilityControlModelFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'alert_facility_control',
+            alertFacilityControlSchema,
+        ))
+        .inSingletonScope();
+    // Aggregate Handler Models
 
     bind<MongooseModelFactory<AlertFactionCombatAggregateSchemaInterface>>(TYPES.alertFactionCombatAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(

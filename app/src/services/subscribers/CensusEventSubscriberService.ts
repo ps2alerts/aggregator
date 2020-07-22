@@ -20,6 +20,7 @@ import ActiveAlertInterface from '../../interfaces/ActiveAlertInterface';
 import {PS2ZoneEvents} from '../../types/PS2AlertsEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import ActiveAlertAuthority from '../../authorities/ActiveAlertAuthority';
+import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -103,15 +104,13 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             }
         });
 
-        // this.wsClient.on('facilityControl', (event) => {
-        //     if (!this.getAlert(event)) {
-        //         return false;
-        //     }
-        //
-        //     EventListenerService.logger.debug('Passing FacilityControl to listener');
-        //     const facilityControl = new FacilityControlEvent(event, this.getAlert(event));
-        //     void this.facilityControlEventHandler.handle(facilityControl);
-        // });
+        this.wsClient.on('facilityControl', (event) => {
+            if (this.checkAlert(event)) {
+                CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
+                const facilityControl = new FacilityControlEvent(event, this.getAlert(event));
+                void this.facilityControlEventHandler.handle(facilityControl);
+            }
+        });
 
         this.wsClient.on('metagameEvent', (event) => {
             CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
