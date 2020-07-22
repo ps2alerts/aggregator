@@ -16,7 +16,7 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import Parser from '../../../utils/parser';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
-import {FacilityControl, PS2EventData} from 'ps2census';
+import {FacilityControl} from 'ps2census';
 import ActiveAlertInterface from '../../../interfaces/ActiveAlertInterface';
 
 @injectable()
@@ -25,7 +25,7 @@ export default class FacilityControlEvent {
 
     public readonly facility: number;
 
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
 
     public readonly oldFaction: Faction;
 
@@ -38,13 +38,9 @@ export default class FacilityControlEvent {
     public readonly outfitCaptured: string|null;
 
     constructor(
-        event: PS2EventData,
+        event: FacilityControl,
         alert: ActiveAlertInterface,
     ) { // No check needed, ZoneUtils will take care of this
-
-        if (!(event instanceof FacilityControl)) {
-            throw new IllegalArgumentException('event', 'FacilityControlEvent');
-        }
 
         this.alert = alert;
 
@@ -54,9 +50,9 @@ export default class FacilityControlEvent {
             throw new IllegalArgumentException('facility_id', 'FacilityControlEvent');
         }
 
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'FacilityControlEvent');
         }
 

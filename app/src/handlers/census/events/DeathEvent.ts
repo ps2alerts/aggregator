@@ -22,7 +22,7 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
-import {Death, PS2EventData} from 'ps2census';
+import {Death} from 'ps2census';
 import ActiveAlertInterface from '../../../interfaces/ActiveAlertInterface';
 import {Faction} from '../../../constants/faction';
 import FactionUtils from '../../../utils/FactionUtils';
@@ -35,7 +35,7 @@ export default class DeathEvent {
 
     public readonly zone: Zone;
 
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
 
     public readonly characterId: string;
 
@@ -62,13 +62,9 @@ export default class DeathEvent {
     public readonly isTeamkill: boolean;
 
     constructor(
-        event: PS2EventData,
+        event: Death,
         alert: ActiveAlertInterface,
     ) {
-        if (!(event instanceof Death)) {
-            throw new IllegalArgumentException('event', 'DeathEvent');
-        }
-
         this.alert = alert;
 
         this.world = Parser.parseNumericalArgument(event.world_id);
@@ -79,9 +75,9 @@ export default class DeathEvent {
 
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'DeathEvent');
         }
 
@@ -125,7 +121,7 @@ export default class DeathEvent {
             throw new IllegalArgumentException('attacker_weapon_id', 'DeathEvent');
         }
 
-        this.isHeadshot = Parser.parseArgumentAsBoolean(event.is_headshot);
+        this.isHeadshot = event.is_headshot;
 
         // Additional logic to figure out things Census doesn't tell us...
         this.isSuicide = this.characterId === this.attackerCharacterId;

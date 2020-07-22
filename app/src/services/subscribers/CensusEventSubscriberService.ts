@@ -98,16 +98,22 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (this.checkAlert(event)) {
-                const deathEvent = new DeathEvent(event, this.getAlert(event));
+            const worldId = parseInt(event.world_id, 10);
+            const zoneId = parseInt(event.zone_id, 10);
+
+            if (this.activeAlerts.alertExists(worldId, zoneId)) {
+                const deathEvent = new DeathEvent(event, this.activeAlerts.getAlert(worldId, zoneId));
                 void this.deathEventHandler.handle(deathEvent);
             }
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            if (this.checkAlert(event)) {
+            const worldId = parseInt(event.world_id, 10);
+            const zoneId = parseInt(event.zone_id, 10);
+
+            if (this.activeAlerts.alertExists(worldId, zoneId)) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
-                const facilityControl = new FacilityControlEvent(event, this.getAlert(event));
+                const facilityControl = new FacilityControlEvent(event, this.activeAlerts.getAlert(worldId, zoneId));
                 void this.facilityControlEventHandler.handle(facilityControl);
             }
         });

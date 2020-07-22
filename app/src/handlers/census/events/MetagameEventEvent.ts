@@ -18,7 +18,7 @@ import EventId from '../../../utils/eventId';
 import Parser from '../../../utils/parser';
 import {Zone} from '../../../constants/zone';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {MetagameEvent, MetagameEventData} from 'ps2census';
+import {MetagameEvent} from 'ps2census';
 import {MetagameEventState} from '../../../constants/metagameEventState';
 import {World} from '../../../constants/world';
 
@@ -34,19 +34,15 @@ export default class MetagameEventEvent {
 
     public readonly factionVs: number;
 
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
 
     public readonly instanceId: number;
 
     public readonly zone: Zone;
 
     constructor(
-        event: MetagameEventData,
+        event: MetagameEvent,
     ) {
-        if (!(event instanceof MetagameEvent)) {
-            throw new IllegalArgumentException('event', 'MetagameEventEvent');
-        }
-
         this.world = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.world)) {
@@ -82,9 +78,9 @@ export default class MetagameEventEvent {
             throw new IllegalArgumentException('faction_vs', 'MetagameEventEvent');
         }
 
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+        this.timestamp = event.timestamp;
 
-        if (isNaN(this.timestamp)) {
+        if (this.timestamp === undefined || this.timestamp === null) {
             throw new IllegalArgumentException('timestamp', 'MetagameEventEvent');
         }
 
