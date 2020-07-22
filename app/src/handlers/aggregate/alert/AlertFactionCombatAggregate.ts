@@ -24,7 +24,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
 
         // Create initial record if doesn't exist
         if (!await this.factory.model.exists({
-            alertId: event.alert.alertId,
+            alert: event.alert.alertId,
         })) {
             await this.insertInitial(event);
         }
@@ -33,6 +33,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
 
         // Increment attacker faction kills
         if (!event.isTeamkill && !event.isSuicide) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerFaction)}.kills`;
             documents.push(
                 {$inc: {[attackerKillKey]: 1}},
@@ -40,6 +41,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
             );
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
         const victimDeathKey = `${FactionUtils.parseFactionIdToShortName(event.characterFaction)}.deaths`;
         documents.push(
             {$inc: {[victimDeathKey]: 1}},
@@ -47,6 +49,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
         );
 
         if (event.isTeamkill) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const teamKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerFaction)}.teamKills`;
             documents.push(
                 {$inc: {[teamKillKey]: 1}},
@@ -55,6 +58,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
         }
 
         if (event.isSuicide) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const suicideKey = `${FactionUtils.parseFactionIdToShortName(event.characterFaction)}.suicides`;
             documents.push(
                 {$inc: {[suicideKey]: 1}},
@@ -63,6 +67,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
         }
 
         if (event.isHeadshot) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const attackerHeadshotKey = `${FactionUtils.parseFactionIdToShortName(event.attackerFaction)}.headshots`;
             documents.push(
                 {$inc: {[attackerHeadshotKey]: 1}},
@@ -88,7 +93,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
         AlertFactionCombatAggregate.logger.debug('Adding Initial Combat Aggregate Record');
         const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
         const data = {
-            alertId: event.alert.alertId,
+            alert: event.alert.alertId,
         };
 
         factionKeys.forEach((i) => {
