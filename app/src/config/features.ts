@@ -24,6 +24,7 @@ export default {
         censusEventContent: {
             deaths: false,
             metagame: true,
+            facilityControl: true,
         },
     },
     monitoredServers: new Set([1, 10, 13, 17, 19, 40, 1000, 2000]),

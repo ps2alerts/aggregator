@@ -1,18 +1,37 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
+import ApplicationException from '../../exceptions/ApplicationException';
+import {TYPES} from '../../constants/types';
+import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import MongooseModelFactory from '../../factories/MongooseModelFactory';
+import {AlertFacilityControlInterface} from '../../models/AlertFacilityControlModel';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
 
+    private readonly playerHandler: PlayerHandlerInterface;
+
+    private readonly factory: MongooseModelFactory<AlertFacilityControlInterface>;
+
+    /* eslint-disable */
+    constructor(
+        @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
+        @inject(TYPES.alertFacilityControlModelFactory) alertFacilityControlModelFactory: MongooseModelFactory<AlertFacilityControlInterface>,
+    ) {
+        /* eslint-enable */
+        this.playerHandler = playerHandler;
+        this.factory = alertFacilityControlModelFactory;
+    }
+
     public async handle(event: FacilityControlEvent): Promise<boolean>{
         FacilityControlEventHandler.logger.debug('Parsing message...');
 
-        if (config.features.logging.censusEventContent) {
+        if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
@@ -31,10 +50,22 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         return true;
     }
 
-    // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
-    private async storeEvent(facilityControlEvent: FacilityControlEvent): Promise<boolean> {
-        return true;
-        // TODO Store in database
+    private async storeEvent(event: FacilityControlEvent): Promise<boolean> {
+        try {
+            await this.factory.saveDocument({
+                alert: event.alert.alertId,
+                facility: event.facility,
+                timestamp: event.timestamp,
+                oldFaction: event.oldFaction,
+                newFaction: event.newFaction,
+                durationHeld: event.durationHeld,
+                isDefence: event.isDefence,
+                outfitCaptured: event.outfitCaptured,
+            });
+            return true;
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Alert: ${event.alert.alertId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+        }
     }
 }
