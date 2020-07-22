@@ -113,7 +113,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
 
         try {
             const row = await this.factory.saveDocument(data);
-            AlertFactionCombatAggregate.logger.info(`Inserted initial AlertFactionCombat aggregate record for alert ${row.alertId}`);
+            AlertFactionCombatAggregate.logger.info(`Inserted initial AlertFactionCombat aggregate record for alert ${row.alert}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
