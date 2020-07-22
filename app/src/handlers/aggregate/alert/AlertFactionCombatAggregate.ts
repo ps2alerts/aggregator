@@ -1,4 +1,4 @@
-import EventHandlerInterface from '../../../interfaces/EventHandlerInterface';
+import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
@@ -10,7 +10,7 @@ import _ from 'lodash';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
-export default class AlertFactionCombatAggregate implements EventHandlerInterface<DeathEvent> {
+export default class AlertFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('AlertFactionAggregate');
 
     private readonly factory: MongooseModelFactory<AlertFactionCombatAggregateSchemaInterface>;
@@ -85,7 +85,7 @@ export default class AlertFactionCombatAggregate implements EventHandlerInterfac
         return true;
     }
 
-    private async insertInitial(event: DeathEvent): Promise<boolean> {
+    public async insertInitial(event: DeathEvent): Promise<boolean> {
         AlertFactionCombatAggregate.logger.debug('Adding Initial Combat Aggregate Record');
         const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
         const data = {
