@@ -56,7 +56,8 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'alert_facility_control',
             alertFacilityControlSchema,
-      
+        ))
+        .inSingletonScope();
     // Aggregate Handler Models
 
     bind<MongooseModelFactory<AlertFactionCombatAggregateSchemaInterface>>(TYPES.alertFactionCombatAggregateFactory)
