@@ -12,6 +12,7 @@ import {AlertSchemaInterface, alertSchema} from '../../models/AlertModel';
 import {AlertDeathSchemaInterface, alertDeathSchema} from '../../models/AlertDeathModel';
 import {activeAlertSchema, ActiveAlertSchemaInterface} from '../../models/ActiveAlertModel';
 import {AlertFacilityControlInterface, alertFacilityControlSchema} from '../../models/AlertFacilityControlModel';
+import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/AlertFactionCombatAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -29,7 +30,7 @@ export default new ContainerModule((bind) => {
     bind<MongooseModelFactory<AlertSchemaInterface>>(TYPES.alertModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
-            'Alert',
+            'alert',
             alertSchema,
         ))
         .inSingletonScope();
@@ -37,7 +38,7 @@ export default new ContainerModule((bind) => {
     bind<MongooseModelFactory<AlertDeathSchemaInterface>>(TYPES.alertDeathModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
-            'AlertDeath',
+            'alert_death',
             alertDeathSchema,
         ))
         .inSingletonScope();
@@ -45,7 +46,7 @@ export default new ContainerModule((bind) => {
     bind<MongooseModelFactory<ActiveAlertSchemaInterface>>(TYPES.activeAlertDataModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
-            'ActiveAlerts',
+            'active_alerts',
             activeAlertSchema,
         ))
         .inSingletonScope();
@@ -55,6 +56,14 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'alert_facility_control',
             alertFacilityControlSchema,
+      
+    // Aggregate Handler Models
+
+    bind<MongooseModelFactory<AlertFactionCombatAggregateSchemaInterface>>(TYPES.alertFactionCombatAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_alert_faction_combat',
+            alertFactionCombatAggregateSchema,
         ))
         .inSingletonScope();
 });

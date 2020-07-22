@@ -111,11 +111,8 @@ export default class Kernel implements KernelInterface {
     }
 
     public terminateWithUnhandledRejection(error: unknown): void {
-        if (error instanceof Error) {
-            Kernel.logger.error('unhandledRejection detected!', error.message);
-        } else {
-            Kernel.logger.error('unhandledRejection detected!', error);
-        }
+        Kernel.logger.error('unhandledRejection detected!');
+        Kernel.logger.error(error);
     }
 
     /**
