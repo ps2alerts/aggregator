@@ -14,6 +14,7 @@ import {activeAlertSchema, ActiveAlertSchemaInterface} from '../../models/Active
 import {AlertFacilityControlInterface, alertFacilityControlSchema} from '../../models/AlertFacilityControlModel';
 import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/AlertFactionCombatAggregateModel';
 import {alertFacilityControlAggregateSchema, AlertFacilityControlAggregateInterface} from '../../models/aggregate/AlertFacilityControlAggregateModel';
+import {WorldFacilityControlAggregateInterface, worldFacilityControlAggregateSchema} from '../../models/aggregate/WorldFacilityControlAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -74,6 +75,14 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'aggregate_alert_facility_control',
             alertFacilityControlAggregateSchema,
+        ))
+        .inSingletonScope();
+
+    bind<MongooseModelFactory<WorldFacilityControlAggregateInterface>>(TYPES.worldFacilityControlAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_world_facility_control',
+            worldFacilityControlAggregateSchema,
         ))
         .inSingletonScope();
 });

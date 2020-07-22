@@ -32,3 +32,14 @@ export enum WorldPS4EU {
     // LITHCORP = 2001,
     // RASHNU = 2002,
 }
+
+export const worldArray = [
+    1,
+    10,
+    13,
+    17,
+    19,
+    40,
+    1000,
+    2000,
+];
