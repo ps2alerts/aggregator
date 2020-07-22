@@ -5,3 +5,10 @@ export enum Faction {
     TERRAN_REPUBLIC,
     NS_OPERATIVES,
 }
+
+export const factionArray = [
+    1,
+    2,
+    3,
+    4,
+];

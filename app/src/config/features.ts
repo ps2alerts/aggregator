@@ -21,7 +21,10 @@ export default {
     logging: {
         validationRejects: true,
         censusIncomingEvents: true,
-        censusEventContent: true,
+        censusEventContent: {
+            deaths: false,
+            metagame: true,
+        },
     },
     monitoredServers: new Set([1, 10, 13, 17, 19, 40, 1000, 2000]),
     monitoredZones: new Set([2, 4, 6, 8]),

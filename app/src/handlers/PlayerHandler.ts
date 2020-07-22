@@ -5,7 +5,7 @@ import PlayerLogoutEvent from './census/events/PlayerLogoutEvent';
 
 interface Player {
     worldId: number;
-    characterId: number;
+    characterId: string;
     outfitId: number;
 }
 
@@ -32,12 +32,12 @@ export default class PlayerHandler implements PlayerHandlerInterface {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/require-await
-    public async updateLastSeen(worldId: number, characterId: number): Promise<boolean> {
+    public async updateLastSeen(worldId: number, characterId: string): Promise<boolean> {
         // TODO Update last seen for https://github.com/ps2alerts/websocket/issues/31 #31
         return true;
     }
 
-    private containsPlayer(worldId: number, characterId: number): boolean {
+    private containsPlayer(worldId: number, characterId: string): boolean {
         return this._players.some((player) => {
             return player.worldId === worldId && player.characterId === characterId;
         });

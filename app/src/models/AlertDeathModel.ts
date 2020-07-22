@@ -1,34 +1,34 @@
 import {Document, Schema} from 'mongoose';
-import {AlertInterface} from './AlertModel';
-import {Loadout} from '../constants/loadout';
-import {PlayerInterface} from './static/PlayerModel';
+import {AlertSchemaInterface} from './AlertModel';
+import {Loadout, loadoutArray} from '../constants/loadout';
+import {factionArray} from '../constants/faction';
 
-export interface AlertDeathInterface extends Document {
-    alert: AlertInterface['_id'];
-    attacker: PlayerInterface['_id'];
-    player: PlayerInterface['_id'];
+export interface AlertDeathSchemaInterface extends Document {
+    alert: AlertSchemaInterface['alertId'];
+    attacker: string;
+    player: string;
     timestamp: number;
     attackerFiremode: number;
     attackerLoadout: number;
     weapon: number;
     playerLoadout: Loadout;
-    isCritical: boolean;
     isHeadshot: boolean;
     isSuicide: boolean;
+    isTeamkill: boolean;
     vehicle: number;
 }
 
 export const alertDeathSchema: Schema = new Schema({
     alert: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
     },
     attacker: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
     },
     player: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
     },
     timestamp: {
@@ -43,17 +43,23 @@ export const alertDeathSchema: Schema = new Schema({
         type: Number,
         required: true,
     },
+    attackerFaction: {
+        type: Number,
+        enum: factionArray,
+        required: true,
+    },
     weapon: {
         type: Number,
         required: true,
     },
     playerLoadout: {
         type: Number,
-        enum: Loadout,
+        enum: loadoutArray,
         required: true,
     },
-    isCritical: {
-        type: Boolean,
+    playerFaction: {
+        type: Number,
+        enum: factionArray,
         required: true,
     },
     isHeadshot: {
@@ -61,6 +67,10 @@ export const alertDeathSchema: Schema = new Schema({
         required: true,
     },
     isSuicide: {
+        type: Boolean,
+        required: true,
+    },
+    isTeamkill: {
         type: Boolean,
         required: true,
     },

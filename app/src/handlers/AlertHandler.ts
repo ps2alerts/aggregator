@@ -4,34 +4,33 @@ import MetagameEventEvent from './census/events/MetagameEventEvent';
 import {jsonLogOutput} from '../utils/json';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
-import {AlertInterface} from '../models/AlertModel';
+import {AlertSchemaInterface} from '../models/AlertModel';
 import {MetagameEventState} from '../constants/metagameEventState';
 import {getUnixTimestamp} from '../utils/time';
 import {alertId} from '../utils/alert';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
-
-interface Alert {
-    worldId: number;
-    instanceId: number;
-}
+import ActiveAlertAuthority from '../authorities/ActiveAlertAuthority';
 
 @injectable()
 export default class AlertHandler implements AlertHandlerInterface {
 
     private static readonly logger = getLogger('AlertHandler');
 
-    private readonly factory: MongooseModelFactory<AlertInterface>;
+    private readonly factory: MongooseModelFactory<AlertSchemaInterface>;
 
-    private _alerts: Alert[] = [];
+    private readonly activeAlerts: ActiveAlertAuthority;
 
-    constructor(@inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertInterface>) {
+    constructor(@inject(TYPES.alertModelFactory) factory: MongooseModelFactory<AlertSchemaInterface>,
+                                                 activeAlerts: ActiveAlertAuthority,
+    ) {
         this.factory = factory;
+        this.activeAlerts = activeAlerts;
     }
 
     public async handleMetagameEvent(mge: MetagameEventEvent): Promise<boolean> {
         if (mge.eventState === MetagameEventState.STARTED) {
-            if (!this.alertExists(mge)) {
+            if (!this.activeAlerts.alertExists(mge.world, mge.zone)) {
                 return await this.startAlert(mge);
             } else {
                 AlertHandler.logger.error(`Alert already found: ${jsonLogOutput(mge)}`);
@@ -40,7 +39,7 @@ export default class AlertHandler implements AlertHandlerInterface {
         }
 
         if (mge.eventState === MetagameEventState.FINISHED) {
-            if (this.alertExists(mge)) {
+            if (this.activeAlerts.alertExists(mge.world, mge.zone)) {
                 return await this.endAlert(mge);
             } else {
                 AlertHandler.logger.error(`Alert not found: ${jsonLogOutput(mge)}`);
@@ -51,30 +50,20 @@ export default class AlertHandler implements AlertHandlerInterface {
         throw new ApplicationException(`MetagameEvent was not stored \r\n${jsonLogOutput(mge)}`);
     }
 
-    private alertExists(mge: MetagameEventEvent): boolean {
-        return this._alerts.some((alert) => {
-            return alert.worldId === mge.worldId && alert.instanceId === mge.instanceId;
-        });
-    }
-
     private async startAlert(mge: MetagameEventEvent): Promise<boolean> {
         AlertHandler.logger.debug('================== STARTING ALERT! ==================');
 
-        this._alerts.push({
-            instanceId: mge.instanceId,
-            worldId: mge.worldId,
-        });
-
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const row = await this.factory.saveDocument({
                 alertId: alertId(mge),
-                world: mge.worldId,
+                world: mge.world,
                 zone: mge.zone,
                 state: MetagameEventState.STARTED,
                 timeStarted: getUnixTimestamp(),
             });
             AlertHandler.logger.info(`================ INSERTED NEW ALERT ${row.alertId} ================`);
-            return true;
+            return await this.activeAlerts.addAlert(mge);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to insert alert into DB! ${err}`);
@@ -84,17 +73,10 @@ export default class AlertHandler implements AlertHandlerInterface {
     private async endAlert(mge: MetagameEventEvent): Promise<boolean> {
         AlertHandler.logger.debug(`================== ENDING ALERT ${alertId(mge)} ==================`);
 
-        // Remove alert from in-memory list
-        this._alerts = this._alerts.filter((alert) => {
-            return !(alert.worldId === mge.worldId && alert.instanceId === mge.instanceId);
-        });
-
         // Find alert and update
         try {
-            const alertModel = this.factory.model;
-
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const res = await alertModel.updateOne(
+            const res = await this.factory.model.updateOne(
                 {alertId: alertId(mge)},
                 {
                     state: MetagameEventState.FINISHED,
@@ -107,6 +89,8 @@ export default class AlertHandler implements AlertHandlerInterface {
                 AlertHandler.logger.error(`No alerts were modified on end message! ${alertId(mge)}`);
                 return false;
             }
+
+            await this.activeAlerts.endAlert(mge);
 
             AlertHandler.logger.debug(`================ SUCCESSFULLY ENDED ALERT ${alertId(mge)} ================`);
             return true;

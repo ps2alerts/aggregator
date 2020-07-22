@@ -13,7 +13,7 @@ import {PlayerLogout, PS2Event} from 'ps2census';
 
 @injectable()
 export default class PlayerLogoutEvent {
-    public readonly characterId: number;
+    public readonly characterId: string;
 
     public readonly worldId: number;
 
@@ -24,13 +24,9 @@ export default class PlayerLogoutEvent {
             throw new IllegalArgumentException('event', 'PlayerLogoutEvent');
         }
 
-        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
+        this.characterId = event.character_id; // This is a string on purpose
 
-        if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('character_id', 'PlayerLogoutEvent');
-        }
-
-        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
+        this.worldId = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'PlayerLogoutEvent');

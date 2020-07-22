@@ -6,10 +6,9 @@ import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import AchievementEarnedEvent from './events/AchievementEarnedEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class AchievementEarnedHandler implements EventHandlerInterface {
+export default class AchievementEarnedHandler implements EventHandlerInterface<AchievementEarnedEvent> {
     private static readonly logger = getLogger('AchievementEarnedHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
@@ -18,7 +17,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean>{
+    public async handle(event: AchievementEarnedEvent): Promise<boolean>{
         AchievementEarnedHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,8 +25,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface {
         }
 
         try {
-            const achievementEarnedEvent = new AchievementEarnedEvent(event);
-            await this.handleAchievementEarned(achievementEarnedEvent);
+            await this.handleAchievementEarned(event);
         } catch (e) {
             if (e instanceof Error) {
                 AchievementEarnedHandler.logger.error(`Error parsing AchievementEarnedEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

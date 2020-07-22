@@ -6,38 +6,38 @@ import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
-import {PS2Event} from 'ps2census';
-import {AlertDeathInterface} from '../../models/AlertDeathModel';
+import ApplicationException from '../../exceptions/ApplicationException';
+import {AlertDeathSchemaInterface} from '../../models/AlertDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 
 @injectable()
-export default class DeathEventHandler implements EventHandlerInterface {
+export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('DeathEventHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
 
-    private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>;
+    private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
-        @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathInterface>,
+    /* eslint-disable */
+    constructor(
+        @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
+        @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>,
     ) {
+        /* eslint-enable */
         this.playerHandler = playerHandler;
         this.alertDeathModelFactory = alertDeathModelFactory;
     }
 
-    public async handle(event: PS2Event): Promise<boolean> {
-        DeathEventHandler.logger.debug('Parsing message...');
-
-        if (config.features.logging.censusEventContent) {
+    public async handle(event: DeathEvent): Promise<boolean> {
+        if (config.features.logging.censusEventContent.deaths) {
             DeathEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
         try {
-            const deathEvent = new DeathEvent(event);
             await Promise.all([
-                this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.attackerCharacterId),
-                this.playerHandler.updateLastSeen(deathEvent.worldId, deathEvent.characterId),
-                this.storeEvent(deathEvent),
+                this.playerHandler.updateLastSeen(event.world, event.attackerCharacterId),
+                this.playerHandler.updateLastSeen(event.world, event.characterId),
+                this.storeEvent(event),
             ]);
         } catch (e) {
             if (e instanceof Error) {
@@ -52,9 +52,28 @@ export default class DeathEventHandler implements EventHandlerInterface {
         return true;
     }
 
-    // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
-        return true;
+        try {
+            await this.alertDeathModelFactory.saveDocument({
+                alert: deathEvent.alert.alertId,
+                attacker: deathEvent.attackerCharacterId,
+                player: deathEvent.characterId,
+                timestamp: deathEvent.timestamp,
+                attackerFiremode: deathEvent.attackerFiremodeId,
+                attackerLoadout: deathEvent.attackerLoadoutId,
+                attackerFaction: deathEvent.attackerFaction,
+                weapon: deathEvent.attackerWeaponId,
+                playerLoadout: deathEvent.characterLoadoutId,
+                playerFaction: deathEvent.characterFaction,
+                isHeadshot: deathEvent.isHeadshot,
+                isSuicide: deathEvent.isSuicide,
+                isTeamkill: deathEvent.isTeamkill,
+                vehicle: deathEvent.attackerVehicleId,
+            });
+            return true;
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            throw new ApplicationException(`Unable to insert alert into DB! ${err}`);
+        }
     }
 }

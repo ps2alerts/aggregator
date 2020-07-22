@@ -3,7 +3,7 @@ import {MetagameEventState} from '../constants/metagameEventState';
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
 
-export interface AlertInterface extends Document {
+export interface AlertSchemaInterface extends Document {
     alertId: string;
     world: World;
     zone: Zone;
@@ -16,7 +16,6 @@ export const alertSchema: Schema = new Schema({
     alertId: {
         type: String,
         required: true,
-        unique: true,
     },
     world: {
         type: Number,
@@ -37,4 +36,7 @@ export const alertSchema: Schema = new Schema({
     timeEnded: {
         type: Number,
     },
-});
+}).index(
+    {alertId: 1, world: 1, zone: 1},
+    {unique: true},
+);

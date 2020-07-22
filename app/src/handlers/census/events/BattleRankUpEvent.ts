@@ -19,7 +19,7 @@ import {BattleRankUp, PS2Event} from 'ps2census';
 export default class BattleRankUpEvent {
     public readonly worldId: number;
     public readonly zone: Zone;
-    public readonly characterId: number;
+    public readonly characterId: string;
     public readonly timestamp: number;
     public readonly battleRank: number;
 
@@ -30,27 +30,23 @@ export default class BattleRankUpEvent {
             throw new IllegalArgumentException('event', 'BattleRankUpEvent');
         }
 
-        this.worldId = Parser.parseArgumentAsNumber(event.world_id);
+        this.worldId = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.worldId)) {
             throw new IllegalArgumentException('world_id', 'BattleRankUpEvent');
         }
 
         // No check needed, ZoneUtils will take care of this
-        this.zone = ZoneUtils.parse(Parser.parseArgumentAsNumber(event.zone_id));
-        this.characterId = Parser.parseArgumentAsNumber(event.character_id);
+        this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
+        this.characterId = event.character_id; // This is a string on purpose
 
-        if (isNaN(this.characterId)) {
-            throw new IllegalArgumentException('character_id', 'BattleRankUpEvent');
-        }
-
-        this.timestamp = Parser.parseArgumentAsNumber(event.timestamp);
+        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
 
         if (isNaN(this.timestamp)) {
             throw new IllegalArgumentException('timestamp', 'BattleRankUpEvent');
         }
 
-        this.battleRank = Parser.parseArgumentAsNumber(event.battle_rank);
+        this.battleRank = Parser.parseNumericalArgument(event.battle_rank);
 
         if (isNaN(this.battleRank)) {
             throw new IllegalArgumentException('battle_rank', 'BattleRankUpEvent');

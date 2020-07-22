@@ -21,7 +21,7 @@ export default class MongoDatabaseConnectionService implements ServiceInterface 
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async start(): Promise<void> {
-        MongoDatabaseConnectionService.logger.info('Starting Mongo Database Connection Service...');
+        MongoDatabaseConnectionService.logger.info('Starting Mongo Database Connection Service... (NOT IMPLEMENTED)');
     }
 
     public async terminate(): Promise<void> {

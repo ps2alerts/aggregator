@@ -6,10 +6,9 @@ import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import BattleRankUpEvent from './events/BattleRankUpEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class BattleRankUpHandler implements EventHandlerInterface {
+export default class BattleRankUpHandler implements EventHandlerInterface<BattleRankUpEvent> {
     private static readonly logger = getLogger('BattleRankUpHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
@@ -18,7 +17,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean>{
+    public async handle(event: BattleRankUpEvent): Promise<boolean>{
         BattleRankUpHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,8 +25,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface {
         }
 
         try {
-            const battleRankUpEvent = new BattleRankUpEvent(event);
-            await this.handleBattleRankUp(battleRankUpEvent);
+            await this.handleBattleRankUp(event);
         } catch (e) {
             if (e instanceof Error) {
                 BattleRankUpHandler.logger.error(`Error parsing BattleRankEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

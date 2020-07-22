@@ -6,10 +6,9 @@ import {jsonLogOutput} from '../../utils/json';
 import PlayerLogoutEvent from './events/PlayerLogoutEvent';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import {TYPES} from '../../constants/types';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class PlayerLogoutEventHandler implements EventHandlerInterface {
+export default class PlayerLogoutEventHandler implements EventHandlerInterface<PlayerLogoutEvent> {
     private static readonly logger = getLogger('PlayerLogoutEventHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
@@ -18,7 +17,7 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface {
         this.playerHandler = playerHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean> {
+    public async handle(event: PlayerLogoutEvent): Promise<boolean> {
         PlayerLogoutEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,8 +25,7 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface {
         }
 
         try {
-            const playerLogout = new PlayerLogoutEvent(event);
-            await this.playerHandler.handleLogout(playerLogout);
+            await this.playerHandler.handleLogout(event);
         } catch (e) {
             if (e instanceof Error) {
                 PlayerLogoutEventHandler.logger.error(`Error parsing PlayerLogoutEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

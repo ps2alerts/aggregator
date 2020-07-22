@@ -6,10 +6,9 @@ import {jsonLogOutput} from '../../utils/json';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import PlayerFacilityDefendEvent from './events/PlayerFacilityDefendEvent';
-import {PS2Event} from 'ps2census';
 
 @injectable()
-export default class PlayerFacilityDefendHandler implements EventHandlerInterface {
+export default class PlayerFacilityDefendHandler implements EventHandlerInterface<PlayerFacilityDefendEvent> {
     private static readonly logger = getLogger('PlayerFacilityDefendHandler');
 
     private readonly playerHandler: PlayerHandlerInterface;
@@ -18,7 +17,7 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
         this.playerHandler = playerHandler;
     }
 
-    public async handle(event: PS2Event): Promise<boolean>{
+    public async handle(event: PlayerFacilityDefendEvent): Promise<boolean>{
         PlayerFacilityDefendHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -26,10 +25,9 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
         }
 
         try {
-            const playerFacilityDefendEvent = new PlayerFacilityDefendEvent(event);
             await Promise.all([
-                this.playerHandler.updateLastSeen(playerFacilityDefendEvent.worldId, playerFacilityDefendEvent.characterId),
-                this.storeEvent(playerFacilityDefendEvent),
+                this.playerHandler.updateLastSeen(event.worldId, event.characterId),
+                this.storeEvent(event),
             ]);
         } catch (e) {
             if (e instanceof Error) {
