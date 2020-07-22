@@ -63,7 +63,7 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    // Agrregate Handler Models
+    // Aggregate Handler Models
 
     bind<MongooseModelFactory<AlertFactionCombatAggregateSchemaInterface>>(TYPES.alertFactionCombatAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
