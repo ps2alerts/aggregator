@@ -16,7 +16,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     private readonly playerHandler: PlayerHandlerInterface;
 
-    private readonly alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>;
+    private readonly factory: MongooseModelFactory<AlertDeathSchemaInterface>;
 
     /* eslint-disable */
     constructor(
@@ -25,7 +25,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
     ) {
         /* eslint-enable */
         this.playerHandler = playerHandler;
-        this.alertDeathModelFactory = alertDeathModelFactory;
+        this.factory = alertDeathModelFactory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -54,7 +54,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
         try {
-            await this.alertDeathModelFactory.saveDocument({
+            await this.factory.saveDocument({
                 alert: deathEvent.alert.alertId,
                 attacker: deathEvent.attackerCharacterId,
                 player: deathEvent.characterId,
