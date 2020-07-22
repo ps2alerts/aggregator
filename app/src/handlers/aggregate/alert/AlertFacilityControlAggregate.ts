@@ -7,6 +7,7 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import _ from 'lodash';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import {AlertFacilityControlAggregateInterface} from '../../../models/aggregate/AlertFacilityControlAggregateModel';
+import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
 export default class AlertFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -24,20 +25,42 @@ export default class AlertFacilityControlAggregate implements AggregateHandlerIn
         // Create initial record if doesn't exist
         if (!await this.factory.model.exists({
             alert: event.alert.alertId,
+            facility: event.facility,
         })) {
             await this.insertInitial(event);
         }
 
         const documents = [];
 
+        if (event.isDefence) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
+            const defenceKey = `${FactionUtils.parseFactionIdToShortName(event.newFaction)}.defences`;
+            documents.push(
+                {$inc: {[defenceKey]: 1}},
+                {$inc: {['totals.defences']: 1}},
+            );
+        }
+
+        if (!event.isDefence) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
+            const captureKey = `${FactionUtils.parseFactionIdToShortName(event.newFaction)}.captures`;
+            documents.push(
+                {$inc: {[captureKey]: 1}},
+                {$inc: {['totals.captures']: 1}},
+            );
+        }
+
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         documents.forEach((doc) => {
             void this.factory.model.updateOne(
-                {alertId: event.alert.alertId},
+                {
+                    alert: event.alert.alertId,
+                    facility: event.facility,
+                },
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                AlertFacilityControlAggregate.logger.error(`Updating Aggregate Error! ${err}`);
+                AlertFacilityControlAggregate.logger.error(`Updating AlertFacilityControlAggregate Error! ${err}`);
             });
         });
 
@@ -49,6 +72,7 @@ export default class AlertFacilityControlAggregate implements AggregateHandlerIn
         const factionKeys = ['vs', 'nc', 'tr', 'totals'];
         const data = {
             alert: event.alert.alertId,
+            facility: event.facility,
         };
 
         factionKeys.forEach((i) => {

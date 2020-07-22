@@ -9,5 +9,5 @@ import AlertFacilityControlAggregate from './alert/AlertFacilityControlAggregate
 export default new ContainerModule((bind) => {
     // Aggregate handlers
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertFactionCombatAggregate).inSingletonScope();
-    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.deathAggregates).to(AlertFacilityControlAggregate).inSingletonScope();
+    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(AlertFacilityControlAggregate).inSingletonScope();
 });

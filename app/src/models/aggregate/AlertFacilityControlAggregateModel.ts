@@ -52,4 +52,7 @@ export const aggregateAlertFacilityControlSchema: Schema = new Schema({
         type: aggregateFactionFacilityControlSchema,
         required: true,
     },
-});
+}).index(
+    {alert: 1, facility: 1},
+    {unique: true},
+);
