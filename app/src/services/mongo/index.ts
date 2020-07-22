@@ -58,6 +58,7 @@ export default new ContainerModule((bind) => {
             alertFacilityControlSchema,
         ))
         .inSingletonScope();
+
     // Aggregate Handler Models
 
     bind<MongooseModelFactory<AlertFactionCombatAggregateSchemaInterface>>(TYPES.alertFactionCombatAggregateFactory)

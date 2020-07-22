@@ -2,7 +2,7 @@ import {Document, Schema} from 'mongoose';
 import {AlertSchemaInterface} from '../AlertModel';
 
 export interface AlertFactionCombatAggregateSchemaInterface extends Document {
-    alertId: AlertSchemaInterface['alertId'];
+    alert: AlertSchemaInterface['alertId'];
     vs: AggregateFactionSchemaInterface;
     nc: AggregateFactionSchemaInterface;
     tr: AggregateFactionSchemaInterface;
@@ -42,7 +42,7 @@ export const aggregateFactionSchema: Schema = new Schema({
 });
 
 export const alertFactionCombatAggregateSchema: Schema = new Schema({
-    alertId: {
+    alert: {
         type: String,
         required: true,
         unique: true,
