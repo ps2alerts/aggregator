@@ -70,17 +70,16 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
             );
         }
 
-        for (const doc of documents) {
-            try {
-                await this.factory.model.updateOne(
-                    {alertId: event.alert.alertId},
-                    doc,
-                );
-            } catch (err) {
+        // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
+        documents.forEach((doc) => {
+            void this.factory.model.updateOne(
+                {alertId: event.alert.alertId},
+                doc,
+            ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 AlertFactionCombatAggregate.logger.error(`Updating Aggregate Error! ${err}`);
-            }
-        }
+            });
+        });
 
         return true;
     }
