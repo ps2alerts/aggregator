@@ -53,17 +53,16 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
             return false;
         }
 
-        try {
-            this.aggregateHandlers.map(
-                (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event),
-            );
-        } catch (e) {
-            if (e instanceof Error) {
-                DeathEventHandler.logger.error(`Error parsing AggregateHandlers for DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
-            } else {
-                DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent AggregateHandlers!');
-            }
-        }
+        this.aggregateHandlers.map(
+            (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event)
+                .catch((e) => {
+                    if (e instanceof Error) {
+                        DeathEventHandler.logger.error(`Error parsing AggregateHandlers for DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    } else {
+                        DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent AggregateHandlers!');
+                    }
+                }),
+        );
 
         return true;
     }
