@@ -13,6 +13,11 @@ import {AlertDeathSchemaInterface, alertDeathSchema} from '../../models/AlertDea
 import {activeAlertSchema, ActiveAlertSchemaInterface} from '../../models/ActiveAlertModel';
 import {AlertFacilityControlInterface, alertFacilityControlSchema} from '../../models/AlertFacilityControlModel';
 import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/AlertFactionCombatAggregateModel';
+import AlertWeaponAggregate from '../../handlers/aggregate/alert/AlertWeaponAggregate';
+import {
+    alertWeaponAggregateSchema,
+    AlertWeaponAggregateSchemaInterface,
+} from '../../models/aggregate/AlertWeaponAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -66,6 +71,14 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'aggregate_alert_faction_combat',
             alertFactionCombatAggregateSchema,
+        ))
+        .inSingletonScope();
+
+    bind<MongooseModelFactory<AlertWeaponAggregateSchemaInterface>>(TYPES.alertWeaponAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_alert_weapon',
+            alertWeaponAggregateSchema,
         ))
         .inSingletonScope();
 });
