@@ -4,21 +4,21 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {AlertPlayerAggregateSchemaInterface} from '../../../models/aggregate/AlertPlayerAggregateModel';
+import {GlobalPlayerAggregateSchemaInterface} from '../../../models/aggregate/GlobalPlayerAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
 
 @injectable()
-export default class AlertPlayerAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('AlertPlayerAggregate');
+export default class GlobalPlayerAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('GlobalPlayerAggregate');
 
-    private readonly factory: MongooseModelFactory<AlertPlayerAggregateSchemaInterface>;
+    private readonly factory: MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.alertPlayerAggregateFactory) factory: MongooseModelFactory<AlertPlayerAggregateSchemaInterface>) {
+    constructor(@inject(TYPES.globalPlayerAggregateFactory) factory: MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        AlertPlayerAggregate.logger.debug('AlertPlayerAggregate.handle');
+        GlobalPlayerAggregate.logger.debug('GlobalPlayerAggregate.handle');
 
         // Check both attacker and victim for existence
         const checks = [event.characterId, event.attackerCharacterId];
@@ -26,7 +26,6 @@ export default class AlertPlayerAggregate implements AggregateHandlerInterface<D
         for (const id of checks) {
             // Create initial record if doesn't exist
             if (!await this.factory.model.exists({
-                alert: event.alert.alertId,
                 player: id,
             })) {
                 await this.insertInitial(event, id);
@@ -59,27 +58,21 @@ export default class AlertPlayerAggregate implements AggregateHandlerInterface<D
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         attackerDocs.forEach((doc) => {
             void this.factory.model.updateOne(
-                {
-                    alert: event.alert.alertId,
-                    player: event.attackerCharacterId,
-                },
+                {player: event.attackerCharacterId},
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                AlertPlayerAggregate.logger.error(`Updating AlertPlayerAggregate Attacker Error! ${err}`);
+                GlobalPlayerAggregate.logger.error(`Updating GlobalPlayerAggregate Attacker Error! ${err}`);
             });
         });
 
         victimDocs.forEach((doc) => {
             void this.factory.model.updateOne(
-                {
-                    alert: event.alert.alertId,
-                    player: event.characterId,
-                },
+                {player: event.characterId},
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                AlertPlayerAggregate.logger.error(`Updating AlertPlayerAggregate Victim Error! ${err}`);
+                GlobalPlayerAggregate.logger.error(`Updating GlobalPlayerAggregate Victim Error! ${err}`);
             });
         });
 
@@ -87,11 +80,11 @@ export default class AlertPlayerAggregate implements AggregateHandlerInterface<D
     }
 
     private async insertInitial(event: DeathEvent, characterId: string): Promise<boolean> {
-        AlertPlayerAggregate.logger.debug(`Adding Initial AlertPlayerAggregate Record for C: ${characterId} | A: ${event.alert.alertId}`);
+        GlobalPlayerAggregate.logger.debug(`Adding Initial AlertPlayerAggregate Record for C: ${characterId} | A: ${event.alert.alertId}`);
 
         const player = {
-            alert: event.alert.alertId,
             player: characterId,
+            world: event.world,
             kills: 0,
             deaths: 0,
             teamKills: 0,
@@ -101,11 +94,11 @@ export default class AlertPlayerAggregate implements AggregateHandlerInterface<D
 
         try {
             const row = await this.factory.saveDocument(player);
-            AlertPlayerAggregate.logger.debug(`Inserted initial AlertPlayerAggregate record for alert ${row.alert}, character ${row.player}`);
+            GlobalPlayerAggregate.logger.debug(`Inserted initial GlobalPlayerAggregate record for C: ${row.player}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial AlertPlayerAggregate record into DB! ${err}`, 'AlertPlayerAggregate');
+            throw new ApplicationException(`Unable to insert initial GlobalPlayerAggregate record into DB! ${err}`, 'GlobalPlayerAggregate');
         }
     }
 }
