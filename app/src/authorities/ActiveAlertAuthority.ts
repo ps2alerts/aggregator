@@ -95,18 +95,18 @@ export default class ActiveAlertAuthority implements ActiveAlertAuthorityInterfa
     private async init(): Promise<boolean> {
         ActiveAlertAuthority.logger.info('Initializing ActiveAlerts...');
         // Pull the list out of the database and assign to in-memory array
-        let res: any[] = [];
+        let rows: any[] = [];
 
         try {
-            res = await this.factory.model.find();
+            rows = await this.factory.model.find();
         } catch (err) {
             ActiveAlertAuthority.logger.error('Unable to retrieve active alerts!');
         }
 
-        if (!res.length) {
+        if (!rows.length) {
             ActiveAlertAuthority.logger.warn('No active alerts were detected in the database! This could be entirely normal however.');
         } else {
-            res.forEach((i) => {
+            rows.forEach((i) => {
                 /* eslint-disable */
                 this._activeAlerts.set(this.mapKey(i.world, i.zone), {
                     alertId: i.alertId,
