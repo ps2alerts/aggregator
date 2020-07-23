@@ -7,6 +7,7 @@ import AlertFactionCombatAggregate from './alert/AlertFactionCombatAggregate';
 import AlertPlayerAggregate from './alert/AlertPlayerAggregate';
 import GlobalPlayerAggregate from './global/GlobalPlayerAggregate';
 import AlertFacilityControlAggregate from './alert/AlertFacilityControlAggregate';
+import WorldFacilityControlAggregate from './world/WorldFacilityControlAggregate';
 
 export default new ContainerModule((bind) => {
     // Aggregate handler
@@ -18,4 +19,5 @@ export default new ContainerModule((bind) => {
 
     // FacilityControl Event
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(AlertFacilityControlAggregate).inSingletonScope();
+    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(WorldFacilityControlAggregate).inSingletonScope();
 });
