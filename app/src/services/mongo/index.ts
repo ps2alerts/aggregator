@@ -87,7 +87,7 @@ export default new ContainerModule((bind) => {
             globalPlayerAggregateSchema,
         ))
         .inSingletonScope();
-      
+
     bind<MongooseModelFactory<AlertFacilityControlAggregateInterface>>(TYPES.alertFacilityControlAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
