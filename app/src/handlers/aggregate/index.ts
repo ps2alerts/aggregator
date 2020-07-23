@@ -8,6 +8,8 @@ import AlertWeaponAggregate from './alert/AlertWeaponAggregate';
 import GlobalWeaponAggregate from './global/GlobalWeaponAggregate';
 import AlertFacilityControlAggregate from './alert/AlertFacilityControlAggregate';
 import WorldFacilityControlAggregate from './world/WorldFacilityControlAggregate';
+import AlertPlayerAggregate from './alert/AlertPlayerAggregate';
+import GlobalPlayerAggregate from './global/GlobalPlayerAggregate';
 
 export default new ContainerModule((bind) => {
     // Aggregate handler
