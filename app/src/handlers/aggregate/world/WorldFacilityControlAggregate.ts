@@ -39,9 +39,7 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
                 {$inc: {[defenceKey]: 1}},
                 {$inc: {['totals.defences']: 1}},
             );
-        }
-
-        if (!event.isDefence) {
+        } else {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const captureKey = `${FactionUtils.parseFactionIdToShortName(event.newFaction)}.captures`;
             documents.push(
