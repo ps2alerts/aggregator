@@ -23,6 +23,14 @@ import {alertPlayerAggregateSchema, AlertPlayerAggregateSchemaInterface} from '.
 import {globalPlayerAggregateSchema, GlobalPlayerAggregateSchemaInterface} from '../../models/aggregate/global/GlobalPlayerAggregateModel';
 // World Aggregate Imports
 import {WorldFacilityControlAggregateInterface, worldFacilityControlAggregateSchema} from '../../models/aggregate/world/WorldFacilityControlAggregateModel';
+import {
+    alertClassAggregateSchema,
+    AlertClassAggregateSchemaInterface,
+} from '../../models/aggregate/alert/AlertClassAggregateModel';
+import {
+    globalClassAggregateSchema,
+    GlobalClassAggregateSchemaInterface,
+} from '../../models/aggregate/global/GlobalClassAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -72,6 +80,14 @@ export default new ContainerModule((bind) => {
     // Aggregate Handler Models
     // Alert Aggregates
 
+    bind<MongooseModelFactory<AlertClassAggregateSchemaInterface>>(TYPES.alertClassAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_alert_class',
+            alertClassAggregateSchema,
+        ))
+        .inSingletonScope();
+
     bind<MongooseModelFactory<AlertFacilityControlAggregateInterface>>(TYPES.alertFacilityControlAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
@@ -105,6 +121,13 @@ export default new ContainerModule((bind) => {
         .inSingletonScope();
 
     // Global Aggregates
+    bind<MongooseModelFactory<GlobalClassAggregateSchemaInterface>>(TYPES.globalClassAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_global_class',
+            globalClassAggregateSchema,
+        ))
+        .inSingletonScope();
 
     bind<MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>>(TYPES.globalPlayerAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(

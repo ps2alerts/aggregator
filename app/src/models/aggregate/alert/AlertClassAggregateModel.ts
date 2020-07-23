@@ -1,9 +1,10 @@
 import {Document, Schema} from 'mongoose';
-import {World, worldArray} from '../../../constants/world';
+import {AlertSchemaInterface} from '../../AlertModel';
+import {Loadout, loadoutArray} from '../../../constants/loadout';
 
-export interface GlobalPlayerAggregateSchemaInterface extends Document {
-    player: string; // Subject to change to a PlayerInterface
-    world: World;
+export interface AlertClassAggregateSchemaInterface extends Document {
+    class: Loadout; // Subject to change to a PlayerInterface
+    alert: AlertSchemaInterface['alertId'];
     kills: number;
     deaths: number;
     teamKills: number;
@@ -11,15 +12,14 @@ export interface GlobalPlayerAggregateSchemaInterface extends Document {
     headshots: number;
 }
 
-export const globalPlayerAggregateSchema: Schema = new Schema({
-    player: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    world: {
+export const alertClassAggregateSchema: Schema = new Schema({
+    class: {
         type: Number,
-        enum: worldArray,
+        enum: loadoutArray,
+        required: true,
+    },
+    alert: {
+        type: String,
         required: true,
     },
     kills: {
@@ -47,4 +47,4 @@ export const globalPlayerAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
-}).index({player: 1, world: 1});
+}).index({class: 1, alert: 1});
