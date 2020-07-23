@@ -80,7 +80,7 @@ export default class CensusStreamService implements ServiceInterface {
                 faction_tr: '19.607843',
                 faction_vs: '9.803922',
                 instance_id: String(Math.floor(Math.random() * 100000) + 1),
-                metagame_event_id: String(MetagameEventIds.MELTDOWN_INDAR),
+                metagame_event_id: String(MetagameEventIds.MELTDOWN_AMERISH),
                 metagame_event_state: '137',
                 metagame_event_state_name: 'started',
                 timestamp: String(getUnixTimestamp()),

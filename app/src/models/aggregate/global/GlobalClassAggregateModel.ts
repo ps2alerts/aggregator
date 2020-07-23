@@ -1,18 +1,21 @@
 import {Document, Schema} from 'mongoose';
+import {Loadout, loadoutArray} from '../../../constants/loadout';
 import {World, worldArray} from '../../../constants/world';
 
-export interface GlobalWeaponAggregateSchemaInterface extends Document {
-    weapon: number;
+export interface GlobalClassAggregateSchemaInterface extends Document {
+    class: Loadout; // Subject to change to a PlayerInterface
     world: World;
     kills: number;
+    deaths: number;
     teamKills: number;
     suicides: number;
     headshots: number;
 }
 
-export const globalWeaponAggregateSchema: Schema = new Schema({
-    weapon: {
+export const globalClassAggregateSchema: Schema = new Schema({
+    class: {
         type: Number,
+        enum: loadoutArray,
         required: true,
     },
     world: {
@@ -21,6 +24,11 @@ export const globalWeaponAggregateSchema: Schema = new Schema({
         required: true,
     },
     kills: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    deaths: {
         type: Number,
         required: true,
         default: 0,
@@ -40,4 +48,4 @@ export const globalWeaponAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
-}).index({weapon: 1, world: 1});
+}).index({class: 1, world: 1});
