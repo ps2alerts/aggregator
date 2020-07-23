@@ -14,10 +14,12 @@ const TYPES = {
 
     // Aggregates
     deathAggregates: Symbol.for('DeathAggregates'),
+    facilityControlAggregates: Symbol.for('FacilityControlAggregates'),
+    alertFacilityControlAggregateFactory: Symbol.for('AlertFacilityControlAggregateFactory'),
     alertFactionCombatAggregate: Symbol.for('AlertFactionCombatAggregate'),
     alertFactionCombatAggregateFactory: Symbol.for('AlertFactionCombatAggregateFactory'),
     alertWeaponAggregateFactory: Symbol.for('AlertWeaponAggregateFactory'),
-    globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),
+    globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),    
 };
 
 export {TYPES};
