@@ -8,16 +8,20 @@ import Database from '../../config/database';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import {Context} from 'inversify/dts/planning/context';
 import {TYPES} from '../../constants/types';
+// Event models
 import {AlertSchemaInterface, alertSchema} from '../../models/AlertModel';
 import {AlertDeathSchemaInterface, alertDeathSchema} from '../../models/AlertDeathModel';
 import {activeAlertSchema, ActiveAlertSchemaInterface} from '../../models/ActiveAlertModel';
+// Alert Aggregate Models
 import {AlertFacilityControlInterface, alertFacilityControlSchema} from '../../models/AlertFacilityControlModel';
+import {alertFacilityControlAggregateSchema, AlertFacilityControlAggregateInterface} from '../../models/aggregate/AlertFacilityControlAggregateModel';
 import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/AlertFactionCombatAggregateModel';
 import {alertWeaponAggregateSchema, AlertWeaponAggregateSchemaInterface} from '../../models/aggregate/AlertWeaponAggregateModel';
-import {globalWeaponAggregateSchema,GlobalWeaponAggregateSchemaInterface} from '../../models/aggregate/GlobalWeaponAggregateModel';
+// Global Aggregate Models
+import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from '../../models/aggregate/GlobalWeaponAggregateModel';
 import {alertPlayerAggregateSchema, AlertPlayerAggregateSchemaInterface} from '../../models/aggregate/AlertPlayerAggregateModel';
 import {globalPlayerAggregateSchema, GlobalPlayerAggregateSchemaInterface} from '../../models/aggregate/GlobalPlayerAggregateModel';
-import {alertFacilityControlAggregateSchema, AlertFacilityControlAggregateInterface} from '../../models/aggregate/AlertFacilityControlAggregateModel';
+// World Aggregate Imports
 import {WorldFacilityControlAggregateInterface, worldFacilityControlAggregateSchema} from '../../models/aggregate/WorldFacilityControlAggregateModel';
 
 export default new ContainerModule((bind) => {
@@ -66,6 +70,15 @@ export default new ContainerModule((bind) => {
         .inSingletonScope();
 
     // Aggregate Handler Models
+    // Alert Aggregates
+
+    bind<MongooseModelFactory<AlertFacilityControlAggregateInterface>>(TYPES.alertFacilityControlAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_alert_facility_control',
+            alertFacilityControlAggregateSchema,
+        ))
+        .inSingletonScope();
 
     bind<MongooseModelFactory<AlertFactionCombatAggregateSchemaInterface>>(TYPES.alertFactionCombatAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
@@ -83,19 +96,21 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    bind<MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>>(TYPES.globalPlayerAggregateFactory)
-        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
-            container.get(Mongoose),
-            'aggregate_global_player',
-            globalPlayerAggregateSchema,
-        ))
-        .inSingletonScope();
-
     bind<MongooseModelFactory<AlertWeaponAggregateSchemaInterface>>(TYPES.alertWeaponAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
             'aggregate_alert_weapon',
             alertWeaponAggregateSchema,
+        ))
+        .inSingletonScope();
+
+    // Global Aggregates
+
+    bind<MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>>(TYPES.globalPlayerAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_global_player',
+            globalPlayerAggregateSchema,
         ))
         .inSingletonScope();
 
@@ -107,13 +122,7 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    bind<MongooseModelFactory<AlertFacilityControlAggregateInterface>>(TYPES.alertFacilityControlAggregateFactory)
-        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
-            container.get(Mongoose),
-            'aggregate_alert_facility_control',
-            alertFacilityControlAggregateSchema,
-        ))
-        .inSingletonScope();
+    // World Aggregates
 
     bind<MongooseModelFactory<WorldFacilityControlAggregateInterface>>(TYPES.worldFacilityControlAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
