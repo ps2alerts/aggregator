@@ -8,10 +8,11 @@ import AlertFacilityControlAggregate from './alert/AlertFacilityControlAggregate
 import AlertFactionCombatAggregate from './alert/AlertFactionCombatAggregate';
 import AlertPlayerAggregate from './alert/AlertPlayerAggregate';
 import AlertWeaponAggregate from './alert/AlertWeaponAggregate';
+import GlobalClassAggregate from './global/GlobalClassAggregate';
 import GlobalPlayerAggregate from './global/GlobalPlayerAggregate';
+import GlobalFactionCombatAggregate from './global/GlobalFactionCombatAggregate';
 import GlobalWeaponAggregate from './global/GlobalWeaponAggregate';
 import WorldFacilityControlAggregate from './world/WorldFacilityControlAggregate';
-import GlobalClassAggregate from './global/GlobalClassAggregate';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers are registered here
@@ -21,6 +22,7 @@ export default new ContainerModule((bind) => {
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertPlayerAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertWeaponAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalClassAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalFactionCombatAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalPlayerAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalWeaponAggregate).inSingletonScope();
 

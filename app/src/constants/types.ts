@@ -27,6 +27,7 @@ const TYPES = {
 
     // Global Aggregates
     globalClassAggregateFactory: Symbol.for('GlobalClassAggregateFactory'),
+    globalFactionCombatAggregateFactory: Symbol.for('GlobalFactionCombatAggregateFactory'),
     globalPlayerAggregateFactory: Symbol.for('GlobalPlayerAggregateFactory'),
     globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),
 
