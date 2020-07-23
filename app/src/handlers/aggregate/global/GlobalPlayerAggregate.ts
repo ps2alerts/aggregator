@@ -80,7 +80,7 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
     }
 
     private async insertInitial(event: DeathEvent, characterId: string): Promise<boolean> {
-        GlobalPlayerAggregate.logger.debug(`Adding Initial AlertPlayerAggregate Record for C: ${characterId} | A: ${event.alert.alertId}`);
+        GlobalPlayerAggregate.logger.debug(`Adding Initial GlobalPlayerAggregate Record for Player: ${characterId}`);
 
         const player = {
             player: characterId,
@@ -94,7 +94,7 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
 
         try {
             const row = await this.factory.saveDocument(player);
-            GlobalPlayerAggregate.logger.debug(`Inserted initial GlobalPlayerAggregate record for C: ${row.player}`);
+            GlobalPlayerAggregate.logger.debug(`Inserted initial GlobalPlayerAggregate record for Player: ${row.player}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
