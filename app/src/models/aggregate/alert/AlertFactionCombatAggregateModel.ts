@@ -3,14 +3,14 @@ import {AlertSchemaInterface} from '../../AlertModel';
 
 export interface AlertFactionCombatAggregateSchemaInterface extends Document {
     alert: AlertSchemaInterface['alertId'];
-    vs: AggregateFactionSchemaInterface;
-    nc: AggregateFactionSchemaInterface;
-    tr: AggregateFactionSchemaInterface;
-    nso: AggregateFactionSchemaInterface;
-    totals: AggregateFactionSchemaInterface;
+    vs: AlertFactionCombatAggregateSubSchemaInterface;
+    nc: AlertFactionCombatAggregateSubSchemaInterface;
+    tr: AlertFactionCombatAggregateSubSchemaInterface;
+    nso: AlertFactionCombatAggregateSubSchemaInterface;
+    totals: AlertFactionCombatAggregateSubSchemaInterface;
 }
 
-export interface AggregateFactionSchemaInterface extends Document {
+export interface AlertFactionCombatAggregateSubSchemaInterface extends Document {
     kills: number;
     deaths: number;
     teamKills: number;
@@ -18,7 +18,7 @@ export interface AggregateFactionSchemaInterface extends Document {
     headshots: number;
 }
 
-export const aggregateFactionSchema: Schema = new Schema({
+export const alertFactionCombatAggregateSubSchema: Schema = new Schema({
     kills: {
         type: Number,
         required: true,
@@ -48,23 +48,28 @@ export const alertFactionCombatAggregateSchema: Schema = new Schema({
         unique: true,
     },
     vs: {
-        type: aggregateFactionSchema,
+        type: alertFactionCombatAggregateSubSchema,
         default: {},
+        required: true,
     },
     nc: {
-        type: aggregateFactionSchema,
+        type: alertFactionCombatAggregateSubSchema,
         default: {},
+        required: true,
     },
     tr: {
-        type: aggregateFactionSchema,
+        type: alertFactionCombatAggregateSubSchema,
         default: {},
+        required: true,
     },
     nso: {
-        type: aggregateFactionSchema,
+        type: alertFactionCombatAggregateSubSchema,
         default: {},
+        required: true,
     },
     totals: {
-        type: aggregateFactionSchema,
+        type: alertFactionCombatAggregateSubSchema,
         default: {},
+        required: true,
     },
 });

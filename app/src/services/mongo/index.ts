@@ -23,6 +23,10 @@ import {alertPlayerAggregateSchema, AlertPlayerAggregateSchemaInterface} from '.
 import {globalPlayerAggregateSchema, GlobalPlayerAggregateSchemaInterface} from '../../models/aggregate/global/GlobalPlayerAggregateModel';
 // World Aggregate Imports
 import {WorldFacilityControlAggregateInterface, worldFacilityControlAggregateSchema} from '../../models/aggregate/world/WorldFacilityControlAggregateModel';
+import {
+    globalFactionCombatAggregateSchema,
+    GlobalFactionCombatAggregateSchemaInterface,
+} from '../../models/aggregate/global/GlobalFactionCombatAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -105,6 +109,14 @@ export default new ContainerModule((bind) => {
         .inSingletonScope();
 
     // Global Aggregates
+
+    bind<MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>>(TYPES.globalFactionCombatAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_global_faction_combat',
+            globalFactionCombatAggregateSchema,
+        ))
+        .inSingletonScope();
 
     bind<MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>>(TYPES.globalPlayerAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
