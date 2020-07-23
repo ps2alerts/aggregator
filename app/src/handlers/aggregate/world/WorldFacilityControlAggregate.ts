@@ -5,27 +5,27 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import _ from 'lodash';
-import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import {AlertFacilityControlAggregateInterface} from '../../../models/aggregate/AlertFacilityControlAggregateModel';
+import {WorldFacilityControlAggregateInterface} from '../../../models/aggregate/WorldFacilityControlAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
+import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 
 @injectable()
-export default class AlertFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
-    private static readonly logger = getLogger('AlertFacilityControlAggregate');
+export default class WorldFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
+    private static readonly logger = getLogger('WorldFacilityControlAggregate');
 
-    private readonly factory: MongooseModelFactory<AlertFacilityControlAggregateInterface>;
+    private readonly factory: MongooseModelFactory<WorldFacilityControlAggregateInterface>;
 
-    constructor(@inject(TYPES.alertFacilityControlAggregateFactory) factory: MongooseModelFactory<AlertFacilityControlAggregateInterface>) {
+    constructor(@inject(TYPES.worldFacilityControlAggregateFactory) factory: MongooseModelFactory<WorldFacilityControlAggregateInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        AlertFacilityControlAggregate.logger.debug('AlertFacilityControlAggregate.handle');
+        WorldFacilityControlAggregate.logger.debug('WorldFacilityControlAggregate.handle');
 
         // Create initial record if doesn't exist
         if (!await this.factory.model.exists({
-            alert: event.alert.alertId,
             facility: event.facility,
+            world: event.alert.world,
         })) {
             await this.insertInitial(event);
         }
@@ -52,13 +52,13 @@ export default class AlertFacilityControlAggregate implements AggregateHandlerIn
         documents.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
-                    alert: event.alert.alertId,
                     facility: event.facility,
+                    world: event.alert.world,
                 },
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                AlertFacilityControlAggregate.logger.error(`Updating AlertFacilityControlAggregate Error! ${err}`);
+                WorldFacilityControlAggregate.logger.error(`Updating WorldFacilityControlAggregate Error! ${err}`);
             });
         });
 
@@ -66,11 +66,11 @@ export default class AlertFacilityControlAggregate implements AggregateHandlerIn
     }
 
     public async insertInitial(event: FacilityControlEvent): Promise<boolean> {
-        AlertFacilityControlAggregate.logger.debug('Adding Initial AlertFacilityControlAggregate Record');
+        WorldFacilityControlAggregate.logger.debug('Adding Initial WorldFacilityControlAggregate Record');
         const factionKeys = ['vs', 'nc', 'tr', 'totals'];
         const data = {
-            alert: event.alert.alertId,
             facility: event.facility,
+            world: event.alert.world,
         };
 
         factionKeys.forEach((i) => {
@@ -87,11 +87,11 @@ export default class AlertFacilityControlAggregate implements AggregateHandlerIn
 
         try {
             const row = await this.factory.saveDocument(data);
-            AlertFacilityControlAggregate.logger.info(`Inserted initial AlertFacilityControl aggregate record for alert ${row.alert}`);
+            WorldFacilityControlAggregate.logger.info(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial AlertFacilityControl aggregate record into DB! ${err}`, 'AlertFacilityControlAggregate');
+            throw new ApplicationException(`Unable to insert initial WorldFacilityControlAggregate record into DB! ${err}`, 'WorldFacilityControlAggregate');
         }
     }
 }

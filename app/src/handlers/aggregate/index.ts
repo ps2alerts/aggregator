@@ -5,9 +5,11 @@ import FacilityControlEvent from '../census/events/FacilityControlEvent';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import AlertFactionCombatAggregate from './alert/AlertFactionCombatAggregate';
 import AlertFacilityControlAggregate from './alert/AlertFacilityControlAggregate';
+import WorldFacilityControlAggregate from './world/WorldFacilityControlAggregate';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertFactionCombatAggregate).inSingletonScope();
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(AlertFacilityControlAggregate).inSingletonScope();
+    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(WorldFacilityControlAggregate).inSingletonScope();
 });
