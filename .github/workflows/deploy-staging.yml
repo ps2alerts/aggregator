@@ -2,7 +2,7 @@
 name: Build & Deploy Staging
 on:
   push:
-    branches: [staging]
+    branches: [staging, features/staging-env]
 jobs:
   build-docker-images:
     runs-on: ubuntu-latest
