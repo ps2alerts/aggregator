@@ -4,12 +4,20 @@ import DeathEvent from '../census/events/DeathEvent';
 import FacilityControlEvent from '../census/events/FacilityControlEvent';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import AlertFactionCombatAggregate from './alert/AlertFactionCombatAggregate';
+import AlertPlayerAggregate from './alert/AlertPlayerAggregate';
+import GlobalPlayerAggregate from './global/GlobalPlayerAggregate';
 import AlertFacilityControlAggregate from './alert/AlertFacilityControlAggregate';
 import WorldFacilityControlAggregate from './world/WorldFacilityControlAggregate';
 
 export default new ContainerModule((bind) => {
-    // Aggregate handlers
+    // Aggregate handler
+
+    // Death Event
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertFactionCombatAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertPlayerAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalPlayerAggregate).inSingletonScope();
+
+    // FacilityControl Event
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(AlertFacilityControlAggregate).inSingletonScope();
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(WorldFacilityControlAggregate).inSingletonScope();
 });
