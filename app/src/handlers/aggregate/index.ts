@@ -9,13 +9,13 @@ import GlobalPlayerAggregate from './global/GlobalPlayerAggregate';
 import AlertFacilityControlAggregate from './alert/AlertFacilityControlAggregate';
 
 export default new ContainerModule((bind) => {
-    // Aggregate handlers
-  
+    // Aggregate handler
+
     // Death Event
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertFactionCombatAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(AlertPlayerAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalPlayerAggregate).inSingletonScope();
-  
+
     // FacilityControl Event
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(AlertFacilityControlAggregate).inSingletonScope();
 });
