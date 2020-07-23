@@ -1,5 +1,5 @@
 import {Document, Schema} from 'mongoose';
-import {World, worldArray} from '../../constants/world';
+import {World, worldArray} from '../../../constants/world';
 
 export interface WorldFacilityControlAggregateInterface extends Document {
     facility: number;

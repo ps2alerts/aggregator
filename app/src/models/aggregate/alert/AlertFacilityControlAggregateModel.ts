@@ -1,5 +1,5 @@
 import {Document, Schema} from 'mongoose';
-import {AlertSchemaInterface} from '../AlertModel';
+import {AlertSchemaInterface} from '../../AlertModel';
 
 export interface AlertFacilityControlAggregateInterface extends Document {
     alert: AlertSchemaInterface['alertId'];

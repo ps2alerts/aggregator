@@ -6,7 +6,7 @@ import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import _ from 'lodash';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import {AlertFacilityControlAggregateInterface} from '../../../models/aggregate/AlertFacilityControlAggregateModel';
+import {AlertFacilityControlAggregateInterface} from '../../../models/aggregate/alert/AlertFacilityControlAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()

@@ -4,7 +4,7 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalPlayerAggregateSchemaInterface} from '../../../models/aggregate/GlobalPlayerAggregateModel';
+import {GlobalPlayerAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalPlayerAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
 
 @injectable()

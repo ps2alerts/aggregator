@@ -5,7 +5,7 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import _ from 'lodash';
-import {WorldFacilityControlAggregateInterface} from '../../../models/aggregate/WorldFacilityControlAggregateModel';
+import {WorldFacilityControlAggregateInterface} from '../../../models/aggregate/world/WorldFacilityControlAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 

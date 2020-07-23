@@ -4,7 +4,7 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {AlertFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/AlertFactionCombatAggregateModel';
+import {AlertFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/alert/AlertFactionCombatAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import _ from 'lodash';
 import FactionUtils from '../../../utils/FactionUtils';

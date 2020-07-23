@@ -1,22 +1,23 @@
 import {Document, Schema} from 'mongoose';
-import {AlertSchemaInterface} from '../AlertModel';
+import {World, worldArray} from '../../../constants/world';
 
-export interface AlertWeaponAggregateSchemaInterface extends Document {
-    alert: AlertSchemaInterface['alertId'];
+export interface GlobalWeaponAggregateSchemaInterface extends Document {
     weapon: number;
+    world: World;
     kills: number;
     teamKills: number;
     suicides: number;
     headshots: number;
 }
 
-export const alertWeaponAggregateSchema: Schema = new Schema({
-    alert: {
-        type: String,
-        required: true,
-    },
+export const globalWeaponAggregateSchema: Schema = new Schema({
     weapon: {
         type: Number,
+        required: true,
+    },
+    world: {
+        type: Number,
+        enum: worldArray,
         required: true,
     },
     kills: {
@@ -35,4 +36,4 @@ export const alertWeaponAggregateSchema: Schema = new Schema({
         type: Number,
         required: true,
     },
-}).index({alert: 1, weapon: 1});
+}).index({weapon: 1, world: 1});

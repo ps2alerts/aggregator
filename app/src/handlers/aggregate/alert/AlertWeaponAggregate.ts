@@ -5,7 +5,7 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {AlertWeaponAggregateSchemaInterface} from '../../../models/aggregate/AlertWeaponAggregateModel';
+import {AlertWeaponAggregateSchemaInterface} from '../../../models/aggregate/alert/AlertWeaponAggregateModel';
 
 @injectable()
 export default class AlertWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {

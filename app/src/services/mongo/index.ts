@@ -14,15 +14,15 @@ import {AlertDeathSchemaInterface, alertDeathSchema} from '../../models/AlertDea
 import {activeAlertSchema, ActiveAlertSchemaInterface} from '../../models/ActiveAlertModel';
 // Alert Aggregate Models
 import {AlertFacilityControlInterface, alertFacilityControlSchema} from '../../models/AlertFacilityControlModel';
-import {alertFacilityControlAggregateSchema, AlertFacilityControlAggregateInterface} from '../../models/aggregate/AlertFacilityControlAggregateModel';
-import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/AlertFactionCombatAggregateModel';
-import {alertWeaponAggregateSchema, AlertWeaponAggregateSchemaInterface} from '../../models/aggregate/AlertWeaponAggregateModel';
+import {alertFacilityControlAggregateSchema, AlertFacilityControlAggregateInterface} from '../../models/aggregate/alert/AlertFacilityControlAggregateModel';
+import {alertFactionCombatAggregateSchema, AlertFactionCombatAggregateSchemaInterface} from '../../models/aggregate/alert/AlertFactionCombatAggregateModel';
+import {alertWeaponAggregateSchema, AlertWeaponAggregateSchemaInterface} from '../../models/aggregate/alert/AlertWeaponAggregateModel';
 // Global Aggregate Models
-import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from '../../models/aggregate/GlobalWeaponAggregateModel';
-import {alertPlayerAggregateSchema, AlertPlayerAggregateSchemaInterface} from '../../models/aggregate/AlertPlayerAggregateModel';
-import {globalPlayerAggregateSchema, GlobalPlayerAggregateSchemaInterface} from '../../models/aggregate/GlobalPlayerAggregateModel';
+import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from '../../models/aggregate/global/GlobalWeaponAggregateModel';
+import {alertPlayerAggregateSchema, AlertPlayerAggregateSchemaInterface} from '../../models/aggregate/alert/AlertPlayerAggregateModel';
+import {globalPlayerAggregateSchema, GlobalPlayerAggregateSchemaInterface} from '../../models/aggregate/global/GlobalPlayerAggregateModel';
 // World Aggregate Imports
-import {WorldFacilityControlAggregateInterface, worldFacilityControlAggregateSchema} from '../../models/aggregate/WorldFacilityControlAggregateModel';
+import {WorldFacilityControlAggregateInterface, worldFacilityControlAggregateSchema} from '../../models/aggregate/world/WorldFacilityControlAggregateModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);

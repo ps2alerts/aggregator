@@ -1,5 +1,5 @@
 import {Document, Schema} from 'mongoose';
-import {World, worldArray} from '../../constants/world';
+import {World, worldArray} from '../../../constants/world';
 
 export interface GlobalPlayerAggregateSchemaInterface extends Document {
     player: string; // Subject to change to a PlayerInterface
