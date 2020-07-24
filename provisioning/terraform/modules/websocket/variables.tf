@@ -10,6 +10,10 @@ variable "environment" {
   default = "dev"
 }
 
+variable "url" {
+  default = "ps2alerts.com"
+}
+
 variable "database_user" {
   default = "foo"
 }
