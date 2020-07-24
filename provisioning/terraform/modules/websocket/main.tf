@@ -30,7 +30,7 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
     }
   }
   spec {
-    replicas = 2
+    replicas = 1
     revision_history_limit = 1
     selector {
       match_labels = {
