@@ -3,7 +3,7 @@ module "websocket_staging" {
   namespace          = "ps2alerts"
   environment        = "staging"
   identifier         = "ps2alerts-websocket-staging"
-  url                = "wss.staging.ps2alerts.com"
+  url                = "staging.wss.ps2alerts.com"
   checksum_version   = var.checksum_version
   database_user      = var.db_user
   database_pass      = var.db_pass
