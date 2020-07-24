@@ -4,34 +4,34 @@ on:
   push:
     branches: [staging, features/staging-env]
 jobs:
-  build-docker-images:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-
-      - name: Build base image
-        uses: docker/build-push-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          path: provisioning/base
-          repository: maelstromeous/applications
-          tags: ps2alerts-websocket-base
-
-      - name: Build staging image
-        uses: docker/build-push-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: maelstromeous/applications
-          dockerfile: provisioning/staging/Dockerfile
-          always_pull: true
-          tags: ps2alerts-websocket-staging-${{ github.sha }}
+#  build-docker-images:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v1
+#
+#      - name: Build base image
+#        uses: docker/build-push-action@v1
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#          path: provisioning/base
+#          repository: maelstromeous/applications
+#          tags: ps2alerts-websocket-base
+#
+#      - name: Build staging image
+#        uses: docker/build-push-action@v1
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#          repository: maelstromeous/applications
+#          dockerfile: provisioning/staging/Dockerfile
+#          always_pull: true
+#          tags: ps2alerts-websocket-staging-${{ github.sha }}
 
   deploy-terraform:
-    needs:
-      - build-docker-images
+#    needs:
+#      - build-docker-images
     runs-on: ubuntu-latest
     defaults:
       run:
