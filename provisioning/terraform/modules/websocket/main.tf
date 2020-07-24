@@ -54,19 +54,19 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits {
-              cpu = "2000m"
-              memory = "256Mi"
+              cpu = var.cpu_limit
+              memory = var.mem_limit
             }
             requests {
-              cpu = "500m"
-              memory = "128Mi"
+              cpu = var.cpu_request
+              memory = var.mem_request
             }
           }
           port {
             container_port = 443
           }
           env {
-            name = "ENVIRONMENT"
+            name = "NODE_ENV"
             value = var.environment
           }
           env {
@@ -74,8 +74,36 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
             value = var.checksum_version
           }
           env {
-            name = "BASE_URL"
-            value = var.url
+            name = "DB_USER"
+            value = var.database_user
+          }
+          env {
+            name = "DB_PASS"
+            value = var.database_pass
+          }
+          env {
+            name = "DB_HOST"
+            value = var.database_host
+          }
+          env {
+            name = "DB_PORT"
+            value = var.database_port
+          }
+          env {
+            name = "DB_NAME"
+            value = var.database_name
+          }
+          env {
+            name = "DB_DEBUG"
+            value = var.database_debug
+          }
+          env {
+            name = "DB_POOL_SIZE"
+            value = var.database_pool_size
+          }
+          env {
+            name = "CENSUS_SERVICE_ID"
+            value = var.census_service_id
           }
         }
       }

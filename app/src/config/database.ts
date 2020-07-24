@@ -26,7 +26,7 @@ export default class Database {
             port: getInt('DB_PORT', 27017),
             user: get('DB_USER', 'root'),
             pass: get('DB_PASS', 'foobar'),
-            schema: get('DB_SCHEMA', 'ps2alerts'),
+            schema: get('DB_NAME', 'ps2alerts'),
             debug: getBool('DB_DEBUG', false),
         };
 

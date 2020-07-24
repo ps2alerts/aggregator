@@ -5,4 +5,17 @@ module "websocket_staging" {
   identifier       = "ps2alerts-websocket-staging"
   url              = "wss.staging.ps2alerts.com"
   checksum_version = var.checksum_version
+  database_user = var.db_user
+  database_pass = var.db_pass
+  database_host = "ps2alerts-db"
+  database_port = 27017
+  database_name = "ps2alerts-staging"
+  database_pool_size = 20
+  database_debug = false
+  redis_enabled = false
+  census_service_id = var.census_service_id
+  cpu_limit = "1000m"
+  mem_limit = "512Mi"
+  cpu_request = "250m"
+  mem_request = "256Mi"
 }
