@@ -63,11 +63,11 @@ jobs:
       # Generates an execution plan for Terraform, with the injected SHA
       - name: Terraform Plan
         run: >
-          terraform plan
-            -var='checksum_version=${{ github.sha }}'
-            -var='db_user={{ secrets.DB_USER }}'
-            -var='db_pass={{ secrets.DB_PASS }}'
-            -var='census_service_id={{ secrets.CENSUS_SERVICE_ID }}'
+          terraform plan \
+            -var='checksum_version=${{ github.sha }}' \
+            -var='db_user={{ secrets.DB_USER }}' \
+            -var='db_pass={{ secrets.DB_PASS }}' \
+            -var='census_service_id={{ secrets.CENSUS_SERVICE_ID }}' \
             -target=module.websocket_staging -out='.tfout'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
