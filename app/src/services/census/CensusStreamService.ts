@@ -15,11 +15,8 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly wsClient: Client;
 
-    private readonly config: Config;
-
-    constructor(wsClient: Client, config: Config) {
+    constructor(wsClient: Client) {
         this.wsClient = wsClient;
-        this.config = config;
         this.prepareClient();
     }
 
