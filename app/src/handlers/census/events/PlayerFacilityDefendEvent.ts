@@ -1,0 +1,63 @@
+/**
+ *  ### CENSUS RESPONSE ATTRIBUTES ####
+ "character_id":"",
+ "facility_id":"",
+ "outfit_id":"",
+ "timestamp":"",
+ "world_id":"",
+ "zone_id":""
+ * ### END ###
+ **/
+
+import {injectable} from 'inversify';
+import Parser from '../../../utils/parser';
+import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
+import ZoneUtils from '../../../utils/ZoneUtils';
+import {Zone} from '../../../constants/zone';
+import {PlayerFacilityDefend, PS2Event} from 'ps2census';
+
+@injectable()
+export default class PlayerFacilityDefendEvent {
+    public readonly worldId: number;
+    public readonly zone: Zone;
+    public readonly timestamp: number;
+    public readonly characterId: string;
+    public readonly facilityId: number;
+    public readonly outfitId: number;
+
+    constructor(
+        event: PS2Event,
+    ) {
+        if (!(event instanceof PlayerFacilityDefend)) {
+            throw new IllegalArgumentException('event', 'PlayerFacilityDefendEvent');
+        }
+
+        this.worldId = Parser.parseNumericalArgument(event.world_id);
+
+        if (isNaN(this.worldId)) {
+            throw new IllegalArgumentException('world_id', 'PlayerFacilityDefendEvent');
+        }
+
+        // No check needed, ZoneUtils will take care of this
+        this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
+        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
+
+        if (isNaN(this.timestamp)) {
+            throw new IllegalArgumentException('timestamp', 'PlayerFacilityDefendEvent');
+        }
+
+        this.characterId = event.character_id; // This is a string on purpose
+
+        this.facilityId = Parser.parseNumericalArgument(event.facility_id);
+
+        if (isNaN(this.facilityId)) {
+            throw new IllegalArgumentException('facility_id', 'PlayerFacilityDefendEvent');
+        }
+
+        this.outfitId = Parser.parseNumericalArgument(event.outfit_id);
+
+        if (isNaN(this.outfitId)) {
+            throw new IllegalArgumentException('outfit_id', 'PlayerFacilityDefendEvent');
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "*": [
+        "node_modules/*"
+      ]
+    },
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "target": "ES6"
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
