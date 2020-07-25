@@ -23,13 +23,13 @@ import ZoneUtils from '../../../utils/ZoneUtils';
 import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
 import {Death, PS2EventData} from 'ps2census';
-import ActiveAlertInterface from '../../../interfaces/ActiveAlertInterface';
+import ActiveInstanceInterface from '../../../interfaces/ActiveInstanceInterface';
 import {Faction} from '../../../constants/faction';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
 export default class DeathEvent {
-    public readonly alert: ActiveAlertInterface;
+    public readonly instance: ActiveInstanceInterface;
 
     public readonly world: World;
 
@@ -63,13 +63,13 @@ export default class DeathEvent {
 
     constructor(
         event: PS2EventData,
-        alert: ActiveAlertInterface,
+        instance: ActiveInstanceInterface,
     ) {
         if (!(event instanceof Death)) {
             throw new IllegalArgumentException('event', 'DeathEvent');
         }
 
-        this.alert = alert;
+        this.instance = instance;
 
         this.world = Parser.parseNumericalArgument(event.world_id);
 

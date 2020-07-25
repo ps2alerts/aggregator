@@ -16,10 +16,10 @@ import PlayerFacilityCaptureHandler from '../../handlers/census/PlayerFacilityCa
 import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDefendHandler';
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
-import ActiveAlertInterface from '../../interfaces/ActiveAlertInterface';
+import ActiveInstanceInterface from '../../interfaces/ActiveInstanceInterface';
 import {PS2ZoneEvents} from '../../types/PS2AlertsEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
-import ActiveAlertAuthority from '../../authorities/ActiveAlertAuthority';
+import ActiveInstanceAuthority from '../../authorities/ActiveInstanceAuthority';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
 
 @injectable()
@@ -28,7 +28,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
     private readonly wsClient: Client;
     private readonly worldCheck: WorldValidator;
-    private readonly activeAlerts: ActiveAlertAuthority;
+    private readonly activeInstanceAuthority: ActiveInstanceAuthority;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly playerLoginEventHandler: PlayerLoginEventHandler;
@@ -40,12 +40,12 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly battleRankUpHandler: BattleRankUpHandler;
     private readonly playerFacilityCapture: PlayerFacilityCaptureHandler;
     private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
-    private readonly coninentUnlockHandler: ContinentUnlockHandler;
+    private readonly continentUnlockHandler: ContinentUnlockHandler;
 
     constructor(
         wsClient: Client,
         worldCheck: WorldValidator,
-        activeAlertAuthority: ActiveAlertAuthority,
+        activeInstanceAuthority: ActiveInstanceAuthority,
         deathEventHandler: DeathEventHandler,
         metagameEventEventHandler: MetagameEventEventHandler,
         playerLoginEventHandler: PlayerLoginEventHandler,
@@ -72,8 +72,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.battleRankUpHandler = battleRankUpHandler;
         this.playerFacilityCapture = playerFacilityCapture;
         this.playerFacilityDefend = playerFacilityDefend;
-        this.coninentUnlockHandler = continentUnlockHandler;
-        this.activeAlerts = activeAlertAuthority;
+        this.continentUnlockHandler = continentUnlockHandler;
+        this.activeInstanceAuthority = activeInstanceAuthority;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -98,16 +98,16 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (this.checkAlert(event)) {
-                const deathEvent = new DeathEvent(event, this.getAlert(event));
+            if (this.checkInstance(event)) {
+                const deathEvent = new DeathEvent(event, this.getInstance(event));
                 void this.deathEventHandler.handle(deathEvent);
             }
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            if (this.checkAlert(event)) {
+            if (this.checkInstance(event)) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
-                const facilityControl = new FacilityControlEvent(event, this.getAlert(event));
+                const facilityControl = new FacilityControlEvent(event, this.getInstance(event));
                 void this.facilityControlEventHandler.handle(facilityControl);
             }
         });
@@ -119,16 +119,16 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
     }
 
-    private checkAlert(event: PS2ZoneEvents): boolean {
-        return this.activeAlerts.alertExists(
+    private checkInstance(event: PS2ZoneEvents): boolean {
+        return this.activeInstanceAuthority.instanceExists(
             parseInt(event.world_id, 10),
             parseInt(event.zone_id, 10),
         );
     }
 
-    // Checks for compatible event types to see if alert is running on that World + Zone combo
-    private getAlert(event: PS2ZoneEvents): ActiveAlertInterface {
-        return this.activeAlerts.getAlert(
+    // Checks for compatible event types to see if instance is running on that World + Zone combo
+    private getInstance(event: PS2ZoneEvents): ActiveInstanceInterface {
+        return this.activeInstanceAuthority.getInstance(
             parseInt(event.world_id, 10),
             parseInt(event.zone_id, 10),
         );

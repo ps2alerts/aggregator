@@ -41,7 +41,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface<A
 
     private async handleAchievementEarned(achievementEarnedEvent: AchievementEarnedEvent): Promise<boolean> {
         // Update last seen
-        await this.playerHandler.updateLastSeen(achievementEarnedEvent.worldId, achievementEarnedEvent.characterId);
+        await this.playerHandler.updateLastSeen(achievementEarnedEvent.world, achievementEarnedEvent.characterId);
         await this.storeEvent(achievementEarnedEvent);
         return true;
     }

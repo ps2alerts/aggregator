@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types */
 function replacer(name: any, value: any): any {
     if (name === 'client') {
         return undefined;
