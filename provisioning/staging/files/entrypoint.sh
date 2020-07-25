@@ -1,4 +1,4 @@
 #!/bin/sh
 
 echo "=============== STARTING WEBSOCKET (STAGING) ==================="
-cd /app && npm run start
+pwd && cd app && npm run start
