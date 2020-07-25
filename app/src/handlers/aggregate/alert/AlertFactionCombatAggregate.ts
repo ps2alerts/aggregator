@@ -78,7 +78,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         documents.forEach((doc) => {
             void this.factory.model.updateOne(
-                {alertId: event.alert.alertId},
+                {alert: event.alert.alertId},
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
