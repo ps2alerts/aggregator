@@ -7,7 +7,6 @@ import {Client, MetagameEvent, PS2Event, Events} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
 import {MetagameEventIds} from '../../constants/metagameEventIds';
-import {Config} from '../../config';
 import Census from '../../config/census';
 
 @injectable()
