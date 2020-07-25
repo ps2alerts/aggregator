@@ -90,6 +90,8 @@ export default class Kernel implements KernelInterface {
                     break;
 
                 default: {
+                    Kernel.logger.error(`====== UNKNOWN EXCEPTION HAS OCCURED! "${name}" STACK AS FOLLOWS:`);
+                    Kernel.logger.error(`${e.trace ? e.trace ?? e.toString()}`)
                     this.terminate(1);
                 }
             }
