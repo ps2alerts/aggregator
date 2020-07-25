@@ -8,4 +8,4 @@ USER node
 
 COPY --chown=node:node ./app /app
 
-RUN cd /app && npm install
+RUN cd /app && npm install && npm run build

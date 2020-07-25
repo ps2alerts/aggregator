@@ -10,6 +10,7 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "dist",
+    "rootDir": "src",
     "paths": {
       "*": [
         "node_modules/*"
