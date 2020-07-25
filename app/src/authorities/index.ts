@@ -1,8 +1,8 @@
 import {ContainerModule} from 'inversify';
-import ActiveAlertAuthority from './ActiveAlertAuthority';
+import ActiveInstanceAuthority from './ActiveInstanceAuthority';
 
 export default new ContainerModule((bind) => {
-    bind(ActiveAlertAuthority)
+    bind(ActiveInstanceAuthority)
         .toSelf()
         .inSingletonScope();
 });

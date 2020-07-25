@@ -7,7 +7,7 @@ import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {AlertDeathSchemaInterface} from '../../models/AlertDeathModel';
+import {InstanceDeathSchemaInterface} from '../../models/InstanceDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 
 @injectable()
@@ -16,19 +16,19 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     private readonly playerHandler: PlayerHandlerInterface;
 
-    private readonly factory: MongooseModelFactory<AlertDeathSchemaInterface>;
+    private readonly factory: MongooseModelFactory<InstanceDeathSchemaInterface>;
 
     private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>;
 
     /* eslint-disable */
     constructor(
         @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
-        @inject(TYPES.alertDeathModelFactory) alertDeathModelFactory: MongooseModelFactory<AlertDeathSchemaInterface>,
+        @inject(TYPES.instanceDeathModelFactory) instanceDeathModelFactory: MongooseModelFactory<InstanceDeathSchemaInterface>,
         @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[]
     ) {
         /* eslint-enable */
         this.playerHandler = playerHandler;
-        this.factory = alertDeathModelFactory;
+        this.factory = instanceDeathModelFactory;
         this.aggregateHandlers = aggregateHandlers;
     }
 
@@ -70,7 +70,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
         try {
             await this.factory.saveDocument({
-                alert: deathEvent.alert.alertId,
+                instance: deathEvent.instance.instanceId,
                 attacker: deathEvent.attackerCharacterId,
                 player: deathEvent.characterId,
                 timestamp: deathEvent.timestamp,
@@ -88,7 +88,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert alert into DB! ${err}`);
+            throw new ApplicationException(`Unable to insert Instance into DB! ${err}`);
         }
     }
 }
