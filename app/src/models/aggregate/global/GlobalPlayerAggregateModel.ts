@@ -15,7 +15,6 @@ export const globalPlayerAggregateSchema: Schema = new Schema({
     player: {
         type: String,
         required: true,
-        unique: true,
     },
     world: {
         type: Number,
@@ -47,4 +46,7 @@ export const globalPlayerAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
-}).index({player: 1, world: 1});
+}).index(
+    {player: 1, world: 1},
+    {unique: true},
+);

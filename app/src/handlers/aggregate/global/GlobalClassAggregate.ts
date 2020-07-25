@@ -26,7 +26,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         for (const id of checks) {
             // Create initial record if doesn't exist
             if (!await this.factory.model.exists({
-                class: event.characterLoadoutId,
+                class: id,
                 world: event.alert.world,
             })) {
                 await this.insertInitial(event, id);
@@ -60,7 +60,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         attackerDocs.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
-                    class: event.characterLoadoutId,
+                    class: event.attackerLoadoutId,
                     world: event.alert.world,
                 },
                 doc,
@@ -87,7 +87,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
     }
 
     private async insertInitial(event: DeathEvent, loadoutId: number): Promise<boolean> {
-        GlobalClassAggregate.logger.debug(`Adding Initial GlobalClassAggregate Record for World: ${event.alert.world} | Loadout: ${loadoutId}`);
+        GlobalClassAggregate.logger.debug(`Adding Initial GlobalClassAggregate Record for Loadout: ${loadoutId} | World: ${event.alert.world}`);
 
         const document = {
             class: loadoutId,
@@ -101,11 +101,11 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
 
         try {
             const row = await this.factory.saveDocument(document);
-            GlobalClassAggregate.logger.debug(`Inserted initial GlobalClassAggregate record for World: ${row.world} | Loadout: ${row.class}`);
+            GlobalClassAggregate.logger.info(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial AlertPlayerAggregate record into DB! ${err}`, 'AlertPlayerAggregate');
+            throw new ApplicationException(`Unable to insert initial GlobalClassAggregate record into DB! ${err}`, 'GlobalClassAggregate');
         }
     }
 }

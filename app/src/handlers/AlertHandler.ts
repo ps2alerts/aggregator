@@ -33,7 +33,7 @@ export default class AlertHandler implements AlertHandlerInterface {
             if (!this.activeAlerts.alertExists(mge.world, mge.zone)) {
                 return await this.startAlert(mge);
             } else {
-                AlertHandler.logger.error(`Alert already found: ${jsonLogOutput(mge)}`);
+                AlertHandler.logger.error(`Alert already exists: ${jsonLogOutput(mge)}`);
                 return false;
             }
         }
@@ -51,7 +51,7 @@ export default class AlertHandler implements AlertHandlerInterface {
     }
 
     private async startAlert(mge: MetagameEventEvent): Promise<boolean> {
-        AlertHandler.logger.debug('================== STARTING ALERT! ==================');
+        AlertHandler.logger.info('================== STARTING ALERT! ==================');
 
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -71,7 +71,7 @@ export default class AlertHandler implements AlertHandlerInterface {
     }
 
     private async endAlert(mge: MetagameEventEvent): Promise<boolean> {
-        AlertHandler.logger.debug(`================== ENDING ALERT ${alertId(mge)} ==================`);
+        AlertHandler.logger.info(`================== ENDING ALERT ${alertId(mge)} ==================`);
 
         // Find alert and update
         try {

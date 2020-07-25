@@ -101,7 +101,7 @@ export default class AlertClassAggregate implements AggregateHandlerInterface<De
 
         try {
             const row = await this.factory.saveDocument(document);
-            AlertClassAggregate.logger.debug(`Inserted initial AlertClassAggregate record for Alert: ${row.alert} | Loadout: ${row.class}`);
+            AlertClassAggregate.logger.info(`Inserted initial AlertClassAggregate record for Alert: ${row.alert} | Loadout: ${row.class}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

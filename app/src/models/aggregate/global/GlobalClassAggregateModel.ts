@@ -48,4 +48,7 @@ export const globalClassAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
-}).index({class: 1, world: 1});
+}).index(
+    {class: 1, world: 1},
+    {unique: true},
+);
