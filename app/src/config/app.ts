@@ -2,7 +2,7 @@ import {ContainerModule} from 'inversify';
 import {get} from '../utils/env';
 
 export default class App {
-    public readonly environment: string = get('ENVIRONMENT');
+    public readonly environment: string = get('NODE_ENV');
 
     public readonly version: string = get('VERSION');
 
