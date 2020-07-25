@@ -1,6 +1,6 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -10,6 +10,8 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 @injectable()
 export default class InstancePlayerAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstancePlayerAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.instance.player;
 
     private readonly factory: MongooseModelFactory<InstancePlayerAggregateSchemaInterface>;
 
@@ -87,7 +89,9 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
     }
 
     private async insertInitial(event: DeathEvent, characterId: string): Promise<boolean> {
-        InstancePlayerAggregate.logger.debug(`Adding Initial InstancePlayerAggregate Record for Instance: ${event.instance.instanceId} | Player: ${characterId}`);
+        if (InstancePlayerAggregate.LOGSENABLED) {
+            InstancePlayerAggregate.logger.info(`Adding initial InstancePlayerAggregate record for Instance: ${event.instance.instanceId} | Player: ${characterId}`);
+        }
 
         const player = {
             instance: event.instance.instanceId,
@@ -101,7 +105,11 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
 
         try {
             const row = await this.factory.saveDocument(player);
-            InstancePlayerAggregate.logger.debug(`Inserted initial InstancePlayerAggregate record for Instance: ${row.instance} | Player: ${row.player}`);
+
+            if (InstancePlayerAggregate.LOGSENABLED) {
+                InstancePlayerAggregate.logger.info(`Inserted initial InstancePlayerAggregate record for Instance: ${row.instance} | Player: ${row.player}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {getLogger} from '../../logger';
-import config from '../../config';
+import {getLogger, getLogsEnabled} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import MetagameEventEvent from './events/MetagameEventEvent';
 import {TYPES} from '../../constants/types';
@@ -20,7 +19,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
     public async handle(event: MetagameEventEvent): Promise<boolean> {
         MetagameEventEventHandler.logger.info('Parsing MetagameEventEvent message...');
 
-        if (config.features.logging.censusEventContent.metagame) {
+        if (getLogsEnabled().censusEventContent.metagameEvent) {
             MetagameEventEventHandler.logger.info(jsonLogOutput(event), {message: 'eventData'});
         }
 

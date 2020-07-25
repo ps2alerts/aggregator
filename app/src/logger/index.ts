@@ -26,4 +26,8 @@ export function getLogger(label: string): Logger {
     return defaultLogger.child({label});
 }
 
+export function getLogsEnabled() {
+    return config.logger.logsEnabled;
+}
+
 export default defaultLogger;

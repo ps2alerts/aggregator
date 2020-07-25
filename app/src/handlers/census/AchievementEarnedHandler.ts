@@ -1,9 +1,8 @@
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {getLogger} from '../../logger';
+import {getLogger, getLogsEnabled} from '../../logger';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
-import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import AchievementEarnedEvent from './events/AchievementEarnedEvent';
 
@@ -20,7 +19,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface<A
     public async handle(event: AchievementEarnedEvent): Promise<boolean>{
         AchievementEarnedHandler.logger.debug('Parsing message...');
 
-        if (config.features.logging.censusEventContent) {
+        if (getLogsEnabled().censusEventContent.achievementEarned) {
             AchievementEarnedHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

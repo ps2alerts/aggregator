@@ -1,7 +1,6 @@
 import {injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {getLogger} from '../../logger';
-import config from '../../config';
+import {getLogger, getLogsEnabled} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import ContinentLockEvent from './events/ContinentLockEvent';
 
@@ -12,7 +11,7 @@ export default class ContinentLockEventHandler implements EventHandlerInterface<
     public async handle(event: ContinentLockEvent): Promise<boolean> {
         ContinentLockEventHandler.logger.debug('Parsing message...');
 
-        if (config.features.logging.censusEventContent) {
+        if (getLogsEnabled().censusEventContent.continentLock) {
             ContinentLockEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

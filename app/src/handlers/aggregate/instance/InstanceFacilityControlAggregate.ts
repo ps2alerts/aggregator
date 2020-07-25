@@ -1,5 +1,5 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -12,6 +12,8 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class InstanceFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('InstanceFacilityControlAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.instance.facilityControl;
 
     private readonly factory: MongooseModelFactory<InstanceFacilityControlAggregateInterface>;
 
@@ -66,7 +68,10 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
     }
 
     public async insertInitial(event: FacilityControlEvent): Promise<boolean> {
-        InstanceFacilityControlAggregate.logger.debug('Adding Initial InstanceFacilityControlAggregate Record');
+        if (InstanceFacilityControlAggregate.LOGSENABLED) {
+            InstanceFacilityControlAggregate.logger.info(`Adding initial InstanceFacilityControlAggregate record for Instance ${event.instance.instanceId}`);
+        }
+
         const factionKeys = ['vs', 'nc', 'tr', 'totals'];
         const data = {
             instance: event.instance.instanceId,
@@ -87,7 +92,11 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
 
         try {
             const row = await this.factory.saveDocument(data);
-            InstanceFacilityControlAggregate.logger.info(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
+
+            if (InstanceFacilityControlAggregate.LOGSENABLED) {
+                InstanceFacilityControlAggregate.logger.info(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

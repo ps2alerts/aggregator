@@ -1,5 +1,5 @@
 import DeathEvent from '../../census/events/DeathEvent';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -10,6 +10,8 @@ import {InstanceClassAggregateSchemaInterface} from '../../../models/aggregate/i
 @injectable()
 export default class InstanceClassAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceClassAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.instance.class;
 
     private readonly factory: MongooseModelFactory<InstanceClassAggregateSchemaInterface>;
 
@@ -87,7 +89,9 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
     }
 
     private async insertInitial(event: DeathEvent, loadoutId: number): Promise<boolean> {
-        InstanceClassAggregate.logger.debug(`Adding Initial InstanceClassAggregate Record for Instance: ${event.instance.instanceId} | Loadout: ${loadoutId}`);
+        if (InstanceClassAggregate.LOGSENABLED) {
+            InstanceClassAggregate.logger.info(`Adding initial InstanceClassAggregate record for Instance: ${event.instance.instanceId} | Class: ${loadoutId}`);
+        }
 
         const document = {
             instance: event.instance.instanceId,
@@ -101,7 +105,11 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
 
         try {
             const row = await this.factory.saveDocument(document);
-            InstanceClassAggregate.logger.info(`Inserted initial InstanceClassAggregate record for Instance: ${row.instance} | Loadout: ${row.class}`);
+
+            if (InstanceClassAggregate.LOGSENABLED) {
+                InstanceClassAggregate.logger.info(`Inserted initial InstanceClassAggregate record for Instance: ${row.instance} | Class: ${row.class}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

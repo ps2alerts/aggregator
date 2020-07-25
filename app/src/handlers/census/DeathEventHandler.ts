@@ -1,7 +1,6 @@
 import {inject, injectable, multiInject} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {getLogger} from '../../logger';
-import config from '../../config';
+import {getLogger, getLogsEnabled} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
@@ -33,7 +32,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        if (config.features.logging.censusEventContent.deaths) {
+        if (getLogsEnabled().censusEventContent.death) {
             DeathEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

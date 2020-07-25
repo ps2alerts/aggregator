@@ -1,6 +1,6 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -12,6 +12,8 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class InstanceFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceFactionCombatAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.instance.factionCombat;
 
     private readonly factory: MongooseModelFactory<InstanceFactionCombatAggregateSchemaInterface>;
 
@@ -90,7 +92,10 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
     }
 
     public async insertInitial(event: DeathEvent): Promise<boolean> {
-        InstanceFactionCombatAggregate.logger.debug('Adding Initial InstanceFactionCombatAggregate Record');
+        if (InstanceFactionCombatAggregate.LOGSENABLED) {
+            InstanceFactionCombatAggregate.logger.info(`Adding initial InstanceFactionCombatAggregate record for instance ${event.instance.instanceId}`);
+        }
+
         const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
         const data = {
             instance: event.instance.instanceId,
@@ -113,7 +118,11 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
 
         try {
             const row = await this.factory.saveDocument(data);
-            InstanceFactionCombatAggregate.logger.info(`Inserted initial InstanceFactionCombatAggregate record for Instance: ${row.instance}`);
+
+            if (InstanceFactionCombatAggregate.LOGSENABLED) {
+                InstanceFactionCombatAggregate.logger.info(`Inserted initial InstanceFactionCombatAggregate record for Instance: ${row.instance}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

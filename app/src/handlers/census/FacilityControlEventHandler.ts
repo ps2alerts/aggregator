@@ -1,7 +1,6 @@
 import {inject, injectable, multiInject} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {getLogger} from '../../logger';
-import config from '../../config';
+import {getLogger, getLogsEnabled} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
 import ApplicationException from '../../exceptions/ApplicationException';
@@ -35,7 +34,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     public async handle(event: FacilityControlEvent): Promise<boolean>{
         FacilityControlEventHandler.logger.debug('Parsing message...');
 
-        if (config.features.logging.censusEventContent.facilityControl) {
+        if (getLogsEnabled().censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

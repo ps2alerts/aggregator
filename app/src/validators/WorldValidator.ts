@@ -1,6 +1,6 @@
 import config from '../config';
 import {injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {getLogger, getLogsEnabled} from '../logger';
 
 @injectable()
 export default class WorldValidator {
@@ -8,7 +8,7 @@ export default class WorldValidator {
 
     public validate(world: number): boolean {
         if (!config.features.monitoredServers.has(world)) {
-            if (config.features.logging.validationRejects) {
+            if (getLogsEnabled().validationRejects) {
                 WorldValidator.logger.warn(`Got event from world ${world}, which we don't monitor!`);
             }
 

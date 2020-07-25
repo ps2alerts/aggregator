@@ -1,9 +1,8 @@
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {getLogger} from '../../logger';
+import {getLogger, getLogsEnabled} from '../../logger';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
-import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import BattleRankUpEvent from './events/BattleRankUpEvent';
 
@@ -20,7 +19,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface<Battle
     public async handle(event: BattleRankUpEvent): Promise<boolean>{
         BattleRankUpHandler.logger.debug('Parsing message...');
 
-        if (config.features.logging.censusEventContent) {
+        if (getLogsEnabled().censusEventContent.battleRankUp) {
             BattleRankUpHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

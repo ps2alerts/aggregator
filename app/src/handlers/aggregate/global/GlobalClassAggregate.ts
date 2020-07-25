@@ -1,5 +1,5 @@
 import DeathEvent from '../../census/events/DeathEvent';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -10,6 +10,8 @@ import {GlobalClassAggregateSchemaInterface} from '../../../models/aggregate/glo
 @injectable()
 export default class GlobalClassAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalClassAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.global.class;
 
     private readonly factory: MongooseModelFactory<GlobalClassAggregateSchemaInterface>;
 
@@ -87,7 +89,9 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
     }
 
     private async insertInitial(event: DeathEvent, loadoutId: number): Promise<boolean> {
-        GlobalClassAggregate.logger.debug(`Adding Initial GlobalClassAggregate Record for Loadout: ${loadoutId} | World: ${event.instance.world}`);
+        if (GlobalClassAggregate.LOGSENABLED) {
+            GlobalClassAggregate.logger.info(`Adding initial GlobalClassAggregate record for Class: ${loadoutId} | World: ${event.instance.world}`);
+        }
 
         const document = {
             class: loadoutId,
@@ -101,7 +105,11 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
 
         try {
             const row = await this.factory.saveDocument(document);
-            GlobalClassAggregate.logger.info(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
+
+            if (GlobalClassAggregate.LOGSENABLED) {
+                GlobalClassAggregate.logger.info(`Inserted initial GlobalClassAggregate record for Class: ${row.class} | World: ${row.world}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

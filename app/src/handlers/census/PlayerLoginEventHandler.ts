@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
-import {getLogger} from '../../logger';
-import config from '../../config';
+import {getLogger, getLogsEnabled} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import PlayerLoginEvent from './events/PlayerLoginEvent';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
@@ -20,7 +19,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface<Pl
     public async handle(event: PlayerLoginEvent): Promise<boolean> {
         PlayerLoginEventHandler.logger.debug('Parsing message...');
 
-        if (config.features.logging.censusEventContent) {
+        if (getLogsEnabled().censusEventContent.playerPresence) {
             PlayerLoginEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

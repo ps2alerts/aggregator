@@ -1,6 +1,6 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -10,6 +10,8 @@ import {InstanceWeaponAggregateSchemaInterface} from '../../../models/aggregate/
 @injectable()
 export default class InstanceWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceWeaponAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.instance.weapon;
 
     private readonly factory: MongooseModelFactory<InstanceWeaponAggregateSchemaInterface>;
 
@@ -64,7 +66,10 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
     }
 
     public async insertInitial(event: DeathEvent): Promise<boolean> {
-        InstanceWeaponAggregate.logger.debug('Adding Initial InstanceWeaponAggregate Record');
+        if (InstanceWeaponAggregate.LOGSENABLED) {
+            InstanceWeaponAggregate.logger.info(`Adding initial InstanceWeaponAggregate record for Instance: ${event.instance.instanceId} | Weapon: ${event.attackerWeaponId}`);
+        }
+
         const data = {
             instance: event.instance.instanceId,
             weapon: event.attackerWeaponId,
@@ -76,7 +81,11 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         try {
             const row = await this.factory.saveDocument(data);
-            InstanceWeaponAggregate.logger.debug(`Inserted initial InstanceWeaponAggregate record for Instance: ${row.instance} | Weapon: ${row.weapon}`);
+
+            if (InstanceWeaponAggregate.LOGSENABLED) {
+                InstanceWeaponAggregate.logger.info(`Inserted initial InstanceWeaponAggregate record for Instance: ${row.instance} | Weapon: ${row.weapon}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

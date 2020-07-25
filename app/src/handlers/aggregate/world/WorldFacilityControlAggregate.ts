@@ -1,5 +1,5 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -12,6 +12,8 @@ import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 @injectable()
 export default class WorldFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('WorldFacilityControlAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.world.facilityControl;
 
     private readonly factory: MongooseModelFactory<WorldFacilityControlAggregateInterface>;
 
@@ -66,7 +68,10 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
     }
 
     public async insertInitial(event: FacilityControlEvent): Promise<boolean> {
-        WorldFacilityControlAggregate.logger.debug('Adding Initial WorldFacilityControlAggregate Record');
+        if (WorldFacilityControlAggregate.LOGSENABLED) {
+            WorldFacilityControlAggregate.logger.info(`Adding initial WorldFacilityControlAggregate record for World ${event.instance.world} | Facility: ${event.facility}`);
+        }
+
         const factionKeys = ['vs', 'nc', 'tr', 'totals'];
         const data = {
             facility: event.facility,
@@ -87,7 +92,11 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
 
         try {
             const row = await this.factory.saveDocument(data);
-            WorldFacilityControlAggregate.logger.info(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
+
+            if (WorldFacilityControlAggregate.LOGSENABLED) {
+                WorldFacilityControlAggregate.logger.info(`Inserted initial WorldFacilityControlAggregate record for World: ${row.world} | Facility: ${row.facility}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

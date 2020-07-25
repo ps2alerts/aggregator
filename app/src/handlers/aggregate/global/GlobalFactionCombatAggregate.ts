@@ -1,6 +1,6 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
-import {getLogger} from '../../../logger';
+import {getLogger, getLogsEnabled} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
@@ -12,6 +12,8 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalFactionCombatAggregate');
+
+    private static readonly LOGSENABLED = getLogsEnabled().aggregates.global.factionCombat;
 
     private readonly factory: MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>;
 
@@ -90,7 +92,10 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
     }
 
     public async insertInitial(event: DeathEvent): Promise<boolean> {
-        GlobalFactionCombatAggregate.logger.debug('Adding Initial GlobalFactionCombatAggregate Record');
+        if (GlobalFactionCombatAggregate.LOGSENABLED) {
+            GlobalFactionCombatAggregate.logger.info(`Adding initial GlobalFactionCombatAggregate record for World: ${event.instance.world}'`);
+        }
+
         const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
         const data = {
             world: event.instance.world,
@@ -113,7 +118,11 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
 
         try {
             const row = await this.factory.saveDocument(data);
-            GlobalFactionCombatAggregate.logger.info(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
+
+            if (GlobalFactionCombatAggregate.LOGSENABLED) {
+                GlobalFactionCombatAggregate.logger.info(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
+            }
+
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

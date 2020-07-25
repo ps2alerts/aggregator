@@ -1,6 +1,6 @@
 import config from '../config';
 import {injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {getLogger, getLogsEnabled} from '../logger';
 
 @injectable()
 export default class ZoneValidator {
@@ -8,7 +8,7 @@ export default class ZoneValidator {
 
     public validate(zone: number): boolean {
         if (!config.features.monitoredZones.has(zone)) {
-            if (config.features.logging.validationRejects) {
+            if (getLogsEnabled().validationRejects) {
                 ZoneValidator.logger.warn(`Got event from zone ${zone}, which we don't monitor!`);
             }
 
