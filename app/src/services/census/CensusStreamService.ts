@@ -76,7 +76,7 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.info('Census stream subscribed!');
 
             // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
-            // REVERT THIS FROM VERSION CONTROL ONE YOU'RE DONE
+            // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
             if (this.config.app.environment === 'development') {
                 /* eslint-disable */
                 const event = new MetagameEvent(this.wsClient, {
