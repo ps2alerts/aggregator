@@ -26,7 +26,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         for (const id of checks) {
             // Create initial record if doesn't exist
             if (!await this.factory.model.exists({
-                class: event.characterLoadoutId,
+                class: id,
                 world: event.alert.world,
             })) {
                 await this.insertInitial(event, id);
