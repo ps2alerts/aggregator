@@ -16,6 +16,6 @@ module "websocket_staging" {
   census_service_id  = var.census_service_id
   cpu_limit          = "1000m"
   mem_limit          = "512Mi"
-  cpu_request        = "250m"
+  cpu_request        = "500m"
   mem_request        = "256Mi"
 }
