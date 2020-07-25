@@ -8,4 +8,4 @@ USER node
 
 COPY --chown=node:node ./app /app
 
-RUN cd /app && npm install && npm run build
+RUN cd /app && npm ci && npm run build && npm prune --production
