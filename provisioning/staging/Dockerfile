@@ -1,11 +1,10 @@
 FROM maelstromeous/applications:ps2alerts-websocket-base
 
-USER node
+USER root
 
 COPY provisioning/staging/files/entrypoint.sh /etc/service/entrypoint.sh
 
-# Fix for layer not exists error with docker github actions https://github.community/t/attempting-to-build-docker-image-with-copy-from-on-actions/16715
-RUN true
+USER node
 
 COPY --chown=node:node ./app /app
 

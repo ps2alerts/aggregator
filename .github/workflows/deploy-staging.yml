@@ -1,5 +1,5 @@
 ---
-name: Build & Deploy Revive
+name: Build & Deploy Staging
 on:
   push:
     branches: [staging, features/staging-env]
