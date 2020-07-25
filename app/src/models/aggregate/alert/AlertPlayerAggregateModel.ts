@@ -45,4 +45,7 @@ export const alertPlayerAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
-}).index({alert: 1, player: 1});
+}).index(
+    {alert: 1, player: 1},
+    {unique: true},
+);

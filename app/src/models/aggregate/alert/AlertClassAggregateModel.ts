@@ -47,4 +47,7 @@ export const alertClassAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
-}).index({class: 1, alert: 1});
+}).index(
+    {class: 1, alert: 1},
+    {unique: true},
+);

@@ -35,4 +35,7 @@ export const alertWeaponAggregateSchema: Schema = new Schema({
         type: Number,
         required: true,
     },
-}).index({alert: 1, weapon: 1});
+}).index(
+    {alert: 1, weapon: 1},
+    {unique: true},
+);

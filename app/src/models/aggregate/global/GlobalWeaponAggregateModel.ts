@@ -40,4 +40,7 @@ export const globalWeaponAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
-}).index({weapon: 1, world: 1});
+}).index(
+    {weapon: 1, world: 1},
+    {unique: true},
+);
