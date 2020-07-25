@@ -1,6 +1,6 @@
 {
   "name": "ps2alerts-websocket",
-  "version": "0.0.1",
+  "version": "revive",
   "description": "The websocket collection script that powers PS2Alerts.com.",
   "main": "./dist",
   "scripts": {
