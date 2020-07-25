@@ -2,12 +2,13 @@
 
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {Client, MetagameEvent, PS2Event, Events} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
 import {MetagameEventIds} from '../../constants/metagameEventIds';
 import {Config} from '../../config';
+import Census from '../../config/census';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -15,8 +16,14 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly wsClient: Client;
 
-    constructor(wsClient: Client) {
+    private readonly config: Census;
+
+    constructor(
+        wsClient: Client,
+        @inject('censusConfig') censusConfig: Census,
+    ) {
         this.wsClient = wsClient;
+        this.config = censusConfig;
         this.prepareClient();
     }
 
@@ -74,7 +81,7 @@ export default class CensusStreamService implements ServiceInterface {
 
             // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
             // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
-            if (this.config.app.environment === 'development') {
+            if (this.config.enableInjections) {
                 /* eslint-disable */
                 const event = new MetagameEvent(this.wsClient, {
                     event_name: 'MetagameEvent',

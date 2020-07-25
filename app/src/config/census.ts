@@ -19,6 +19,8 @@ export default class Census {
      */
     public readonly streamManagerConfig: EventStreamManagerConfig;
 
+    public readonly enableInjections: boolean;
+
     constructor() {
         this.subscriptions = [{
             eventNames: ['MetagameEvent', 'Death', 'FacilityControl'],
@@ -34,5 +36,6 @@ export default class Census {
         this.streamManagerConfig = {
             subscriptions: this.subscriptions,
         };
+        this.enableInjections = get('NODE_ENV', 'development') === 'development';
     }
 }
