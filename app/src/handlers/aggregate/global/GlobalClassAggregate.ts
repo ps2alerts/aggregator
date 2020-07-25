@@ -60,7 +60,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         attackerDocs.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
-                    class: event.characterLoadoutId,
+                    class: event.attackerLoadoutId,
                     world: event.alert.world,
                 },
                 doc,
