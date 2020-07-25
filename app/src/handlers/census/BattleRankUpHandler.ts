@@ -42,7 +42,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface<Battle
     private async handleBattleRankUp(battleRankUpEvent: BattleRankUpEvent): Promise<boolean> {
         // Update last seen
         await Promise.all([
-            this.playerHandler.updateLastSeen(battleRankUpEvent.worldId, battleRankUpEvent.characterId),
+            this.playerHandler.updateLastSeen(battleRankUpEvent.world, battleRankUpEvent.characterId),
             this.storeEvent(battleRankUpEvent),
         ]);
 

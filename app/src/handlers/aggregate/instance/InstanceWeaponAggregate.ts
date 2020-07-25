@@ -5,25 +5,25 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {GlobalWeaponAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalWeaponAggregateModel';
+import {InstanceWeaponAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceWeaponAggregateModel';
 
 @injectable()
-export default class GlobalWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalWeaponAggregate');
+export default class InstanceWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('InstanceWeaponAggregate');
 
-    private readonly factory: MongooseModelFactory<GlobalWeaponAggregateSchemaInterface>;
+    private readonly factory: MongooseModelFactory<InstanceWeaponAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.globalWeaponAggregateFactory) factory: MongooseModelFactory<GlobalWeaponAggregateSchemaInterface>) {
+    constructor(@inject(TYPES.instanceWeaponAggregateFactory) factory: MongooseModelFactory<InstanceWeaponAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalWeaponAggregate.logger.debug('GlobalWeaponAggregate.handle');
+        InstanceWeaponAggregate.logger.debug('InstanceWeaponAggregate.handle');
 
         // Create initial record if doesn't exist
         if (!await this.factory.model.exists({
+            instance: event.instance.instanceId,
             weapon: event.attackerWeaponId,
-            world: event.instance.world,
         })) {
             await this.insertInitial(event);
         }
@@ -50,13 +50,13 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
         documents.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
+                    instance: event.instance.instanceId,
                     weapon: event.attackerWeaponId,
-                    world: event.instance.world,
                 },
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalWeaponAggregate.logger.error(`Updating Aggregate Error! ${err}`);
+                InstanceWeaponAggregate.logger.error(`Updating InstanceWeaponAggregate Error! ${err}`);
             });
         });
 
@@ -64,10 +64,10 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
     }
 
     public async insertInitial(event: DeathEvent): Promise<boolean> {
-        GlobalWeaponAggregate.logger.debug('Adding Initial GlobalWeaponAggregate Record');
+        InstanceWeaponAggregate.logger.debug('Adding Initial InstanceWeaponAggregate Record');
         const data = {
+            instance: event.instance.instanceId,
             weapon: event.attackerWeaponId,
-            world: event.instance.world,
             kills: 0,
             teamKills: 0,
             suicides: 0,
@@ -76,11 +76,11 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
 
         try {
             const row = await this.factory.saveDocument(data);
-            GlobalWeaponAggregate.logger.info(`Inserted initial GlobalWeaponAggregate record for Weapon: ${row.weapon} | World: ${row.world}`);
+            InstanceWeaponAggregate.logger.debug(`Inserted initial InstanceWeaponAggregate record for Instance: ${row.instance} | Weapon: ${row.weapon}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial GlobalWeaponAggregate record into DB! ${err}`, 'GlobalWeaponAggregate');
+            throw new ApplicationException(`Unable to insert initial InstanceWeaponAggregate record into DB! ${err}`, 'InstanceWeaponAggregate');
         }
     }
 }

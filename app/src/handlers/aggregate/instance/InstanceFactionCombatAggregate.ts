@@ -4,27 +4,27 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
+import {InstanceFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import _ from 'lodash';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
-export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalFactionCombatAggregate');
+export default class InstanceFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('InstanceFactionCombatAggregate');
 
-    private readonly factory: MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>;
+    private readonly factory: MongooseModelFactory<InstanceFactionCombatAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.globalFactionCombatAggregateFactory) factory: MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>) {
+    constructor(@inject(TYPES.instanceFactionCombatAggregateFactory) factory: MongooseModelFactory<InstanceFactionCombatAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalFactionCombatAggregate.logger.debug('GlobalFactionCombatAggregate.handle');
+        InstanceFactionCombatAggregate.logger.debug('InstanceFactionCombatAggregate.handle');
 
         // Create initial record if doesn't exist
         if (!await this.factory.model.exists({
-            world: event.instance.world,
+            instance: event.instance.instanceId,
         })) {
             await this.insertInitial(event);
         }
@@ -78,11 +78,11 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         documents.forEach((doc) => {
             void this.factory.model.updateOne(
-                {world: event.instance.world},
+                {instance: event.instance.instanceId},
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalFactionCombatAggregate.logger.error(`Updating GlobalFactionCombatAggregate Error! ${err}`);
+                InstanceFactionCombatAggregate.logger.error(`Updating InstanceFactionCombatAggregate Error! ${err}`);
             });
         });
 
@@ -90,10 +90,10 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
     }
 
     public async insertInitial(event: DeathEvent): Promise<boolean> {
-        GlobalFactionCombatAggregate.logger.debug('Adding Initial GlobalFactionCombatAggregate Record');
+        InstanceFactionCombatAggregate.logger.debug('Adding Initial InstanceFactionCombatAggregate Record');
         const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
         const data = {
-            world: event.instance.world,
+            instance: event.instance.instanceId,
         };
 
         factionKeys.forEach((i) => {
@@ -113,11 +113,11 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
 
         try {
             const row = await this.factory.saveDocument(data);
-            GlobalFactionCombatAggregate.logger.info(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
+            InstanceFactionCombatAggregate.logger.info(`Inserted initial InstanceFactionCombatAggregate record for Instance: ${row.instance}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial GlobalFactionCombatAggregate record into DB! ${err}`, 'GlobalFactionCombatAggregate');
+            throw new ApplicationException(`Unable to insert initial InstanceFactionCombatAggregate record into DB! ${err}`, 'InstanceFactionCombatAggregate');
         }
     }
 }

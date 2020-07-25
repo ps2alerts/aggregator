@@ -94,9 +94,6 @@ export default class MetagameEventEvent {
             throw new IllegalArgumentException('metagame_event_id', 'MetagameEventEvent');
         }
 
-        // TODO InstanceID are missing in the declaration
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         this.instanceId = Parser.parseNumericalArgument(event.instance_id);
 
         if (isNaN(this.instanceId)) {

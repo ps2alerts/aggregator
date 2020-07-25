@@ -41,7 +41,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
 
     private async handleExperienceEvent(gainExperienceEvent: GainExperienceEvent): Promise<boolean> {
         // Update last seen
-        await this.playerHandler.updateLastSeen(gainExperienceEvent.worldId, gainExperienceEvent.characterId);
+        await this.playerHandler.updateLastSeen(gainExperienceEvent.world, gainExperienceEvent.characterId);
         await this.storeEvent(gainExperienceEvent);
         return true;
     }

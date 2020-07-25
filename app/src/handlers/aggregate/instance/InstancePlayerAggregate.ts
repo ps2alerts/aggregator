@@ -1,33 +1,33 @@
+import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
+import {InstancePlayerAggregateSchemaInterface} from '../../../models/aggregate/instance/InstancePlayerAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import {GlobalClassAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalClassAggregateModel';
 
 @injectable()
-export default class GlobalClassAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalClassAggregate');
+export default class InstancePlayerAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('InstancePlayerAggregate');
 
-    private readonly factory: MongooseModelFactory<GlobalClassAggregateSchemaInterface>;
+    private readonly factory: MongooseModelFactory<InstancePlayerAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.globalClassAggregateFactory) factory: MongooseModelFactory<GlobalClassAggregateSchemaInterface>) {
+    constructor(@inject(TYPES.instancePlayerAggregateFactory) factory: MongooseModelFactory<InstancePlayerAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalClassAggregate.logger.debug('GlobalClassAggregate.handle');
+        InstancePlayerAggregate.logger.debug('InstancePlayerAggregate.handle');
 
         // Check both attacker and victim for existence
-        const checks = [event.characterLoadoutId, event.attackerLoadoutId];
+        const checks = [event.characterId, event.attackerCharacterId];
 
         for (const id of checks) {
             // Create initial record if doesn't exist
             if (!await this.factory.model.exists({
-                class: id,
-                world: event.instance.world,
+                instance: event.instance.instanceId,
+                player: id,
             })) {
                 await this.insertInitial(event, id);
             }
@@ -60,38 +60,38 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         attackerDocs.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
-                    class: event.attackerLoadoutId,
-                    world: event.instance.world,
+                    instance: event.instance.instanceId,
+                    player: event.attackerCharacterId,
                 },
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Attacker Error! ${err}`);
+                InstancePlayerAggregate.logger.error(`Updating InstancePlayerAggregate Attacker Error! ${err}`);
             });
         });
 
         victimDocs.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
-                    class: event.characterLoadoutId,
-                    world: event.instance.world,
+                    instance: event.instance.instanceId,
+                    player: event.characterId,
                 },
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Victim Error! ${err}`);
+                InstancePlayerAggregate.logger.error(`Updating InstancePlayerAggregate Victim Error! ${err}`);
             });
         });
 
         return true;
     }
 
-    private async insertInitial(event: DeathEvent, loadoutId: number): Promise<boolean> {
-        GlobalClassAggregate.logger.debug(`Adding Initial GlobalClassAggregate Record for Loadout: ${loadoutId} | World: ${event.instance.world}`);
+    private async insertInitial(event: DeathEvent, characterId: string): Promise<boolean> {
+        InstancePlayerAggregate.logger.debug(`Adding Initial InstancePlayerAggregate Record for Instance: ${event.instance.instanceId} | Player: ${characterId}`);
 
-        const document = {
-            class: loadoutId,
-            world: event.instance.world,
+        const player = {
+            instance: event.instance.instanceId,
+            player: characterId,
             kills: 0,
             deaths: 0,
             teamKills: 0,
@@ -100,12 +100,12 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         };
 
         try {
-            const row = await this.factory.saveDocument(document);
-            GlobalClassAggregate.logger.info(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
+            const row = await this.factory.saveDocument(player);
+            InstancePlayerAggregate.logger.debug(`Inserted initial InstancePlayerAggregate record for Instance: ${row.instance} | Player: ${row.player}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial GlobalClassAggregate record into DB! ${err}`, 'GlobalClassAggregate');
+            throw new ApplicationException(`Unable to insert initial InstancePlayerAggregate record into DB! ${err}`, 'InstancePlayerAggregate');
         }
     }
 }
