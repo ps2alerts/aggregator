@@ -2,7 +2,7 @@
 name: Build & Deploy Staging
 on:
   push:
-    branches: [staging]
+    branches: [staging, features/staging-env]
 jobs:
   build-docker-images:
     runs-on: ubuntu-latest
@@ -76,7 +76,7 @@ jobs:
 
       # Apply the terraform plan and inject the SHA
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/features/staging-env' && github.event_name == 'push'
         run: terraform apply -auto-approve .tfout
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
