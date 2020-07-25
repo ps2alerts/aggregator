@@ -87,7 +87,7 @@ export default class AlertPlayerAggregate implements AggregateHandlerInterface<D
     }
 
     private async insertInitial(event: DeathEvent, characterId: string): Promise<boolean> {
-        AlertPlayerAggregate.logger.debug(`Adding Initial AlertPlayerAggregate Record for Alert: ${event.alert.alertId} | Char: ${characterId}`);
+        AlertPlayerAggregate.logger.debug(`Adding Initial AlertPlayerAggregate Record for Alert: ${event.alert.alertId} | Player: ${characterId}`);
 
         const player = {
             alert: event.alert.alertId,
@@ -101,7 +101,7 @@ export default class AlertPlayerAggregate implements AggregateHandlerInterface<D
 
         try {
             const row = await this.factory.saveDocument(player);
-            AlertPlayerAggregate.logger.debug(`Inserted initial AlertPlayerAggregate record for Alert: ${row.alert} | Char: ${row.player}`);
+            AlertPlayerAggregate.logger.debug(`Inserted initial AlertPlayerAggregate record for Alert: ${row.alert} | Player: ${row.player}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

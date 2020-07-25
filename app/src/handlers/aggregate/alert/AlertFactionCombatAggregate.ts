@@ -90,7 +90,7 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
     }
 
     public async insertInitial(event: DeathEvent): Promise<boolean> {
-        AlertFactionCombatAggregate.logger.debug('Adding Initial Combat Aggregate Record');
+        AlertFactionCombatAggregate.logger.debug('Adding Initial AlertFactionCombatAggregate Record');
         const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
         const data = {
             alert: event.alert.alertId,
@@ -113,11 +113,11 @@ export default class AlertFactionCombatAggregate implements AggregateHandlerInte
 
         try {
             const row = await this.factory.saveDocument(data);
-            AlertFactionCombatAggregate.logger.info(`Inserted initial AlertFactionCombat aggregate record for alert ${row.alert}`);
+            AlertFactionCombatAggregate.logger.info(`Inserted initial AlertFactionCombatAggregate record for Alert: ${row.alert}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial AlertFactionCombat aggregate record into DB! ${err}`, 'AlertFactionAggregate');
+            throw new ApplicationException(`Unable to insert initial AlertFactionCombatAggregate record into DB! ${err}`, 'AlertFactionAggregate');
         }
     }
 }

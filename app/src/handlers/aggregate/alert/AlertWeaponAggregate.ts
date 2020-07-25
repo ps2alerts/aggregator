@@ -76,7 +76,7 @@ export default class AlertWeaponAggregate implements AggregateHandlerInterface<D
 
         try {
             const row = await this.factory.saveDocument(data);
-            AlertWeaponAggregate.logger.info(`Inserted initial AlertWeaponAggregate record for A: ${row.alert} | Wep: ${row.weapon}`);
+            AlertWeaponAggregate.logger.debug(`Inserted initial AlertWeaponAggregate record for Alert: ${row.alert} | Weapon: ${row.weapon}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
