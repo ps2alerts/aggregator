@@ -1,14 +1,29 @@
 import {FormatWrap} from 'logform';
 import {format} from 'winston';
+import {LogFilter} from '../config/logger';
+import {getLevelValue} from './utils/Helpers';
 
-export default function(list: string[], whitelist: boolean): FormatWrap {
-    const sl = new Set(list);
+function convertToNumber([label, level]: [string, string | false]): [string, number | false] {
+    return [
+        label,
+        typeof level === 'string' ? getLevelValue(level) : false,
+    ];
+}
 
-    if (whitelist) {
-        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-        return format((info) => (sl.has(info.label) ? info : false));
-    }
+export default function(filter: LogFilter): FormatWrap {
+    const map = new Map<string, number | false>(filter.map(convertToNumber));
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    return format((info) => (sl.has(info.label) ? false : info));
+    return format((info) => {
+        const level = map.get(info.label);
+
+        if (level === undefined) {
+            return info;
+        }
+
+        if (level === false || level < getLevelValue(info.level)) {
+            return false;
+        }
+
+        return info;
+    });
 }

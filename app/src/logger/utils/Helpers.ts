@@ -1,3 +1,4 @@
+import config from '../../config';
 import Transport from 'winston-transport';
 import {TransportConfig} from '../../config/logger';
 import DiscordTransport from '../DiscordTransport';
@@ -40,4 +41,14 @@ export function arrayify<T>(obj: T | T[]): T[] {
     }
 
     return [obj];
+}
+
+export function getLevelValue(level: string): number {
+    const value = config.logger.levels[level];
+
+    if (value === undefined) {
+        throw new TypeError(`Encountered unknown level: ${level}`);
+    }
+
+    return value;
 }

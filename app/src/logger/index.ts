@@ -1,6 +1,6 @@
 import {createLogger, format, Logger} from 'winston';
 import config from '../config';
-import {arrayify, filterToArray, transportFactory} from './utils/Helpers';
+import {arrayify, transportFactory} from './utils/Helpers';
 import filter from './filter';
 
 /**
@@ -13,14 +13,13 @@ const formatting = [
     format.printf(({timestamp, level, label, message}) => `${timestamp} | ${level} | ${label} >> ${message}`),
 ];
 
-const globalFilter = filterToArray(config.logger.globalFilter);
-
-if (globalFilter.length > 1) {
-    formatting.unshift(filter(globalFilter, config.logger.whitelist)());
+if (Object.keys(config.logger.globalFilter).length > 1) {
+    formatting.unshift(filter(config.logger.globalFilter)());
 }
 
 const defaultLogger = createLogger({
     level: config.logger.level,
+    levels: config.logger.levels,
     format: format.combine(
         ...formatting,
     ),
