@@ -8,6 +8,7 @@ import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
 import {MetagameEventIds} from '../../constants/metagameEventIds';
 import Census from '../../config/census';
+import ApplicationException from '../../exceptions/ApplicationException';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -17,7 +18,13 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly config: Census;
 
-    private lastMessage: Date = new Date();
+    private readonly lastMessagesMap: Map<string, Date> = new Map<string, Date>();
+
+    private readonly messageThresholds: Map<string, number> = new Map<string, number>([
+        ['Death', 60000], // 1 minute
+        ['FacilityControl', 600000], // 10 minutes
+        ['MetagameEvent', 18000000], // 30 minutes
+    ]);
 
     private messageTimer: NodeJS.Timeout | null;
 
@@ -28,6 +35,11 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient = wsClient;
         this.config = censusConfig;
         this.prepareClient();
+
+        // Initialize the map with the current date, so it starts the timer from now.
+        this.messageThresholds.forEach((value, thresholdType) => {
+            this.lastMessagesMap.set(thresholdType, new Date());
+        });
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -80,8 +92,11 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
         });
 
-        this.wsClient.on('ps2Event', () => {
-            this.lastMessage = new Date();
+        this.wsClient.on('ps2Event', (event: PS2Event) => {
+            // If the event name is a monitored event type, add the current Date to the array.
+            if (this.messageThresholds.has(event.event_name)) {
+                this.lastMessagesMap.set(event.event_name, new Date());
+            }
         });
 
         this.wsClient.on('subscribed', () => {
@@ -117,13 +132,20 @@ export default class CensusStreamService implements ServiceInterface {
 
         this.messageTimer = setInterval(() => {
             CensusStreamService.logger.debug('Census message timeout check running...');
-            const now = new Date();
-            const lastMessageThreshold = now.getTime() - 300000; // 5 minutes ago
 
-            if (this.lastMessage.getTime() < lastMessageThreshold) {
-                CensusStreamService.logger.error('NO CENSUS MESSAGES RECEIVED IN THE LAST 5 MINUTES, KICKING CONNECTION IN THE NUTS');
-                void this.wsClient.watch();
-            }
+            this.messageThresholds.forEach((thresholdLimit, eventType) => {
+                const lastTime: Date | undefined = this.lastMessagesMap.get(eventType);
+                const threshold: number = new Date().getTime() - thresholdLimit;
+
+                if (!lastTime) {
+                    throw new ApplicationException('Undefined lastTime map entry, shouldn\'t be possible! Check constructor.');
+                }
+
+                if (lastTime.getTime() < threshold) {
+                    CensusStreamService.logger.error(`No Census messages received for event type "${eventType}" within expected threshold of ${thresholdLimit / 1000} seconds. Rebooting Connection.`);
+                    void this.wsClient.watch();
+                }
+            });
         }, 60000);
     }
 }
