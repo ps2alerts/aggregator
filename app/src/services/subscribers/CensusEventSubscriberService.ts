@@ -98,11 +98,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on('death', (event) => {
             if (this.activeInstanceAuthority.instanceExists(
                 parseInt(event.world_id, 10),
-                parseInt(event.world_id, 10),
+                parseInt(event.zone_id, 10),
             )) {
                 const deathEvent = new DeathEvent(event, this.activeInstanceAuthority.getInstance(
                     parseInt(event.world_id, 10),
-                    parseInt(event.world_id, 10)));
+                    parseInt(event.zone_id, 10)));
                 void this.deathEventHandler.handle(deathEvent);
             }
         });
@@ -110,12 +110,12 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on('facilityControl', (event) => {
             if (this.activeInstanceAuthority.instanceExists(
                 parseInt(event.world_id, 10),
-                parseInt(event.world_id, 10),
+                parseInt(event.zone_id, 10),
             )) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
                 const facilityControl = new FacilityControlEvent(event, this.activeInstanceAuthority.getInstance(
                     parseInt(event.world_id, 10),
-                    parseInt(event.world_id, 10)));
+                    parseInt(event.zone_id, 10)));
                 void this.facilityControlEventHandler.handle(facilityControl);
             }
         });
