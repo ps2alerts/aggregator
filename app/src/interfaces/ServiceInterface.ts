@@ -2,6 +2,11 @@ import {Container} from 'inversify';
 
 export default interface ServiceInterface {
     /**
+     * @type {number} the priority for the boot method, lower numbers should be executed earlier
+     */
+    bootPriority: number;
+
+    /**
      * Run when booting the application
      *
      * @param {Container} container
