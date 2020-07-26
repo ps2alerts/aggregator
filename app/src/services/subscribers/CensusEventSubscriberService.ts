@@ -17,7 +17,7 @@ import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDef
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
-import ActiveAlertAuthority from '../../authorities/ActiveAlertAuthority';
+import ActiveInstanceAuthority from '../../authorities/ActiveInstanceAuthority';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
 
 @injectable()
@@ -26,7 +26,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
     private readonly wsClient: Client;
     private readonly worldCheck: WorldValidator;
-    private readonly activeAlerts: ActiveAlertAuthority;
+    private readonly activeInstanceAuthority: ActiveInstanceAuthority;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly playerLoginEventHandler: PlayerLoginEventHandler;
@@ -38,12 +38,12 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly battleRankUpHandler: BattleRankUpHandler;
     private readonly playerFacilityCapture: PlayerFacilityCaptureHandler;
     private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
-    private readonly coninentUnlockHandler: ContinentUnlockHandler;
+    private readonly continentUnlockHandler: ContinentUnlockHandler;
 
     constructor(
         wsClient: Client,
         worldCheck: WorldValidator,
-        activeAlertAuthority: ActiveAlertAuthority,
+        activeInstanceAuthority: ActiveInstanceAuthority,
         deathEventHandler: DeathEventHandler,
         metagameEventEventHandler: MetagameEventEventHandler,
         playerLoginEventHandler: PlayerLoginEventHandler,
@@ -70,8 +70,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.battleRankUpHandler = battleRankUpHandler;
         this.playerFacilityCapture = playerFacilityCapture;
         this.playerFacilityDefend = playerFacilityDefend;
-        this.coninentUnlockHandler = continentUnlockHandler;
-        this.activeAlerts = activeAlertAuthority;
+        this.continentUnlockHandler = continentUnlockHandler;
+        this.activeInstanceAuthority = activeInstanceAuthority;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -96,11 +96,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (this.activeAlerts.alertExists(
+            if (this.activeInstanceAuthority.instanceExists(
                 parseInt(event.world_id, 10),
                 parseInt(event.world_id, 10),
             )) {
-                const deathEvent = new DeathEvent(event, this.activeAlerts.getAlert(
+                const deathEvent = new DeathEvent(event, this.activeInstanceAuthority.getInstance(
                     parseInt(event.world_id, 10),
                     parseInt(event.world_id, 10)));
                 void this.deathEventHandler.handle(deathEvent);
@@ -108,12 +108,12 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            if (this.activeAlerts.alertExists(
+            if (this.activeInstanceAuthority.instanceExists(
                 parseInt(event.world_id, 10),
                 parseInt(event.world_id, 10),
             )) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
-                const facilityControl = new FacilityControlEvent(event, this.activeAlerts.getAlert(
+                const facilityControl = new FacilityControlEvent(event, this.activeInstanceAuthority.getInstance(
                     parseInt(event.world_id, 10),
                     parseInt(event.world_id, 10)));
                 void this.facilityControlEventHandler.handle(facilityControl);

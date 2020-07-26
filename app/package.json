@@ -1,10 +1,10 @@
 {
   "name": "ps2alerts-websocket",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "description": "The websocket collection script that powers PS2Alerts.com.",
   "main": "./dist",
   "scripts": {
-    "start": "node .",
+    "start": "node dist/index.js",
     "start:dev": "ts-node src",
     "build": "tsc",
     "build:watch": "tsc -w",

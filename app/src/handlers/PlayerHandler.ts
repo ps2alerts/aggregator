@@ -15,8 +15,8 @@ export default class PlayerHandler implements PlayerHandlerInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async handleLogin(loginEvent: PlayerLoginEvent): Promise<boolean> {
-        if (!this.containsPlayer(loginEvent.worldId, loginEvent.characterId)) {
-            this._players.push({worldId: loginEvent.worldId, characterId: loginEvent.characterId, outfitId: -1});
+        if (!this.containsPlayer(loginEvent.world, loginEvent.characterId)) {
+            this._players.push({worldId: loginEvent.world, characterId: loginEvent.characterId, outfitId: -1});
             return true;
         }
 
@@ -26,7 +26,7 @@ export default class PlayerHandler implements PlayerHandlerInterface {
     // eslint-disable-next-line @typescript-eslint/require-await
     public async handleLogout(logoutEvent: PlayerLogoutEvent): Promise<boolean> {
         this._players = this._players.filter((player) => {
-            return (player.worldId !== logoutEvent.worldId || player.characterId !== logoutEvent.characterId);
+            return (player.worldId !== logoutEvent.world || player.characterId !== logoutEvent.characterId);
         });
         return true;
     }

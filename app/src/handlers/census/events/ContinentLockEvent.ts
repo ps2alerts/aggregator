@@ -21,10 +21,11 @@ import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {ContinentLock, PS2Event} from 'ps2census';
+import {World} from '../../../constants/world';
 
 @injectable()
 export default class ContinentLockEvent {
-    public readonly worldId: number;
+    public readonly world: World;
 
     public readonly zone: Zone;
 
@@ -45,9 +46,9 @@ export default class ContinentLockEvent {
             throw new IllegalArgumentException('event', 'ContinentLockEvent');
         }
 
-        this.worldId = Parser.parseNumericalArgument(event.world_id);
+        this.world = Parser.parseNumericalArgument(event.world_id);
 
-        if (isNaN(this.worldId)) {
+        if (isNaN(this.world)) {
             throw new IllegalArgumentException('world_id', 'ContinentLockEvent');
         }
 

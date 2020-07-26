@@ -17,11 +17,11 @@ import Parser from '../../../utils/parser';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import {FacilityControl} from 'ps2census';
-import ActiveAlertInterface from '../../../interfaces/ActiveAlertInterface';
+import ActiveInstanceInterface from '../../../interfaces/ActiveInstanceInterface';
 
 @injectable()
 export default class FacilityControlEvent {
-    public readonly alert: ActiveAlertInterface;
+    public readonly instance: ActiveInstanceInterface;
 
     public readonly facility: number;
 
@@ -39,10 +39,10 @@ export default class FacilityControlEvent {
 
     constructor(
         event: FacilityControl,
-        alert: ActiveAlertInterface,
+        instance: ActiveInstanceInterface,
     ) { // No check needed, ZoneUtils will take care of this
 
-        this.alert = alert;
+        this.instance = instance;
 
         this.facility = Parser.parseNumericalArgument(event.facility_id);
 

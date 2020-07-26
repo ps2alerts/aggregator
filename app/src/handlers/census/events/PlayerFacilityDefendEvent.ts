@@ -15,10 +15,11 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
 import {PlayerFacilityDefend, PS2Event} from 'ps2census';
+import {World} from '../../../constants/world';
 
 @injectable()
 export default class PlayerFacilityDefendEvent {
-    public readonly worldId: number;
+    public readonly world: World;
     public readonly zone: Zone;
     public readonly timestamp: Date;
     public readonly characterId: string;
@@ -32,9 +33,9 @@ export default class PlayerFacilityDefendEvent {
             throw new IllegalArgumentException('event', 'PlayerFacilityDefendEvent');
         }
 
-        this.worldId = Parser.parseNumericalArgument(event.world_id);
+        this.world = Parser.parseNumericalArgument(event.world_id);
 
-        if (isNaN(this.worldId)) {
+        if (isNaN(this.world)) {
             throw new IllegalArgumentException('world_id', 'PlayerFacilityDefendEvent');
         }
 

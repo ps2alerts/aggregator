@@ -18,15 +18,18 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
 import {GainExperience, PS2Event} from 'ps2census';
+import {World} from '../../../constants/world';
+import {Loadout} from '../../../constants/loadout';
 
 @injectable()
 export default class GainExperienceEvent {
+    public readonly world: World;
     public readonly zone: Zone;
     public readonly worldId: number;
     public readonly timestamp: Date;
     public readonly characterId: string;
     public readonly experienceId: number;
-    public readonly loadoutId: number;
+    public readonly loadout: Loadout;
     public readonly amount: number;
 
     constructor(
@@ -36,9 +39,9 @@ export default class GainExperienceEvent {
             throw new IllegalArgumentException('event', 'GainExperienceEvent');
         }
 
-        this.worldId = Parser.parseNumericalArgument(event.world_id);
+        this.world = Parser.parseNumericalArgument(event.world_id);
 
-        if (isNaN(this.worldId)) {
+        if (isNaN(this.world)) {
             throw new IllegalArgumentException('world_id');
         }
 
@@ -56,9 +59,9 @@ export default class GainExperienceEvent {
             throw new IllegalArgumentException('experience_id');
         }
 
-        this.loadoutId = Parser.parseNumericalArgument(event.loadout_id);
+        this.loadout = Parser.parseNumericalArgument(event.loadout_id);
 
-        if (isNaN(this.loadoutId)) {
+        if (isNaN(this.loadout)) {
             throw new IllegalArgumentException('loadout_id');
         }
 

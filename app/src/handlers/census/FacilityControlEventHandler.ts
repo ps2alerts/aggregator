@@ -1,4 +1,4 @@
-import {inject, injectable} from 'inversify';
+import {inject, injectable, multiInject} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
@@ -8,7 +8,7 @@ import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import {AlertFacilityControlInterface} from '../../models/AlertFacilityControlModel';
+import {InstanceFacilityControlInterface} from '../../models/InstanceFacilityControlModel';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
@@ -16,16 +16,20 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     private readonly playerHandler: PlayerHandlerInterface;
 
-    private readonly factory: MongooseModelFactory<AlertFacilityControlInterface>;
+    private readonly factory: MongooseModelFactory<InstanceFacilityControlInterface>;
 
     /* eslint-disable */
+    private aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[];
+
     constructor(
         @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
-        @inject(TYPES.alertFacilityControlModelFactory) alertFacilityControlModelFactory: MongooseModelFactory<AlertFacilityControlInterface>,
+        @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlInterface>,
+        @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[]
     ) {
         /* eslint-enable */
         this.playerHandler = playerHandler;
-        this.factory = alertFacilityControlModelFactory;
+        this.factory = instanceFacilityControlModelFactory;
+        this.aggregateHandlers = aggregateHandlers;
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean>{
@@ -47,13 +51,24 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             return false;
         }
 
+        this.aggregateHandlers.map(
+            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event)
+                .catch((e) => {
+                    if (e instanceof Error) {
+                        FacilityControlEventHandler.logger.error(`Error parsing AggregateHandlers for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    } else {
+                        FacilityControlEventHandler.logger.error('UNEXPECTED ERROR parsing FacilityControlEventHandler AggregateHandlers!');
+                    }
+                }),
+        );
+
         return true;
     }
 
     private async storeEvent(event: FacilityControlEvent): Promise<boolean> {
         try {
             await this.factory.saveDocument({
-                alert: event.alert.alertId,
+                instance: event.instance.instanceId,
                 facility: event.facility,
                 timestamp: event.timestamp,
                 oldFaction: event.oldFaction,
@@ -65,7 +80,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Alert: ${event.alert.alertId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+            throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
         }
     }
 }

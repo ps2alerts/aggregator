@@ -2,11 +2,12 @@
 
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {Client, MetagameEvent, PS2Event, Events} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
 import {MetagameEventIds} from '../../constants/metagameEventIds';
+import Census from '../../config/census';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -14,8 +15,14 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly wsClient: Client;
 
-    constructor(wsClient: Client) {
+    private readonly config: Census;
+
+    constructor(
+        wsClient: Client,
+        @inject('censusConfig') censusConfig: Census,
+    ) {
         this.wsClient = wsClient;
+        this.config = censusConfig;
         this.prepareClient();
     }
 
@@ -69,27 +76,29 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('subscribed', () => {
-            CensusStreamService.logger.debug('Census stream subscribed!');
+            CensusStreamService.logger.info('Census stream subscribed!');
 
-            // TEMP TEMP TEMP
-            /* eslint-disable */
-            const event = new MetagameEvent(this.wsClient, {
-                event_name: 'MetagameEvent',
-                experience_bonus: '25.000000',
-                faction_nc: '6.274510',
-                faction_tr: '19.607843',
-                faction_vs: '9.803922',
-                instance_id: String(Math.floor(Math.random() * 100000) + 1),
-                metagame_event_id: String(MetagameEventIds.MELTDOWN_AMERISH),
-                metagame_event_state: '137',
-                metagame_event_state_name: 'started',
-                timestamp: String(getUnixTimestamp()),
-                world_id: String(World.MILLER),
-
-            });
-            /* eslint-enable */
-            this.wsClient.emit(Events.PS2_META_EVENT, event);
-            CensusStreamService.logger.debug('Emitted Metagame Start event');
+            // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
+            // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
+            if (this.config.enableInjections) {
+                /* eslint-disable */
+                const event = new MetagameEvent(this.wsClient, {
+                    event_name: 'MetagameEvent',
+                    experience_bonus: '25.000000',
+                    faction_nc: '6.274510',
+                    faction_tr: '19.607843',
+                    faction_vs: '9.803922',
+                    instance_id: String(Math.floor(Math.random() * 100000) + 1),
+                    metagame_event_id: String(MetagameEventIds.MELTDOWN_AMERISH),
+                    metagame_event_state: '137',
+                    metagame_event_state_name: 'started',
+                    timestamp: String(getUnixTimestamp()),
+                    world_id: String(World.MILLER),
+                });
+                /* eslint-enable */
+                this.wsClient.emit(Events.PS2_META_EVENT, event);
+                CensusStreamService.logger.debug('Emitted Metagame Start event');
+            }
         });
     }
 }

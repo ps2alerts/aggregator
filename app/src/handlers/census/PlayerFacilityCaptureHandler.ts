@@ -26,7 +26,7 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
 
         try {
             await Promise.all([
-                this.playerHandler.updateLastSeen(event.worldId, event.characterId),
+                this.playerHandler.updateLastSeen(event.world, event.characterId),
                 this.storeEvent(event),
             ]);
         } catch (e) {

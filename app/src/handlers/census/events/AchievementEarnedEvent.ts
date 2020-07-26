@@ -14,11 +14,12 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
 import {AchievementEarned, PS2Event} from 'ps2census';
+import {World} from '../../../constants/world';
 
 @injectable()
 export default class AchievementEarnedEvent {
-    public readonly worldId: number;
     public readonly characterId: string;
+    public readonly world: World;
     public readonly zone: Zone;
     public readonly achievementId: number;
     public readonly timestamp: Date;
@@ -30,15 +31,17 @@ export default class AchievementEarnedEvent {
             throw new IllegalArgumentException('event', 'AchievementEarnedEvent');
         }
 
-        this.worldId = Parser.parseNumericalArgument(event.world_id);
+        this.characterId = event.character_id; // This is a string on purpose
 
-        if (isNaN(this.worldId)) {
+        this.world = Parser.parseNumericalArgument(event.world_id);
+
+        if (isNaN(this.world)) {
             throw new IllegalArgumentException('world_id', 'AchievementEarnedEvent');
+
         }
 
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.characterId = event.character_id; // This is a string on purpose
 
         this.achievementId = Parser.parseNumericalArgument(event.achievement_id);
 

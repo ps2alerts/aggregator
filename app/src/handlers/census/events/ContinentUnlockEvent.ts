@@ -21,10 +21,11 @@ import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {ContinentUnlock, PS2Event} from 'ps2census';
+import {World} from '../../../constants/world';
 
 @injectable()
 export default class ContinentUnlockEvent {
-    public readonly worldId: number;
+    public readonly world: World;
     public readonly zone: Zone;
     public readonly timestamp: Date;
     public readonly triggeringFaction: Faction;
@@ -39,10 +40,10 @@ export default class ContinentUnlockEvent {
             throw new IllegalArgumentException('event', 'ContinentUnlockEvent');
         }
 
-        this.worldId = Parser.parseNumericalArgument(event.world_id);
+        this.world = Parser.parseNumericalArgument(event.world_id);
 
-        if (isNaN(this.worldId)) {
-            throw new IllegalArgumentException('world_id', 'ContinentUnlockEvent');
+        if (isNaN(this.world)) {
+            throw new IllegalArgumentException('world', 'ContinentUnlockEvent');
         }
 
         // No need to check, ZoneUtils will validate the argument

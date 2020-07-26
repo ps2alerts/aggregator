@@ -16,6 +16,5 @@ export default class WorldValidator {
         }
 
         return true;
-        // TODO: Perform checks for active alert worlds
     }
 }
