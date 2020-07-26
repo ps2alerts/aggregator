@@ -1,6 +1,6 @@
-import { get } from '../utils/env';
-import { ConsoleTransportOptions } from 'winston/lib/winston/transports';
-import { DiscordTransportOptions } from '../logger/DiscordTransport';
+import {get} from '../utils/env';
+import {ConsoleTransportOptions} from 'winston/lib/winston/transports';
+import {DiscordTransportOptions} from '../logger/DiscordTransport';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface transportsIndex {

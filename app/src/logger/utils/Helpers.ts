@@ -7,7 +7,7 @@ export function filterToArray(filter: Record<string, boolean>): string[] {
     return Object.keys(filter).filter((k) => filter[k]);
 }
 
-export function transportFactory(transportList: transportConfig[]): Array<Transport> {
+export function transportFactory(transportList: transportConfig[]): Transport[] {
     return transportList.map((t) => {
         // TODO: Add filter per transport
         switch (t.name) {
