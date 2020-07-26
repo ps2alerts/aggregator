@@ -69,10 +69,12 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('reconnecting', () => {
+            this.messageTimer = null;
             CensusStreamService.logger.warn('Census stream connection lost... reconnecting...');
         });
 
         this.wsClient.on('disconnected', () => {
+            this.messageTimer = null;
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
