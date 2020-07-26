@@ -1,23 +1,32 @@
 import Transport from 'winston-transport';
-import {transportConfig} from '../../config/logger';
+import {TransportConfig} from '../../config/logger';
 import DiscordTransport from '../DiscordTransport';
 import {transports} from 'winston';
+import {default as logFilter} from '../filter';
 
 export function filterToArray(filter: Record<string, boolean>): string[] {
     return Object.keys(filter).filter((k) => filter[k]);
 }
 
-export function transportFactory(transportList: transportConfig[]): Transport[] {
+export function transportFactory(transportList: TransportConfig[]): Transport[] {
     return transportList.map((t) => {
-        // TODO: Add filter per transport
+        const options: any = {...t.options};
+
+        if ('whitelist' in t || 'blacklist' in t) {
+            // No idea why this happens, I test that the properties are in t
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            options.format = logFilter(filterToArray(t.whitelist ?? t.blacklist), 'whitelist' in t)();
+        }
+
         switch (t.name) {
             case 'console':
-                return new transports.Console(t.options);
+                return new transports.Console(options);
             case 'discord':
-                // Fucking hell, why are you both so dumb
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                return new DiscordTransport(t.options);
+                return new DiscordTransport(options);
         }
 
         throw new Error();

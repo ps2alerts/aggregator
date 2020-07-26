@@ -21,24 +21,21 @@ export default class DiscordTransport extends Transport {
         });
     }
 
+    /* eslint-disable */
     public log(info: any, callback: () => void): any {
         const payload = {
             username: this.username,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
             avatar_url: this.avatarUrl,
             embeds: [{
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 description: info.message,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 color: this.levelToColor(info.level),
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 timestamp: info.timestamp,
                 footer: {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                     text: info.label,
                 },
             }],
         };
+        /* eslint-enable */
 
         this.axios.post(this.webhookUrl, payload).then(() => {
             this.emit('logged', info);
