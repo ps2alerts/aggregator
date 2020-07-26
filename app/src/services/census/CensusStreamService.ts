@@ -3,7 +3,7 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {inject, injectable} from 'inversify';
-import {Client, MetagameEvent, PS2Event} from 'ps2census';
+import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
 import {MetagameEventIds} from '../../constants/metagameEventIds';
@@ -123,7 +123,7 @@ export default class CensusStreamService implements ServiceInterface {
                     world_id: String(World.MILLER),
                 });
                 /* eslint-enable */
-                // this.wsClient.emit(Events.PS2_META_EVENT, event);
+                this.wsClient.emit(Events.PS2_META_EVENT, event);
                 CensusStreamService.logger.debug('Emitted Metagame Start event');
             }
         });
