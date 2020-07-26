@@ -78,11 +78,8 @@ export default class MetagameEventEvent {
             throw new IllegalArgumentException('faction_vs', 'MetagameEventEvent');
         }
 
+        // Validation not required
         this.timestamp = event.timestamp;
-
-        if (this.timestamp === undefined || this.timestamp === null) {
-            throw new IllegalArgumentException('timestamp', 'MetagameEventEvent');
-        }
 
         const eventId = Parser.parseNumericalArgument(event.metagame_event_id);
 

@@ -16,7 +16,6 @@ import PlayerFacilityCaptureHandler from '../../handlers/census/PlayerFacilityCa
 import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDefendHandler';
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
-import ActiveAlertInterface from '../../interfaces/ActiveAlertInterface';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import ActiveAlertAuthority from '../../authorities/ActiveAlertAuthority';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
@@ -97,16 +96,26 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (this.alertExists(event.world_id, event.zone_id)) {
-                const deathEvent = new DeathEvent(event, this.getAlert(event.world_id, event.zone_id));
+            if (this.activeAlerts.alertExists(
+                parseInt(event.world_id, 10),
+                parseInt(event.world_id, 10),
+            )) {
+                const deathEvent = new DeathEvent(event, this.activeAlerts.getAlert(
+                    parseInt(event.world_id, 10),
+                    parseInt(event.world_id, 10)));
                 void this.deathEventHandler.handle(deathEvent);
             }
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            if (this.alertExists(event.world_id, event.zone_id)) {
+            if (this.activeAlerts.alertExists(
+                parseInt(event.world_id, 10),
+                parseInt(event.world_id, 10),
+            )) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
-                const facilityControl = new FacilityControlEvent(event, this.getAlert(event.world_id, event.zone_id));
+                const facilityControl = new FacilityControlEvent(event, this.activeAlerts.getAlert(
+                    parseInt(event.world_id, 10),
+                    parseInt(event.world_id, 10)));
                 void this.facilityControlEventHandler.handle(facilityControl);
             }
         });
@@ -116,19 +125,5 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             const metagameEvent = new MetagameEventEvent(event);
             void this.metagameEventEventHandler.handle(metagameEvent);
         });
-    }
-
-    private alertExists(worldId: string, zoneId: string): boolean {
-        return this.activeAlerts.alertExists(
-            parseInt(worldId, 10),
-            parseInt(zoneId, 10),
-        );
-    }
-
-    private getAlert(worldId: string, zoneId: string): ActiveAlertInterface {
-        return this.activeAlerts.getAlert(
-            parseInt(worldId, 10),
-            parseInt(zoneId, 10),
-        );
     }
 }

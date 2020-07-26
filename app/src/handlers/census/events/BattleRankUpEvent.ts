@@ -40,11 +40,8 @@ export default class BattleRankUpEvent {
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
         this.characterId = event.character_id; // This is a string on purpose
 
+        // Validation not required
         this.timestamp = event.timestamp;
-
-        if (this.timestamp === undefined || this.timestamp === null) {
-            throw new IllegalArgumentException('timestamp', 'BattleRankUpEvent');
-        }
 
         this.battleRank = Parser.parseNumericalArgument(event.battle_rank);
 

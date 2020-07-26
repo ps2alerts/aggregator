@@ -50,11 +50,8 @@ export default class FacilityControlEvent {
             throw new IllegalArgumentException('facility_id', 'FacilityControlEvent');
         }
 
+        // Validation not required
         this.timestamp = event.timestamp;
-
-        if (this.timestamp === undefined || this.timestamp === null) {
-            throw new IllegalArgumentException('timestamp', 'FacilityControlEvent');
-        }
 
         this.durationHeld = Parser.parseNumericalArgument(event.duration_held);
 

@@ -46,10 +46,7 @@ export default class AchievementEarnedEvent {
             throw new IllegalArgumentException('achievement_id', 'AchievementEarnedEvent');
         }
 
+        // Validation not required
         this.timestamp = event.timestamp;
-
-        if (this.timestamp === undefined || this.timestamp === null) {
-            throw new IllegalArgumentException('timestamp', 'AchievementEarnedEvent');
-        }
     }
 }

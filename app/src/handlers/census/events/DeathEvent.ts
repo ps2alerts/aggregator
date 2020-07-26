@@ -75,11 +75,9 @@ export default class DeathEvent {
 
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.timestamp = event.timestamp;
 
-        if (this.timestamp === undefined || this.timestamp === null) {
-            throw new IllegalArgumentException('timestamp', 'DeathEvent');
-        }
+        // Validation not required
+        this.timestamp = event.timestamp;
 
         this.characterId = event.character_id;
 

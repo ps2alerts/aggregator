@@ -44,11 +44,9 @@ export default class GainExperienceEvent {
 
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.timestamp = event.timestamp;
 
-        if (this.timestamp === undefined || this.timestamp === null) {
-            throw new IllegalArgumentException('timestamp');
-        }
+        // Validation not required
+        this.timestamp = event.timestamp;
 
         this.characterId = event.character_id; // This is a string on purpose
 

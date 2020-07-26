@@ -53,11 +53,9 @@ export default class ContinentLockEvent {
 
         // No need to check, ZoneUtils will validate the argument
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
-        this.timestamp = event.timestamp;
 
-        if (this.timestamp === undefined || this.timestamp === null) {
-            throw new IllegalArgumentException('timestamp', 'ContinentLockEvent');
-        }
+        // Validation not required
+        this.timestamp = event.timestamp;
 
         this.vsPopulation = Parser.parseNumericalArgument(event.vs_population);
 
