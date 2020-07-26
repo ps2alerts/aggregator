@@ -3,15 +3,15 @@ import { ConsoleTransportOptions } from 'winston/lib/winston/transports';
 import { DiscordTransportOptions } from '../logger/DiscordTransport';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-interface transports {
+export interface transportsIndex {
     console: ConsoleTransportOptions;
     discord: DiscordTransportOptions;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-type transport<K extends keyof transports = keyof transports> = {
+export type transportConfig<K extends keyof transportsIndex = keyof transportsIndex> = {
     name: K;
-    options: transports[K];
+    options: transportsIndex[K];
 } & ({ whitelist?: Record<string, boolean> } | { blacklist?: Record<string, boolean> });
 
 export default class Logger {
@@ -19,9 +19,11 @@ export default class Logger {
 
     public readonly globalFilter: Record<string, boolean> = {};
 
+    public readonly whitelist: boolean = false;
+
     public readonly transport: string | string[] = ['console', 'discord'];
 
-    public readonly transports: Record<string, transport> = {
+    public readonly transports: Record<string, transportConfig> = {
         console: {
             name: 'console',
             options: {},
