@@ -80,8 +80,7 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
         });
 
-        this.wsClient.on('ps2Event', (event: PS2Event) => {
-            console.log(event);
+        this.wsClient.on('ps2Event', () => {
             this.lastMessage = new Date();
         });
 
