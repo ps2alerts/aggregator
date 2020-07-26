@@ -18,7 +18,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly config: Census;
 
-    private readonly lastMessagesMap: Map<string, Date> = new Map<string, Date>();
+    private readonly lastMessagesMap: Map<string, number> = new Map<string, number>();
 
     private readonly messageThresholds: Map<string, number> = new Map<string, number>([
         ['Death', 60000], // 1 minute
@@ -92,7 +92,7 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient.on('ps2Event', (event: PS2Event) => {
             // If the event name is a monitored event type, add the current Date to the array.
             if (this.messageThresholds.has(event.event_name)) {
-                this.lastMessagesMap.set(event.event_name, new Date());
+                this.lastMessagesMap.set(event.event_name, new Date().getTime());
             }
         });
 
@@ -129,21 +129,21 @@ export default class CensusStreamService implements ServiceInterface {
 
         // Initialize the map with the current date, so it starts the timer from now.
         this.messageThresholds.forEach((value, thresholdType) => {
-            this.lastMessagesMap.set(thresholdType, new Date());
+            this.lastMessagesMap.set(thresholdType, new Date().getTime());
         });
 
         this.messageTimer = setInterval(() => {
             CensusStreamService.logger.debug('Census message timeout check running...');
 
             this.messageThresholds.forEach((thresholdLimit, eventType) => {
-                const lastTime: Date | undefined = this.lastMessagesMap.get(eventType);
+                const lastTime: number | undefined = this.lastMessagesMap.get(eventType);
                 const threshold: number = new Date().getTime() - thresholdLimit;
 
                 if (!lastTime) {
                     throw new ApplicationException('Undefined lastTime map entry, shouldn\'t be possible! Check constructor.');
                 }
 
-                if (lastTime.getTime() < threshold) {
+                if (lastTime < threshold) {
                     CensusStreamService.logger.error(`No Census messages received for event type "${eventType}" within expected threshold of ${thresholdLimit / 1000} seconds. Rebooting Connection.`);
                     void this.wsClient.watch();
                 }
