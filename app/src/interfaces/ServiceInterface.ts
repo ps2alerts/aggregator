@@ -4,7 +4,7 @@ export default interface ServiceInterface {
     /**
      * @type {number} the priority for the boot method, lower numbers should be executed earlier
      */
-    bootPriority: number;
+    readonly bootPriority: number;
 
     /**
      * Run when booting the application

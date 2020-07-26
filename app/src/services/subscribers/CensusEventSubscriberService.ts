@@ -24,6 +24,8 @@ import FacilityControlEvent from '../../handlers/census/events/FacilityControlEv
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
+    public readonly bootPriority = 10;
+
     private static readonly logger = getLogger('EventListenerService');
 
     private readonly wsClient: Client;
