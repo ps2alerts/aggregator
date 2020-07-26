@@ -80,13 +80,14 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        CensusEventSubscriberService.logger.info('Booting EventListenerService... (NOT IMPLEMENTED)');
+        CensusEventSubscriberService.logger.info('Booting EventListenerService...');
+
+        this.constructListeners();
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async start(): Promise<void> {
-        CensusEventSubscriberService.logger.info('Starting EventListenerService...');
-        // eslint-disable-next-line @typescript-eslint/await-thenable
-        void await this.constructListeners();
+        CensusEventSubscriberService.logger.info('Starting EventListenerService... (NOT IMPLEMENTED)');
     }
 
     public terminate(): void {
