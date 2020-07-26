@@ -17,6 +17,10 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly config: Census;
 
+    private lastMessage: Date = new Date();
+
+    private messageTimer: NodeJS.Timeout | null;
+
     constructor(
         wsClient: Client,
         @inject('censusConfig') censusConfig: Census,
@@ -40,6 +44,7 @@ export default class CensusStreamService implements ServiceInterface {
         CensusStreamService.logger.info('Terminating Census Stream Service!');
 
         try {
+            this.messageTimer = null;
             this.wsClient.destroy();
         } catch {
             // Fucked
@@ -68,15 +73,21 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('debug', (message: string) => {
-            CensusStreamService.logger.debug(`Census stream debug: ${message}`);
+            CensusStreamService.logger.info(`Census stream debug: ${message}`);
         });
 
         this.wsClient.on('duplicate', (event: PS2Event) => {
             CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
         });
 
+        this.wsClient.on('ps2Event', (event: PS2Event) => {
+            console.log(event);
+            this.lastMessage = new Date();
+        });
+
         this.wsClient.on('subscribed', () => {
             CensusStreamService.logger.info('Census stream subscribed!');
+            this.startMessageTimer();
 
             // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
             // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
@@ -96,9 +107,24 @@ export default class CensusStreamService implements ServiceInterface {
                     world_id: String(World.MILLER),
                 });
                 /* eslint-enable */
-                this.wsClient.emit(Events.PS2_META_EVENT, event);
+                // this.wsClient.emit(Events.PS2_META_EVENT, event);
                 CensusStreamService.logger.debug('Emitted Metagame Start event');
             }
         });
+    }
+
+    private startMessageTimer(): void {
+        CensusStreamService.logger.info('Census message timer started');
+
+        this.messageTimer = setInterval(() => {
+            CensusStreamService.logger.debug('Census message timeout check running...');
+            const now = new Date();
+            const lastMessageThreshold = now.getTime() - 300000; // 5 minutes ago
+
+            if (this.lastMessage.getTime() < lastMessageThreshold) {
+                CensusStreamService.logger.error('NO CENSUS MESSAGES RECEIVED IN THE LAST 5 MINUTES, KICKING CONNECTION IN THE NUTS');
+                void this.wsClient.watch();
+            }
+        }, 60000);
     }
 }
