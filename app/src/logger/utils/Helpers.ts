@@ -14,12 +14,9 @@ export function transportFactory(transportList: TransportConfig[]): Transport[] 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const options: any = {...t.options};
 
-        if ('whitelist' in t || 'blacklist' in t) {
-            // No idea why this happens, I test that the properties are in t
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+        if (t.filter) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            options.format = logFilter(filterToArray(t.whitelist ?? t.blacklist), 'whitelist' in t)();
+            options.format = logFilter(t.filter)();
         }
 
         switch (t.name) {
