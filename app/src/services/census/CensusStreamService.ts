@@ -35,11 +35,6 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient = wsClient;
         this.config = censusConfig;
         this.prepareClient();
-
-        // Initialize the map with the current date, so it starts the timer from now.
-        this.messageThresholds.forEach((value, thresholdType) => {
-            this.lastMessagesMap.set(thresholdType, new Date());
-        });
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -131,6 +126,11 @@ export default class CensusStreamService implements ServiceInterface {
 
     private startMessageTimer(): void {
         CensusStreamService.logger.info('Census message timer started');
+
+        // Initialize the map with the current date, so it starts the timer from now.
+        this.messageThresholds.forEach((value, thresholdType) => {
+            this.lastMessagesMap.set(thresholdType, new Date());
+        });
 
         this.messageTimer = setInterval(() => {
             CensusStreamService.logger.debug('Census message timeout check running...');
