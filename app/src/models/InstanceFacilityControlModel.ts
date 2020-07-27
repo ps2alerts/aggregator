@@ -23,7 +23,7 @@ export const instanceFacilityControlSchema: Schema = new Schema({
         required: true,
     },
     timestamp: {
-        type: Number,
+        type: Date,
         required: true,
     },
     oldFaction: {
