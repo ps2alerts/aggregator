@@ -109,6 +109,10 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
             name = "LOGGER_DISCORD_WEBHOOK"
             value = var.discord_webhook
           }
+          env {
+            name = "LOGGER_TRANSPORTS"
+            value = var.logger_transports
+          }
         }
       }
     }
