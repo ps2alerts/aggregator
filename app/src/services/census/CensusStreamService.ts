@@ -92,7 +92,7 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient.on('ps2Event', (event: PS2Event) => {
             // If the event name is a monitored event type, add the current Date to the array.
             if (this.messageThresholds.has(event.event_name)) {
-                this.lastMessagesMap.set(event.event_name, new Date().getTime());
+                this.lastMessagesMap.set(event.event_name, Date.now());
             }
         });
 
@@ -129,7 +129,7 @@ export default class CensusStreamService implements ServiceInterface {
 
         // Initialize the map with the current date, so it starts the timer from now.
         this.messageThresholds.forEach((value, thresholdType) => {
-            this.lastMessagesMap.set(thresholdType, new Date().getTime());
+            this.lastMessagesMap.set(thresholdType, Date.now());
         });
 
         this.messageTimer = setInterval(() => {
@@ -137,7 +137,7 @@ export default class CensusStreamService implements ServiceInterface {
 
             this.messageThresholds.forEach((thresholdLimit, eventType) => {
                 const lastTime: number | undefined = this.lastMessagesMap.get(eventType);
-                const threshold: number = new Date().getTime() - thresholdLimit;
+                const threshold: number = Date.now() - thresholdLimit;
 
                 if (!lastTime) {
                     throw new ApplicationException('Undefined lastTime map entry, shouldn\'t be possible! Check constructor.');
