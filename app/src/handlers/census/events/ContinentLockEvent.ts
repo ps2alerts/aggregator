@@ -20,7 +20,7 @@ import {Zone} from '../../../constants/zone';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {ContinentLock, PS2Event} from 'ps2census';
+import {ContinentLock} from 'ps2census';
 import {World} from '../../../constants/world';
 
 @injectable()
@@ -29,7 +29,7 @@ export default class ContinentLockEvent {
 
     public readonly zone: Zone;
 
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
 
     public readonly triggeringFaction: Faction;
 
@@ -39,13 +39,7 @@ export default class ContinentLockEvent {
 
     public readonly trPopulation: number;
 
-    constructor(
-        event: PS2Event,
-    ) {
-        if (!(event instanceof ContinentLock)) {
-            throw new IllegalArgumentException('event', 'ContinentLockEvent');
-        }
-
+    constructor(event: ContinentLock) {
         this.world = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.world)) {
@@ -58,11 +52,7 @@ export default class ContinentLockEvent {
             throw new IllegalArgumentException('zone_id', 'ContinentLockEvent');
         }
 
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
-
-        if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('timestamp', 'ContinentLockEvent');
-        }
+        this.timestamp = event.timestamp;
 
         this.vsPopulation = Parser.parseNumericalArgument(event.vs_population);
 

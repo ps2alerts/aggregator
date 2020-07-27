@@ -16,8 +16,6 @@ import PlayerFacilityCaptureHandler from '../../handlers/census/PlayerFacilityCa
 import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDefendHandler';
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
-import ActiveInstanceInterface from '../../interfaces/ActiveInstanceInterface';
-import {PS2ZoneEvents} from '../../types/PS2AlertsEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import ActiveInstanceAuthority from '../../authorities/ActiveInstanceAuthority';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
@@ -101,16 +99,34 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (this.checkInstance(event)) {
-                const deathEvent = new DeathEvent(event, this.getInstance(event));
+            if (this.activeInstanceAuthority.instanceExists(
+                parseInt(event.world_id, 10),
+                parseInt(event.zone_id, 10),
+            )) {
+                const deathEvent = new DeathEvent(
+                    event,
+                    this.activeInstanceAuthority.getInstance(
+                        parseInt(event.world_id, 10),
+                        parseInt(event.zone_id, 10),
+                    ),
+                );
                 void this.deathEventHandler.handle(deathEvent);
             }
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            if (this.checkInstance(event)) {
+            if (this.activeInstanceAuthority.instanceExists(
+                parseInt(event.world_id, 10),
+                parseInt(event.zone_id, 10),
+            )) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
-                const facilityControl = new FacilityControlEvent(event, this.getInstance(event));
+                const facilityControl = new FacilityControlEvent(
+                    event,
+                    this.activeInstanceAuthority.getInstance(
+                        parseInt(event.world_id, 10),
+                        parseInt(event.zone_id, 10),
+                    ),
+                );
                 void this.facilityControlEventHandler.handle(facilityControl);
             }
         });
@@ -120,20 +136,5 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             const metagameEvent = new MetagameEventEvent(event);
             void this.metagameEventEventHandler.handle(metagameEvent);
         });
-    }
-
-    private checkInstance(event: PS2ZoneEvents): boolean {
-        return this.activeInstanceAuthority.instanceExists(
-            parseInt(event.world_id, 10),
-            parseInt(event.zone_id, 10),
-        );
-    }
-
-    // Checks for compatible event types to see if instance is running on that World + Zone combo
-    private getInstance(event: PS2ZoneEvents): ActiveInstanceInterface {
-        return this.activeInstanceAuthority.getInstance(
-            parseInt(event.world_id, 10),
-            parseInt(event.zone_id, 10),
-        );
     }
 }

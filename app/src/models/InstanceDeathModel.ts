@@ -7,7 +7,7 @@ export interface InstanceDeathSchemaInterface extends Document {
     instance: InstanceSchemaInterface['instanceId'];
     attacker: string;
     player: string;
-    timestamp: number;
+    timestamp: Date;
     attackerFiremode: number;
     attackerLoadout: number;
     weapon: number;
@@ -32,7 +32,7 @@ export const instanceDeathSchema: Schema = new Schema({
         required: true,
     },
     timestamp: {
-        type: Number,
+        type: Date,
         required: true,
     },
     attackerFiremode: {
