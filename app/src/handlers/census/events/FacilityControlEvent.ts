@@ -16,7 +16,7 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import Parser from '../../../utils/parser';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
-import {FacilityControl, PS2EventData} from 'ps2census';
+import {FacilityControl} from 'ps2census';
 import ActiveInstanceInterface from '../../../interfaces/ActiveInstanceInterface';
 
 @injectable()
@@ -25,7 +25,7 @@ export default class FacilityControlEvent {
 
     public readonly facility: number;
 
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
 
     public readonly oldFaction: Faction;
 
@@ -35,17 +35,9 @@ export default class FacilityControlEvent {
 
     public readonly isDefence: boolean;
 
-    public readonly outfitCaptured: string|null;
+    public readonly outfitCaptured: string | null;
 
-    constructor(
-        event: PS2EventData,
-        instance: ActiveInstanceInterface,
-    ) { // No check needed, ZoneUtils will take care of this
-
-        if (!(event instanceof FacilityControl)) {
-            throw new IllegalArgumentException('event', 'FacilityControlEvent');
-        }
-
+    constructor(event: FacilityControl, instance: ActiveInstanceInterface) { // No check needed, ZoneUtils will take care of this
         this.instance = instance;
 
         this.facility = Parser.parseNumericalArgument(event.facility_id);
@@ -54,11 +46,7 @@ export default class FacilityControlEvent {
             throw new IllegalArgumentException('facility_id', 'FacilityControlEvent');
         }
 
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
-
-        if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('timestamp', 'FacilityControlEvent');
-        }
+        this.timestamp = event.timestamp;
 
         this.durationHeld = Parser.parseNumericalArgument(event.duration_held);
 
