@@ -6,7 +6,6 @@ import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
 import {InstanceSchemaInterface} from '../models/InstanceModel';
 import {MetagameEventState} from '../constants/metagameEventState';
-import {getUnixTimestamp} from '../utils/time';
 import {instanceId} from '../utils/instance';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
@@ -61,7 +60,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 world: mge.world,
                 zone: mge.zone,
                 state: MetagameEventState.STARTED,
-                timeStarted: getUnixTimestamp(),
+                timeStarted: new Date(),
             });
             InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
             return await this.activeInstanceAuthority.addInstance(mge);
@@ -81,7 +80,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 {censusInstanceId: instanceId(mge)},
                 {
                     state: MetagameEventState.FINISHED,
-                    timeEnded: getUnixTimestamp(),
+                    timeEnded: new Date(),
                 },
             );
 
