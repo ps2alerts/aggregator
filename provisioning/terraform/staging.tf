@@ -18,4 +18,5 @@ module "websocket_staging" {
   mem_limit          = "512Mi"
   cpu_request        = "500m"
   mem_request        = "256Mi"
+  discord_webhook = "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
 }

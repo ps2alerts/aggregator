@@ -78,3 +78,7 @@ variable "mem_request" {
 variable "checksum_version" {
   default = "UNKNOWN"
 }
+
+variable "discord_webhook" {
+  default = "foo"
+}
