@@ -1,20 +1,30 @@
-import {createLogger, transports, format, Logger} from 'winston';
+import {createLogger, format, Logger} from 'winston';
 import config from '../config';
+import {arrayify, transportFactory} from './utils/Helpers';
+import filter from './filter';
 
 /**
  * A default instance of the index
  */
+const formatting = [
+    format.colorize(),
+    format.timestamp(),
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    format.printf(({timestamp, level, label, message}) => `${timestamp} | ${level} | ${label} >> ${message}`),
+];
+
+if (Object.keys(config.logger.globalFilter).length > 1) {
+    formatting.unshift(filter(config.logger.globalFilter)());
+}
+
 const defaultLogger = createLogger({
     level: config.logger.level,
+    levels: config.logger.levels,
     format: format.combine(
-        format.colorize(),
-        format.timestamp(),
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        format.printf(({timestamp, level, label, message}) => `${timestamp} | ${level} | ${label} >> ${message}`),
+        ...formatting,
     ),
-    transports: [
-        new transports.Console(),
-    ],
+    transports: transportFactory(arrayify(config.logger.transport)
+        .map((t) => config.logger.transports[t])),
 });
 
 /**

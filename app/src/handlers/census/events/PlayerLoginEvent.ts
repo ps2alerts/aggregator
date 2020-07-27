@@ -9,7 +9,7 @@
 import {injectable} from 'inversify';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
-import {PlayerLogin, PS2Event} from 'ps2census';
+import {PlayerLogin} from 'ps2census';
 import {World} from '../../../constants/world';
 
 @injectable()
@@ -18,13 +18,7 @@ export default class PlayerLoginEvent {
 
     public readonly world: World;
 
-    constructor(
-        event: PS2Event,
-    ) {
-        if (!(event instanceof PlayerLogin)) {
-            throw new IllegalArgumentException('event', 'PlayerLoginEvent');
-        }
-
+    constructor(event: PlayerLogin) {
         this.characterId = event.character_id; // This is a string on purpose
 
         this.world = Parser.parseNumericalArgument(event.world_id);
@@ -33,5 +27,4 @@ export default class PlayerLoginEvent {
             throw new IllegalArgumentException('world_id', 'PlayerLoginEvent');
         }
     }
-
 }

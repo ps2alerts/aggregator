@@ -5,7 +5,7 @@ import {Faction, factionArray} from '../constants/faction';
 export interface InstanceFacilityControlInterface extends Document {
     instance: InstanceSchemaInterface['instanceId'];
     facility: number;
-    timestamp: number;
+    timestamp: Date;
     oldFaction: Faction;
     newFaction: Faction;
     durationHeld: number;
@@ -23,7 +23,7 @@ export const instanceFacilityControlSchema: Schema = new Schema({
         required: true,
     },
     timestamp: {
-        type: Number,
+        type: Date,
         required: true,
     },
     oldFaction: {
