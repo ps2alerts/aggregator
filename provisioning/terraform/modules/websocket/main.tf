@@ -106,7 +106,7 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
             value = var.census_service_id
           }
           env {
-            name = "DISCORD_WEBHOOK"
+            name = "LOGGER_DISCORD_WEBHOOK"
             value = var.discord_webhook
           }
         }
