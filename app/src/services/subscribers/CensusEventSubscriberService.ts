@@ -16,8 +16,6 @@ import PlayerFacilityCaptureHandler from '../../handlers/census/PlayerFacilityCa
 import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDefendHandler';
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
-import ActiveInstanceInterface from '../../interfaces/ActiveInstanceInterface';
-import {PS2ZoneEvents} from '../../types/PS2AlertsEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import ActiveInstanceAuthority from '../../authorities/ActiveInstanceAuthority';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
