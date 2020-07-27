@@ -23,7 +23,7 @@ export default class Logger {
 
     public readonly globalFilter: LogFilter = [];
 
-    public readonly transport: string | string[] = ['console', 'discord'];
+    public readonly transport: string | string[] = get('LOGGING_TRANSPORTS', 'console').split(',');
 
     public readonly transports: Record<string, TransportConfig> = {
         console: {
@@ -34,9 +34,13 @@ export default class Logger {
             name: 'discord',
             options: {
                 webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
+                level: 'info',
             },
             filter: [
-                ['SomeLabel', 'warn'],
+                ['GlobalClassAggregate', false],
+                ['GlobalFactionCombatAggregate', false],
+                ['GlobalPlayerAggregate', false],
+                ['GlobalWeaponAggregate', false],
             ],
         },
     };

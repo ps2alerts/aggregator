@@ -30,16 +30,16 @@ export default class CensusStreamService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        CensusStreamService.logger.info('Booting Census Stream Service... (NOT IMPLEMENTED)');
+        CensusStreamService.logger.debug('Booting Census Stream Service... (NOT IMPLEMENTED)');
     }
 
     public async start(): Promise<void> {
-        CensusStreamService.logger.info('Starting Census Stream Service...');
+        CensusStreamService.logger.debug('Starting Census Stream Service...');
         await this.wsClient.watch();
     }
 
     public terminate(): void {
-        CensusStreamService.logger.info('Terminating Census Stream Service!');
+        CensusStreamService.logger.debug('Terminating Census Stream Service!');
 
         try {
             this.wsClient.destroy();
@@ -50,7 +50,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     private prepareClient(): void {
         this.wsClient.on('ready', () => {
-            CensusStreamService.logger.info('Census Stream Service connected, but not yet subscribed.');
+            CensusStreamService.logger.debug('Census Stream Service connected, but not yet subscribed.');
         });
 
         this.wsClient.on('reconnecting', () => {

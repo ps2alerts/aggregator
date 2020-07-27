@@ -92,7 +92,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
             await this.activeInstanceAuthority.endInstance(mge);
 
-            InstanceHandler.logger.debug(`================ SUCCESSFULLY ENDED INSTANCE ${instanceId(mge)} ================`);
+            InstanceHandler.logger.info(`================ SUCCESSFULLY ENDED INSTANCE ${instanceId(mge)} ================`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -113,7 +113,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
 
         try {
             const row = await this.factory.saveDocument(data);
-            GlobalFactionCombatAggregate.logger.info(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
+            GlobalFactionCombatAggregate.logger.debug(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

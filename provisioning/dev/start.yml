@@ -34,6 +34,7 @@
           REDIS_DB: "1"
           API_BASE_URL: "http://api.dev.ps2alerts.com"
           CENSUS_SERVICE_ID: "{{ census_service_id }}"
+          LOGGER_TRANSPORTS: "console"
         labels:
           traefik.enable: "true"
           traefik.http.routers.ps2alerts-websocket.rule: "Host(`wss.dev.ps2alerts.com`)"

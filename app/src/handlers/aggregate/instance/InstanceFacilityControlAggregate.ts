@@ -87,7 +87,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
 
         try {
             const row = await this.factory.saveDocument(data);
-            InstanceFacilityControlAggregate.logger.info(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
+            InstanceFacilityControlAggregate.logger.debug(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
