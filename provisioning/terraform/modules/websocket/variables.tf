@@ -82,3 +82,7 @@ variable "checksum_version" {
 variable "discord_webhook" {
   default = "foo"
 }
+
+variable "logger_transports" {
+  default = "console"
+}
