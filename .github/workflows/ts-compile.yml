@@ -6,8 +6,8 @@ defaults:
   run:
     working-directory: ./app
 jobs:
-  tsc:
-    name: tsc
+  typescript-compile:
+    name: Typescript Compile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
