@@ -17,5 +17,5 @@ jobs:
           node-version: 12
       - name: npm install
         run: npm install
-      - name: tsc
-        uses: icrawl/action-tsc@v1
+      - name: npm run build
+        run: npm run build
