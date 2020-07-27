@@ -1,4 +1,5 @@
 ---
+name: Typescript Compile
 on:
   push:
   pull_request:
