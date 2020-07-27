@@ -34,9 +34,13 @@ export default class Logger {
             name: 'discord',
             options: {
                 webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
+                level: 'info',
             },
             filter: [
-                ['InstanceInstanceHandler', 'info'],
+                ['GlobalClassAggregate', false],
+                ['GlobalFactionCombatAggregate', false],
+                ['GlobalPlayerAggregate', false],
+                ['GlobalWeaponAggregate', false],
             ],
         },
     };

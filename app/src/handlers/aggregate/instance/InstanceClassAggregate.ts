@@ -101,7 +101,7 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
 
         try {
             const row = await this.factory.saveDocument(document);
-            InstanceClassAggregate.logger.info(`Inserted initial InstanceClassAggregate record for Instance: ${row.instance} | Loadout: ${row.class}`);
+            InstanceClassAggregate.logger.debug(`Inserted initial InstanceClassAggregate record for Instance: ${row.instance} | Loadout: ${row.class}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -46,7 +46,7 @@ export default class MongoDBConnection {
      */
     public async getConnection(): Promise<Mongoose | boolean> {
         if (this.isConnecting) {
-            MongoDBConnection.logger.info('MongoDBConnection is currently connecting, aborting connection.');
+            MongoDBConnection.logger.warn('MongoDBConnection is currently connecting, aborting connection.');
             return false;
         }
 
@@ -88,7 +88,7 @@ export default class MongoDBConnection {
      * Initiates connection
      */
     private async connect(): Promise<void> {
-        MongoDBConnection.logger.info('Starting connection...');
+        MongoDBConnection.logger.debug('Starting connection...');
         this.isConnecting = true;
 
         const {config} = this.dbConfig;

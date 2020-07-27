@@ -34,6 +34,7 @@
           REDIS_DB: "1"
           API_BASE_URL: "http://api.dev.ps2alerts.com"
           CENSUS_SERVICE_ID: "{{ census_service_id }}"
+          LOGGER_DISCORD_WEBHOOK: "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
         labels:
           traefik.enable: "true"
           traefik.http.routers.ps2alerts-websocket.rule: "Host(`wss.dev.ps2alerts.com`)"

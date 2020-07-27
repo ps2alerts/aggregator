@@ -101,7 +101,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
 
         try {
             const row = await this.factory.saveDocument(document);
-            GlobalClassAggregate.logger.info(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
+            GlobalClassAggregate.logger.debug(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

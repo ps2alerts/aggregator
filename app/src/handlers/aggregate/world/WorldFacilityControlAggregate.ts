@@ -87,7 +87,7 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
 
         try {
             const row = await this.factory.saveDocument(data);
-            WorldFacilityControlAggregate.logger.info(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
+            WorldFacilityControlAggregate.logger.debug(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
