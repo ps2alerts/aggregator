@@ -14,24 +14,19 @@ import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
-import {PlayerFacilityCapture, PS2Event} from 'ps2census';
+import {PlayerFacilityCapture} from 'ps2census';
 import {World} from '../../../constants/world';
 
 @injectable()
 export default class PlayerFacilityCaptureEvent {
     public readonly world: World;
     public readonly zone: Zone;
-    public readonly timestamp: number;
+    public readonly timestamp: Date;
     public readonly characterId: string;
     public readonly facilityId: number;
     public readonly outfitId: number;
 
-    constructor(
-        event: PS2Event,
-    ) {
-        if (!(event instanceof PlayerFacilityCapture)) {
-            throw new IllegalArgumentException('event', 'PlayerFacilityCaptureEvent');
-        }
+    constructor(event: PlayerFacilityCapture) {
 
         this.world = Parser.parseNumericalArgument(event.world_id);
 
@@ -46,11 +41,7 @@ export default class PlayerFacilityCaptureEvent {
             throw new IllegalArgumentException('zone_id', 'PlayerFacilityCaptureEvent');
         }
 
-        this.timestamp = Parser.parseNumericalArgument(event.timestamp);
-
-        if (isNaN(this.timestamp)) {
-            throw new IllegalArgumentException('timestamp', 'PlayerFacilityCaptureEvent');
-        }
+        this.timestamp = event.timestamp;
 
         this.characterId = event.character_id; // This is a string on purpose
 

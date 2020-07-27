@@ -1,3 +1,4 @@
+import {groupBy} from 'lodash';
 import {Container, injectable, multiInject} from 'inversify';
 import {getLogger} from '../logger';
 import KernelInterface from '../interfaces/KernelInterface';
@@ -60,11 +61,19 @@ export default class Kernel implements KernelInterface {
         try {
             // @See config/app/.ts
             Kernel.logger.info('==== Booting services ====');
-            await Promise.all(
-                this.services.map(
-                    (service) => service.boot?.apply(service, [this.container]),
-                ),
-            );
+
+            const bootGroups = groupBy(this.services, 'bootPriority');
+
+            // Perfectly fine, even though Object.keys return an array of strings. Magic :D
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            for (const bootKey of (Object.keys(bootGroups) as number[]).sort((x, y) => (x - y))) {
+                await Promise.all(
+                    bootGroups[bootKey].map(
+                        (service) => service.boot?.apply(service, [this.container]),
+                    ),
+                );
+            }
 
             Kernel.logger.info('==== Services booted! ====');
 

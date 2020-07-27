@@ -11,6 +11,8 @@ import Census from '../../config/census';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
+    public readonly bootPriority = 10;
+
     private static readonly logger = getLogger('ps2census');
 
     private readonly wsClient: Client;
