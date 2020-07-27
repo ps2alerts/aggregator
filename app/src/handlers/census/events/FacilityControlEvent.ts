@@ -37,7 +37,7 @@ export default class FacilityControlEvent {
 
     public readonly outfitCaptured: string | null;
 
-    constructor(event: FacilityControl, instance: ActiveInstanceInterface) { // No check needed, ZoneUtils will take care of this
+    constructor(event: FacilityControl, instance: ActiveInstanceInterface) {
         this.instance = instance;
 
         this.facility = Parser.parseNumericalArgument(event.facility_id);

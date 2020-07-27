@@ -22,7 +22,7 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import ZoneUtils from '../../../utils/ZoneUtils';
 import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
-import {Death, PS2Event} from 'ps2census';
+import {Death} from 'ps2census';
 import ActiveInstanceInterface from '../../../interfaces/ActiveInstanceInterface';
 import {Faction} from '../../../constants/faction';
 import FactionUtils from '../../../utils/FactionUtils';
@@ -61,14 +61,7 @@ export default class DeathEvent {
 
     public readonly isTeamkill: boolean;
 
-    constructor(
-        event: PS2Event,
-        instance: ActiveInstanceInterface,
-    ) {
-        if (!(event instanceof Death)) {
-            throw new IllegalArgumentException('event', 'DeathEvent');
-        }
-
+    constructor(event: Death, instance: ActiveInstanceInterface) {
         this.instance = instance;
 
         this.world = Parser.parseNumericalArgument(event.world_id);
