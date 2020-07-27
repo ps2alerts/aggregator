@@ -8,8 +8,8 @@ export interface InstanceSchemaInterface extends Document {
     world: World;
     zone: Zone;
     state: MetagameEventState;
-    timeStarted: number;
-    timeEnded: number;
+    timeStarted: Date;
+    timeEnded: Date;
 }
 
 export const instanceSchema: Schema = new Schema({
