@@ -81,7 +81,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 {censusInstanceId: instanceId(mge)},
                 {
                     state: MetagameEventState.FINISHED,
-                    timeEnded: getUnixTimestamp(),
+                    timeEnded: new Date(),
                 },
             );
 
