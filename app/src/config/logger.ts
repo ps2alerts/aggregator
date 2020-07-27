@@ -36,7 +36,7 @@ export default class Logger {
                 webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
             },
             filter: [
-                ['SomeLabel', 'warn'],
+                ['InstanceInstanceHandler', 'info'],
             ],
         },
     };
