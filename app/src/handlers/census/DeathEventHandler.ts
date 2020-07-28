@@ -88,7 +88,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            if (err.errorCode !== 11000) {
+            if (err.includes('duplicate')) {
                 throw new ApplicationException(`Unable to insert Instance into DB! ${err}`);
             }
         }
