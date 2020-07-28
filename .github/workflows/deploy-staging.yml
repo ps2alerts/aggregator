@@ -7,12 +7,12 @@ jobs:
   build-docker-images:
     runs-on: ubuntu-latest
     steps:
-      - name: Get short SHA
-        id: sha
-        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
-
       - name: Checkout
         uses: actions/checkout@v1
+
+      - name: Get short SHA
+        id: sha
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Build base image
         uses: docker/build-push-action@v1
@@ -42,12 +42,12 @@ jobs:
         shell: bash
         working-directory: provisioning/terraform
     steps:
-      - name: Get short SHA
-        id: sha
-        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
-
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Get short SHA
+        id: sha
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       # Install the latest version of Terraform CLI and configure the Terraform
       # CLI configuration file with a Terraform Cloud user API token
