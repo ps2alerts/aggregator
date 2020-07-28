@@ -36,12 +36,7 @@ export default class Logger {
                 webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
                 level: 'info',
             },
-            filter: [
-                ['GlobalClassAggregate', false],
-                ['GlobalFactionCombatAggregate', false],
-                ['GlobalPlayerAggregate', false],
-                ['GlobalWeaponAggregate', false],
-            ],
+            filter: [],
         },
     };
 }

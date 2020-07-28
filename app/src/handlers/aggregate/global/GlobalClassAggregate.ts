@@ -6,7 +6,6 @@ import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {GlobalClassAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalClassAggregateModel';
-import {jsonLogOutput} from "../../../utils/json";
 
 @injectable()
 export default class GlobalClassAggregate implements AggregateHandlerInterface<DeathEvent> {
