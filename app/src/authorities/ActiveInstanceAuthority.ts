@@ -77,6 +77,7 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
             const res = await this.factory.model.deleteOne(
                 {instanceId: instanceId(mge)},
             );
+            ActiveInstanceAuthority.logger.info(`Deleted instance ID: ${instanceId(mge)}`);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!res) {
