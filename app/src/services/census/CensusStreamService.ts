@@ -8,7 +8,6 @@ import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
 import {MetagameEventIds} from '../../constants/metagameEventIds';
 import Census from '../../config/census';
-import ApplicationException from '../../exceptions/ApplicationException';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -71,7 +70,10 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('disconnected', () => {
-            this.messageTimer = null;
+            if (this.messageTimer) {
+                clearInterval(this.messageTimer);
+            }
+
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
@@ -135,10 +137,6 @@ export default class CensusStreamService implements ServiceInterface {
             this.lastMessagesMap.forEach((lastTime: number, world: World) => {
                 const thresholdLimit = 60000;
                 const threshold: number = Date.now() - thresholdLimit; // We expect to get at least one death event on every world, regarless of time within 60 seconds
-
-                if (!lastTime) {
-                    throw new ApplicationException('Undefined lastTime map entry, shouldn\'t be possible!', 'CensusStreamService');
-                }
 
                 if (lastTime < threshold) {
                     CensusStreamService.logger.error(`No Census Death messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Rebooting Connection.`);
