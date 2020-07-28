@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get short SHA
-          id: sha
-          run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+        id: sha
+        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
 
       - name: Checkout
         uses: actions/checkout@v1
