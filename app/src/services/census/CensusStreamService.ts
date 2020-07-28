@@ -95,7 +95,7 @@ export default class CensusStreamService implements ServiceInterface {
 
         this.wsClient.on('ps2Event', (event: PS2Event) => {
             // If the event name is a monitored event type, add the current Date to the array.
-            if (event.event_name === 'Death') {
+            if (event.event_name === 'Death' && parseInt(event.world_id, 10) !== World.JAEGER) {
                 this.lastMessagesMap.set(parseInt(event.world_id, 10), Date.now());
             }
         });
