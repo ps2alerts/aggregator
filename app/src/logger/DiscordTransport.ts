@@ -102,7 +102,7 @@ export default class DiscordTransport extends Transport {
     }
 
     private addQueue(embed: Embed): void {
-        let [bucket] = this.queue;
+        let bucket = Array.from(this.queue).pop();
 
         if (!bucket || bucket.size >= this.maxEmbeds) {
             bucket = new Set();
