@@ -23,7 +23,7 @@ export default class Logger {
 
     public readonly globalFilter: LogFilter = [];
 
-    public readonly transport: string | string[] = get('LOGGING_TRANSPORTS', 'console').split(',');
+    public readonly transport: string | string[] = get('LOGGER_TRANSPORTS', 'console').split(',');
 
     public readonly transports: Record<string, TransportConfig> = {
         console: {
