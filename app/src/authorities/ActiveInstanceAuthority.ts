@@ -96,7 +96,7 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
     }
 
     private async init(): Promise<boolean> {
-        ActiveInstanceAuthority.logger.info('Initializing ActiveInstances...');
+        ActiveInstanceAuthority.logger.debug('Initializing ActiveInstances...');
         // Pull the list out of the database and assign to in-memory array
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let rows: any[] = [];
@@ -122,15 +122,15 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
             });
         }
 
-        ActiveInstanceAuthority.logger.info('Initializing ActiveInstances FINISHED');
+        ActiveInstanceAuthority.logger.debug('Initializing ActiveInstances FINISHED');
         this.printActives();
         return true;
     }
 
     private printActives(): void {
-        ActiveInstanceAuthority.logger.info('Current actives:');
+        ActiveInstanceAuthority.logger.debug('Current actives:');
         this._activeInstances.forEach((row: ActiveInstanceInterface) => {
-            ActiveInstanceAuthority.logger.info(jsonLogOutput(row));
+            ActiveInstanceAuthority.logger.debug(jsonLogOutput(row));
         });
     }
 }

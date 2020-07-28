@@ -94,7 +94,7 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
 
         try {
             const row = await this.factory.saveDocument(player);
-            GlobalPlayerAggregate.logger.info(`Inserted initial GlobalPlayerAggregate record for Player: ${row.player} | World: ${row.world}`);
+            GlobalPlayerAggregate.logger.debug(`Inserted initial GlobalPlayerAggregate record for Player: ${row.player} | World: ${row.world}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

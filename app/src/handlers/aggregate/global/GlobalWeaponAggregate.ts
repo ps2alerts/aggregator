@@ -76,7 +76,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
 
         try {
             const row = await this.factory.saveDocument(data);
-            GlobalWeaponAggregate.logger.info(`Inserted initial GlobalWeaponAggregate record for Weapon: ${row.weapon} | World: ${row.world}`);
+            GlobalWeaponAggregate.logger.debug(`Inserted initial GlobalWeaponAggregate record for Weapon: ${row.weapon} | World: ${row.world}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -60,7 +60,7 @@ export default class Kernel implements KernelInterface {
 
         try {
             // @See config/app/.ts
-            Kernel.logger.info('==== Booting services ====');
+            Kernel.logger.debug('==== Booting services ====');
 
             const bootGroups = groupBy(this.services, 'bootPriority');
 
@@ -77,7 +77,7 @@ export default class Kernel implements KernelInterface {
 
             Kernel.logger.info('==== Services booted! ====');
 
-            Kernel.logger.info('==== Starting services ====');
+            Kernel.logger.debug('==== Starting services ====');
             await Promise.all(
                 this.services.map(
                     (service) => service.start?.apply(
@@ -116,7 +116,7 @@ export default class Kernel implements KernelInterface {
         // Set app as terminating!
         this.state = RunningStates.TERMINATING;
 
-        Kernel.logger.info(`TERMINATING! CODE: ${code}`);
+        Kernel.logger.error(`TERMINATING! CODE: ${code}`);
 
         // Handle killing everything here
         process.exit(code);

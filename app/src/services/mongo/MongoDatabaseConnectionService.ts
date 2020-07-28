@@ -17,17 +17,17 @@ export default class MongoDatabaseConnectionService implements ServiceInterface 
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        MongoDatabaseConnectionService.logger.info('Booting Mongo Database Connection Service...');
+        MongoDatabaseConnectionService.logger.debug('Booting Mongo Database Connection Service...');
         await this.dbClient.getConnection();
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async start(): Promise<void> {
-        MongoDatabaseConnectionService.logger.info('Starting Mongo Database Connection Service... (NOT IMPLEMENTED)');
+        MongoDatabaseConnectionService.logger.debug('Starting Mongo Database Connection Service... (NOT IMPLEMENTED)');
     }
 
     public async terminate(): Promise<void> {
-        MongoDatabaseConnectionService.logger.info('Terminating Mongo Database Connection...');
+        MongoDatabaseConnectionService.logger.warn('Terminating Mongo Database Connection...');
         await this.dbClient.terminateConnection();
     }
 }

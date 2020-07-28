@@ -10,6 +10,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - name: Get short SHA
+        id: sha
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
       - name: Build base image
         uses: docker/build-push-action@v1
         with:
@@ -27,7 +31,7 @@ jobs:
           repository: maelstromeous/applications
           dockerfile: provisioning/staging/Dockerfile
           always_pull: true
-          tags: ps2alerts-websocket-staging-${{ github.sha }}
+          tags: ps2alerts-websocket-staging-${{ steps.sha.outputs.sha_short }}
 
   deploy-terraform:
     needs:
@@ -40,6 +44,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Get short SHA
+        id: sha
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       # Install the latest version of Terraform CLI and configure the Terraform
       # CLI configuration file with a Terraform Cloud user API token
@@ -64,7 +72,7 @@ jobs:
       - name: Terraform Plan
         run: >
           terraform plan \
-            -var='checksum_version=${{ github.sha }}' \
+            -var='checksum_version=${{ steps.sha.outputs.sha_short }}' \
             -var='db_user=${{ secrets.DB_USER }}' \
             -var='db_pass=${{ secrets.DB_PASS }}' \
             -var='census_service_id=${{ secrets.CENSUS_SERVICE_ID }}' \
