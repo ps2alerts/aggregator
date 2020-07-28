@@ -131,7 +131,7 @@ export default class CensusStreamService implements ServiceInterface {
                 const threshold: number = Date.now() - thresholdLimit; // We expect to get at least one death event on every world, regarless of time within 60 seconds
 
                 if (!lastTime) {
-                    throw new ApplicationException('Undefined lastTime map entry, shouldn\'t be possible! Check constructor.');
+                    throw new ApplicationException('Undefined lastTime map entry, shouldn\'t be possible!', 'CensusStreamService');
                 }
 
                 if (lastTime < threshold) {
