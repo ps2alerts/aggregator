@@ -104,8 +104,15 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
             InstancePlayerAggregate.logger.debug(`Inserted initial InstancePlayerAggregate record for Instance: ${row.instance} | Player: ${row.player}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial InstancePlayerAggregate record into DB! ${err}`, 'InstancePlayerAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial InstancePlayerAggregate record into DB! ${err}`, 'InstancePlayerAggregate');
+            }
         }
+
+        return false;
     }
 }

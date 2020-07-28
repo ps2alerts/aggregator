@@ -79,8 +79,15 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             });
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+            }
         }
+
+        return false;
     }
 }

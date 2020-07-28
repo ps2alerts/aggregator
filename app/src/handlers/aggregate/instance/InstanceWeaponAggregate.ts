@@ -79,8 +79,15 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
             InstanceWeaponAggregate.logger.debug(`Inserted initial InstanceWeaponAggregate record for Instance: ${row.instance} | Weapon: ${row.weapon}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial InstanceWeaponAggregate record into DB! ${err}`, 'InstanceWeaponAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial InstanceWeaponAggregate record into DB! ${err}`, 'InstanceWeaponAggregate');
+            }
         }
+
+        return false;
     }
 }

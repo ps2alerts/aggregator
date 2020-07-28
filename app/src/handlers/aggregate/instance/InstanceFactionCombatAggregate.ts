@@ -116,8 +116,15 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
             InstanceFactionCombatAggregate.logger.debug(`Inserted initial InstanceFactionCombatAggregate record for Instance: ${row.instance}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial InstanceFactionCombatAggregate record into DB! ${err}`, 'InstanceFactionCombatAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial InstanceFactionCombatAggregate record into DB! ${err}`, 'InstanceFactionCombatAggregate');
+            }
         }
+
+        return false;
     }
 }

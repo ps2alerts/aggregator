@@ -90,8 +90,15 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
             InstanceFacilityControlAggregate.logger.debug(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial InstanceFacilityControlAggregate record into DB! ${err}`, 'InstanceFacilityControlAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial InstanceFacilityControlAggregate record into DB! ${err}`, 'InstanceFacilityControlAggregate');
+            }
         }
+
+        return false;
     }
 }

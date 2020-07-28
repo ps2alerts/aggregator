@@ -79,8 +79,15 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
             GlobalWeaponAggregate.logger.debug(`Inserted initial GlobalWeaponAggregate record for Weapon: ${row.weapon} | World: ${row.world}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial GlobalWeaponAggregate record into DB! ${err}`, 'GlobalWeaponAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial GlobalWeaponAggregate record into DB! ${err}`, 'GlobalWeaponAggregate');
+            }
         }
+
+        return false;
     }
 }

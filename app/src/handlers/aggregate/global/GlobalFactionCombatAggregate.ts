@@ -116,8 +116,15 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             GlobalFactionCombatAggregate.logger.debug(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial GlobalFactionCombatAggregate record into DB! ${err}`, 'GlobalFactionCombatAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial GlobalFactionCombatAggregate record into DB! ${err}`, 'GlobalFactionCombatAggregate');
+            }
         }
+
+        return false;
     }
 }

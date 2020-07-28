@@ -6,6 +6,7 @@ import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {GlobalClassAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalClassAggregateModel';
+import {jsonLogOutput} from "../../../utils/json";
 
 @injectable()
 export default class GlobalClassAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -104,8 +105,15 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
             GlobalClassAggregate.logger.debug(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial GlobalClassAggregate record into DB! ${err}`, 'GlobalClassAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial GlobalClassAggregate record into DB! ${err}`, 'GlobalClassAggregate');
+            }
         }
+
+        return false;
     }
 }

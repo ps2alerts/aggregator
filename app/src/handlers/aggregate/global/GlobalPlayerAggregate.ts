@@ -97,8 +97,15 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
             GlobalPlayerAggregate.logger.debug(`Inserted initial GlobalPlayerAggregate record for Player: ${row.player} | World: ${row.world}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial GlobalPlayerAggregate record into DB! ${err}`, 'GlobalPlayerAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial GlobalPlayerAggregate record into DB! ${err}`, 'GlobalPlayerAggregate');
+            }
         }
+
+        return false;
     }
 }

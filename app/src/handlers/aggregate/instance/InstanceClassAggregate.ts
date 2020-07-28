@@ -104,8 +104,15 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
             InstanceClassAggregate.logger.debug(`Inserted initial InstanceClassAggregate record for Instance: ${row.instance} | Loadout: ${row.class}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial InstanceClassAggregate record into DB! ${err}`, 'InstanceClassAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial InstanceClassAggregate record into DB! ${err}`, 'InstanceClassAggregate');
+            }
         }
+
+        return false;
     }
 }
