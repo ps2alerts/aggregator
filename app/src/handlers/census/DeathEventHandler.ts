@@ -86,7 +86,8 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                 vehicle: deathEvent.attackerVehicleId,
             });
             return true;
-        } catch (err: Error) {
+        } catch (err) {
+            const err: Error = err;
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             if (!err.message.includes('E11000')) {
                 throw new ApplicationException(`Unable to insert Instance into DB! ${err}`);
