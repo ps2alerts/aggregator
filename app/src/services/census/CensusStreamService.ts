@@ -47,7 +47,10 @@ export default class CensusStreamService implements ServiceInterface {
         CensusStreamService.logger.debug('Terminating Census Stream Service!');
 
         try {
-            this.messageTimer = null;
+            if (this.messageTimer) {
+                clearInterval(this.messageTimer);
+            }
+
             this.wsClient.destroy();
         } catch {
             // Fucked
@@ -60,7 +63,10 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('reconnecting', () => {
-            this.messageTimer = null;
+            if (this.messageTimer) {
+                clearInterval(this.messageTimer);
+            }
+
             CensusStreamService.logger.warn('Census stream connection lost... reconnecting...');
         });
 
