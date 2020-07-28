@@ -31,7 +31,7 @@ jobs:
           repository: maelstromeous/applications
           dockerfile: provisioning/staging/Dockerfile
           always_pull: true
-          tags: ps2alerts-websocket-staging-${{ steps.sha.outputs.sha8 }}
+          tags: ps2alerts-websocket-staging-${{ steps.sha.outputs.sha_short }}
 
   deploy-terraform:
     needs:
@@ -72,7 +72,7 @@ jobs:
       - name: Terraform Plan
         run: >
           terraform plan \
-            -var='checksum_version=${{ steps.sha.outputs.sha8 }}' \
+            -var='checksum_version=${{ steps.sha.outputs.sha_short }}' \
             -var='db_user=${{ secrets.DB_USER }}' \
             -var='db_pass=${{ secrets.DB_PASS }}' \
             -var='census_service_id=${{ secrets.CENSUS_SERVICE_ID }}' \
