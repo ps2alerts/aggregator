@@ -7,6 +7,10 @@ jobs:
   build-docker-images:
     runs-on: ubuntu-latest
     steps:
+      - name: Get short SHA
+          id: sha
+          run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
       - name: Checkout
         uses: actions/checkout@v1
 
@@ -27,7 +31,7 @@ jobs:
           repository: maelstromeous/applications
           dockerfile: provisioning/staging/Dockerfile
           always_pull: true
-          tags: ps2alerts-websocket-staging-${{ github.sha }}
+          tags: ps2alerts-websocket-staging-${{ steps.sha.outputs.sha8 }}
 
   deploy-terraform:
     needs:
@@ -38,6 +42,10 @@ jobs:
         shell: bash
         working-directory: provisioning/terraform
     steps:
+      - name: Get short SHA
+        id: sha
+        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -64,7 +72,7 @@ jobs:
       - name: Terraform Plan
         run: >
           terraform plan \
-            -var='checksum_version=${{ github.sha }}' \
+            -var='checksum_version=${{ steps.sha.outputs.sha8 }}' \
             -var='db_user=${{ secrets.DB_USER }}' \
             -var='db_pass=${{ secrets.DB_PASS }}' \
             -var='census_service_id=${{ secrets.CENSUS_SERVICE_ID }}' \
