@@ -92,5 +92,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                 throw new ApplicationException(`Unable to insert Instance into DB! ${err}`);
             }
         }
+
+        return false;
     }
 }
