@@ -128,9 +128,9 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
     }
 
     private printActives(): void {
-        ActiveInstanceAuthority.logger.debug('Current actives:');
+        ActiveInstanceAuthority.logger.info('Current actives:');
         this._activeInstances.forEach((row: ActiveInstanceInterface) => {
-            ActiveInstanceAuthority.logger.debug(jsonLogOutput(row));
+            ActiveInstanceAuthority.logger.info(jsonLogOutput(row));
         });
     }
 }
