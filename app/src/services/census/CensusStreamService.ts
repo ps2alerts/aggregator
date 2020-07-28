@@ -20,13 +20,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly config: Census;
 
-    private readonly lastMessagesMap: Map<string, number> = new Map<string, number>();
-
-    private readonly messageThresholds: Map<string, number> = new Map<string, number>([
-        ['Death', 60000], // 1 minute
-        ['FacilityControl', 600000], // 10 minutes
-        ['MetagameEvent', 18000000], // 30 minutes
-    ]);
+    private readonly lastMessagesMap: Map<World, number> = new Map<World, number>();
 
     private messageTimer: NodeJS.Timeout | null;
 
@@ -93,8 +87,8 @@ export default class CensusStreamService implements ServiceInterface {
 
         this.wsClient.on('ps2Event', (event: PS2Event) => {
             // If the event name is a monitored event type, add the current Date to the array.
-            if (this.messageThresholds.has(event.event_name)) {
-                this.lastMessagesMap.set(event.event_name, Date.now());
+            if (event.event_name === 'Death') {
+                this.lastMessagesMap.set(parseInt(event.world_id, 10), Date.now());
             }
         });
 
@@ -129,27 +123,22 @@ export default class CensusStreamService implements ServiceInterface {
     private startMessageTimer(): void {
         CensusStreamService.logger.info('Census message timer started');
 
-        // Initialize the map with the current date, so it starts the timer from now.
-        this.messageThresholds.forEach((value, thresholdType) => {
-            this.lastMessagesMap.set(thresholdType, Date.now());
-        });
-
         this.messageTimer = setInterval(() => {
             CensusStreamService.logger.debug('Census message timeout check running...');
 
-            this.messageThresholds.forEach((thresholdLimit, eventType) => {
-                const lastTime: number | undefined = this.lastMessagesMap.get(eventType);
-                const threshold: number = Date.now() - thresholdLimit;
+            this.lastMessagesMap.forEach((lastTime: number, world: World) => {
+                const thresholdLimit = 60000;
+                const threshold: number = Date.now() - thresholdLimit; // We expect to get at least one death event on every world, regarless of time within 60 seconds
 
                 if (!lastTime) {
                     throw new ApplicationException('Undefined lastTime map entry, shouldn\'t be possible! Check constructor.');
                 }
 
                 if (lastTime < threshold) {
-                    CensusStreamService.logger.error(`No Census messages received for event type "${eventType}" within expected threshold of ${thresholdLimit / 1000} seconds. Rebooting Connection.`);
-                    void this.wsClient.watch();
+                    CensusStreamService.logger.error(`No Census Death messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Rebooting Connection.`);
+                    void this.wsClient.resubscribe();
                 }
             });
-        }, 60000);
+        }, 15000);
     }
 }
