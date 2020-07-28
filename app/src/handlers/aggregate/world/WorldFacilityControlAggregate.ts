@@ -90,8 +90,15 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
             WorldFacilityControlAggregate.logger.debug(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert initial WorldFacilityControlAggregate record into DB! ${err}`, 'WorldFacilityControlAggregate');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert initial WorldFacilityControlAggregate record into DB! ${err}`, 'WorldFacilityControlAggregate');
+            }
         }
+
+        return false;
     }
 }
