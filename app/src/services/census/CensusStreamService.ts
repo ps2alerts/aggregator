@@ -3,7 +3,7 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {inject, injectable} from 'inversify';
-import {Client, MetagameEvent, PS2Event, Events} from 'ps2census';
+import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
 import {MetagameEventIds} from '../../constants/metagameEventIds';
@@ -18,6 +18,10 @@ export default class CensusStreamService implements ServiceInterface {
     private readonly wsClient: Client;
 
     private readonly config: Census;
+
+    private readonly lastMessagesMap: Map<World, number> = new Map<World, number>();
+
+    private messageTimer?: NodeJS.Timeout;
 
     constructor(
         wsClient: Client,
@@ -42,6 +46,10 @@ export default class CensusStreamService implements ServiceInterface {
         CensusStreamService.logger.debug('Terminating Census Stream Service!');
 
         try {
+            if (this.messageTimer) {
+                clearInterval(this.messageTimer);
+            }
+
             this.wsClient.destroy();
         } catch {
             // Fucked
@@ -54,10 +62,18 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('reconnecting', () => {
+            if (this.messageTimer) {
+                clearInterval(this.messageTimer);
+            }
+
             CensusStreamService.logger.warn('Census stream connection lost... reconnecting...');
         });
 
         this.wsClient.on('disconnected', () => {
+            if (this.messageTimer) {
+                clearInterval(this.messageTimer);
+            }
+
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
@@ -70,15 +86,23 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('debug', (message: string) => {
-            CensusStreamService.logger.debug(`Census stream debug: ${message}`);
+            CensusStreamService.logger.info(`Census stream debug: ${message}`);
         });
 
         this.wsClient.on('duplicate', (event: PS2Event) => {
             CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
         });
 
+        this.wsClient.on('ps2Event', (event: PS2Event) => {
+            // If the event name is a monitored event type, add the current Date to the array.
+            if (event.event_name === 'Death') {
+                this.lastMessagesMap.set(parseInt(event.world_id, 10), Date.now());
+            }
+        });
+
         this.wsClient.on('subscribed', () => {
             CensusStreamService.logger.info('Census stream subscribed!');
+            this.startMessageTimer();
 
             // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
             // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
@@ -102,5 +126,23 @@ export default class CensusStreamService implements ServiceInterface {
                 CensusStreamService.logger.debug('Emitted Metagame Start event');
             }
         });
+    }
+
+    private startMessageTimer(): void {
+        CensusStreamService.logger.info('Census message timer started');
+
+        this.messageTimer = setInterval(() => {
+            CensusStreamService.logger.debug('Census message timeout check running...');
+
+            this.lastMessagesMap.forEach((lastTime: number, world: World) => {
+                const thresholdLimit = 60000;
+                const threshold: number = Date.now() - thresholdLimit; // We expect to get at least one death event on every world, regarless of time within 60 seconds
+
+                if (lastTime < threshold) {
+                    CensusStreamService.logger.error(`No Census Death messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Rebooting Connection.`);
+                    void this.wsClient.resubscribe();
+                }
+            });
+        }, 15000);
     }
 }
