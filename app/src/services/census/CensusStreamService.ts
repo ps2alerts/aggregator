@@ -22,7 +22,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly lastMessagesMap: Map<World, number> = new Map<World, number>();
 
-    private messageTimer: NodeJS.Timeout | null;
+    private messageTimer?: NodeJS.Timeout;
 
     constructor(
         wsClient: Client,
