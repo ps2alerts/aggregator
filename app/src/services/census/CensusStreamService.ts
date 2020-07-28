@@ -135,7 +135,7 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.debug('Census message timeout check running...');
 
             this.lastMessagesMap.forEach((lastTime: number, world: World) => {
-                const thresholdLimit = 60000;
+                const thresholdLimit = 120000;
                 const threshold: number = Date.now() - thresholdLimit; // We expect to get at least one death event on every world, regarless of time within 60 seconds
 
                 if (lastTime < threshold) {
