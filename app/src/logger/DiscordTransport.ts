@@ -14,11 +14,11 @@ interface Embed {
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/naming-convention, @typescript-eslint/no-unsafe-return */
 export default class DiscordTransport extends Transport {
     public static readonly defaultLevelColors = {
-        error: 15073281, // Red
+        error: 11010049, // Red
         warn: 16763904, // Yellow
-        info: 3394611, // Green
+        info: 5350479, // Green
         verbose: 52479, // Light Blue
-        debug: 230, // Indigo
+        debug: 100, // Indigo
     };
 
     private readonly webhookUrl: string;
@@ -113,7 +113,7 @@ export default class DiscordTransport extends Transport {
     }
 
     private levelToColor(level: string): number {
-        return get(this.levelColors, level, 808080);
+        return get(this.levelColors, level, 7433572);
     }
 }
 
