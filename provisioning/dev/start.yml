@@ -14,7 +14,7 @@
         recreate: yes
         restart_policy: "no"
         volumes:
-          - "{{ root_dir | realpath }}/app:/app:rw"
+          - "{{ root_dir | realpath }}:/app:rw"
         ports:
           - "1337"
         networks:
