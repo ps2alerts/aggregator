@@ -5,7 +5,7 @@ module.exports = {
     },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "./app/tsconfig.json"
+        "project": "tsconfig.json"
     },
     "plugins": [
         "@typescript-eslint"
@@ -276,10 +276,10 @@ module.exports = {
         "operator-assignment": "error",
         "padding-line-between-statements": [
             "error",
-            {"blankLine": "always", "prev": "import", "next": "*"},
-            {"blankLine": "never", "prev": "import", "next": "import"},
-            {"blankLine": "always", "prev": "multiline-block-like", "next": "*"},
-            {"blankLine": "always", "prev": "*", "next": "multiline-block-like"},
+            { "blankLine": "always", "prev": "import", "next": "*" },
+            { "blankLine": "never", "prev": "import", "next": "import" },
+            { "blankLine": "always", "prev": "multiline-block-like", "next": "*" },
+            { "blankLine": "always", "prev": "*", "next": "multiline-block-like" },
         ],
         "prefer-object-spread": "error",
         "quote-props": [

@@ -9,11 +9,11 @@
     "noImplicitAny": true,
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "outDir": "app/dist",
-    "rootDir": "app/src",
+    "outDir": "dist",
+    "rootDir": "src",
     "paths": {
       "*": [
-        "app/node_modules/*"
+        "node_modules/*"
       ]
     },
     "strict": true,
@@ -22,6 +22,6 @@
     "target": "ES6"
   },
   "include": [
-    "app/src/**/*"
+    "src/**/*"
   ]
 }
