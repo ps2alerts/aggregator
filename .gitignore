@@ -1,17 +1,18 @@
-app/node_modules
-app/dist
-app/config/census.serviceid.js
-app/config/db.config.js
-app/config/flags.js
-app/src/censusSocket/api_key.ts
-app/npm-debug.log
-app/temp
+node_modules
+dist
+config/census.serviceid.js
+config/db.config.js
+config/flags.js
+src/censusSocket/api_key.ts
+npm-debug.log
+temp
 
 vars.local.yml
 
 # IDE #
 .idea
 .DS_STORE
+.vscode
 
 #If we have been running locally with sqlite
-app/database.sqlite
+database.sqlite
