@@ -5,3 +5,4 @@
       docker_container:
         name: ps2alerts-websocket
         state: stopped
+      ignore_errors: yes
