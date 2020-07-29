@@ -47,7 +47,7 @@
     - name: Run npm install for Websocket deps
       docker_container:
         name: ps2alerts-websocket-npm
-        image: node:11
+        image: node:12
         volumes:
           - "{{ root_dir | realpath }}:/app:rw"
         user: "{{ id.stdout }}:{{ id.stdout }}"
