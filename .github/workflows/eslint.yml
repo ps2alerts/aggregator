@@ -5,7 +5,7 @@ on:
   pull_request:
 defaults:
   run:
-    working-directory: ./app
+    working-directory: ./
 jobs:
   eslint:
     runs-on: ubuntu-latest
