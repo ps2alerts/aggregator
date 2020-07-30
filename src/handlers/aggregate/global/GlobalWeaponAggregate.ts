@@ -75,7 +75,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
         };
 
         try {
-            const row = await this.factory.saveDocument(data);
+            const row = await this.factory.model.create(data);
             GlobalWeaponAggregate.logger.debug(`Inserted initial GlobalWeaponAggregate record for Weapon: ${row.weapon} | World: ${row.world}`);
             return true;
         } catch (err) {

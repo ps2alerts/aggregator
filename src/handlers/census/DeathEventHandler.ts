@@ -7,7 +7,7 @@ import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {InstanceDeathSchemaInterface} from '../../models/InstanceDeathModel';
+import {InstanceDeathSchemaInterface} from '../../models/instance/InstanceDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 
 @injectable()
@@ -69,7 +69,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
         try {
-            await this.factory.saveDocument({
+            await this.factory.model.create({
                 instance: deathEvent.instance.instanceId,
                 attacker: deathEvent.attackerCharacterId,
                 player: deathEvent.characterId,

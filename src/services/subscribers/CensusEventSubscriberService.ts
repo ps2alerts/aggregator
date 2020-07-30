@@ -17,8 +17,9 @@ import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDef
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
-import ActiveInstanceAuthority from '../../authorities/ActiveInstanceAuthority';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
+import InstanceHandler from '../../handlers/InstanceHandler';
+import PS2AlertsInstanceInterface from '../../instances/PS2AlertsInstanceInterface';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -28,7 +29,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
     private readonly wsClient: Client;
     private readonly worldCheck: WorldValidator;
-    private readonly activeInstanceAuthority: ActiveInstanceAuthority;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly playerLoginEventHandler: PlayerLoginEventHandler;
@@ -41,11 +41,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly playerFacilityCapture: PlayerFacilityCaptureHandler;
     private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
     private readonly continentUnlockHandler: ContinentUnlockHandler;
+    private readonly instanceHandler: InstanceHandler;
 
     constructor(
         wsClient: Client,
         worldCheck: WorldValidator,
-        activeInstanceAuthority: ActiveInstanceAuthority,
         deathEventHandler: DeathEventHandler,
         metagameEventEventHandler: MetagameEventEventHandler,
         playerLoginEventHandler: PlayerLoginEventHandler,
@@ -58,6 +58,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         playerFacilityCapture: PlayerFacilityCaptureHandler,
         playerFacilityDefend: PlayerFacilityDefendHandler,
         continentUnlockHandler: ContinentUnlockHandler,
+        instanceHandler: InstanceHandler,
     ) {
         this.wsClient = wsClient;
         this.worldCheck = worldCheck;
@@ -73,7 +74,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.playerFacilityCapture = playerFacilityCapture;
         this.playerFacilityDefend = playerFacilityDefend;
         this.continentUnlockHandler = continentUnlockHandler;
-        this.activeInstanceAuthority = activeInstanceAuthority;
+        this.instanceHandler = instanceHandler;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -99,33 +100,31 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (this.activeInstanceAuthority.instanceExists(
+            const instance = this.instanceHandler.getInstance(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
-            )) {
+            );
+
+            if (instance) {
                 const deathEvent = new DeathEvent(
                     event,
-                    this.activeInstanceAuthority.getInstance(
-                        parseInt(event.world_id, 10),
-                        parseInt(event.zone_id, 10),
-                    ),
+                    <PS2AlertsInstanceInterface>instance,
                 );
                 void this.deathEventHandler.handle(deathEvent);
             }
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            if (this.activeInstanceAuthority.instanceExists(
+            const instance = this.instanceHandler.getInstance(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
-            )) {
+            );
+
+            if (instance) {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
                 const facilityControl = new FacilityControlEvent(
                     event,
-                    this.activeInstanceAuthority.getInstance(
-                        parseInt(event.world_id, 10),
-                        parseInt(event.zone_id, 10),
-                    ),
+                    <PS2AlertsInstanceInterface>instance,
                 );
                 void this.facilityControlEventHandler.handle(facilityControl);
             }

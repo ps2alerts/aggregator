@@ -93,7 +93,7 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
         };
 
         try {
-            const row = await this.factory.saveDocument(player);
+            const row = await this.factory.model.create(player);
             GlobalPlayerAggregate.logger.debug(`Inserted initial GlobalPlayerAggregate record for Player: ${row.player} | World: ${row.world}`);
             return true;
         } catch (err) {

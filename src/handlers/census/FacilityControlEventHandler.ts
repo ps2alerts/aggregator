@@ -8,7 +8,7 @@ import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
 import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import {InstanceFacilityControlInterface} from '../../models/InstanceFacilityControlModel';
+import {InstanceFacilityControlInterface} from '../../models/instance/InstanceFacilityControlModel';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
@@ -67,7 +67,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     private async storeEvent(event: FacilityControlEvent): Promise<boolean> {
         try {
-            await this.factory.saveDocument({
+            await this.factory.model.create({
                 instance: event.instance.instanceId,
                 facility: event.facility,
                 timestamp: event.timestamp,

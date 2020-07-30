@@ -112,7 +112,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
         });
 
         try {
-            const row = await this.factory.saveDocument(data);
+            const row = await this.factory.model.create(data);
             GlobalFactionCombatAggregate.logger.debug(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
             return true;
         } catch (err) {

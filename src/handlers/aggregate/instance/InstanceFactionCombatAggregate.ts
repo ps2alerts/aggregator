@@ -112,7 +112,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
         });
 
         try {
-            const row = await this.factory.saveDocument(data);
+            const row = await this.factory.model.create(data);
             InstanceFactionCombatAggregate.logger.debug(`Inserted initial InstanceFactionCombatAggregate record for Instance: ${row.instance}`);
             return true;
         } catch (err) {

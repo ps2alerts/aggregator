@@ -100,7 +100,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         };
 
         try {
-            const row = await this.factory.saveDocument(document);
+            const row = await this.factory.model.create(document);
             GlobalClassAggregate.logger.debug(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
             return true;
         } catch (err) {

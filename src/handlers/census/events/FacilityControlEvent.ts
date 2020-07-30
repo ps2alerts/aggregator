@@ -17,11 +17,11 @@ import Parser from '../../../utils/parser';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import {FacilityControl} from 'ps2census';
-import ActiveInstanceInterface from '../../../interfaces/ActiveInstanceInterface';
+import PS2AlertsInstanceInterface from '../../../instances/PS2AlertsInstanceInterface';
 
 @injectable()
 export default class FacilityControlEvent {
-    public readonly instance: ActiveInstanceInterface;
+    public readonly instance: PS2AlertsInstanceInterface;
 
     public readonly facility: number;
 
@@ -37,7 +37,7 @@ export default class FacilityControlEvent {
 
     public readonly outfitCaptured: string | null;
 
-    constructor(event: FacilityControl, instance: ActiveInstanceInterface) {
+    constructor(event: FacilityControl, instance: PS2AlertsInstanceInterface) {
         this.instance = instance;
 
         this.facility = Parser.parseNumericalArgument(event.facility_id);

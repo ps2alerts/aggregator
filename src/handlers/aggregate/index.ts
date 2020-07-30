@@ -12,7 +12,7 @@ import GlobalClassAggregate from './global/GlobalClassAggregate';
 import GlobalPlayerAggregate from './global/GlobalPlayerAggregate';
 import GlobalFactionCombatAggregate from './global/GlobalFactionCombatAggregate';
 import GlobalWeaponAggregate from './global/GlobalWeaponAggregate';
-import WorldFacilityControlAggregate from './world/WorldFacilityControlAggregate';
+import GlobalFacilityControlAggregate from './global/GlobalFacilityControlAggregate';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers are registered here
@@ -28,5 +28,5 @@ export default new ContainerModule((bind) => {
 
     // FacilityControl Event
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(InstanceFacilityControlAggregate).inSingletonScope();
-    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(WorldFacilityControlAggregate).inSingletonScope();
+    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(GlobalFacilityControlAggregate).inSingletonScope();
 });

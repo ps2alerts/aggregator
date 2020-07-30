@@ -6,8 +6,10 @@ import {inject, injectable} from 'inversify';
 import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
-import {MetagameEventIds} from '../../constants/metagameEventIds';
+import {MetagameEventType} from '../../constants/metagameEventType';
 import Census from '../../config/census';
+import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
+import {TYPES} from '../../constants/types';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -23,12 +25,16 @@ export default class CensusStreamService implements ServiceInterface {
 
     private messageTimer?: NodeJS.Timeout;
 
+    private readonly overdueInstanceAuthority: OverdueInstanceAuthority;
+
     constructor(
         wsClient: Client,
         @inject('censusConfig') censusConfig: Census,
+        @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
     ) {
         this.wsClient = wsClient;
         this.config = censusConfig;
+        this.overdueInstanceAuthority = overdueInstanceAuthority;
         this.prepareClient();
     }
 
@@ -74,6 +80,8 @@ export default class CensusStreamService implements ServiceInterface {
                 clearInterval(this.messageTimer);
             }
 
+            this.overdueInstanceAuthority.stop();
+
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
@@ -103,6 +111,7 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient.on('subscribed', () => {
             CensusStreamService.logger.info('Census stream subscribed!');
             this.startMessageTimer();
+            this.overdueInstanceAuthority.run();
 
             // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
             // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
@@ -115,7 +124,7 @@ export default class CensusStreamService implements ServiceInterface {
                     faction_tr: '19.607843',
                     faction_vs: '9.803922',
                     instance_id: String(Math.floor(Math.random() * 100000) + 1),
-                    metagame_event_id: String(MetagameEventIds.MELTDOWN_AMERISH),
+                    metagame_event_id: String(MetagameEventType.MELTDOWN_AMERISH),
                     metagame_event_state: '137',
                     metagame_event_state_name: 'started',
                     timestamp: String(getUnixTimestamp()),

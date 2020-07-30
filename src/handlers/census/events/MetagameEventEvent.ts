@@ -21,7 +21,7 @@ import ZoneUtils from '../../../utils/ZoneUtils';
 import {MetagameEvent} from 'ps2census';
 import {MetagameEventState} from '../../../constants/metagameEventState';
 import {World} from '../../../constants/world';
-import {MetagameEventIds} from '../../../constants/metagameEventIds';
+import {MetagameEventType} from '../../../constants/metagameEventType';
 
 @injectable()
 export default class MetagameEventEvent {
@@ -29,7 +29,7 @@ export default class MetagameEventEvent {
 
     public readonly eventState: MetagameEventState;
 
-    public readonly eventType: MetagameEventIds;
+    public readonly eventType: MetagameEventType;
 
     public readonly factionNc: number;
 

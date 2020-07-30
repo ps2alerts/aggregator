@@ -1,7 +1,7 @@
 import {Document, Schema} from 'mongoose';
-import {InstanceSchemaInterface} from './InstanceModel';
-import {Loadout, loadoutArray} from '../constants/loadout';
-import {factionArray} from '../constants/faction';
+import {InstanceSchemaInterface} from '../InstanceModel';
+import {Loadout, loadoutArray} from '../../constants/loadout';
+import {Faction, factionArray} from '../../constants/faction';
 
 export interface InstanceDeathSchemaInterface extends Document {
     instance: InstanceSchemaInterface['instanceId'];
@@ -10,8 +10,10 @@ export interface InstanceDeathSchemaInterface extends Document {
     timestamp: Date;
     attackerFiremode: number;
     attackerLoadout: number;
+    attackerFaction: Faction;
     weapon: number;
     playerLoadout: Loadout;
+    playerFaction: Faction;
     isHeadshot: boolean;
     isSuicide: boolean;
     isTeamkill: boolean;

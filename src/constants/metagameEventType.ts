@@ -1,4 +1,4 @@
-export enum MetagameEventIds {
+export enum MetagameEventType {
     MELTDOWN_ESAMIR = 186,
     MELTDOWN_HOSSIN = 187,
     MELTDOWN_AMERISH = 188,
@@ -9,7 +9,7 @@ export enum MetagameEventIds {
     MELTDOWN_UNSTABLE_INDAR = 193
 }
 
-export const metagameEventIdsArray = [
+export const metagameEventTypeArray = [
     186,
     187,
     188,

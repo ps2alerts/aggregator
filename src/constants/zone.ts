@@ -9,3 +9,12 @@ export enum Zone {
     KOLTYR = 1234, // FIND OUT
     DESOLATION = 1235 // FIND OUT
 }
+
+export const zoneArray = [
+    2,
+    4,
+    6,
+    8,
+    1234,
+    1235,
+];

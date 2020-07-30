@@ -86,7 +86,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
         });
 
         try {
-            const row = await this.factory.saveDocument(data);
+            const row = await this.factory.model.create(data);
             InstanceFacilityControlAggregate.logger.debug(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
             return true;
         } catch (err) {

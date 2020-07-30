@@ -1,6 +1,6 @@
 import {Document, Schema} from 'mongoose';
-import {InstanceSchemaInterface} from './InstanceModel';
-import {Faction, factionArray} from '../constants/faction';
+import {InstanceSchemaInterface} from '../InstanceModel';
+import {Faction, factionArray} from '../../constants/faction';
 
 export interface InstanceFacilityControlInterface extends Document {
     instance: InstanceSchemaInterface['instanceId'];
