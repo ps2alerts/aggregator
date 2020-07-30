@@ -38,18 +38,20 @@
           path: "{{ playbook_dir }}"
 
     - name: Get user's current UID
-      command: "id -u {{ ansible_user_id }}"
+      command: "id -u {{ lookup('ENV', 'USER') }}"
       register: id
       when: id is undefined
 
+      # This step has issues on OSX, not quite sure how to fix it. Gets permission denied within the container.
+      # Workaround is to just install npm via brew and npm install, meh.
     - name: Run npm install for Websocket deps
       docker_container:
         name: ps2alerts-websocket-npm
-        image: node:11
+        image: node:12
         volumes:
-          - "{{ root_dir | realpath }}/app:/app:rw"
+          - "{{ root_dir | realpath }}:/app:rw"
         user: "{{ id.stdout }}:{{ id.stdout }}"
-        command: "npm --prefix /app install"
+        command: "npm install"
         labels:
           traefik.enable: "false"
 
@@ -62,7 +64,7 @@
         recreate: yes
         restart_policy: "no"
         volumes:
-          - "{{ root_dir | realpath }}/app:/app:rw"
+          - "{{ root_dir | realpath }}:/app:rw"
         ports:
           - "1337"
         networks:

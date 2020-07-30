@@ -14,6 +14,8 @@ This project powers the PS2Alerts website. Its primary purpose is to act as a Da
 
 Run `ps2alerts-start` to start all associated services and this module. Dependencies will be handled via the bootstrap process.
 
+For first time runs, you must run `ps2alerts-websocket-start-full`, which goes ahead and builds the base image required for the dev Docker image to run.
+
 To start the websocket for development, run `ps2alerts-websocket-dev`. This will bootstrap the container with ENV vars etc and tail the docker logs, as you would if you ran it manually via NPM.
 
 ### Local dependencies
