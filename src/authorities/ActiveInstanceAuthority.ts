@@ -12,6 +12,7 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
 import ActiveInstanceInterface from '../interfaces/ActiveInstanceInterface';
+import OverdueInstanceAuthority from './OverdueInstanceAuthority';
 
 @injectable()
 export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityInterface {
@@ -21,9 +22,14 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
 
     private readonly factory: MongooseModelFactory<ActiveInstanceSchemaInterface>;
 
-    constructor(@inject(TYPES.activeInstanceDataModelFactory) activeInstanceModelFactory: MongooseModelFactory<ActiveInstanceSchemaInterface>,
+    private readonly overdueInstanceAuthority: OverdueInstanceAuthority;
+
+    constructor(
+    @inject(TYPES.activeInstanceDataModelFactory) activeInstanceModelFactory: MongooseModelFactory<ActiveInstanceSchemaInterface>,
+        @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
     ) {
         this.factory = activeInstanceModelFactory;
+        this.overdueInstanceAuthority = overdueInstanceAuthority;
         void this.init(); // Hacky mchackface
     }
 
@@ -41,12 +47,18 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
         throw new ApplicationException(`Unable to retrieve Instance from active list! W: ${world} | Z: ${zone}`, 'ActiveInstanceAuthority');
     }
 
+    public getAllInstances(): Map<string, ActiveInstanceInterface> {
+        return this._activeInstances;
+    }
+
     public async addInstance(mge: MetagameEventEvent): Promise<boolean> {
         this._activeInstances.set(ActiveInstanceAuthority.mapKey(mge.world, mge.zone), {
             instanceId: instanceId(mge),
             censusInstanceId: mge.instanceId,
+            metagameEventType: mge.eventType,
             world: mge.world,
             zone: mge.zone,
+            timeStarted: mge.timestamp,
         });
 
         // Commit to Database to persist between reboots
@@ -54,8 +66,10 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
             const row = await this.factory.saveDocument({
                 instanceId: instanceId(mge),
                 censusInstanceId: mge.instanceId,
+                metagameEventType: mge.eventType,
                 world: mge.world,
                 zone: mge.zone,
+                timeStarted: mge.timestamp,
             });
             ActiveInstanceAuthority.logger.info(`Added ActiveInstance record for Instance #${row.instanceId} | I:${row.censusInstanceId} | W: ${mge.world} | Z:${mge.zone}`);
 
@@ -68,24 +82,24 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
         }
     }
 
-    public async endInstance(mge: MetagameEventEvent): Promise<boolean> {
+    public async endInstance(instance: ActiveInstanceInterface): Promise<boolean> {
         // Remove instance from in-memory list
-        this._activeInstances.delete(ActiveInstanceAuthority.mapKey(mge.world, mge.zone));
+        this._activeInstances.delete(instance.instanceId);
 
         // Remove from database
         try {
             const res = await this.factory.model.deleteOne(
-                {instanceId: instanceId(mge)},
+                {instanceId: instance.instanceId},
             );
-            ActiveInstanceAuthority.logger.info(`Deleted instance ID: ${instanceId(mge)}`);
+            ActiveInstanceAuthority.logger.info(`Deleted instance ID: ${instance.instanceId}`);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!res) {
-                ActiveInstanceAuthority.logger.error(`No instances were deleted on endInstance! ID: ${instanceId(mge)}`);
+                ActiveInstanceAuthority.logger.error(`No instances were deleted on endInstance! ID: ${instance.instanceId}`);
                 return false;
             }
 
-            return !this.getInstance(mge.world, mge.zone);
+            return !this.getInstance(instance.world, instance.zone);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to insert instance into DB! ${err}`, 'ActiveInstanceAuthority');
@@ -116,8 +130,10 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
                 this._activeInstances.set(ActiveInstanceAuthority.mapKey(i.world, i.zone), {
                     instanceId: i.instanceId,
                     censusInstanceId: i.censusInstanceId,
+                    metagameEventType: i.metagameEventType,
                     world: i.world,
                     zone: i.zone,
+                    timeStarted: i.timeStarted,
                 });
                 /* eslint-enable */
             });
@@ -125,6 +141,7 @@ export default class ActiveInstanceAuthority implements ActiveInstanceAuthorityI
 
         ActiveInstanceAuthority.logger.debug('Initializing ActiveInstances FINISHED');
         this.printActives();
+        this.overdueInstanceAuthority.run();
         return true;
     }
 

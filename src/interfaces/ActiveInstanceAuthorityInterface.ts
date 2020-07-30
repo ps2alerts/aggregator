@@ -6,7 +6,9 @@ export default interface ActiveInstanceAuthorityInterface {
 
     getInstance(world: number, zone: number): ActiveInstanceInterface;
 
+    getAllInstances(): Map<string, ActiveInstanceInterface>;
+
     addInstance(mge: MetagameEventEvent): Promise<boolean>;
 
-    endInstance(mge: MetagameEventEvent): Promise<boolean>;
+    endInstance(instance: ActiveInstanceInterface): Promise<boolean>;
 }

@@ -21,12 +21,15 @@ import ZoneUtils from '../../../utils/ZoneUtils';
 import {MetagameEvent} from 'ps2census';
 import {MetagameEventState} from '../../../constants/metagameEventState';
 import {World} from '../../../constants/world';
+import {MetagameEventIds} from '../../../constants/metagameEventIds';
 
 @injectable()
 export default class MetagameEventEvent {
     public readonly world: World;
 
     public readonly eventState: MetagameEventState;
+
+    public readonly eventType: MetagameEventIds;
 
     public readonly factionNc: number;
 
@@ -58,6 +61,9 @@ export default class MetagameEventEvent {
         }
 
         this.eventState = eventStateName === 'started' ? MetagameEventState.STARTED : MetagameEventState.FINISHED;
+
+        this.eventType = Parser.parseNumericalArgument(event.metagame_event_id, false);
+
         this.factionNc = Parser.parseNumericalArgument(event.faction_nc, true);
 
         if (isNaN(this.factionNc)) {

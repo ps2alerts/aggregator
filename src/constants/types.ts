@@ -1,4 +1,8 @@
 const TYPES = {
+    // Authorities
+    activeInstanceAuthority: Symbol.for('ActiveInstanceAuthority'),
+    overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
+
     // Handler Interfaces
     instanceHandlerInterface: Symbol.for('InstanceHandlerInterface'),
     playerHandlerInterface: Symbol.for('PlayerHandlerInterface'),

@@ -8,3 +8,14 @@ export enum MetagameEventIds {
     MELTDOWN_UNSTABLE_AMERISH = 192,
     MELTDOWN_UNSTABLE_INDAR = 193
 }
+
+export const metagameEventIdsArray = [
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+];
