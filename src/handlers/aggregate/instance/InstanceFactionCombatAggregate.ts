@@ -112,6 +112,8 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
         });
 
         try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const row = await this.factory.model.create(data);
             InstanceFactionCombatAggregate.logger.debug(`Inserted initial InstanceFactionCombatAggregate record for Instance: ${row.instance}`);
             return true;

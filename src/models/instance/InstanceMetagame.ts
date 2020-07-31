@@ -2,17 +2,18 @@ import {Document, Schema} from 'mongoose';
 import {World, worldArray} from '../../constants/world';
 import {Zone, zoneArray} from '../../constants/zone';
 import {MetagameEventType, metagameEventTypeArray} from '../../constants/metagameEventType';
-import {MetagameEventState, metagameEventStateArray} from '../../constants/metagameEventState';
+import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
+import {Ps2alertsEventState, ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
 
 export interface InstanceMetagameSchemaInterface extends Document {
-    instanceId: string;
+    instanceId: PS2AlertsInstanceInterface['instanceId'];
     world: World;
     timeStarted: Date;
     timeEnded: Date | null;
     zone: Zone;
     censusInstanceId: number;
     censusMetagameEventType: MetagameEventType;
-    state: MetagameEventState;
+    state: Ps2alertsEventState;
 }
 
 export const instanceMetagameSchema: Schema = new Schema({
@@ -48,7 +49,7 @@ export const instanceMetagameSchema: Schema = new Schema({
     },
     state: {
         type: Number,
-        enum: metagameEventStateArray,
+        enum: ps2alertsEventStateArray,
         required: true,
     },
 }).index(

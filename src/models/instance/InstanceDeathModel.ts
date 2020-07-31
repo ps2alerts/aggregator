@@ -1,10 +1,10 @@
 import {Document, Schema} from 'mongoose';
-import {InstanceSchemaInterface} from '../InstanceModel';
 import {Loadout, loadoutArray} from '../../constants/loadout';
 import {Faction, factionArray} from '../../constants/faction';
+import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 
 export interface InstanceDeathSchemaInterface extends Document {
-    instance: InstanceSchemaInterface['instanceId'];
+    instance: PS2AlertsInstanceInterface['instanceId'];
     attacker: string;
     player: string;
     timestamp: Date;

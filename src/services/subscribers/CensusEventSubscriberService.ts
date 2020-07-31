@@ -19,7 +19,6 @@ import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
 import InstanceHandler from '../../handlers/InstanceHandler';
-import PS2AlertsInstanceInterface from '../../instances/PS2AlertsInstanceInterface';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -100,34 +99,34 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            const instance = this.instanceHandler.getInstance(
+            const instances = this.instanceHandler.getInstances(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
             );
 
-            if (instance) {
+            instances.forEach((instance) => {
                 const deathEvent = new DeathEvent(
                     event,
-                    <PS2AlertsInstanceInterface>instance,
+                    instance,
                 );
                 void this.deathEventHandler.handle(deathEvent);
-            }
+            });
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            const instance = this.instanceHandler.getInstance(
+            const instances = this.instanceHandler.getInstances(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
             );
 
-            if (instance) {
+            instances.forEach((instance) => {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
                 const facilityControl = new FacilityControlEvent(
                     event,
-                    <PS2AlertsInstanceInterface>instance,
+                    instance,
                 );
                 void this.facilityControlEventHandler.handle(facilityControl);
-            }
+            });
         });
 
         this.wsClient.on('metagameEvent', (event) => {

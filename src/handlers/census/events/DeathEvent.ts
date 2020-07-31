@@ -23,7 +23,7 @@ import ZoneUtils from '../../../utils/ZoneUtils';
 import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
 import {Death} from 'ps2census';
-import PS2AlertsInstanceInterface from '../../../instances/PS2AlertsInstanceInterface';
+import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import {Faction} from '../../../constants/faction';
 import FactionUtils from '../../../utils/FactionUtils';
 

@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import PS2AlertsInstanceInterface from '../instances/PS2AlertsInstanceInterface';
+import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {getLogger} from '../logger';
 import {TYPES} from '../constants/types';
 import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
@@ -22,7 +22,7 @@ export default class OverdueInstanceAuthority {
         OverdueInstanceAuthority.logger.debug('Created OverdueInstanceAuthority timer');
 
         this.timer = setInterval(() => {
-            const instances: Map<string, PS2AlertsInstanceInterface> = this.instanceHandler.getAllInstances();
+            const instances: PS2AlertsInstanceInterface[] = this.instanceHandler.getAllInstances();
 
             OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
             instances.forEach((instance: PS2AlertsInstanceInterface) => {

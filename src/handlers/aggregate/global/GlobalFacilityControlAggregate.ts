@@ -5,17 +5,17 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import _ from 'lodash';
-import {GlobalFacilityControlAggregateInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
+import {GlobalFacilityControlAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
 
-    private readonly factory: MongooseModelFactory<GlobalFacilityControlAggregateInterface>;
+    private readonly factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.globalFacilityControlAggregateFactory) factory: MongooseModelFactory<GlobalFacilityControlAggregateInterface>) {
+    constructor(@inject(TYPES.globalFacilityControlAggregateFactory) factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
@@ -86,6 +86,8 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
         });
 
         try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const row = await this.factory.model.create(data);
             GlobalFacilityControlAggregate.logger.debug(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
             return true;

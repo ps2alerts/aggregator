@@ -94,7 +94,9 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('debug', (message: string) => {
-            CensusStreamService.logger.info(`Census stream debug: ${message}`);
+            if (!message.includes('Reset heartbeat') && !message.includes('Heartbeat acknowledged')) {
+                CensusStreamService.logger.info(`Census stream debug: ${message}`);
+            }
         });
 
         this.wsClient.on('duplicate', (event: PS2Event) => {
@@ -117,22 +119,43 @@ export default class CensusStreamService implements ServiceInterface {
             // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
             if (this.config.enableInjections) {
                 /* eslint-disable */
-                const event = new MetagameEvent(this.wsClient, {
+                const instanceId = String(Math.floor(Math.random() * 100000) + 1)
+                const alertStartEvent = new MetagameEvent(this.wsClient, {
                     event_name: 'MetagameEvent',
                     experience_bonus: '25.000000',
                     faction_nc: '6.274510',
                     faction_tr: '19.607843',
                     faction_vs: '9.803922',
-                    instance_id: String(Math.floor(Math.random() * 100000) + 1),
-                    metagame_event_id: String(MetagameEventType.MELTDOWN_AMERISH),
+                    instance_id: instanceId,
+                    metagame_event_id: String(MetagameEventType.ESAMIR_ENLIGHTENMENT),
                     metagame_event_state: '137',
                     metagame_event_state_name: 'started',
                     timestamp: String(getUnixTimestamp()),
                     world_id: String(World.MILLER),
                 });
                 /* eslint-enable */
-                this.wsClient.emit(Events.PS2_META_EVENT, event);
+                this.wsClient.emit(Events.PS2_META_EVENT, alertStartEvent);
                 CensusStreamService.logger.debug('Emitted Metagame Start event');
+
+                setTimeout(() => {
+                    /* eslint-disable */
+                    const alertEndEvent = new MetagameEvent(this.wsClient, {
+                        event_name: 'MetagameEvent',
+                        experience_bonus: '25.000000',
+                        faction_nc: '6.274510',
+                        faction_tr: '19.607843',
+                        faction_vs: '9.803922',
+                        instance_id: instanceId,
+                        metagame_event_id: String(MetagameEventType.ESAMIR_ENLIGHTENMENT),
+                        metagame_event_state: '138',
+                        metagame_event_state_name: 'ended',
+                        timestamp: String(getUnixTimestamp()),
+                        world_id: String(World.MILLER),
+                    });
+                    /* eslint-enable */
+                    this.wsClient.emit(Events.PS2_META_EVENT, alertEndEvent);
+                    // CensusStreamService.logger.debug('Emitted Metagame End event');
+                }, 5000);
             }
         });
     }

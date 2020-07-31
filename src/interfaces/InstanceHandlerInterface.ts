@@ -1,13 +1,12 @@
 import MetagameEventEvent from '../handlers/census/events/MetagameEventEvent';
+import PS2AlertsInstanceInterface from './PS2AlertsInstanceInterface';
 import {World} from '../constants/world';
-import PS2AlertsInstanceInterface from '../instances/PS2AlertsInstanceInterface';
 import {Zone} from '../constants/zone';
-import {MetagameEventType} from '../constants/metagameEventType';
 
 export default interface InstanceHandlerInterface {
     handleMetagameEvent(mge: MetagameEventEvent): Promise<boolean>;
 
-    getInstance(world: World, zone: Zone): PS2AlertsInstanceInterface|boolean;
+    getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[];
 
     getAllInstances(): PS2AlertsInstanceInterface[];
 

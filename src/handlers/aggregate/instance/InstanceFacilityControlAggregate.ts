@@ -86,6 +86,9 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
         });
 
         try {
+            // Below is moaning because of the dynamically generated data via loop, I think
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const row = await this.factory.model.create(data);
             InstanceFacilityControlAggregate.logger.debug(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
             return true;

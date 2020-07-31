@@ -1,9 +1,9 @@
 import {Document, Schema} from 'mongoose';
-import {InstanceSchemaInterface} from '../InstanceModel';
 import {Faction, factionArray} from '../../constants/faction';
+import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 
 export interface InstanceFacilityControlInterface extends Document {
-    instance: InstanceSchemaInterface['instanceId'];
+    instance: PS2AlertsInstanceInterface['instanceId'];
     facility: number;
     timestamp: Date;
     oldFaction: Faction;

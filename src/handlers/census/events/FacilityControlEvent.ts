@@ -17,7 +17,7 @@ import Parser from '../../../utils/parser';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import {FacilityControl} from 'ps2census';
-import PS2AlertsInstanceInterface from '../../../instances/PS2AlertsInstanceInterface';
+import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 
 @injectable()
 export default class FacilityControlEvent {

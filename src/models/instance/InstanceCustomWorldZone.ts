@@ -1,19 +1,19 @@
 import {Document, Schema} from 'mongoose';
 import {World, worldArray} from '../../constants/world';
 import {Zone, zoneArray} from '../../constants/zone';
-import {MetagameEventState} from '../../constants/metagameEventState';
 import {Ps2alertsEventType, ps2alertsEventTypeArray} from '../../constants/ps2alertsEventType';
-import {ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
+import {Ps2alertsEventState, ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
+import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 
 export interface InstanceCustomWorldZoneSchemaInterface extends Document {
-    instanceId: string;
+    instanceId: PS2AlertsInstanceInterface['instanceId'];
     world: World;
     timeStarted: Date;
     timeEnded: Date | null;
     zone: Zone;
     eventId: number;
     eventType: Ps2alertsEventType;
-    state: MetagameEventState;
+    state: Ps2alertsEventState;
     description: string;
 }
 
