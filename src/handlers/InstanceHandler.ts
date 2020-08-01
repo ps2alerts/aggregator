@@ -88,7 +88,6 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
         if (instance instanceof PS2AlertsMetagameInstance) {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 const row = await this.instanceMetagameModelFactory.model.create({
                     instanceId: instance.instanceId,
                     world: instance.world,
@@ -149,8 +148,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     private async init(): Promise<boolean> {
         InstanceHandler.logger.debug('Initializing ActiveInstances...');
-        // Pull the list out of the database and assign to in-memory array
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         let rows: InstanceMetagameSchemaInterface[] = [];
 
         try {
