@@ -52,6 +52,6 @@ export default class PS2AlertsCustomWorldZoneInstance extends PS2AlertsInstanceA
                 return 60 * 90; // 3600 seconds
         }
 
-        throw new ApplicationException('Unable to calculate duration!', 'PS2AlertsMetagameInstance');
+        throw new ApplicationException('Unable to calculate duration!', 'PS2AlertsCustomWorldZoneInstance');
     }
 }

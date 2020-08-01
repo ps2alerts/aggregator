@@ -39,7 +39,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         const instances = this.getInstances(mge.world, mge.zone);
 
         if (instances.length > 1) {
-            throw new ApplicationException(`Multiple instances detected when there should only be one! \r\n${jsonLogOutput(mge)}`);
+            throw new ApplicationException(`Multiple instances detected when there should only be one! \r\n${jsonLogOutput(mge)}`, 'InstanceHandler');
         }
 
         if (mge.eventState === MetagameEventState.STARTED) {
@@ -70,7 +70,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             }
         }
 
-        throw new ApplicationException(`MetagameEvent was not stored \r\n${jsonLogOutput(mge)}`);
+        throw new ApplicationException(`MetagameEvent was not stored \r\n${jsonLogOutput(mge)}`, 'InstanceHandler');
     }
 
     public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
@@ -104,7 +104,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 return true;
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert instance into DB! ${err}`);
+                throw new ApplicationException(`Unable to insert instance into DB! ${err}`, 'InstanceHandler');
             }
         }
 
@@ -142,7 +142,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to end instance ${instance.instanceId}! ${err}`);
+            throw new ApplicationException(`Unable to end instance ${instance.instanceId}! ${err}`, 'InstanceHandler');
         }
     }
 
