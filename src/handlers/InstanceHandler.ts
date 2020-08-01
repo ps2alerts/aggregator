@@ -14,7 +14,7 @@ import {Zone} from '../constants/zone';
 import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetagame';
 import {InstanceCustomWorldZoneSchemaInterface} from '../models/instance/InstanceCustomWorldZone';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
-import _ from 'lodash';
+import {remove, filter} from 'lodash';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
@@ -76,7 +76,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     }
 
     public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
-        return _.filter(this.currentInstances, (instance) => {
+        return filter(this.currentInstances, (instance) => {
             return instance.match(world, zone);
         });
     }
@@ -133,7 +133,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 return false;
             }
 
-            _.remove(this.currentInstances, (i) => {
+            remove(this.currentInstances, (i) => {
                 if (i instanceof PS2AlertsMetagameInstance) {
                     return instance.match(i.world, i.zone);
                 }
