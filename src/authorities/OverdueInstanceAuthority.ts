@@ -10,7 +10,7 @@ export default class OverdueInstanceAuthority {
 
     private readonly instanceHandler: InstanceHandlerInterface;
 
-    private timer: NodeJS.Timeout | null;
+    private timer: NodeJS.Timeout | null = null;
 
     constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {
         this.instanceHandler = instanceHandler;
@@ -18,6 +18,11 @@ export default class OverdueInstanceAuthority {
 
     public run(): void {
         OverdueInstanceAuthority.logger.debug('Created OverdueInstanceAuthority timer');
+
+        if (this.timer) {
+            OverdueInstanceAuthority.logger.error('Attempted to run OverdueInstanceAuthority timer when already defined!');
+            clearInterval(this.timer);
+        }
 
         this.timer = setInterval(() => {
             const instances: PS2AlertsInstanceInterface[] = this.instanceHandler.getAllInstances();
