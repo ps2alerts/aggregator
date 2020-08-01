@@ -4,7 +4,7 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import _ from 'lodash';
+import {mergeWith} from 'lodash';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import {InstanceFacilityControlAggregateInterface} from '../../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
@@ -74,7 +74,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
         };
 
         factionKeys.forEach((i) => {
-            _.mergeWith(
+            mergeWith(
                 data,
                 {
                     [i]: {

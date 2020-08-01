@@ -6,7 +6,7 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import {InstanceFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import _ from 'lodash';
+import {mergeWith} from 'lodash';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
@@ -97,7 +97,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
         };
 
         factionKeys.forEach((i) => {
-            _.mergeWith(
+            mergeWith(
                 data,
                 {
                     [i]: {
