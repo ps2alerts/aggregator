@@ -102,7 +102,7 @@ export default class Kernel implements KernelInterface {
                     Kernel.logger.error(`====== UNKNOWN EXCEPTION HAS OCCURRED! "${name}" STACK AS FOLLOWS:`);
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
                     Kernel.logger.error(`${e.trace ? e.trace : e.toString()}`);
-                    this.terminate(1);
+                    void this.terminate(1);
                 }
             }
         }
@@ -112,19 +112,35 @@ export default class Kernel implements KernelInterface {
      * Public interface to execute a termination. An ApplicationException object must be supplied, giving the correct data.
      * @param code number
      */
-    public terminate(code = 0): never {
+    public async terminate(code = 0): Promise<void> {
+        if (this.state === RunningStates.TERMINATING) {
+            return; // Only run the terminate once
+        }
+
         // Set app as terminating!
         this.state = RunningStates.TERMINATING;
 
         Kernel.logger.error(`TERMINATING! CODE: ${code}`);
 
-        // Handle killing everything here
+        // Give the services a chance to terminate safely
+        // TODO: Maybe add a timeout? Though that can also be part of the service itself(e.g. throwing an error)
+        await Promise.all(
+            this.services.map(
+                (service) => service.terminate?.apply(this.services)
+                    .catch((err: Error) => {
+                        Kernel.logger.error(`Caught an error while terminating "${service.constructor.name}": ${err.stack ?? err.message}`);
+                    }),
+            ),
+        );
+
         process.exit(code);
     }
 
     public terminateWithUnhandledRejection(error: unknown): void {
         Kernel.logger.error('unhandledRejection detected!');
         Kernel.logger.error(error);
+
+        void this.terminate(1);
     }
 
     /**
@@ -135,7 +151,7 @@ export default class Kernel implements KernelInterface {
     public terminateWithError(err: Error, code = 1): void {
         Kernel.logger.error(err.stack ?? err.message);
 
-        this.terminate(code);
+        void this.terminate(code);
     }
 
     /**
@@ -147,6 +163,6 @@ export default class Kernel implements KernelInterface {
         Kernel.logger.error(`ORIGIN: ${exception.origin ?? 'null'}`);
         Kernel.logger.error(`CODE: ${exception.code ?? 'null'}`);
 
-        this.terminate(exception.code ?? 1);
+        void this.terminate(exception.code ?? 1);
     }
 }
