@@ -36,7 +36,7 @@ export default class PS2AlertsCustomWorldZoneInstance extends PS2AlertsInstanceA
         this.description = description;
     }
 
-    public match(world: World, zone: Zone) {
+    public match(world: World, zone: Zone): boolean {
         return world === this.world && zone === this.zone;
     }
 

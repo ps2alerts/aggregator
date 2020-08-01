@@ -33,7 +33,7 @@ export default class PS2AlertsMetagameInstance extends PS2AlertsInstanceAbstract
         this.state = state;
     }
 
-    public match(world: World, zone: Zone) {
+    public match(world: World, zone: Zone): boolean {
         return world === this.world && zone === this.zone;
     }
 
