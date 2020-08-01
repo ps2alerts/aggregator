@@ -151,7 +151,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to finish instance ${instance.instanceId}! ${err}`);
+            throw new ApplicationException(`Unable to end instance ${instance.instanceId}! ${err}`);
         }
     }
 
@@ -166,7 +166,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 state: Ps2alertsEventState.STARTED,
             }).exec();
         } catch (err) {
-            InstanceHandler.logger.error('Unable to retrieve active instances!');
+            throw new ApplicationException('Unable to retrieve active instances!', 'InstanceHandler');
         }
 
         if (!rows.length) {
@@ -176,7 +176,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 const instance = new PS2AlertsMetagameInstance(
                     i.world,
                     i.timeStarted,
-                    i.timeEnded,
+                    null,
                     i.zone,
                     i.censusInstanceId,
                     i.censusMetagameEventType,
@@ -186,8 +186,8 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             });
         }
 
-        InstanceHandler.logger.debug('Initializing ActiveInstances FINISHED');
         this.printActives();
+        InstanceHandler.logger.debug('Initializing ActiveInstances FINISHED');
         return true;
     }
 
@@ -196,7 +196,10 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
             if (instance instanceof PS2AlertsMetagameInstance) {
                 InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world} | Z: ${instance.zone}`);
+            } else {
+                InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world}`);
             }
+
         });
 
         InstanceHandler.logger.info('==== Current actives end =====');
