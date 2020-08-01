@@ -3,6 +3,7 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import {getLogger} from '../logger';
 import {TYPES} from '../constants/types';
 import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
+import _ from 'lodash';
 
 @injectable()
 export default class OverdueInstanceAuthority {
@@ -27,14 +28,14 @@ export default class OverdueInstanceAuthority {
         this.timer = setInterval(() => {
             OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
 
-            this.instanceHandler.getAllInstances().forEach((instance: PS2AlertsInstanceInterface) => {
-                if (instance.overdue()) {
-                    try {
-                        OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
-                        void this.instanceHandler.endInstance(instance);
-                    } catch (err) {
-                        OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended!`);
-                    }
+            _.filter(this.instanceHandler.getAllInstances(), (instance) => {
+                return instance.overdue();
+            }).forEach((instance: PS2AlertsInstanceInterface) => {
+                try {
+                    OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
+                    void this.instanceHandler.endInstance(instance);
+                } catch (err) {
+                    OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended!`);
                 }
             });
         }, 15000);
