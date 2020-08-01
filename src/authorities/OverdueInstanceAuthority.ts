@@ -27,9 +27,7 @@ export default class OverdueInstanceAuthority {
         this.timer = setInterval(() => {
             OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
 
-            const instances: PS2AlertsInstanceInterface[] = this.instanceHandler.getAllInstances();
-
-            instances.forEach((instance: PS2AlertsInstanceInterface) => {
+            this.instanceHandler.getAllInstances().forEach((instance: PS2AlertsInstanceInterface) => {
                 if (instance.overdue()) {
                     try {
                         OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
