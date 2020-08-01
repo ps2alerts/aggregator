@@ -41,15 +41,15 @@ export default class PS2AlertsCustomWorldZoneInstance extends PS2AlertsInstanceA
     }
 
     public overdue(): boolean {
-        // If now in milliseconds is greater than start time + duration + threshold
-        return Date.now() > (this.timeStarted.getTime() + 3600000 + 60000);
+        // If now in milliseconds is greater than start time + duration
+        return Date.now() > (this.timeStarted.getTime() + this.duration());
     }
 
     public duration(): number {
         switch (this.eventType) {
             case Ps2alertsEventType.COMMUNITY_EVENT:
             case Ps2alertsEventType.JAEGER_EVENT:
-                return 60 * 90; // 3600 seconds
+                return 3600000; // 3600 seconds
         }
 
         throw new ApplicationException('Unable to calculate duration!', 'PS2AlertsCustomWorldZoneInstance');
