@@ -1,9 +1,8 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {Client} from 'ps2census';
 import DeathEventHandler from '../../handlers/census/DeathEventHandler';
-import WorldValidator from '../../validators/WorldValidator';
 import MetagameEventEventHandler from '../../handlers/census/MetagameEventEventHandler';
 import PlayerLoginEventHandler from '../../handlers/census/PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from '../../handlers/census/PlayerLogoutEventHandler';
@@ -18,7 +17,8 @@ import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
-import InstanceHandler from '../../handlers/InstanceHandler';
+import {TYPES} from '../../constants/types';
+import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -27,7 +27,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private static readonly logger = getLogger('EventListenerService');
 
     private readonly wsClient: Client;
-    private readonly worldCheck: WorldValidator;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly playerLoginEventHandler: PlayerLoginEventHandler;
@@ -40,11 +39,10 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly playerFacilityCapture: PlayerFacilityCaptureHandler;
     private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
     private readonly continentUnlockHandler: ContinentUnlockHandler;
-    private readonly instanceHandler: InstanceHandler;
+    private readonly instanceHandler: InstanceHandlerInterface;
 
     constructor(
         wsClient: Client,
-        worldCheck: WorldValidator,
         deathEventHandler: DeathEventHandler,
         metagameEventEventHandler: MetagameEventEventHandler,
         playerLoginEventHandler: PlayerLoginEventHandler,
@@ -57,10 +55,9 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         playerFacilityCapture: PlayerFacilityCaptureHandler,
         playerFacilityDefend: PlayerFacilityDefendHandler,
         continentUnlockHandler: ContinentUnlockHandler,
-        instanceHandler: InstanceHandler,
+        @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
     ) {
         this.wsClient = wsClient;
-        this.worldCheck = worldCheck;
         this.deathEventHandler = deathEventHandler;
         this.metagameEventEventHandler = metagameEventEventHandler;
         this.playerLoginEventHandler = playerLoginEventHandler;
