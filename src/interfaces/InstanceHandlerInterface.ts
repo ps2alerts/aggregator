@@ -13,4 +13,6 @@ export default interface InstanceHandlerInterface {
     startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean>;
 
     endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean>;
+
+    init(): Promise<boolean>;
 }

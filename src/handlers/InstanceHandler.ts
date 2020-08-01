@@ -24,7 +24,10 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
 
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
+
     private readonly instanceCustomWorldZoneInstanceModelFactory: MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>;
+
+    private initialized = false;
 
     constructor(
     @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>,
@@ -32,7 +35,6 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     ) {
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
         this.instanceCustomWorldZoneInstanceModelFactory = instanceCustomWorldZoneInstanceModelFactory;
-        void this.init();
     }
 
     public async handleMetagameEvent(mge: MetagameEventEvent): Promise<boolean> {
@@ -146,7 +148,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         }
     }
 
-    private async init(): Promise<boolean> {
+    public async init(): Promise<boolean> {
         InstanceHandler.logger.debug('Initializing ActiveInstances...');
 
         let rows: InstanceMetagameSchemaInterface[] = [];
@@ -178,6 +180,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
         this.printActives();
         InstanceHandler.logger.debug('Initializing ActiveInstances FINISHED');
+        this.initialized = true;
         return true;
     }
 

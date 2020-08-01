@@ -10,6 +10,7 @@ import {MetagameEventType} from '../../constants/metagameEventType';
 import Census from '../../config/census';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import {TYPES} from '../../constants/types';
+import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -27,14 +28,18 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly overdueInstanceAuthority: OverdueInstanceAuthority;
 
+    private readonly instanceHandler: InstanceHandlerInterface;
+
     constructor(
         wsClient: Client,
         @inject('censusConfig') censusConfig: Census,
         @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
+        @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
     ) {
         this.wsClient = wsClient;
         this.config = censusConfig;
         this.overdueInstanceAuthority = overdueInstanceAuthority;
+        this.instanceHandler = instanceHandler;
         this.prepareClient();
     }
 
@@ -45,6 +50,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     public async start(): Promise<void> {
         CensusStreamService.logger.debug('Starting Census Stream Service...');
+        await this.instanceHandler.init();
         await this.wsClient.watch();
     }
 
