@@ -42,7 +42,8 @@ export default class CensusStreamService implements ServiceInterface {
         await this.wsClient.watch();
     }
 
-    public terminate(): void {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    public async terminate(): Promise<void> {
         CensusStreamService.logger.debug('Terminating Census Stream Service!');
 
         try {
