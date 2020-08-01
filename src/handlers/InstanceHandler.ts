@@ -151,6 +151,10 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     public async init(): Promise<boolean> {
         InstanceHandler.logger.debug('Initializing ActiveInstances...');
 
+        if (this.initialized) {
+            throw new ApplicationException('InstanceHandler was called to be initized more than once!', 'InstanceHandler');
+        }
+
         let rows: InstanceMetagameSchemaInterface[] = [];
 
         try {
