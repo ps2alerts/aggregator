@@ -1,6 +1,5 @@
 import Transport from 'winston-transport';
 import axios, {AxiosError, AxiosInstance, AxiosProxyConfig} from 'axios';
-import {get} from 'lodash';
 
 interface Embed {
     description: string;
@@ -113,7 +112,7 @@ export default class DiscordTransport extends Transport {
     }
 
     private levelToColor(level: string): number {
-        return get(this.levelColors, level, 7433572);
+        return this.levelColors[level] ?? 7433572;
     }
 }
 
