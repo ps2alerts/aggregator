@@ -21,14 +21,6 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     private static readonly logger = getLogger('InstanceHandler');
 
-    /*
-    Structure:
-    [
-        0, => PS2AlertsMetagameInstance
-        1, => PS2AlertsMetagameInstance
-        2, => PS2AlertsCustomWorldZoneInstance
-    ]
-     */
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
 
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
