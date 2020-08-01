@@ -1,6 +1,5 @@
 import PS2AlertsInstanceAbstract from './PS2AlertsInstanceAbstract';
 import {MetagameEventType} from '../constants/metagameEventType';
-import {MetagameEventState} from '../constants/metagameEventState';
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
@@ -39,8 +38,8 @@ export default class PS2AlertsMetagameInstance extends PS2AlertsInstanceAbstract
     }
 
     public overdue(): boolean {
-        // If now in milliseconds is greater than start time + duration + threshold
-        return Date.now() > (this.timeStarted.getTime() + 3600000 + 60000);
+        // If now in milliseconds is greater th an start time + duration
+        return Date.now() > (this.timeStarted.getTime() + this.duration());
     }
 
     public duration(): number {

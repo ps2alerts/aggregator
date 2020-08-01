@@ -12,8 +12,6 @@ export default class OverdueInstanceAuthority {
 
     private timer: NodeJS.Timeout | null;
 
-    private readonly threshold = 60000; // 1 min
-
     constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {
         this.instanceHandler = instanceHandler;
     }
@@ -26,20 +24,16 @@ export default class OverdueInstanceAuthority {
 
             OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
             instances.forEach((instance: PS2AlertsInstanceInterface) => {
-                const expectedDuration: number = instance.duration();
-                const expectedEndTimestamp: number = (instance.timeStarted.getTime() + expectedDuration) + this.threshold;
-                const diff = Date.now() - (expectedEndTimestamp * 1000); // If POSITIVE, overdue
-
-                if (diff > 0) {
+                if (instance.overdue()) {
                     try {
-                        OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE by ${diff}, ending!`);
+                        OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
                         void this.instanceHandler.endInstance(instance);
                     } catch (err) {
-                        OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! It is now ${diff} seconds overdue!`);
+                        OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended!`);
                     }
                 }
             });
-        }, 60000);
+        }, 15000);
     }
 
     public stop(): void {
