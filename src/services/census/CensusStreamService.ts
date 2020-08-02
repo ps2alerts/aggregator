@@ -147,7 +147,7 @@ export default class CensusStreamService implements ServiceInterface {
                     faction_tr: '19.607843',
                     faction_vs: '9.803922',
                     instance_id: instanceId,
-                    metagame_event_id: String(MetagameEventType.AMERISH_ENLIGHTENMENT),
+                    metagame_event_id: String(MetagameEventType.INDAR_ENLIGHTENMENT),
                     metagame_event_state: '137',
                     metagame_event_state_name: 'started',
                     timestamp: String(getUnixTimestamp()),

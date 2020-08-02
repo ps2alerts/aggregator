@@ -6,6 +6,7 @@ import {jsonLogOutput} from '../../utils/json';
 import PlayerLoginEvent from './events/PlayerLoginEvent';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import {TYPES} from '../../constants/types';
+import {TestCharacters} from '../../constants/testCharacters';
 
 @injectable()
 export default class PlayerLoginEventHandler implements EventHandlerInterface<PlayerLoginEvent> {
@@ -18,9 +19,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface<Pl
     }
 
     public async handle(event: PlayerLoginEvent): Promise<boolean> {
-        PlayerLoginEventHandler.logger.debug('Parsing message...');
-
-        if (config.features.logging.censusEventContent) {
+        if (config.features.logging.censusEventContent && event.characterId === TestCharacters.MAELSTROME26) {
             PlayerLoginEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 

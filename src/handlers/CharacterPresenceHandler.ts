@@ -11,6 +11,7 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {CharacterPresenceSchemaInterface} from '../models/CharacterPresenceModel';
 import {TYPES} from '../constants/types';
 import ApplicationException from '../exceptions/ApplicationException';
+import {TestCharacters} from '../constants/testCharacters';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
@@ -21,6 +22,8 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
     private readonly factory: MongooseModelFactory<CharacterPresenceSchemaInterface>;
 
     private readonly initialized = false;
+
+    private flushTimer: NodeJS.Timeout|null = null;
 
     constructor(@inject(TYPES.characterPresenceFactory) factory: MongooseModelFactory<CharacterPresenceSchemaInterface>) {
         this.factory = factory;
@@ -47,7 +50,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
         this.characters.set(characterId, characterData);
 
-        if (alreadyExists) {
+        if (!alreadyExists) {
             try {
                 await this.factory.model.create({
                     character: characterData.character,
@@ -60,6 +63,10 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`Error creating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
             }
+
+            if (characterData.character === TestCharacters.MAELSTROME26) {
+                CharacterPresenceHandler.logger.debug(`Created CharacterPresenceHandler record for Char: ${characterId} - ${jsonLogOutput(characterData)}`);
+            }
         } else {
             try {
                 await this.factory.model.update({
@@ -70,6 +77,10 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`Error updating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
+            }
+
+            if (characterData.character === TestCharacters.MAELSTROME26) {
+                CharacterPresenceHandler.logger.debug(`Updated CharacterPresenceHandler record for Char: ${characterId} - ${jsonLogOutput(characterData)}`);
             }
         }
 
@@ -84,9 +95,10 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                 await this.factory.model.deleteMany({
                     character: characterId,
                 });
+                CharacterPresenceHandler.logger.debug(`Deleted CharacterPresenceHandler record for Char ${characterId}`);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Error creating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
+                throw new ApplicationException(`Error creating CharacterPresenceHandler record for Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
             }
 
             return true;
@@ -141,7 +153,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         }
 
         CharacterPresenceHandler.logger.debug('==== Population Metrics ====');
-        CharacterPresenceHandler.logger.debug(jsonLogOutput(populationData));
+        CharacterPresenceHandler.logger.debug(jsonLogOutput(populationData.values()));
         CharacterPresenceHandler.logger.debug('==== End Population Metrics ====');
 
         return populationData;
@@ -174,8 +186,34 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                     row.lastSeen,
                 );
                 this.characters.set(row.character, characterData);
+
+                if (characterData.character === TestCharacters.MAELSTROME26) {
+                    CharacterPresenceHandler.logger.debug(`Found test character ${characterData.character}!`);
+                }
             });
         }
+
+        // Start timer to scan the data and flush old records
+        this.flushTimer = setInterval(() => {
+            CharacterPresenceHandler.logger.debug('Running CharacterPresentHandler flushTimer');
+            const threshold = 120000; // 2 mins
+            const now = new Date().getTime();
+            const deadline = now - threshold;
+
+            for (const characterData of this.characters.values()) {
+
+                if (characterData.lastSeen.getTime() < deadline) {
+                    CharacterPresenceHandler.logger.debug(`Deleting CharacterPresence record for char: ${characterData.character} due to inactivity`);
+
+                    if (characterData.character === TestCharacters.MAELSTROME26) {
+                        CharacterPresenceHandler.logger.debug(`Deleting CharacterPresence record for TEST char: ${characterData.character} due to inactivity`);
+
+                    }
+
+                    void this.delete(characterData.character);
+                }
+            }
+        }, 60000);
 
         CharacterPresenceHandler.logger.debug(`${rows.length} records loaded from CharacterPresence collection.`);
     }
