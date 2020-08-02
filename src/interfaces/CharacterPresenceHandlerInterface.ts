@@ -7,4 +7,6 @@ export default interface CharacterPresenceHandlerInterface {
     delete(character: string): Promise<boolean>;
 
     collate(): Map<string, PopulationData>;
+
+    init(): Promise<void>;
 }

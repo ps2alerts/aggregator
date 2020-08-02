@@ -12,6 +12,7 @@ import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority
 import {TYPES} from '../../constants/types';
 import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -31,6 +32,8 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly instanceHandler: InstanceHandlerInterface;
 
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
+
     private readonly populationAuthority: PopulationAuthority;
 
     constructor(
@@ -38,12 +41,14 @@ export default class CensusStreamService implements ServiceInterface {
         @inject('censusConfig') censusConfig: Census,
         @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.populationAuthority) populationAuthority: PopulationAuthority,
     ) {
         this.wsClient = wsClient;
         this.config = censusConfig;
         this.overdueInstanceAuthority = overdueInstanceAuthority;
         this.instanceHandler = instanceHandler;
+        this.characterPresenceHandler = characterPresenceHandler;
         this.populationAuthority = populationAuthority;
         this.prepareClient();
     }
@@ -56,6 +61,7 @@ export default class CensusStreamService implements ServiceInterface {
     public async start(): Promise<void> {
         CensusStreamService.logger.debug('Starting Census Stream Service...');
         await this.instanceHandler.init();
+        await this.characterPresenceHandler.init();
         await this.wsClient.watch();
     }
 
@@ -141,7 +147,7 @@ export default class CensusStreamService implements ServiceInterface {
                     faction_tr: '19.607843',
                     faction_vs: '9.803922',
                     instance_id: instanceId,
-                    metagame_event_id: String(MetagameEventType.HOSSIN_ENLIGHTENMENT),
+                    metagame_event_id: String(MetagameEventType.AMERISH_ENLIGHTENMENT),
                     metagame_event_state: '137',
                     metagame_event_state_name: 'started',
                     timestamp: String(getUnixTimestamp()),

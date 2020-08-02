@@ -20,6 +20,8 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
     private readonly factory: MongooseModelFactory<CharacterPresenceSchemaInterface>;
 
+    private readonly initialized = false;
+
     constructor(@inject(TYPES.characterPresenceFactory) factory: MongooseModelFactory<CharacterPresenceSchemaInterface>) {
         this.factory = factory;
     }
@@ -41,19 +43,34 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             new Date(),
         );
 
+        const alreadyExists = this.characters.has(characterId);
+
         this.characters.set(characterId, characterData);
 
-        try {
-            await this.factory.model.create({
-                character: characterData.character,
-                world: characterData.world,
-                zone: characterData.zone,
-                faction: characterData.faction,
-                lastSeen: characterData.lastSeen,
-            });
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Error creating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
+        if (alreadyExists) {
+            try {
+                await this.factory.model.create({
+                    character: characterData.character,
+                    world: characterData.world,
+                    zone: characterData.zone,
+                    faction: characterData.faction,
+                    lastSeen: characterData.lastSeen,
+                });
+            } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Error creating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
+            }
+        } else {
+            try {
+                await this.factory.model.update({
+                    character: characterData.character,
+                }, {
+                    lastSeen: characterData.lastSeen,
+                });
+            } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Error updating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
+            }
         }
 
         return true;
@@ -125,11 +142,41 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
         CharacterPresenceHandler.logger.debug('==== Population Metrics ====');
         CharacterPresenceHandler.logger.debug(jsonLogOutput(populationData));
+        CharacterPresenceHandler.logger.debug('==== End Population Metrics ====');
 
         return populationData;
     }
 
-    public boot(): void {
-        // Pull out current records from the database so we can restore
+    public async init(): Promise<void> {
+        CharacterPresenceHandler.logger.debug('Initializing CharacterPresenceHandler...');
+
+        if (this.initialized) {
+            throw new ApplicationException('CharacterPresenceHandler was called to be initialized more than once!', 'CharacterPresenceHandler');
+        }
+
+        let rows: CharacterPresenceSchemaInterface[] = [];
+
+        try {
+            rows = await this.factory.model.find().exec();
+        } catch (err) {
+            throw new ApplicationException('Unable to retrieve CharacterPresenceHandler records!', 'CharacterPresenceHandler');
+        }
+
+        if (!rows.length) {
+            CharacterPresenceHandler.logger.warn('No CharacterPresenceHandler records found! This could be entirely normal however.');
+        } else {
+            rows.forEach((row) => {
+                const characterData = new CharacterData(
+                    row.character,
+                    row.world,
+                    row.zone,
+                    row.faction,
+                    row.lastSeen,
+                );
+                this.characters.set(row.character, characterData);
+            });
+        }
+
+        CharacterPresenceHandler.logger.debug(`${rows.length} records loaded from CharacterPresence collection.`);
     }
 }

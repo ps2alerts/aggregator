@@ -5,7 +5,7 @@ import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
 
-injectable();
+@injectable()
 export default class PopulationAuthority {
     private static readonly logger = getLogger('PopulationAuthority');
 
