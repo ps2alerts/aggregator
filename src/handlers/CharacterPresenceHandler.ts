@@ -11,7 +11,6 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {CharacterPresenceSchemaInterface} from '../models/CharacterPresenceModel';
 import {TYPES} from '../constants/types';
 import ApplicationException from '../exceptions/ApplicationException';
-import {TestCharacters} from '../constants/testCharacters';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
@@ -63,10 +62,6 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`Error creating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
             }
-
-            if (characterData.character === TestCharacters.MAELSTROME26) {
-                CharacterPresenceHandler.logger.debug(`Created CharacterPresenceHandler record for Char: ${characterId} - ${jsonLogOutput(characterData)}`);
-            }
         } else {
             try {
                 await this.factory.model.update({
@@ -77,10 +72,6 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`Error updating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
-            }
-
-            if (characterData.character === TestCharacters.MAELSTROME26) {
-                CharacterPresenceHandler.logger.debug(`Updated CharacterPresenceHandler record for Char: ${characterId} - ${jsonLogOutput(characterData)}`);
             }
         }
 
@@ -188,10 +179,6 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                     row.lastSeen,
                 );
                 this.characters.set(row.character, characterData);
-
-                if (characterData.character === TestCharacters.MAELSTROME26) {
-                    CharacterPresenceHandler.logger.debug(`Found test character ${characterData.character}!`);
-                }
             });
         }
 
@@ -206,12 +193,6 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
                 if (characterData.lastSeen.getTime() < deadline) {
                     CharacterPresenceHandler.logger.debug(`Deleting CharacterPresence record for char: ${characterData.character} due to inactivity`);
-
-                    if (characterData.character === TestCharacters.MAELSTROME26) {
-                        CharacterPresenceHandler.logger.debug(`Deleting CharacterPresence record for TEST char: ${characterData.character} due to inactivity`);
-
-                    }
-
                     void this.delete(characterData.character);
                 }
             }
