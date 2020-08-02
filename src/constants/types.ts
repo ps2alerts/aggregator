@@ -1,6 +1,5 @@
 const TYPES = {
     // Authorities
-    activeInstanceAuthority: Symbol.for('ActiveInstanceAuthority'),
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),
 
