@@ -14,8 +14,8 @@ import InstanceFactionCombatAggregate from './instance/InstanceFactionCombatAggr
 import InstancePlayerAggregate from './instance/InstancePlayerAggregate';
 import InstanceWeaponAggregate from './instance/InstanceWeaponAggregate';
 import PopulationHandlerInterface from '../../interfaces/PopulationHandlerInterface';
-import InstancePopulationData from '../../data/InstancePopulationData';
 import InstancePopulationAggregate from './instance/InstancePopulationAggregate';
+import PopulationData from '../../data/PopulationData';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers are registered here
@@ -34,5 +34,5 @@ export default new ContainerModule((bind) => {
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(InstanceFacilityControlAggregate).inSingletonScope();
 
     // Population Event
-    bind<PopulationHandlerInterface<InstancePopulationData>>(TYPES.populationAggregates).to(InstancePopulationAggregate).inSingletonScope();
+    bind<PopulationHandlerInterface<PopulationData>>(TYPES.populationAggregates).to(InstancePopulationAggregate).inSingletonScope();
 });

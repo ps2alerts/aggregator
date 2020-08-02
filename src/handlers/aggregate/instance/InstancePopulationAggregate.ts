@@ -1,51 +1,76 @@
-import PlayerHandlerInterface from '../../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../../interfaces/CharacterPresenceHandlerInterface';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {InstancePopulationAggregateSchemaInterface} from '../../../models/aggregate/instance/InstancePopulationAggregateModel';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {getLogger} from '../../../logger';
-import InstancePopulationData from '../../../data/InstancePopulationData';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
+import PopulationData from '../../../data/PopulationData';
+import InstanceHandlerInterface from '../../../interfaces/InstanceHandlerInterface';
 
 @injectable()
-export default class InstancePopulationAggregate implements AggregateHandlerInterface<InstancePopulationData>{
+export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
     private static readonly logger = getLogger('InstancePopulationAggregate');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly playerHandler: CharacterPresenceHandlerInterface;
 
     private readonly factory: MongooseModelFactory<InstancePopulationAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
+    private readonly instanceHandler: InstanceHandlerInterface;
+
+    constructor(
+    @inject(TYPES.characterPresenceHandlerInterface) playerHandler: CharacterPresenceHandlerInterface,
+        @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+        @inject(TYPES.instancePopulationAggregateFactory) factory: MongooseModelFactory<InstancePopulationAggregateSchemaInterface>) {
         this.playerHandler = playerHandler;
+        this.instanceHandler = instanceHandler;
+        this.factory = factory;
     }
 
-    public async handle(event: InstancePopulationData): Promise<boolean> {
+    public async handle(event: PopulationData): Promise<boolean> {
         InstancePopulationAggregate.logger.debug('InstancePopulationAggregate.handle');
 
-        const data = {
-            instance: event.instance.instanceId,
-            timestamp: event.timestamp,
-            vsPop: event.vsPop,
-            ncPop: event.ncPop,
-            trPop: event.trPop,
-            nsoPop: event.nsoPop,
-            totalPop: event.totalPop,
-        };
+        // Figure out running instances and generate new InstancePopulationData object
+        const activeInstances = this.instanceHandler.getAllInstances().filter((instance) => {
+            return instance.match(event.world, event.zone);
+        });
 
-        try {
-            await this.factory.model.create(data);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
+        // Whatever keeps you happy ESLint
+        const documents: Array<{ instance: string, timestamp: Date, vsPop: number, ncPop: number, trPop: number, nsoPop: number, totalPop: number }> = [];
 
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial InstanceWeaponAggregate record into DB! ${err}`, 'InstanceWeaponAggregate');
-            }
-        }
+        activeInstances.forEach((instance) => {
+            // Check if instances match data
+            documents.push({
+                instance: instance.instanceId,
+                timestamp: new Date(),
+                vsPop: event.vs,
+                ncPop: event.nc,
+                trPop: event.tr,
+                nsoPop: event.nso,
+                totalPop: event.total,
+            });
+        });
 
-        return false;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const promises: Array<Promise<any>> = [];
+
+        documents.forEach((doc) => {
+            const promise = this.factory.model.create(doc)
+                .catch((err) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    const error: Error = err;
+
+                    if (!error.message.includes('E11000')) {
+                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                        throw new ApplicationException(`Unable to insert initial InstanceWeaponAggregate record into DB! ${err}`, 'InstanceWeaponAggregate');
+                    }
+                });
+            promises.push(promise);
+        });
+
+        await Promise.all(promises);
+
+        return true;
     }
 }

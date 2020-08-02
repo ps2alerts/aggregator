@@ -1,22 +1,26 @@
 import {inject, injectable} from 'inversify';
-import PopulationData from '../data/PopulationData';
 import PopulationHandlerInterface from '../interfaces/PopulationHandlerInterface';
-import InstancePopulationData from '../data/InstancePopulationData';
 import {TYPES} from '../constants/types';
 import {getLogger} from '../logger';
+import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
+import PopulationData from '../data/PopulationData';
 
 injectable();
 export default class PopulationAuthority {
     private static readonly logger = getLogger('PopulationAuthority');
 
-    private readonly populations: PopulationData[] = [];
-
     private emitEventTimer: NodeJS.Timeout | null = null;
 
-    private readonly populationHandler: PopulationHandlerInterface<InstancePopulationData>;
+    private readonly populationHandler: PopulationHandlerInterface<PopulationData>;
 
-    constructor(@inject(TYPES.populationHandlerInterface) populationHandler: PopulationHandlerInterface<InstancePopulationData>) {
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
+
+    constructor(
+    @inject(TYPES.populationHandlerInterface) populationHandler: PopulationHandlerInterface<PopulationData>,
+        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
+    ) {
         this.populationHandler = populationHandler;
+        this.characterPresenceHandler = characterPresenceHandler;
     }
 
     public run(): void {
@@ -28,16 +32,18 @@ export default class PopulationAuthority {
         }
 
         this.emitEventTimer = setInterval(() => {
-            PopulationAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
+            PopulationAuthority.logger.debug('Running PopulationAuthority presence collection');
 
-            // Collect current population metrics from PlayerHandler
+            // Collect current population metrics from CharacterPresenceHandlerInterface
+            const populationData = this.characterPresenceHandler.collate();
 
             // Get instances, inject populations as recorded, call handlers
 
-            const event = new InstancePopulationData();
+            populationData.forEach((data) => {
+                void this.populationHandler.handle(data);
 
-            this.populationHandler.handle(event);
-        }, 30000);
+            });
+        }, 60000);
     }
 
     public stop(): void {

@@ -2,10 +2,11 @@ const TYPES = {
     // Authorities
     activeInstanceAuthority: Symbol.for('ActiveInstanceAuthority'),
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
+    populationAuthority: Symbol.for('PopulationAuthority'),
 
     // Handler Interfaces
     instanceHandlerInterface: Symbol.for('InstanceHandlerInterface'),
-    playerHandlerInterface: Symbol.for('PlayerHandlerInterface'),
+    characterPresenceHandlerInterface: Symbol.for('CharacterPresenceHandlerInterface'),
     populationHandlerInterface: Symbol.for('PopulationHandlerInterface'),
 
     // Event Handlers
@@ -39,6 +40,9 @@ const TYPES = {
     globalFactionCombatAggregateFactory: Symbol.for('GlobalFactionCombatAggregateFactory'),
     globalPlayerAggregateFactory: Symbol.for('GlobalPlayerAggregateFactory'),
     globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),
+
+    // Metric Models
+    characterPresenceFactory: Symbol.for('CharacterPresenceFactory'),
 };
 
 export {TYPES};

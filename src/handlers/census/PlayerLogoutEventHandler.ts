@@ -4,17 +4,17 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import PlayerLogoutEvent from './events/PlayerLogoutEvent';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import {TYPES} from '../../constants/types';
 
 @injectable()
 export default class PlayerLogoutEventHandler implements EventHandlerInterface<PlayerLogoutEvent> {
     private static readonly logger = getLogger('PlayerLogoutEventHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
-        this.playerHandler = playerHandler;
+    constructor(@inject(TYPES.characterPresenceHandlerInterface) playerHandler: CharacterPresenceHandlerInterface) {
+        this.characterPresenceHandler = playerHandler;
     }
 
     public async handle(event: PlayerLogoutEvent): Promise<boolean> {
@@ -25,7 +25,7 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface<P
         }
 
         try {
-            await this.playerHandler.handleLogout(event);
+            await this.characterPresenceHandler.delete(event.characterId);
         } catch (e) {
             if (e instanceof Error) {
                 PlayerLogoutEventHandler.logger.error(`Error parsing PlayerLogoutEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

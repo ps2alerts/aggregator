@@ -11,6 +11,7 @@ import Census from '../../config/census';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import {TYPES} from '../../constants/types';
 import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
+import PopulationAuthority from '../../authorities/PopulationAuthority';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -30,16 +31,20 @@ export default class CensusStreamService implements ServiceInterface {
 
     private readonly instanceHandler: InstanceHandlerInterface;
 
+    private readonly populationAuthority: PopulationAuthority;
+
     constructor(
         wsClient: Client,
         @inject('censusConfig') censusConfig: Census,
         @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+        @inject(TYPES.populationAuthority) populationAuthority: PopulationAuthority,
     ) {
         this.wsClient = wsClient;
         this.config = censusConfig;
         this.overdueInstanceAuthority = overdueInstanceAuthority;
         this.instanceHandler = instanceHandler;
+        this.populationAuthority = populationAuthority;
         this.prepareClient();
     }
 
@@ -88,6 +93,7 @@ export default class CensusStreamService implements ServiceInterface {
             }
 
             this.overdueInstanceAuthority.stop();
+            this.populationAuthority.stop();
 
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
@@ -121,6 +127,7 @@ export default class CensusStreamService implements ServiceInterface {
             CensusStreamService.logger.info('Census stream subscribed!');
             this.startMessageTimer();
             this.overdueInstanceAuthority.run();
+            this.populationAuthority.run();
 
             // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
             // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE

@@ -18,7 +18,6 @@ import {remove, filter} from 'lodash';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
-
     private static readonly logger = getLogger('InstanceHandler');
 
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
