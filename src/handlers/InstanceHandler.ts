@@ -1,10 +1,7 @@
 import {inject, injectable} from 'inversify';
 import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
-import MetagameEventEvent from './census/events/MetagameEventEvent';
-import {jsonLogOutput} from '../utils/json';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
-import {MetagameEventState} from '../constants/metagameEventState';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
 import {World} from '../constants/world';
@@ -14,7 +11,7 @@ import {Zone} from '../constants/zone';
 import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetagame';
 import {InstanceCustomWorldZoneSchemaInterface} from '../models/instance/InstanceCustomWorldZone';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
-import {remove, filter} from 'lodash';
+import {remove} from 'lodash';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
@@ -37,46 +34,8 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         this.instanceCustomWorldZoneInstanceModelFactory = instanceCustomWorldZoneInstanceModelFactory;
     }
 
-    public async handleMetagameEvent(mge: MetagameEventEvent): Promise<boolean> {
-        const instances = this.getInstances(mge.world, mge.zone);
-
-        if (instances.length > 1) {
-            throw new ApplicationException(`Multiple instances detected when there should only be one! \r\n${jsonLogOutput(mge)}`, 'InstanceHandler');
-        }
-
-        if (mge.eventState === MetagameEventState.STARTED) {
-            if (instances.length === 0) {
-                const ps2alertsInstance = new PS2AlertsMetagameInstance(
-                    mge.world,
-                    mge.timestamp,
-                    null,
-                    mge.zone,
-                    mge.instanceId,
-                    mge.eventType,
-                    Ps2alertsEventState.STARTED,
-                );
-                return await this.startInstance(ps2alertsInstance);
-            } else {
-                this.printActives();
-                InstanceHandler.logger.error(`Instance already exists: ${jsonLogOutput(mge)}`);
-                return false;
-            }
-        }
-
-        if (mge.eventState === MetagameEventState.FINISHED) {
-            if (instances[0]) {
-                return await this.endInstance(instances[0]);
-            } else {
-                InstanceHandler.logger.error(`Instance not found: ${jsonLogOutput(mge)}`);
-                return false;
-            }
-        }
-
-        throw new ApplicationException(`MetagameEvent was not stored \r\n${jsonLogOutput(mge)}`, 'InstanceHandler');
-    }
-
     public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
-        return filter(this.currentInstances, (instance) => {
+        return this.currentInstances.filter((instance) => {
             return instance.match(world, zone);
         });
     }
@@ -98,6 +57,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     zone: instance.zone,
                     censusInstanceId: instance.censusInstanceId,
                     censusMetagameEventType: instance.censusMetagameEventType,
+                    duration: instance.duration,
                     state: instance.state,
                 });
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
@@ -176,6 +136,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     i.zone,
                     i.censusInstanceId,
                     i.censusMetagameEventType,
+                    i.duration,
                     i.state,
                 );
                 this.currentInstances.push(instance);
@@ -188,7 +149,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         return true;
     }
 
-    private printActives(): void {
+    public printActives(): void {
         InstanceHandler.logger.info('==== Current actives =====');
         this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
             if (instance instanceof PS2AlertsMetagameInstance) {

@@ -14,14 +14,13 @@
 
 import {injectable} from 'inversify';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
-import EventId from '../../../utils/eventId';
 import Parser from '../../../utils/parser';
 import {Zone} from '../../../constants/zone';
-import ZoneUtils from '../../../utils/ZoneUtils';
 import {MetagameEvent} from 'ps2census';
 import {MetagameEventState} from '../../../constants/metagameEventState';
 import {World} from '../../../constants/world';
-import {MetagameEventType} from '../../../constants/metagameEventType';
+import {MetagameEventType, metagameEventTypeDetailsMap} from '../../../constants/metagameEventType';
+import ApplicationException from '../../../exceptions/ApplicationException';
 
 @injectable()
 export default class MetagameEventEvent {
@@ -84,19 +83,18 @@ export default class MetagameEventEvent {
 
         this.timestamp = event.timestamp;
 
-        const eventId = Parser.parseNumericalArgument(event.metagame_event_id);
-
-        if (isNaN(eventId)) {
-            throw new IllegalArgumentException('metagame_event_id', 'MetagameEventEvent');
-        }
-
         this.instanceId = Parser.parseNumericalArgument(event.instance_id);
 
         if (isNaN(this.instanceId)) {
             throw new IllegalArgumentException('instance_id', 'MetagameEventEvent');
         }
 
-        // No check needed since ZoneUtils will validate it
-        this.zone = ZoneUtils.parse(EventId.eventIdToZoneId(eventId));
+        const details = metagameEventTypeDetailsMap.get(this.eventType);
+
+        if (!details) {
+            throw new ApplicationException(`Unable to determine event details / zone for event type ${this.eventType}`);
+        }
+
+        this.zone = details.zone;
     }
 }
