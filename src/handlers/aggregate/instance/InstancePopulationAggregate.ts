@@ -37,18 +37,18 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
         });
 
         // Whatever keeps you happy ESLint
-        const documents: Array<{ instance: string, timestamp: Date, vsPop: number, ncPop: number, trPop: number, nsoPop: number, totalPop: number }> = [];
+        const documents: Array<{ instance: string, timestamp: Date, vs: number, nc: number, tr: number, nso: number, total: number }> = [];
 
         activeInstances.forEach((instance) => {
             // Check if instances match data
             documents.push({
                 instance: instance.instanceId,
                 timestamp: new Date(),
-                vsPop: event.vs,
-                ncPop: event.nc,
-                trPop: event.tr,
-                nsoPop: event.nso,
-                totalPop: event.total,
+                vs: event.vs,
+                nc: event.nc,
+                tr: event.tr,
+                nso: event.nso,
+                total: event.total,
             });
         });
 

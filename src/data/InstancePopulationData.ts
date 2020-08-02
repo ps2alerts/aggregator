@@ -3,26 +3,26 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 export default class InstancePopulationData {
     public readonly instance: PS2AlertsInstanceInterface;
     public readonly timestamp: Date;
-    public readonly vsPop: number;
-    public readonly ncPop: number;
-    public readonly trPop: number;
-    public readonly nsoPop: number;
-    public readonly totalPop: number;
+    public readonly vs: number;
+    public readonly nc: number;
+    public readonly tr: number;
+    public readonly nso: number;
+    public readonly total: number;
 
     constructor(
         instance: PS2AlertsInstanceInterface,
-        vsPop: number,
-        ncPop: number,
-        trPop: number,
-        nsoPop: number,
-        totalPop: number,
+        vs: number,
+        nc: number,
+        tr: number,
+        nso: number,
+        total: number,
     ) {
         this.instance = instance;
         this.timestamp = new Date();
-        this.vsPop = vsPop;
-        this.ncPop = ncPop;
-        this.trPop = trPop;
-        this.nsoPop = nsoPop;
-        this.totalPop = totalPop;
+        this.vs = vs;
+        this.nc = nc;
+        this.tr = tr;
+        this.nso = nso;
+        this.total = total;
     }
 }

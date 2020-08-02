@@ -4,11 +4,11 @@ import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInt
 export interface InstancePopulationAggregateSchemaInterface extends Document {
     instance: PS2AlertsInstanceInterface['instanceId'];
     timestamp: Date;
-    vsPop: number;
-    ncPop: number;
-    trPop: number;
-    nsoPop: number;
-    totalPop: number;
+    vs: number;
+    nc: number;
+    tr: number;
+    nso: number;
+    total: number;
 }
 
 export const instancePopulationAggregateSchema: Schema = new Schema({
@@ -20,27 +20,27 @@ export const instancePopulationAggregateSchema: Schema = new Schema({
         type: Date,
         required: true,
     },
-    vsPop: {
+    vs: {
         type: Number,
         required: true,
         default: 0,
     },
-    ncPop: {
+    nc: {
         type: Number,
         required: true,
         default: 0,
     },
-    trPop: {
+    tr: {
         type: Number,
         required: true,
         default: 0,
     },
-    nsoPop: {
+    nso: {
         type: Number,
         required: true,
         default: 0,
     },
-    totalPop: {
+    total: {
         type: Number,
         required: true,
         default: 0,

@@ -16,7 +16,7 @@ import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenc
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
-    public readonly bootPriority = 10;
+    public readonly bootPriority = 11;
 
     private static readonly logger = getLogger('ps2census');
 
@@ -55,13 +55,17 @@ export default class CensusStreamService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        CensusStreamService.logger.debug('Booting Census Stream Service... (NOT IMPLEMENTED)');
+        CensusStreamService.logger.debug('Booting Census Stream Service...');
+
+        await Promise.all([
+            this.instanceHandler.init(),
+            this.characterPresenceHandler.init(),
+        ]);
     }
 
     public async start(): Promise<void> {
         CensusStreamService.logger.debug('Starting Census Stream Service...');
-        await this.instanceHandler.init();
-        await this.characterPresenceHandler.init();
+
         await this.wsClient.watch();
     }
 
