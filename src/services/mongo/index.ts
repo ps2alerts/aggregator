@@ -15,6 +15,7 @@ import {instanceClassAggregateSchema, InstanceClassAggregateSchemaInterface} fro
 import {InstanceFacilityControlInterface, instanceFacilityControlSchema} from '../../models/instance/InstanceFacilityControlModel';
 import {instanceFacilityControlAggregateSchema, InstanceFacilityControlAggregateInterface} from '../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
 import {instanceFactionCombatAggregateSchema, InstanceFactionCombatAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
+import {instancePopulationAggregateSchema, InstancePopulationAggregateSchemaInterface} from '../../models/aggregate/instance/InstancePopulationAggregateModel';
 import {instancePlayerAggregateSchema, InstancePlayerAggregateSchemaInterface} from '../../models/aggregate/instance/InstancePlayerAggregateModel';
 import {instanceWeaponAggregateSchema, InstanceWeaponAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceWeaponAggregateModel';
 // Global Aggregate Models
@@ -104,6 +105,14 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'aggregate_instance_player',
             instancePlayerAggregateSchema,
+        ))
+        .inSingletonScope();
+
+    bind<MongooseModelFactory<InstancePopulationAggregateSchemaInterface>>(TYPES.instancePopulationAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_instance_population',
+            instancePopulationAggregateSchema,
         ))
         .inSingletonScope();
 
