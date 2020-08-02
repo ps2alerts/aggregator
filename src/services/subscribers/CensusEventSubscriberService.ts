@@ -1,9 +1,8 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {Client} from 'ps2census';
 import DeathEventHandler from '../../handlers/census/DeathEventHandler';
-import WorldValidator from '../../validators/WorldValidator';
 import MetagameEventEventHandler from '../../handlers/census/MetagameEventEventHandler';
 import PlayerLoginEventHandler from '../../handlers/census/PlayerLoginEventHandler';
 import PlayerLogoutEventHandler from '../../handlers/census/PlayerLogoutEventHandler';
@@ -15,10 +14,13 @@ import BattleRankUpHandler from '../../handlers/census/BattleRankUpHandler';
 import PlayerFacilityCaptureHandler from '../../handlers/census/PlayerFacilityCaptureHandler';
 import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDefendHandler';
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
+import {TYPES} from '../../constants/types';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
-import ActiveInstanceAuthority from '../../authorities/ActiveInstanceAuthority';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
+import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
+import PlayerLoginEvent from '../../handlers/census/events/PlayerLoginEvent';
+import PlayerLogoutEvent from '../../handlers/census/events/PlayerLogoutEvent';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -27,8 +29,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private static readonly logger = getLogger('EventListenerService');
 
     private readonly wsClient: Client;
-    private readonly worldCheck: WorldValidator;
-    private readonly activeInstanceAuthority: ActiveInstanceAuthority;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly playerLoginEventHandler: PlayerLoginEventHandler;
@@ -41,11 +41,10 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly playerFacilityCapture: PlayerFacilityCaptureHandler;
     private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
     private readonly continentUnlockHandler: ContinentUnlockHandler;
+    private readonly instanceHandler: InstanceHandlerInterface;
 
     constructor(
         wsClient: Client,
-        worldCheck: WorldValidator,
-        activeInstanceAuthority: ActiveInstanceAuthority,
         deathEventHandler: DeathEventHandler,
         metagameEventEventHandler: MetagameEventEventHandler,
         playerLoginEventHandler: PlayerLoginEventHandler,
@@ -58,9 +57,9 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         playerFacilityCapture: PlayerFacilityCaptureHandler,
         playerFacilityDefend: PlayerFacilityDefendHandler,
         continentUnlockHandler: ContinentUnlockHandler,
+        @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
     ) {
         this.wsClient = wsClient;
-        this.worldCheck = worldCheck;
         this.deathEventHandler = deathEventHandler;
         this.metagameEventEventHandler = metagameEventEventHandler;
         this.playerLoginEventHandler = playerLoginEventHandler;
@@ -73,7 +72,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.playerFacilityCapture = playerFacilityCapture;
         this.playerFacilityDefend = playerFacilityDefend;
         this.continentUnlockHandler = continentUnlockHandler;
-        this.activeInstanceAuthority = activeInstanceAuthority;
+        this.instanceHandler = instanceHandler;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -88,7 +87,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         CensusEventSubscriberService.logger.debug('Starting EventListenerService... (NOT IMPLEMENTED)');
     }
 
-    public terminate(): void {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    public async terminate(): Promise<void> {
         CensusEventSubscriberService.logger.debug('Terminating Census Stream Service!');
 
         // this.destructHandlers();
@@ -99,42 +99,53 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
-            if (this.activeInstanceAuthority.instanceExists(
+            CensusEventSubscriberService.logger.silly('Passing Death to listener');
+            const instances = this.instanceHandler.getInstances(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
-            )) {
+            );
+
+            instances.forEach((instance) => {
                 const deathEvent = new DeathEvent(
                     event,
-                    this.activeInstanceAuthority.getInstance(
-                        parseInt(event.world_id, 10),
-                        parseInt(event.zone_id, 10),
-                    ),
+                    instance,
                 );
                 void this.deathEventHandler.handle(deathEvent);
-            }
+            });
         });
 
         this.wsClient.on('facilityControl', (event) => {
-            if (this.activeInstanceAuthority.instanceExists(
+            const instances = this.instanceHandler.getInstances(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
-            )) {
+            );
+
+            instances.forEach((instance) => {
                 CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
                 const facilityControl = new FacilityControlEvent(
                     event,
-                    this.activeInstanceAuthority.getInstance(
-                        parseInt(event.world_id, 10),
-                        parseInt(event.zone_id, 10),
-                    ),
+                    instance,
                 );
                 void this.facilityControlEventHandler.handle(facilityControl);
-            }
+            });
         });
 
         this.wsClient.on('metagameEvent', (event) => {
             CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
             const metagameEvent = new MetagameEventEvent(event);
             void this.metagameEventEventHandler.handle(metagameEvent);
+        });
+
+        this.wsClient.on('playerLogin', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
+            const playerLoginEvent = new PlayerLoginEvent(event);
+            void this.playerLoginEventHandler.handle(playerLoginEvent);
+        });
+
+        this.wsClient.on('playerLogout', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
+            const playerLogoutEvent = new PlayerLogoutEvent(event);
+            void this.playerLogoutEventHandler.handle(playerLogoutEvent);
         });
     }
 }

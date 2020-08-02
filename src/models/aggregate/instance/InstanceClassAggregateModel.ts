@@ -1,9 +1,9 @@
 import {Document, Schema} from 'mongoose';
-import {InstanceSchemaInterface} from '../../InstanceModel';
 import {Loadout, loadoutArray} from '../../../constants/loadout';
+import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 
 export interface InstanceClassAggregateSchemaInterface extends Document {
-    instance: InstanceSchemaInterface['instanceId'];
+    instance: PS2AlertsInstanceInterface['instanceId'];
     class: Loadout; // Subject to change to a PlayerInterface
     kills: number;
     deaths: number;

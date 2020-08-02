@@ -4,23 +4,22 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import _ from 'lodash';
-import {WorldFacilityControlAggregateInterface} from '../../../models/aggregate/world/WorldFacilityControlAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
+import {GlobalFacilityControlAggregateSchemaInterface, GlobalFacilityControlFactionAggregateInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 
 @injectable()
-export default class WorldFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
-    private static readonly logger = getLogger('WorldFacilityControlAggregate');
+export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
+    private static readonly logger = getLogger('GlobalFacilityControlAggregate');
 
-    private readonly factory: MongooseModelFactory<WorldFacilityControlAggregateInterface>;
+    private readonly factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.worldFacilityControlAggregateFactory) factory: MongooseModelFactory<WorldFacilityControlAggregateInterface>) {
+    constructor(@inject(TYPES.globalFacilityControlAggregateFactory) factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        WorldFacilityControlAggregate.logger.debug('WorldFacilityControlAggregate.handle');
+        GlobalFacilityControlAggregate.logger.debug('GlobalFacilityControlAggregate.handle');
 
         // Create initial record if doesn't exist
         if (!await this.factory.model.exists({
@@ -58,7 +57,7 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
                 doc,
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                WorldFacilityControlAggregate.logger.error(`Updating WorldFacilityControlAggregate Error! ${err}`);
+                GlobalFacilityControlAggregate.logger.error(`Updating WorldFacilityControlAggregate Error! ${err}`);
             });
         });
 
@@ -66,28 +65,23 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
     }
 
     public async insertInitial(event: FacilityControlEvent): Promise<boolean> {
-        WorldFacilityControlAggregate.logger.debug('Adding Initial WorldFacilityControlAggregate Record');
-        const factionKeys = ['vs', 'nc', 'tr', 'totals'];
+        const injectArgs = (): GlobalFacilityControlFactionAggregateInterface => ({
+            captures: 0,
+            defences: 0,
+        });
+        GlobalFacilityControlAggregate.logger.debug('Adding Initial GlobalFacilityControlAggregate Record');
         const data = {
             facility: event.facility,
             world: event.instance.world,
+            vs: injectArgs(),
+            nc: injectArgs(),
+            tr: injectArgs(),
+            totals: injectArgs(),
         };
 
-        factionKeys.forEach((i) => {
-            _.mergeWith(
-                data,
-                {
-                    [i]: {
-                        captures: 0,
-                        defences: 0,
-                    },
-                },
-            );
-        });
-
         try {
-            const row = await this.factory.saveDocument(data);
-            WorldFacilityControlAggregate.logger.debug(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
+            const row = await this.factory.model.create(data);
+            GlobalFacilityControlAggregate.logger.debug(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -95,7 +89,7 @@ export default class WorldFacilityControlAggregate implements AggregateHandlerIn
 
             if (!error.message.includes('E11000')) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial WorldFacilityControlAggregate record into DB! ${err}`, 'WorldFacilityControlAggregate');
+                throw new ApplicationException(`Unable to insert initial WorldFacilityControlAggregate record into DB! ${err}`, 'GlobalFacilityControlAggregate');
             }
         }
 

@@ -1,8 +1,8 @@
 import {Document, Schema} from 'mongoose';
-import {InstanceSchemaInterface} from '../../InstanceModel';
+import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 
 export interface InstanceFacilityControlAggregateInterface extends Document {
-    instance: InstanceSchemaInterface['instanceId'];
+    instance: PS2AlertsInstanceInterface['instanceId'];
     facility: number;
     vs: InstanceFacilityControlFactionAggregateInterface;
     nc: InstanceFacilityControlFactionAggregateInterface;
@@ -10,7 +10,7 @@ export interface InstanceFacilityControlAggregateInterface extends Document {
     totals: InstanceFacilityControlFactionAggregateInterface;
 }
 
-export interface InstanceFacilityControlFactionAggregateInterface extends Document {
+export interface InstanceFacilityControlFactionAggregateInterface {
     captures: number;
     defences: number;
 }

@@ -6,15 +6,15 @@ import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import {InstanceFacilityControlInterface} from '../../models/InstanceFacilityControlModel';
+import {InstanceFacilityControlInterface} from '../../models/instance/InstanceFacilityControlModel';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly playerHandler: CharacterPresenceHandlerInterface;
 
     private readonly factory: MongooseModelFactory<InstanceFacilityControlInterface>;
 
@@ -22,7 +22,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     private aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[];
 
     constructor(
-        @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
+        @inject(TYPES.characterPresenceHandlerInterface) playerHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlInterface>,
         @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[]
     ) {
@@ -67,7 +67,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     private async storeEvent(event: FacilityControlEvent): Promise<boolean> {
         try {
-            await this.factory.saveDocument({
+            await this.factory.model.create({
                 instance: event.instance.instanceId,
                 facility: event.facility,
                 timestamp: event.timestamp,

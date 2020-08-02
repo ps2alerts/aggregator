@@ -1,8 +1,14 @@
 import {ContainerModule} from 'inversify';
-import ActiveInstanceAuthority from './ActiveInstanceAuthority';
+import {TYPES} from '../constants/types';
+import OverdueInstanceAuthority from './OverdueInstanceAuthority';
+import PopulationAuthority from './PopulationAuthority';
 
 export default new ContainerModule((bind) => {
-    bind(ActiveInstanceAuthority)
-        .toSelf()
+    bind(TYPES.overdueInstanceAuthority)
+        .to(OverdueInstanceAuthority)
+        .inSingletonScope();
+
+    bind(TYPES.populationAuthority)
+        .to(PopulationAuthority)
         .inSingletonScope();
 });

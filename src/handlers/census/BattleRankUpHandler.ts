@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import {TYPES} from '../../constants/types';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import BattleRankUpEvent from './events/BattleRankUpEvent';
@@ -11,13 +11,13 @@ import BattleRankUpEvent from './events/BattleRankUpEvent';
 export default class BattleRankUpHandler implements EventHandlerInterface<BattleRankUpEvent> {
     private static readonly logger = getLogger('BattleRankUpHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
-        this.playerHandler = playerHandler;
+    constructor(@inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface) {
+        this.characterPresenceHandler = characterPresenceHandler;
     }
 
-    public async handle(event: BattleRankUpEvent): Promise<boolean>{
+    public async handle(event: BattleRankUpEvent): Promise<boolean> {
         BattleRankUpHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
@@ -25,26 +25,19 @@ export default class BattleRankUpHandler implements EventHandlerInterface<Battle
         }
 
         try {
-            await this.handleBattleRankUp(event);
+            await Promise.all([
+                this.characterPresenceHandler.update(event.characterId, event.world, event.zone),
+                this.storeEvent(event),
+            ]);
         } catch (e) {
             if (e instanceof Error) {
-                BattleRankUpHandler.logger.error(`Error parsing BattleRankEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                BattleRankUpHandler.logger.error(`Error parsing BattleRankUpEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
-                BattleRankUpHandler.logger.error('UNEXPECTED ERROR parsing BattleRankUp!');
+                BattleRankUpHandler.logger.error('UNEXPECTED ERROR parsing BattleRankUpEvent!');
             }
 
             return false;
         }
-
-        return true;
-    }
-
-    private async handleBattleRankUp(battleRankUpEvent: BattleRankUpEvent): Promise<boolean> {
-        // Update last seen
-        await Promise.all([
-            this.playerHandler.updateLastSeen(battleRankUpEvent.world, battleRankUpEvent.characterId),
-            this.storeEvent(battleRankUpEvent),
-        ]);
 
         return true;
     }

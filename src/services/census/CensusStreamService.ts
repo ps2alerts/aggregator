@@ -6,12 +6,17 @@ import {inject, injectable} from 'inversify';
 import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
 import {getUnixTimestamp} from '../../utils/time';
 import {World} from '../../constants/world';
-import {MetagameEventIds} from '../../constants/metagameEventIds';
+import {MetagameEventType} from '../../constants/metagameEventType';
 import Census from '../../config/census';
+import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
+import {TYPES} from '../../constants/types';
+import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
+import PopulationAuthority from '../../authorities/PopulationAuthority';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
-    public readonly bootPriority = 10;
+    public readonly bootPriority = 11;
 
     private static readonly logger = getLogger('ps2census');
 
@@ -23,26 +28,49 @@ export default class CensusStreamService implements ServiceInterface {
 
     private messageTimer?: NodeJS.Timeout;
 
+    private readonly overdueInstanceAuthority: OverdueInstanceAuthority;
+
+    private readonly instanceHandler: InstanceHandlerInterface;
+
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
+
+    private readonly populationAuthority: PopulationAuthority;
+
     constructor(
         wsClient: Client,
         @inject('censusConfig') censusConfig: Census,
+        @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
+        @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
+        @inject(TYPES.populationAuthority) populationAuthority: PopulationAuthority,
     ) {
         this.wsClient = wsClient;
         this.config = censusConfig;
+        this.overdueInstanceAuthority = overdueInstanceAuthority;
+        this.instanceHandler = instanceHandler;
+        this.characterPresenceHandler = characterPresenceHandler;
+        this.populationAuthority = populationAuthority;
         this.prepareClient();
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        CensusStreamService.logger.debug('Booting Census Stream Service... (NOT IMPLEMENTED)');
+        CensusStreamService.logger.debug('Booting Census Stream Service...');
+
+        await Promise.all([
+            this.instanceHandler.init(),
+            this.characterPresenceHandler.init(),
+        ]);
     }
 
     public async start(): Promise<void> {
         CensusStreamService.logger.debug('Starting Census Stream Service...');
+
         await this.wsClient.watch();
     }
 
-    public terminate(): void {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    public async terminate(): Promise<void> {
         CensusStreamService.logger.debug('Terminating Census Stream Service!');
 
         try {
@@ -74,6 +102,9 @@ export default class CensusStreamService implements ServiceInterface {
                 clearInterval(this.messageTimer);
             }
 
+            this.overdueInstanceAuthority.stop();
+            this.populationAuthority.stop();
+
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
@@ -86,7 +117,9 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('debug', (message: string) => {
-            CensusStreamService.logger.info(`Census stream debug: ${message}`);
+            if (!message.includes('Reset heartbeat') && !message.includes('Heartbeat acknowledged')) {
+                CensusStreamService.logger.info(`Census stream debug: ${message}`);
+            }
         });
 
         this.wsClient.on('duplicate', (event: PS2Event) => {
@@ -103,26 +136,29 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient.on('subscribed', () => {
             CensusStreamService.logger.info('Census stream subscribed!');
             this.startMessageTimer();
+            this.overdueInstanceAuthority.run();
+            this.populationAuthority.run();
 
             // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
             // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
             if (this.config.enableInjections) {
                 /* eslint-disable */
-                const event = new MetagameEvent(this.wsClient, {
+                const instanceId = String(Math.floor(Math.random() * 100000) + 1)
+                const alertStartEvent = new MetagameEvent(this.wsClient, {
                     event_name: 'MetagameEvent',
                     experience_bonus: '25.000000',
                     faction_nc: '6.274510',
                     faction_tr: '19.607843',
                     faction_vs: '9.803922',
-                    instance_id: String(Math.floor(Math.random() * 100000) + 1),
-                    metagame_event_id: String(MetagameEventIds.MELTDOWN_AMERISH),
+                    instance_id: instanceId,
+                    metagame_event_id: String(MetagameEventType.INDAR_ENLIGHTENMENT),
                     metagame_event_state: '137',
                     metagame_event_state_name: 'started',
                     timestamp: String(getUnixTimestamp()),
                     world_id: String(World.MILLER),
                 });
                 /* eslint-enable */
-                this.wsClient.emit(Events.PS2_META_EVENT, event);
+                this.wsClient.emit(Events.PS2_META_EVENT, alertStartEvent);
                 CensusStreamService.logger.debug('Emitted Metagame Start event');
             }
         });

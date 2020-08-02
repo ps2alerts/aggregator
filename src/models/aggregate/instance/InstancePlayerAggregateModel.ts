@@ -1,8 +1,8 @@
 import {Document, Schema} from 'mongoose';
-import {InstanceSchemaInterface} from '../../InstanceModel';
+import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 
 export interface InstancePlayerAggregateSchemaInterface extends Document {
-    instance: InstanceSchemaInterface['instanceId'];
+    instance: PS2AlertsInstanceInterface['instanceId'];
     player: string; // Subject to change to a PlayerInterface
     kills: number;
     deaths: number;

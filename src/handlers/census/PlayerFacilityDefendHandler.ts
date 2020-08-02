@@ -4,17 +4,17 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import {TYPES} from '../../constants/types';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import PlayerFacilityDefendEvent from './events/PlayerFacilityDefendEvent';
 
 @injectable()
 export default class PlayerFacilityDefendHandler implements EventHandlerInterface<PlayerFacilityDefendEvent> {
     private static readonly logger = getLogger('PlayerFacilityDefendHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
-        this.playerHandler = playerHandler;
+    constructor(@inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface) {
+        this.characterPresenceHandler = characterPresenceHandler;
     }
 
     public async handle(event: PlayerFacilityDefendEvent): Promise<boolean>{
@@ -26,7 +26,7 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
 
         try {
             await Promise.all([
-                this.playerHandler.updateLastSeen(event.world, event.characterId),
+                this.characterPresenceHandler.update(event.characterId, event.world, event.zone),
                 this.storeEvent(event),
             ]);
         } catch (e) {

@@ -9,10 +9,10 @@ void kernel.run().then(() => {
     }).on('uncaughtException', (e) => {
         kernel.terminateWithError(e);
     }).on('exit', () => {
-        kernel.terminate();
+        void kernel.terminate();
     }).on('SIGTERM', () => {
-        kernel.terminate();
+        void kernel.terminate();
     }).on('SIGINT', () => {
-        kernel.terminate();
+        void kernel.terminate();
     });
 });

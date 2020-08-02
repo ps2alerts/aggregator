@@ -27,7 +27,7 @@ export default interface ServiceInterface {
      *
      * @return void
      */
-    terminate?(): void;
+    terminate?(): Promise<void>;
 }
 
 export const SERVICE: symbol = Symbol.for('interfaces.Service');

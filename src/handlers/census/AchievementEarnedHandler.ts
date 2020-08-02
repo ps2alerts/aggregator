@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import {TYPES} from '../../constants/types';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import AchievementEarnedEvent from './events/AchievementEarnedEvent';
@@ -11,10 +11,10 @@ import AchievementEarnedEvent from './events/AchievementEarnedEvent';
 export default class AchievementEarnedHandler implements EventHandlerInterface<AchievementEarnedEvent> {
     private static readonly logger = getLogger('AchievementEarnedHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly characterPrecenseHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
-        this.playerHandler = playerHandler;
+    constructor(@inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface) {
+        this.characterPrecenseHandler = characterPresenceHandler;
     }
 
     public async handle(event: AchievementEarnedEvent): Promise<boolean>{
@@ -25,7 +25,10 @@ export default class AchievementEarnedHandler implements EventHandlerInterface<A
         }
 
         try {
-            await this.handleAchievementEarned(event);
+            await Promise.all([
+                this.characterPrecenseHandler.update(event.characterId, event.world, event.zone),
+                this.storeEvent(event),
+            ]);
         } catch (e) {
             if (e instanceof Error) {
                 AchievementEarnedHandler.logger.error(`Error parsing AchievementEarnedEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -36,13 +39,6 @@ export default class AchievementEarnedHandler implements EventHandlerInterface<A
             return false;
         }
 
-        return true;
-    }
-
-    private async handleAchievementEarned(achievementEarnedEvent: AchievementEarnedEvent): Promise<boolean> {
-        // Update last seen
-        await this.playerHandler.updateLastSeen(achievementEarnedEvent.world, achievementEarnedEvent.characterId);
-        await this.storeEvent(achievementEarnedEvent);
         return true;
     }
 
