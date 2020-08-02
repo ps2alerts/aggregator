@@ -75,7 +75,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
         };
 
         try {
-            const row = await this.factory.saveDocument(data);
+            const row = await this.factory.model.create(data);
             InstanceWeaponAggregate.logger.debug(`Inserted initial InstanceWeaponAggregate record for Instance: ${row.instance} | Weapon: ${row.weapon}`);
             return true;
         } catch (err) {

@@ -4,9 +4,8 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import _ from 'lodash';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import {InstanceFacilityControlAggregateInterface} from '../../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
+import {InstanceFacilityControlAggregateInterface, InstanceFacilityControlFactionAggregateInterface} from '../../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
@@ -67,26 +66,22 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
 
     public async insertInitial(event: FacilityControlEvent): Promise<boolean> {
         InstanceFacilityControlAggregate.logger.debug('Adding Initial InstanceFacilityControlAggregate Record');
-        const factionKeys = ['vs', 'nc', 'tr', 'totals'];
+
+        const injectArgs = (): InstanceFacilityControlFactionAggregateInterface => ({
+            captures: 0,
+            defences: 0,
+        });
         const data = {
             instance: event.instance.instanceId,
             facility: event.facility,
+            vs: injectArgs(),
+            nc: injectArgs(),
+            tr: injectArgs(),
+            totals: injectArgs(),
         };
 
-        factionKeys.forEach((i) => {
-            _.mergeWith(
-                data,
-                {
-                    [i]: {
-                        captures: 0,
-                        defences: 0,
-                    },
-                },
-            );
-        });
-
         try {
-            const row = await this.factory.saveDocument(data);
+            const row = await this.factory.model.create(data);
             InstanceFacilityControlAggregate.logger.debug(`Inserted initial InstanceFacilityControlAggregate record for Instance: ${row.instance}`);
             return true;
         } catch (err) {

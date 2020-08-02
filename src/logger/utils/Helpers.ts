@@ -11,7 +11,7 @@ export function filterToArray(filter: Record<string, boolean>): string[] {
 
 export function transportFactory(transportList: TransportConfig[]): Transport[] {
     return transportList.map((t) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
         const options: any = {...t.options};
 
         if (t.filter) {

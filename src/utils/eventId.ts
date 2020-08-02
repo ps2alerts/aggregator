@@ -129,11 +129,11 @@ export default class EventId {
             case 205: // Outfit wars pre-match
             case 206: // Outfit wars relics changing
             case 207: // Outfit wars begin (750 points)
-                return Zone.DESOLATION;
             case 208: // Koltyr Territory Control NC Triggered
             case 209: // Koltyr Territory Control TR Triggered
             case 210: // Koltyr Territory Control VS Triggered
-                return Zone.KOLTYR;
+                // return Zone.KOLTYR OR Zone.DESOLATION
+                return -1;
         }
 
         return -1;

@@ -4,9 +4,8 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
+import {GlobalFactionCombatAggregateSchemaInterface, GlobalFactionCombatAggregateSubSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import _ from 'lodash';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
@@ -91,28 +90,25 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
 
     public async insertInitial(event: DeathEvent): Promise<boolean> {
         GlobalFactionCombatAggregate.logger.debug('Adding Initial GlobalFactionCombatAggregate Record');
-        const factionKeys = ['vs', 'nc', 'tr', 'nso', 'totals'];
+
+        const injectArgs = (): GlobalFactionCombatAggregateSubSchemaInterface => ({
+            kills: 0,
+            deaths: 0,
+            teamKills: 0,
+            suicides: 0,
+            headshots: 0,
+        });
         const data = {
-            world: event.instance.world,
+            world: event.world,
+            vs: injectArgs(),
+            nc: injectArgs(),
+            tr: injectArgs(),
+            nso: injectArgs(),
+            totals: injectArgs(),
         };
 
-        factionKeys.forEach((i) => {
-            _.mergeWith(
-                data,
-                {
-                    [i]: {
-                        kills: 0,
-                        deaths: 0,
-                        teamKills: 0,
-                        suicides: 0,
-                        headshots: 0,
-                    },
-                },
-            );
-        });
-
         try {
-            const row = await this.factory.saveDocument(data);
+            const row = await this.factory.model.create(data);
             GlobalFactionCombatAggregate.logger.debug(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
             return true;
         } catch (err) {

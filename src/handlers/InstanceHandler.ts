@@ -1,102 +1,165 @@
 import {inject, injectable} from 'inversify';
 import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
-import MetagameEventEvent from './census/events/MetagameEventEvent';
-import {jsonLogOutput} from '../utils/json';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
-import {InstanceSchemaInterface} from '../models/InstanceModel';
-import {MetagameEventState} from '../constants/metagameEventState';
-import {instanceId} from '../utils/instance';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
-import ActiveInstanceAuthority from '../authorities/ActiveInstanceAuthority';
+import {World} from '../constants/world';
+import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
+import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
+import {Zone} from '../constants/zone';
+import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetagame';
+import {InstanceCustomWorldZoneSchemaInterface} from '../models/instance/InstanceCustomWorldZone';
+import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
+import {remove} from 'lodash';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
 
     private static readonly logger = getLogger('InstanceHandler');
 
-    private readonly factory: MongooseModelFactory<InstanceSchemaInterface>;
+    private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
 
-    private readonly activeInstanceAuthority: ActiveInstanceAuthority;
+    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
 
-    constructor(@inject(TYPES.instanceModelFactory) factory: MongooseModelFactory<InstanceSchemaInterface>,
-                                                    activeInstanceAuthority: ActiveInstanceAuthority,
+    private readonly instanceCustomWorldZoneInstanceModelFactory: MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>;
+
+    private initialized = false;
+
+    constructor(
+    @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>,
+        @inject(TYPES.instanceCustomWorldZoneModelFactory) instanceCustomWorldZoneInstanceModelFactory: MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>,
     ) {
-        this.factory = factory;
-        this.activeInstanceAuthority = activeInstanceAuthority;
+        this.instanceMetagameModelFactory = instanceMetagameModelFactory;
+        this.instanceCustomWorldZoneInstanceModelFactory = instanceCustomWorldZoneInstanceModelFactory;
     }
 
-    public async handleMetagameEvent(mge: MetagameEventEvent): Promise<boolean> {
-        if (mge.eventState === MetagameEventState.STARTED) {
-            if (!this.activeInstanceAuthority.instanceExists(mge.world, mge.zone)) {
-                return await this.startInstance(mge);
-            } else {
-                InstanceHandler.logger.error(`Instance already exists: ${jsonLogOutput(mge)}`);
-                return false;
-            }
-        }
-
-        if (mge.eventState === MetagameEventState.FINISHED) {
-            if (this.activeInstanceAuthority.instanceExists(mge.world, mge.zone)) {
-                return await this.endInstance(mge);
-            } else {
-                InstanceHandler.logger.error(`Instance not found: ${jsonLogOutput(mge)}`);
-                return false;
-            }
-        }
-
-        throw new ApplicationException(`MetagameEvent was not stored \r\n${jsonLogOutput(mge)}`);
+    public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
+        return this.currentInstances.filter((instance) => {
+            return instance.match(world, zone);
+        });
     }
 
-    private async startInstance(mge: MetagameEventEvent): Promise<boolean> {
+    public getAllInstances(): PS2AlertsInstanceInterface[] {
+        return this.currentInstances;
+    }
+
+    public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         InstanceHandler.logger.info('================== STARTING INSTANCE! ==================');
 
-        try {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const row = await this.factory.saveDocument({
-                instanceId: instanceId(mge),
-                censusInstanceId: mge.instanceId,
-                world: mge.world,
-                zone: mge.zone,
-                state: MetagameEventState.STARTED,
-                timeStarted: new Date(),
-            });
-            InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
-            return await this.activeInstanceAuthority.addInstance(mge);
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to insert instance into DB! ${err}`);
+        if (instance instanceof PS2AlertsMetagameInstance) {
+            try {
+                const row = await this.instanceMetagameModelFactory.model.create({
+                    instanceId: instance.instanceId,
+                    world: instance.world,
+                    timeStarted: instance.timeStarted,
+                    timeEnded: null,
+                    zone: instance.zone,
+                    censusInstanceId: instance.censusInstanceId,
+                    censusMetagameEventType: instance.censusMetagameEventType,
+                    duration: instance.duration,
+                    state: instance.state,
+                });
+                InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
+                this.currentInstances.push(instance);
+                this.printActives();
+                return true;
+            } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert instance into DB! ${err}`, 'InstanceHandler');
+            }
         }
+
+        return false;
     }
 
-    private async endInstance(mge: MetagameEventEvent): Promise<boolean> {
-        InstanceHandler.logger.info(`================== ENDING INSTANCE ${instanceId(mge)} ==================`);
+    public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
+        InstanceHandler.logger.info(`================== ENDING INSTANCE ${instance.instanceId} ==================`);
 
         // Find Instance and update
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const res = await this.factory.model.updateOne(
-                {censusInstanceId: instanceId(mge)},
+            const res = await this.instanceMetagameModelFactory.model.updateOne(
+                {instanceId: instance.instanceId},
                 {
-                    state: MetagameEventState.FINISHED,
+                    state: Ps2alertsEventState.ENDED,
                     timeEnded: new Date(),
                 },
             );
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!res.nModified) {
-                InstanceHandler.logger.error(`No instances were modified on end message! ${instanceId(mge)}`);
+                InstanceHandler.logger.error(`No instances were modified on end message! ${instance.instanceId}`);
                 return false;
             }
 
-            await this.activeInstanceAuthority.endInstance(mge);
+            remove(this.currentInstances, (i) => {
+                if (i instanceof PS2AlertsMetagameInstance) {
+                    return instance.match(i.world, i.zone);
+                }
+            });
 
-            InstanceHandler.logger.info(`================ SUCCESSFULLY ENDED INSTANCE ${instanceId(mge)} ================`);
+            InstanceHandler.logger.info(`================ SUCCESSFULLY ENDED INSTANCE ${instance.instanceId} ================`);
+            this.printActives();
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to finish instance #${instanceId(mge)}! ${err}`);
+            throw new ApplicationException(`Unable to end instance ${instance.instanceId}! ${err}`, 'InstanceHandler');
         }
+    }
+
+    public async init(): Promise<boolean> {
+        InstanceHandler.logger.debug('Initializing ActiveInstances...');
+
+        if (this.initialized) {
+            throw new ApplicationException('InstanceHandler was called to be initized more than once!', 'InstanceHandler');
+        }
+
+        let rows: InstanceMetagameSchemaInterface[] = [];
+
+        try {
+            rows = await this.instanceMetagameModelFactory.model.find({
+                state: Ps2alertsEventState.STARTED,
+            }).exec();
+        } catch (err) {
+            throw new ApplicationException('Unable to retrieve active instances!', 'InstanceHandler');
+        }
+
+        if (!rows.length) {
+            InstanceHandler.logger.warn('No active instances were detected in the database! This could be entirely normal however.');
+        } else {
+            rows.forEach((i) => {
+                const instance = new PS2AlertsMetagameInstance(
+                    i.world,
+                    i.timeStarted,
+                    null,
+                    i.zone,
+                    i.censusInstanceId,
+                    i.censusMetagameEventType,
+                    i.duration,
+                    i.state,
+                );
+                this.currentInstances.push(instance);
+            });
+        }
+
+        this.printActives();
+        InstanceHandler.logger.debug('Initializing ActiveInstances FINISHED');
+        this.initialized = true;
+        return true;
+    }
+
+    public printActives(): void {
+        InstanceHandler.logger.info('==== Current actives =====');
+        this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
+            if (instance instanceof PS2AlertsMetagameInstance) {
+                InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world} | Z: ${instance.zone}`);
+            } else {
+                InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world}`);
+            }
+
+        });
+
+        InstanceHandler.logger.info('==== Current actives end =====');
     }
 }

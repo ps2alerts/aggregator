@@ -14,15 +14,4 @@ export default class MongooseModelFactory<Interface extends Document> {
         this.dbConnection = mongoose;
         this.model = mongoose.model<Interface>(collection, schema);
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-    public buildDocument(document: any): Interface {
-        return new (this.model)(document);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
-    public async saveDocument(document: any): Promise<Interface> {
-        const model = new (this.model)(document);
-        return await model.save();
-    }
 }

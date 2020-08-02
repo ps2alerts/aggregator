@@ -23,13 +23,13 @@ import ZoneUtils from '../../../utils/ZoneUtils';
 import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
 import {Death} from 'ps2census';
-import ActiveInstanceInterface from '../../../interfaces/ActiveInstanceInterface';
+import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import {Faction} from '../../../constants/faction';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
 export default class DeathEvent {
-    public readonly instance: ActiveInstanceInterface;
+    public readonly instance: PS2AlertsInstanceInterface;
 
     public readonly world: World;
 
@@ -61,7 +61,7 @@ export default class DeathEvent {
 
     public readonly isTeamkill: boolean;
 
-    constructor(event: Death, instance: ActiveInstanceInterface) {
+    constructor(event: Death, instance: PS2AlertsInstanceInterface) {
         this.instance = instance;
 
         this.world = Parser.parseNumericalArgument(event.world_id);

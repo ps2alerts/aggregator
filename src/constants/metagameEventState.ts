@@ -1,5 +1,9 @@
 export enum MetagameEventState {
-    SCHEDULED = 0,
-    STARTED = 1,
-    FINISHED = 2
+    STARTED = 137,
+    FINISHED = 138,
 }
+
+export const metagameEventStateArray = [
+    137,
+    138,
+];

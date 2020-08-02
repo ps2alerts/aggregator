@@ -100,7 +100,7 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
         };
 
         try {
-            const row = await this.factory.saveDocument(player);
+            const row = await this.factory.model.create(player);
             InstancePlayerAggregate.logger.debug(`Inserted initial InstancePlayerAggregate record for Instance: ${row.instance} | Player: ${row.player}`);
             return true;
         } catch (err) {

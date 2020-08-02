@@ -1,4 +1,8 @@
 const TYPES = {
+    // Authorities
+    activeInstanceAuthority: Symbol.for('ActiveInstanceAuthority'),
+    overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
+
     // Handler Interfaces
     instanceHandlerInterface: Symbol.for('InstanceHandlerInterface'),
     playerHandlerInterface: Symbol.for('PlayerHandlerInterface'),
@@ -6,9 +10,11 @@ const TYPES = {
     // Event Handlers
     deathEventHandler: Symbol.for('DeathEventHandler'),
 
+    // Instance Models
+    instanceMetagameModelFactory: Symbol.for('InstanceMetagameModelFactory'),
+    instanceCustomWorldZoneModelFactory: Symbol.for('InstanceCustomWorldZoneModelFactory'),
+
     // Model Factory Symbols
-    activeInstanceDataModelFactory: Symbol.for('ActiveInstanceDataModelFactory'),
-    instanceModelFactory: Symbol.for('InstanceModelFactory'),
     instanceDeathModelFactory: Symbol.for('InstanceDeathModelFactory'),
     instanceFacilityControlModelFactory: Symbol.for('InstanceFacilityControlModelFactory'),
 
@@ -27,12 +33,12 @@ const TYPES = {
 
     // Global Aggregates
     globalClassAggregateFactory: Symbol.for('GlobalClassAggregateFactory'),
+    globalFacilityControlAggregateFactory: Symbol.for('GlobalFacilityControlAggregateFactory'),
     globalFactionCombatAggregateFactory: Symbol.for('GlobalFactionCombatAggregateFactory'),
     globalPlayerAggregateFactory: Symbol.for('GlobalPlayerAggregateFactory'),
     globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),
 
     // World Aggregates
-    worldFacilityControlAggregateFactory: Symbol.for('WorldFacilityControlAggregateFactory'),
 };
 
 export {TYPES};

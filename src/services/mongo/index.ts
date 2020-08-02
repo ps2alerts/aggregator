@@ -9,12 +9,10 @@ import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import {Context} from 'inversify/dts/planning/context';
 import {TYPES} from '../../constants/types';
 // Event models
-import {InstanceSchemaInterface, instanceSchema} from '../../models/InstanceModel';
-import {InstanceDeathSchemaInterface, instanceDeathSchema} from '../../models/InstanceDeathModel';
-import {activeInstanceSchema, ActiveInstanceSchemaInterface} from '../../models/ActiveInstanceModel';
-// Instancce Aggregate Models
+import {InstanceDeathSchemaInterface, instanceDeathSchema} from '../../models/instance/InstanceDeathModel';
+// Instance Aggregate Models
 import {instanceClassAggregateSchema, InstanceClassAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceClassAggregateModel';
-import {InstanceFacilityControlInterface, instanceFacilityControlSchema} from '../../models/InstanceFacilityControlModel';
+import {InstanceFacilityControlInterface, instanceFacilityControlSchema} from '../../models/instance/InstanceFacilityControlModel';
 import {instanceFacilityControlAggregateSchema, InstanceFacilityControlAggregateInterface} from '../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
 import {instanceFactionCombatAggregateSchema, InstanceFactionCombatAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
 import {instancePlayerAggregateSchema, InstancePlayerAggregateSchemaInterface} from '../../models/aggregate/instance/InstancePlayerAggregateModel';
@@ -25,7 +23,9 @@ import {globalFactionCombatAggregateSchema, GlobalFactionCombatAggregateSchemaIn
 import {globalPlayerAggregateSchema, GlobalPlayerAggregateSchemaInterface} from '../../models/aggregate/global/GlobalPlayerAggregateModel';
 import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from '../../models/aggregate/global/GlobalWeaponAggregateModel';
 // World Aggregate Imports
-import {WorldFacilityControlAggregateInterface, worldFacilityControlAggregateSchema} from '../../models/aggregate/world/WorldFacilityControlAggregateModel';
+import {GlobalFacilityControlAggregateSchemaInterface, globalFacilityControlAggregateSchema} from '../../models/aggregate/global/GlobalFacilityControlAggregateModel';
+import {instanceMetagameSchema, InstanceMetagameSchemaInterface} from '../../models/instance/InstanceMetagame';
+import {instanceCustomWorldZoneSchema, InstanceCustomWorldZoneSchemaInterface} from '../../models/instance/InstanceCustomWorldZone';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -40,11 +40,19 @@ export default new ContainerModule((bind) => {
         .toSelf()
         .inSingletonScope();
 
-    bind<MongooseModelFactory<InstanceSchemaInterface>>(TYPES.instanceModelFactory)
+    bind<MongooseModelFactory<InstanceMetagameSchemaInterface>>(TYPES.instanceMetagameModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
-            'instance',
-            instanceSchema,
+            'instance_metagame',
+            instanceMetagameSchema,
+        ))
+        .inSingletonScope();
+
+    bind<MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>>(TYPES.instanceCustomWorldZoneModelFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'instance_custom_world_zone',
+            instanceCustomWorldZoneSchema,
         ))
         .inSingletonScope();
 
@@ -53,14 +61,6 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'instance_death',
             instanceDeathSchema,
-        ))
-        .inSingletonScope();
-
-    bind<MongooseModelFactory<ActiveInstanceSchemaInterface>>(TYPES.activeInstanceDataModelFactory)
-        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
-            container.get(Mongoose),
-            'active_instance',
-            activeInstanceSchema,
         ))
         .inSingletonScope();
 
@@ -124,6 +124,14 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
+    bind<MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>>(TYPES.globalFacilityControlAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_global_facility_control',
+            globalFacilityControlAggregateSchema,
+        ))
+        .inSingletonScope();
+
     bind<MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>>(TYPES.globalFactionCombatAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
@@ -145,16 +153,6 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'aggregate_global_weapon',
             globalWeaponAggregateSchema,
-        ))
-        .inSingletonScope();
-
-    // World Aggregates
-
-    bind<MongooseModelFactory<WorldFacilityControlAggregateInterface>>(TYPES.worldFacilityControlAggregateFactory)
-        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
-            container.get(Mongoose),
-            'aggregate_world_facility_control',
-            worldFacilityControlAggregateSchema,
         ))
         .inSingletonScope();
 });
