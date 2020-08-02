@@ -60,8 +60,8 @@ export const metagameEventTypeArray = [
     210,
 ];
 
-const longAlert = 5400000;
-const shortAlert = 1800000;
+const longAlert = 90 * 60 * 1000;
+const shortAlert = 45 * 60 * 1000;
 
 // TODO: Generate this from the API
 export const metagameEventTypeDetailsMap: Map<number, MetagameDetailsInterface> = new Map<number, MetagameDetailsInterface>(
