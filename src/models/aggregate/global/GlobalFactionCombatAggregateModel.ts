@@ -3,14 +3,14 @@ import {World, worldArray} from '../../../constants/world';
 
 export interface GlobalFactionCombatAggregateSchemaInterface extends Document {
     world: World;
-    vs: GlobalFactionCombatAggregateSchemaInterface;
-    nc: GlobalFactionCombatAggregateSchemaInterface;
-    tr: GlobalFactionCombatAggregateSchemaInterface;
-    nso: GlobalFactionCombatAggregateSchemaInterface;
-    totals: GlobalFactionCombatAggregateSchemaInterface;
+    vs: GlobalFactionCombatAggregateSubSchemaInterface;
+    nc: GlobalFactionCombatAggregateSubSchemaInterface;
+    tr: GlobalFactionCombatAggregateSubSchemaInterface;
+    nso: GlobalFactionCombatAggregateSubSchemaInterface;
+    totals: GlobalFactionCombatAggregateSubSchemaInterface;
 }
 
-export interface GlobalFactionCombatAggregateSchemaInterface extends Document {
+export interface GlobalFactionCombatAggregateSubSchemaInterface {
     kills: number;
     deaths: number;
     teamKills: number;

@@ -10,7 +10,7 @@ export interface InstanceFacilityControlAggregateInterface extends Document {
     totals: InstanceFacilityControlFactionAggregateInterface;
 }
 
-export interface InstanceFacilityControlFactionAggregateInterface extends Document {
+export interface InstanceFacilityControlFactionAggregateInterface {
     captures: number;
     defences: number;
 }

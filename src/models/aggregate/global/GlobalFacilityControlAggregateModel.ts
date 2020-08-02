@@ -10,7 +10,7 @@ export interface GlobalFacilityControlAggregateSchemaInterface extends Document 
     totals: GlobalFacilityControlFactionAggregateInterface;
 }
 
-export interface GlobalFacilityControlFactionAggregateInterface extends Document {
+export interface GlobalFacilityControlFactionAggregateInterface {
     captures: number;
     defences: number;
 }
