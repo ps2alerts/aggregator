@@ -1,11 +1,10 @@
 import {inject, injectable, multiInject} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
-import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {InstanceDeathSchemaInterface} from '../../models/instance/InstanceDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
@@ -14,7 +13,7 @@ import MongooseModelFactory from '../../factories/MongooseModelFactory';
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('DeathEventHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
     private readonly factory: MongooseModelFactory<InstanceDeathSchemaInterface>;
 
@@ -22,25 +21,23 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     /* eslint-disable */
     constructor(
-        @inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface,
+        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.instanceDeathModelFactory) instanceDeathModelFactory: MongooseModelFactory<InstanceDeathSchemaInterface>,
         @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[]
     ) {
         /* eslint-enable */
-        this.playerHandler = playerHandler;
+        this.characterPresenceHandler = characterPresenceHandler;
         this.factory = instanceDeathModelFactory;
         this.aggregateHandlers = aggregateHandlers;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        if (config.features.logging.censusEventContent.deaths) {
-            DeathEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
-        }
+        DeathEventHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
 
         try {
             await Promise.all([
-                this.playerHandler.updateLastSeen(event.world, event.attackerCharacterId),
-                this.playerHandler.updateLastSeen(event.world, event.characterId),
+                this.characterPresenceHandler.update(event.attackerCharacterId, event.world, event.zone),
+                this.characterPresenceHandler.update(event.characterId, event.world, event.zone),
                 this.storeEvent(event),
             ]);
         } catch (e) {

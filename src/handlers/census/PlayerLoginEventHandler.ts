@@ -4,28 +4,26 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import PlayerLoginEvent from './events/PlayerLoginEvent';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import {TYPES} from '../../constants/types';
 
 @injectable()
 export default class PlayerLoginEventHandler implements EventHandlerInterface<PlayerLoginEvent> {
     private static readonly logger = getLogger('PlayerLoginEventHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
-        this.playerHandler = playerHandler;
+    constructor(@inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface) {
+        this.characterPresenceHandler = characterPresenceHandler;
     }
 
     public async handle(event: PlayerLoginEvent): Promise<boolean> {
-        PlayerLoginEventHandler.logger.debug('Parsing message...');
-
         if (config.features.logging.censusEventContent) {
             PlayerLoginEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
         try {
-            await this.playerHandler.handleLogin(event);
+            await this.characterPresenceHandler.update(event.characterId, event.world, null);
         } catch (e) {
             if (e instanceof Error) {
                 PlayerLoginEventHandler.logger.error(`Error parsing PlayerLoginEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

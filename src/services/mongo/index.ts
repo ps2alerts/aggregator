@@ -15,6 +15,7 @@ import {instanceClassAggregateSchema, InstanceClassAggregateSchemaInterface} fro
 import {InstanceFacilityControlInterface, instanceFacilityControlSchema} from '../../models/instance/InstanceFacilityControlModel';
 import {instanceFacilityControlAggregateSchema, InstanceFacilityControlAggregateInterface} from '../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
 import {instanceFactionCombatAggregateSchema, InstanceFactionCombatAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
+import {instancePopulationAggregateSchema, InstancePopulationAggregateSchemaInterface} from '../../models/aggregate/instance/InstancePopulationAggregateModel';
 import {instancePlayerAggregateSchema, InstancePlayerAggregateSchemaInterface} from '../../models/aggregate/instance/InstancePlayerAggregateModel';
 import {instanceWeaponAggregateSchema, InstanceWeaponAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceWeaponAggregateModel';
 // Global Aggregate Models
@@ -26,6 +27,7 @@ import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from 
 import {GlobalFacilityControlAggregateSchemaInterface, globalFacilityControlAggregateSchema} from '../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 import {instanceMetagameSchema, InstanceMetagameSchemaInterface} from '../../models/instance/InstanceMetagame';
 import {instanceCustomWorldZoneSchema, InstanceCustomWorldZoneSchemaInterface} from '../../models/instance/InstanceCustomWorldZone';
+import {characterPresenceSchema} from '../../models/CharacterPresenceModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -107,6 +109,14 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
+    bind<MongooseModelFactory<InstancePopulationAggregateSchemaInterface>>(TYPES.instancePopulationAggregateFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'aggregate_instance_population',
+            instancePopulationAggregateSchema,
+        ))
+        .inSingletonScope();
+
     bind<MongooseModelFactory<InstanceWeaponAggregateSchemaInterface>>(TYPES.instanceWeaponAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
@@ -153,6 +163,15 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'aggregate_global_weapon',
             globalWeaponAggregateSchema,
+        ))
+        .inSingletonScope();
+
+    // Metric models
+    bind<MongooseModelFactory<GlobalWeaponAggregateSchemaInterface>>(TYPES.characterPresenceFactory)
+        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
+            container.get(Mongoose),
+            'character_presence',
+            characterPresenceSchema,
         ))
         .inSingletonScope();
 });

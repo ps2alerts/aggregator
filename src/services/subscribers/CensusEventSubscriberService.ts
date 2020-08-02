@@ -14,11 +14,13 @@ import BattleRankUpHandler from '../../handlers/census/BattleRankUpHandler';
 import PlayerFacilityCaptureHandler from '../../handlers/census/PlayerFacilityCaptureHandler';
 import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDefendHandler';
 import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
+import {TYPES} from '../../constants/types';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
-import {TYPES} from '../../constants/types';
 import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
+import PlayerLoginEvent from '../../handlers/census/events/PlayerLoginEvent';
+import PlayerLogoutEvent from '../../handlers/census/events/PlayerLogoutEvent';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -97,6 +99,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing Death to listener');
             const instances = this.instanceHandler.getInstances(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
@@ -131,6 +134,18 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
             const metagameEvent = new MetagameEventEvent(event);
             void this.metagameEventEventHandler.handle(metagameEvent);
+        });
+
+        this.wsClient.on('playerLogin', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
+            const playerLoginEvent = new PlayerLoginEvent(event);
+            void this.playerLoginEventHandler.handle(playerLoginEvent);
+        });
+
+        this.wsClient.on('playerLogout', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
+            const playerLogoutEvent = new PlayerLogoutEvent(event);
+            void this.playerLogoutEventHandler.handle(playerLogoutEvent);
         });
     }
 }

@@ -4,17 +4,17 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import {TYPES} from '../../constants/types';
-import PlayerHandlerInterface from '../../interfaces/PlayerHandlerInterface';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import GainExperienceEvent from './events/GainExperienceEvent';
 
 @injectable()
 export default class GainExperienceEventHandler implements EventHandlerInterface<GainExperienceEvent> {
     private static readonly logger = getLogger('GainExperienceHandler');
 
-    private readonly playerHandler: PlayerHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.playerHandlerInterface) playerHandler: PlayerHandlerInterface) {
-        this.playerHandler = playerHandler;
+    constructor(@inject(TYPES.characterPresenceHandlerInterface) characterHandler: CharacterPresenceHandlerInterface) {
+        this.characterPresenceHandler = characterHandler;
     }
 
     public async handle(event: GainExperienceEvent): Promise<boolean>{
@@ -25,7 +25,10 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
         }
 
         try {
-            await this.handleExperienceEvent(event);
+            await Promise.all([
+                this.characterPresenceHandler.update(event.characterId, event.world, event.zone),
+                this.storeEvent(event),
+            ]);
         } catch (e) {
             if (e instanceof Error) {
                 GainExperienceEventHandler.logger.error(`Error parsing GainExperienceEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -36,13 +39,6 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
             return false;
         }
 
-        return true;
-    }
-
-    private async handleExperienceEvent(gainExperienceEvent: GainExperienceEvent): Promise<boolean> {
-        // Update last seen
-        await this.playerHandler.updateLastSeen(gainExperienceEvent.world, gainExperienceEvent.characterId);
-        await this.storeEvent(gainExperienceEvent);
         return true;
     }
 

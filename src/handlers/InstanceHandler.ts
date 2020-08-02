@@ -15,7 +15,6 @@ import {remove} from 'lodash';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
-
     private static readonly logger = getLogger('InstanceHandler');
 
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
@@ -112,7 +111,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         InstanceHandler.logger.debug('Initializing ActiveInstances...');
 
         if (this.initialized) {
-            throw new ApplicationException('InstanceHandler was called to be initized more than once!', 'InstanceHandler');
+            throw new ApplicationException('InstanceHandler was called to be initialized more than once!', 'InstanceHandler');
         }
 
         let rows: InstanceMetagameSchemaInterface[] = [];
