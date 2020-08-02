@@ -2,7 +2,7 @@ import {Container} from 'inversify';
 
 export default interface ServiceInterface {
     /**
-     * @type {number} the priority for the init method, lower numbers should be executed earlier
+     * @type {number} the priority for the boot method, lower numbers should be executed earlier
      */
     readonly bootPriority: number;
 
