@@ -64,7 +64,7 @@ export default class EventId {
             case 154:
             case 155:
                 return Zone.HOSSIN;
-            case 156: // Amerish Territoryt Control
+            case 156: // Amerish Territory Control
             case 157:
             case 158:
                 return Zone.AMERISH;

@@ -60,7 +60,7 @@ export const metagameEventTypeArray = [
     210,
 ];
 
-const longAlert = 3600000;
+const longAlert = 5400000;
 const shortAlert = 1800000;
 
 // TODO: Generate this from the API
