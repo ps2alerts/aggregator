@@ -21,6 +21,7 @@ import FacilityControlEvent from '../../handlers/census/events/FacilityControlEv
 import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 import PlayerLoginEvent from '../../handlers/census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from '../../handlers/census/events/PlayerLogoutEvent';
+import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -42,6 +43,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
     private readonly continentUnlockHandler: ContinentUnlockHandler;
     private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
     constructor(
         wsClient: Client,
@@ -58,6 +60,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         playerFacilityDefend: PlayerFacilityDefendHandler,
         continentUnlockHandler: ContinentUnlockHandler,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
     ) {
         this.wsClient = wsClient;
         this.deathEventHandler = deathEventHandler;
@@ -73,6 +76,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.playerFacilityDefend = playerFacilityDefend;
         this.continentUnlockHandler = continentUnlockHandler;
         this.instanceHandler = instanceHandler;
+        this.characterPresenceHandler = characterPresenceHandler;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -100,6 +104,15 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         // Set up event handlers
         this.wsClient.on('death', (event) => {
             CensusEventSubscriberService.logger.silly('Passing Death to listener');
+
+            [event.character_id, event.attacker_character_id].forEach((id) => {
+                void this.characterPresenceHandler.update(
+                    id,
+                    parseInt(event.world_id, 10),
+                    parseInt(event.zone_id, 10),
+                );
+            });
+
             const instances = this.instanceHandler.getInstances(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
@@ -128,6 +141,14 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 );
                 void this.facilityControlEventHandler.handle(facilityControl);
             });
+        });
+
+        this.wsClient.on('gainExperience', (event) => {
+            void this.characterPresenceHandler.update(
+                event.character_id,
+                parseInt(event.world_id, 10),
+                parseInt(event.zone_id, 10),
+            );
         });
 
         this.wsClient.on('metagameEvent', (event) => {
