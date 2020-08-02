@@ -2,7 +2,6 @@ import {getLogger} from '../logger';
 import {injectable, multiInject} from 'inversify';
 import {TYPES} from '../constants/types';
 import PopulationHandlerInterface from '../interfaces/PopulationHandlerInterface';
-import config from '../config';
 import {jsonLogOutput} from '../utils/json';
 import PopulationData from '../data/PopulationData';
 
@@ -19,9 +18,7 @@ export default class PopulationHandler implements PopulationHandlerInterface<Pop
     }
 
     public async handle(event: PopulationData): Promise<boolean> {
-        if (config.features.logging.censusEventContent.deaths) {
-            PopulationHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
-        }
+        PopulationHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: Array<Promise<any>> = [];

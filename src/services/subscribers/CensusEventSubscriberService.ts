@@ -99,6 +99,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // Set up event handlers
         this.wsClient.on('death', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing Death to listener');
             const instances = this.instanceHandler.getInstances(
                 parseInt(event.world_id, 10),
                 parseInt(event.zone_id, 10),
@@ -136,11 +137,13 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
 
         this.wsClient.on('playerLogin', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
             const playerLoginEvent = new PlayerLoginEvent(event);
             void this.playerLoginEventHandler.handle(playerLoginEvent);
         });
 
         this.wsClient.on('playerLogout', (event) => {
+            CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
             const playerLogoutEvent = new PlayerLogoutEvent(event);
             void this.playerLogoutEventHandler.handle(playerLogoutEvent);
         });
