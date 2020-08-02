@@ -15,6 +15,7 @@ export const characterPresenceSchema: Schema = new Schema({
     character: {
         type: String,
         required: true,
+        unique: true,
     },
     world: {
         type: Number,
@@ -34,7 +35,4 @@ export const characterPresenceSchema: Schema = new Schema({
         type: Date,
         required: true,
     },
-}).index(
-    {character: 1, world: 1},
-    {unique: true},
-);
+});
