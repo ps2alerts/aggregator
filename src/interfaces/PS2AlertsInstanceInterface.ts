@@ -6,8 +6,7 @@ export default interface PS2AlertsInstanceInterface {
     world: World;
     timeStarted: Date;
     timeEnded: Date | null;
-
-    duration(): number;
+    duration: number;
 
     overdue(): boolean;
 

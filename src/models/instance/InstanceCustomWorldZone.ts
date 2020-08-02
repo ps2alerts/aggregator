@@ -14,6 +14,7 @@ export interface InstanceCustomWorldZoneSchemaInterface extends Document {
     eventId: number;
     eventType: Ps2alertsEventType;
     state: Ps2alertsEventState;
+    duration: number;
     description: string;
 }
 
@@ -51,6 +52,10 @@ export const instanceCustomWorldZoneSchema: Schema = new Schema({
     state: {
         type: Number,
         enum: ps2alertsEventStateArray,
+        required: true,
+    },
+    duration: {
+        type: Number,
         required: true,
     },
     description: {

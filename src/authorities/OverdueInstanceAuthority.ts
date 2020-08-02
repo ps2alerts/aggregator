@@ -3,7 +3,6 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import {getLogger} from '../logger';
 import {TYPES} from '../constants/types';
 import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
-import {filter} from 'lodash';
 
 @injectable()
 export default class OverdueInstanceAuthority {
@@ -28,7 +27,7 @@ export default class OverdueInstanceAuthority {
         this.timer = setInterval(() => {
             OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
 
-            filter(this.instanceHandler.getAllInstances(), (instance) => {
+            this.instanceHandler.getAllInstances().filter((instance) => {
                 return instance.overdue();
             }).forEach((instance: PS2AlertsInstanceInterface) => {
                 try {

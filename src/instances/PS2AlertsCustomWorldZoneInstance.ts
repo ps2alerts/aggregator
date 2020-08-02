@@ -11,6 +11,7 @@ export default class PS2AlertsCustomWorldZoneInstance extends PS2AlertsInstanceA
     public eventType: Ps2alertsEventType;
     public eventId: number;
     public state: Ps2alertsEventState;
+    // For duration see get duration();
     public description: string;
 
     constructor(
@@ -42,10 +43,10 @@ export default class PS2AlertsCustomWorldZoneInstance extends PS2AlertsInstanceA
 
     public overdue(): boolean {
         // If now in milliseconds is greater than start time + duration
-        return Date.now() > (this.timeStarted.getTime() + this.duration());
+        return Date.now() > (this.timeStarted.getTime() + this.duration);
     }
 
-    public duration(): number {
+    get duration(): number {
         switch (this.eventType) {
             case Ps2alertsEventType.COMMUNITY_EVENT:
             case Ps2alertsEventType.JAEGER_EVENT:

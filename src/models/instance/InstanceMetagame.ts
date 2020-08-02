@@ -13,6 +13,7 @@ export interface InstanceMetagameSchemaInterface extends Document {
     zone: Zone;
     censusInstanceId: number;
     censusMetagameEventType: MetagameEventType;
+    duration: number;
     state: Ps2alertsEventState;
 }
 
@@ -45,6 +46,10 @@ export const instanceMetagameSchema: Schema = new Schema({
     censusMetagameEventType: {
         type: Number,
         enum: metagameEventTypeArray,
+        required: true,
+    },
+    duration: {
+        type: Number,
         required: true,
     },
     state: {

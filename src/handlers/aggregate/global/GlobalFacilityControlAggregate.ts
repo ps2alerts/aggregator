@@ -4,10 +4,9 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {mergeWith} from 'lodash';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import {GlobalFacilityControlAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
+import {GlobalFacilityControlAggregateSchemaInterface, GlobalFacilityControlFactionAggregateInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -66,28 +65,21 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
     }
 
     public async insertInitial(event: FacilityControlEvent): Promise<boolean> {
+        const injectArgs = (): GlobalFacilityControlFactionAggregateInterface => ({
+            captures: 0,
+            defences: 0,
+        });
         GlobalFacilityControlAggregate.logger.debug('Adding Initial GlobalFacilityControlAggregate Record');
-        const factionKeys = ['vs', 'nc', 'tr', 'totals'];
         const data = {
             facility: event.facility,
             world: event.instance.world,
+            vs: injectArgs(),
+            nc: injectArgs(),
+            tr: injectArgs(),
+            totals: injectArgs(),
         };
 
-        factionKeys.forEach((i) => {
-            mergeWith(
-                data,
-                {
-                    [i]: {
-                        captures: 0,
-                        defences: 0,
-                    },
-                },
-            );
-        });
-
         try {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             const row = await this.factory.model.create(data);
             GlobalFacilityControlAggregate.logger.debug(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
             return true;

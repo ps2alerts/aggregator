@@ -10,7 +10,7 @@ export interface InstanceFactionCombatAggregateSchemaInterface extends Document 
     totals: InstanceFactionCombatAggregateSubSchemaInterface;
 }
 
-export interface InstanceFactionCombatAggregateSubSchemaInterface extends Document {
+export interface InstanceFactionCombatAggregateSubSchemaInterface {
     kills: number;
     deaths: number;
     teamKills: number;
