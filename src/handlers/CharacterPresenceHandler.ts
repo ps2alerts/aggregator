@@ -106,7 +106,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
         for (const characterData of this.characters.values()) {
             if (!characterData.zone) {
-                CharacterPresenceHandler.logger.warn(
+                CharacterPresenceHandler.logger.debug(
                     `Attempted to calculate populations without any zones! Char: ${characterData.character} World:${characterData.world}`,
                 );
                 continue;
