@@ -13,8 +13,6 @@ import MongooseModelFactory from '../../factories/MongooseModelFactory';
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('DeathEventHandler');
 
-    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
-
     private readonly factory: MongooseModelFactory<InstanceDeathSchemaInterface>;
 
     private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>;
@@ -26,7 +24,6 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
         @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[]
     ) {
         /* eslint-enable */
-        this.characterPresenceHandler = characterPresenceHandler;
         this.factory = instanceDeathModelFactory;
         this.aggregateHandlers = aggregateHandlers;
     }
@@ -36,8 +33,6 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
         try {
             await Promise.all([
-                this.characterPresenceHandler.update(event.attackerCharacterId, event.world, event.zone),
-                this.characterPresenceHandler.update(event.characterId, event.world, event.zone),
                 this.storeEvent(event),
             ]);
         } catch (e) {

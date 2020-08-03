@@ -95,7 +95,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             return true;
         }
 
-        CharacterPresenceHandler.logger.warn(`Attempted to delete non-existent CharacterPresenceHandler record for Char: ${characterId} - potentially missing PlayerLogin event`, 'CharacterPresenceHandler');
+        CharacterPresenceHandler.logger.debug(`Attempted to delete non-existent CharacterPresenceHandler record for Char: ${characterId} - potentially missing PlayerLogin event`, 'CharacterPresenceHandler');
 
         return false;
     }
@@ -106,7 +106,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
         for (const characterData of this.characters.values()) {
             if (!characterData.zone) {
-                CharacterPresenceHandler.logger.warn(
+                CharacterPresenceHandler.logger.debug(
                     `Attempted to calculate populations without any zones! Char: ${characterData.character} World:${characterData.world}`,
                 );
                 continue;
@@ -185,7 +185,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         // Start timer to scan the data and flush old records
         this.flushTimer = setInterval(() => {
             CharacterPresenceHandler.logger.debug('Running CharacterPresentHandler flushTimer');
-            const threshold = 120000; // 2 mins
+            const threshold = 5 * 60 * 1000; // 5 mins
             const now = new Date().getTime();
             const deadline = now - threshold;
 
