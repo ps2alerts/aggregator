@@ -36,9 +36,7 @@ export default class Logger {
                 webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
                 level: 'info',
             },
-            filter: [
-                ['CharacterPresenceHandler', 'error'],
-            ],
+            filter: [],
         },
     };
 }
