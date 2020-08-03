@@ -185,7 +185,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         // Start timer to scan the data and flush old records
         this.flushTimer = setInterval(() => {
             CharacterPresenceHandler.logger.debug('Running CharacterPresentHandler flushTimer');
-            const threshold = 120000; // 2 mins
+            const threshold = 5 * 60 * 1000; // 5 mins
             const now = new Date().getTime();
             const deadline = now - threshold;
 
