@@ -95,7 +95,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             return true;
         }
 
-        CharacterPresenceHandler.logger.warn(`Attempted to delete non-existent CharacterPresenceHandler record for Char: ${characterId} - potentially missing PlayerLogin event`, 'CharacterPresenceHandler');
+        CharacterPresenceHandler.logger.debug(`Attempted to delete non-existent CharacterPresenceHandler record for Char: ${characterId} - potentially missing PlayerLogin event`, 'CharacterPresenceHandler');
 
         return false;
     }
