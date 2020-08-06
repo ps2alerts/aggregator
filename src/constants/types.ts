@@ -1,4 +1,6 @@
 const TYPES = {
+    cacheHandlerFactory: Symbol.for('CacheHandlerFactory'),
+
     // Authorities
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),
