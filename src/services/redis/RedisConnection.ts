@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import Redis from '../../config/redis';
 import {getLogger} from '../../logger';
 import {createHandyClient, IHandyRedis} from 'handy-redis';
+import ApplicationException from '../../exceptions/ApplicationException';
 
 @injectable()
 export class RedisConnection {
@@ -29,7 +30,7 @@ export class RedisConnection {
             this.client = createHandyClient(this.config.config);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            RedisConnection.logger.error(`Unable to connect to Redis! ${err}`);
+            throw new ApplicationException(`Unable to connect to Redis! ${err}`, 'RedisConnection', 1);
         }
 
         this.initialized = true;
