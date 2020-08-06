@@ -1,5 +1,5 @@
 const TYPES = {
-    cacheHandlerFactory: Symbol.for('CacheHandlerFactory'),
+    cacheDriver: Symbol.for('CacheDriver'),
 
     // Authorities
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
