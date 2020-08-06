@@ -15,8 +15,8 @@ export default class CacheDriver implements CacheDriverInterface {
         this.cacheClient = cacheClient.client;
     }
 
-    public async check(identifier: string, type: PS2AlertsCensusCacheTypes): Promise<number|null> {
-        CacheDriver.logger.debug(`Checking Cache for entry ${CacheDriver.buildKey(identifier, type)}`);
+    public async exists(identifier: string, type: PS2AlertsCensusCacheTypes): Promise<number|null> {
+        CacheDriver.logger.debug(`Checking Cache entry ${CacheDriver.buildKey(identifier, type)} exists`);
         return await this.cacheClient.exists(CacheDriver.buildKey(identifier, type));
     }
 
