@@ -6,6 +6,7 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {InstanceWeaponAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceWeaponAggregateModel';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class InstanceWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -30,15 +31,15 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         const documents = [];
 
-        if (!event.isTeamkill && !event.isSuicide) {
+        if (event.killType === Kill.Normal) {
             documents.push({$inc: {kills: 1}});
         }
 
-        if (event.isTeamkill) {
+        if (event.killType === Kill.TeamKill) {
             documents.push({$inc: {teamKills: 1}});
         }
 
-        if (event.isSuicide) {
+        if (event.killType === Kill.Suicide) {
             documents.push({$inc: {suicides: 1}});
         }
 
