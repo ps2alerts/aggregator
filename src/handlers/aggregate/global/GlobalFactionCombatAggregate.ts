@@ -6,7 +6,7 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import {
     GlobalFactionCombatAggregateSchemaInterface,
-    GlobalFactionCombatAggregateSubSchemaInterface
+    GlobalFactionCombatAggregateSubSchemaInterface,
 } from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import FactionUtils from '../../../utils/FactionUtils';
