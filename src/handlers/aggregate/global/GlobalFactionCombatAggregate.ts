@@ -4,10 +4,7 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {
-    GlobalFactionCombatAggregateSchemaInterface,
-    GlobalFactionCombatAggregateSubSchemaInterface,
-} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
+import {GlobalFactionCombatAggregateSchemaInterface, GlobalFactionCombatAggregateSubSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census/dist/client/events/Death';
