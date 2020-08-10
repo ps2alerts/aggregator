@@ -26,6 +26,7 @@ import {Death} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import {Faction} from '../../../constants/faction';
 import FactionUtils from '../../../utils/FactionUtils';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class DeathEvent {
@@ -57,9 +58,7 @@ export default class DeathEvent {
 
     public readonly isHeadshot: boolean;
 
-    public readonly isSuicide: boolean;
-
-    public readonly isTeamkill: boolean;
+    public readonly killType: Kill;
 
     constructor(event: Death, instance: PS2AlertsInstanceInterface) {
         this.instance = instance;
@@ -116,10 +115,6 @@ export default class DeathEvent {
 
         this.isHeadshot = event.is_headshot;
 
-        // Additional logic to figure out things Census doesn't tell us...
-        this.isSuicide = this.characterId === this.attackerCharacterId;
-
-        // TK logic, does NOT include NSO. If same faction but not same character
-        this.isTeamkill = this.attackerFaction === this.characterFaction && !this.isSuicide;
+        this.killType = event.kill_type;
     }
 }

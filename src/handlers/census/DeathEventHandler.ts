@@ -8,6 +8,7 @@ import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenc
 import ApplicationException from '../../exceptions/ApplicationException';
 import {InstanceDeathSchemaInterface} from '../../models/instance/InstanceDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
@@ -59,23 +60,23 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
         return true;
     }
 
-    private async storeEvent(deathEvent: DeathEvent): Promise<boolean> {
+    private async storeEvent(event: DeathEvent): Promise<boolean> {
         try {
             await this.factory.model.create({
-                instance: deathEvent.instance.instanceId,
-                attacker: deathEvent.attackerCharacterId,
-                player: deathEvent.characterId,
-                timestamp: deathEvent.timestamp,
-                attackerFiremode: deathEvent.attackerFiremodeId,
-                attackerLoadout: deathEvent.attackerLoadoutId,
-                attackerFaction: deathEvent.attackerFaction,
-                weapon: deathEvent.attackerWeaponId,
-                playerLoadout: deathEvent.characterLoadoutId,
-                playerFaction: deathEvent.characterFaction,
-                isHeadshot: deathEvent.isHeadshot,
-                isSuicide: deathEvent.isSuicide,
-                isTeamkill: deathEvent.isTeamkill,
-                vehicle: deathEvent.attackerVehicleId,
+                instance: event.instance.instanceId,
+                attacker: event.attackerCharacterId,
+                player: event.characterId,
+                timestamp: event.timestamp,
+                attackerFiremode: event.attackerFiremodeId,
+                attackerLoadout: event.attackerLoadoutId,
+                attackerFaction: event.attackerFaction,
+                weapon: event.attackerWeaponId,
+                playerLoadout: event.characterLoadoutId,
+                playerFaction: event.characterFaction,
+                isHeadshot: event.isHeadshot,
+                isSuicide: event.killType === Kill.Suicide,
+                isTeamkill: event.killType === Kill.TeamKill,
+                vehicle: event.attackerVehicleId,
             });
             return true;
         } catch (err) {
