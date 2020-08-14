@@ -3,9 +3,9 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import ApplicationException from '../../../exceptions/ApplicationException';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {GlobalClassAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalClassAggregateModel';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class GlobalClassAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -20,34 +20,21 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalClassAggregate.logger.debug('GlobalClassAggregate.handle');
 
-        // Check both attacker and victim for existence
-        const checks = [event.characterLoadoutId, event.attackerLoadoutId];
-
-        for (const id of checks) {
-            // Create initial record if doesn't exist
-            if (!await this.factory.model.exists({
-                class: id,
-                world: event.instance.world,
-            })) {
-                await this.insertInitial(event, id);
-            }
-        }
-
         const attackerDocs = [];
         const victimDocs = [];
 
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
-        if (!event.isTeamkill && !event.isSuicide) {
+        if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
         }
 
-        if (event.isTeamkill) {
+        if (event.killType === Kill.TeamKill) {
             attackerDocs.push({$inc: {teamKills: 1}});
         }
 
-        if (event.isSuicide) {
+        if (event.killType === Kill.Suicide) {
             // Attacker and victim are the same here, so it doesn't matter which
             victimDocs.push({$inc: {suicides: 1}});
         }
@@ -64,6 +51,9 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
                     world: event.instance.world,
                 },
                 doc,
+                {
+                    upsert: true,
+                },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Attacker Error! ${err}`);
@@ -84,35 +74,5 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         });
 
         return true;
-    }
-
-    private async insertInitial(event: DeathEvent, loadoutId: number): Promise<boolean> {
-        GlobalClassAggregate.logger.debug(`Adding Initial GlobalClassAggregate Record for Loadout: ${loadoutId} | World: ${event.instance.world}`);
-
-        const document = {
-            class: loadoutId,
-            world: event.instance.world,
-            kills: 0,
-            deaths: 0,
-            teamKills: 0,
-            suicides: 0,
-            headshots: 0,
-        };
-
-        try {
-            const row = await this.factory.model.create(document);
-            GlobalClassAggregate.logger.debug(`Inserted initial GlobalClassAggregate record for Loadout: ${row.class} | World: ${row.world}`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial GlobalClassAggregate record into DB! ${err}`, 'GlobalClassAggregate');
-            }
-        }
-
-        return false;
     }
 }

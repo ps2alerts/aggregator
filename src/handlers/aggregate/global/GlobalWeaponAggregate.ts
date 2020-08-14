@@ -4,8 +4,8 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import ApplicationException from '../../../exceptions/ApplicationException';
 import {GlobalWeaponAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalWeaponAggregateModel';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class GlobalWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -20,25 +20,17 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalWeaponAggregate.logger.debug('GlobalWeaponAggregate.handle');
 
-        // Create initial record if doesn't exist
-        if (!await this.factory.model.exists({
-            weapon: event.attackerWeaponId,
-            world: event.instance.world,
-        })) {
-            await this.insertInitial(event);
-        }
-
         const documents = [];
 
-        if (!event.isTeamkill && !event.isSuicide) {
+        if (event.killType === Kill.Normal) {
             documents.push({$inc: {kills: 1}});
         }
 
-        if (event.isTeamkill) {
+        if (event.killType === Kill.TeamKill) {
             documents.push({$inc: {teamKills: 1}});
         }
 
-        if (event.isSuicide) {
+        if (event.killType === Kill.Suicide) {
             documents.push({$inc: {suicides: 1}});
         }
 
@@ -54,6 +46,9 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
                     world: event.instance.world,
                 },
                 doc,
+                {
+                    upsert: true,
+                },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 GlobalWeaponAggregate.logger.error(`Updating Aggregate Error! ${err}`);
@@ -61,33 +56,5 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
         });
 
         return true;
-    }
-
-    public async insertInitial(event: DeathEvent): Promise<boolean> {
-        GlobalWeaponAggregate.logger.debug('Adding Initial GlobalWeaponAggregate Record');
-        const data = {
-            weapon: event.attackerWeaponId,
-            world: event.instance.world,
-            kills: 0,
-            teamKills: 0,
-            suicides: 0,
-            headshots: 0,
-        };
-
-        try {
-            const row = await this.factory.model.create(data);
-            GlobalWeaponAggregate.logger.debug(`Inserted initial GlobalWeaponAggregate record for Weapon: ${row.weapon} | World: ${row.world}`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial GlobalWeaponAggregate record into DB! ${err}`, 'GlobalWeaponAggregate');
-            }
-        }
-
-        return false;
     }
 }

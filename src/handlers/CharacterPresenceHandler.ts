@@ -64,7 +64,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             }
         } else {
             try {
-                await this.factory.model.update({
+                await this.factory.model.updateMany({
                     character: characterData.character,
                 }, {
                     lastSeen: characterData.lastSeen,

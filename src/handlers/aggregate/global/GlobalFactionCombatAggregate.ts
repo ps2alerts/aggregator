@@ -4,9 +4,9 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalFactionCombatAggregateSchemaInterface, GlobalFactionCombatAggregateSubSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
-import ApplicationException from '../../../exceptions/ApplicationException';
+import {GlobalFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -21,17 +21,10 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalFactionCombatAggregate.logger.debug('GlobalFactionCombatAggregate.handle');
 
-        // Create initial record if doesn't exist
-        if (!await this.factory.model.exists({
-            world: event.instance.world,
-        })) {
-            await this.insertInitial(event);
-        }
-
         const documents = [];
 
         // Increment attacker faction kills
-        if (!event.isTeamkill && !event.isSuicide) {
+        if (event.killType === Kill.Normal) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerFaction)}.kills`;
             documents.push(
@@ -47,7 +40,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             {$inc: {['totals.deaths']: 1}},
         );
 
-        if (event.isTeamkill) {
+        if (event.killType === Kill.TeamKill) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const teamKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerFaction)}.teamKills`;
             documents.push(
@@ -56,7 +49,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             );
         }
 
-        if (event.isSuicide) {
+        if (event.killType === Kill.Suicide) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const suicideKey = `${FactionUtils.parseFactionIdToShortName(event.characterFaction)}.suicides`;
             documents.push(
@@ -79,6 +72,9 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             void this.factory.model.updateOne(
                 {world: event.instance.world},
                 doc,
+                {
+                    upsert: true,
+                },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 GlobalFactionCombatAggregate.logger.error(`Updating GlobalFactionCombatAggregate Error! ${err}`);
@@ -86,41 +82,5 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
         });
 
         return true;
-    }
-
-    public async insertInitial(event: DeathEvent): Promise<boolean> {
-        GlobalFactionCombatAggregate.logger.debug('Adding Initial GlobalFactionCombatAggregate Record');
-
-        const injectArgs = (): GlobalFactionCombatAggregateSubSchemaInterface => ({
-            kills: 0,
-            deaths: 0,
-            teamKills: 0,
-            suicides: 0,
-            headshots: 0,
-        });
-        const data = {
-            world: event.world,
-            vs: injectArgs(),
-            nc: injectArgs(),
-            tr: injectArgs(),
-            nso: injectArgs(),
-            totals: injectArgs(),
-        };
-
-        try {
-            const row = await this.factory.model.create(data);
-            GlobalFactionCombatAggregate.logger.debug(`Inserted initial GlobalFactionCombatAggregate record for World: ${row.world}`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial GlobalFactionCombatAggregate record into DB! ${err}`, 'GlobalFactionCombatAggregate');
-            }
-        }
-
-        return false;
     }
 }
