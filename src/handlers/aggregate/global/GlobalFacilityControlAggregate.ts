@@ -3,10 +3,9 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import ApplicationException from '../../../exceptions/ApplicationException';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import {GlobalFacilityControlAggregateSchemaInterface, GlobalFacilityControlFactionAggregateInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
+import {GlobalFacilityControlAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -20,14 +19,6 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         GlobalFacilityControlAggregate.logger.debug('GlobalFacilityControlAggregate.handle');
-
-        // Create initial record if doesn't exist
-        if (!await this.factory.model.exists({
-            facility: event.facility,
-            world: event.instance.world,
-        })) {
-            await this.insertInitial(event);
-        }
 
         const documents = [];
 
@@ -55,6 +46,9 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                     world: event.instance.world,
                 },
                 doc,
+                {
+                    upsert: true,
+                },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 GlobalFacilityControlAggregate.logger.error(`Updating WorldFacilityControlAggregate Error! ${err}`);
@@ -62,37 +56,5 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
         });
 
         return true;
-    }
-
-    public async insertInitial(event: FacilityControlEvent): Promise<boolean> {
-        const injectArgs = (): GlobalFacilityControlFactionAggregateInterface => ({
-            captures: 0,
-            defences: 0,
-        });
-        GlobalFacilityControlAggregate.logger.debug('Adding Initial GlobalFacilityControlAggregate Record');
-        const data = {
-            facility: event.facility,
-            world: event.instance.world,
-            vs: injectArgs(),
-            nc: injectArgs(),
-            tr: injectArgs(),
-            totals: injectArgs(),
-        };
-
-        try {
-            const row = await this.factory.model.create(data);
-            GlobalFacilityControlAggregate.logger.debug(`Inserted initial WorldFacilityControlAggregate record for W: ${row.world} | F: ${row.facility}`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial WorldFacilityControlAggregate record into DB! ${err}`, 'GlobalFacilityControlAggregate');
-            }
-        }
-
-        return false;
     }
 }

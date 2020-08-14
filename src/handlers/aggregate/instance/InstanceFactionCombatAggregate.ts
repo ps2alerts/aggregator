@@ -4,8 +4,7 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {InstanceFactionCombatAggregateSchemaInterface, InstanceFactionCombatAggregateSubSchemaInterface} from '../../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
-import ApplicationException from '../../../exceptions/ApplicationException';
+import {InstanceFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census/dist/client/events/Death';
 
@@ -21,13 +20,6 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceFactionCombatAggregate.logger.debug('InstanceFactionCombatAggregate.handle');
-
-        // Create initial record if doesn't exist
-        if (!await this.factory.model.exists({
-            instance: event.instance.instanceId,
-        })) {
-            await this.insertInitial(event);
-        }
 
         const documents = [];
 
@@ -80,6 +72,9 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
             void this.factory.model.updateOne(
                 {instance: event.instance.instanceId},
                 doc,
+                {
+                    upsert: true,
+                },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 InstanceFactionCombatAggregate.logger.error(`Updating InstanceFactionCombatAggregate Error! ${err}`);
@@ -87,41 +82,5 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
         });
 
         return true;
-    }
-
-    public async insertInitial(event: DeathEvent): Promise<boolean> {
-        InstanceFactionCombatAggregate.logger.debug('Adding Initial InstanceFactionCombatAggregate Record');
-
-        const injectArgs = (): InstanceFactionCombatAggregateSubSchemaInterface => ({
-            kills: 0,
-            deaths: 0,
-            teamKills: 0,
-            suicides: 0,
-            headshots: 0,
-        });
-        const data = {
-            instance: event.instance.instanceId,
-            vs: injectArgs(),
-            nc: injectArgs(),
-            tr: injectArgs(),
-            nso: injectArgs(),
-            totals: injectArgs(),
-        };
-
-        try {
-            const row = await this.factory.model.create(data);
-            InstanceFactionCombatAggregate.logger.debug(`Inserted initial InstanceFactionCombatAggregate record for Instance: ${row.instance}`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial InstanceFactionCombatAggregate record into DB! ${err}`, 'InstanceFactionCombatAggregate');
-            }
-        }
-
-        return false;
     }
 }

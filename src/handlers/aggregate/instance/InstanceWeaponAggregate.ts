@@ -4,7 +4,6 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import ApplicationException from '../../../exceptions/ApplicationException';
 import {InstanceWeaponAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceWeaponAggregateModel';
 import {Kill} from 'ps2census/dist/client/events/Death';
 
@@ -20,14 +19,6 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceWeaponAggregate.logger.debug('InstanceWeaponAggregate.handle');
-
-        // Create initial record if doesn't exist
-        if (!await this.factory.model.exists({
-            instance: event.instance.instanceId,
-            weapon: event.attackerWeaponId,
-        })) {
-            await this.insertInitial(event);
-        }
 
         const documents = [];
 
@@ -55,6 +46,9 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
                     weapon: event.attackerWeaponId,
                 },
                 doc,
+                {
+                    upsert: true,
+                },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 InstanceWeaponAggregate.logger.error(`Updating InstanceWeaponAggregate Error! ${err}`);
@@ -62,33 +56,5 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
         });
 
         return true;
-    }
-
-    public async insertInitial(event: DeathEvent): Promise<boolean> {
-        InstanceWeaponAggregate.logger.debug('Adding Initial InstanceWeaponAggregate Record');
-        const data = {
-            instance: event.instance.instanceId,
-            weapon: event.attackerWeaponId,
-            kills: 0,
-            teamKills: 0,
-            suicides: 0,
-            headshots: 0,
-        };
-
-        try {
-            const row = await this.factory.model.create(data);
-            InstanceWeaponAggregate.logger.debug(`Inserted initial InstanceWeaponAggregate record for Instance: ${row.instance} | Weapon: ${row.weapon}`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial InstanceWeaponAggregate record into DB! ${err}`, 'InstanceWeaponAggregate');
-            }
-        }
-
-        return false;
     }
 }
