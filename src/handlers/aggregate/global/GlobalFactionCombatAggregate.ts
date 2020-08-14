@@ -7,6 +7,7 @@ import {TYPES} from '../../../constants/types';
 import {GlobalFactionCombatAggregateSchemaInterface, GlobalFactionCombatAggregateSubSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import FactionUtils from '../../../utils/FactionUtils';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -31,7 +32,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
         const documents = [];
 
         // Increment attacker faction kills
-        if (!event.isTeamkill && !event.isSuicide) {
+        if (event.killType === Kill.Normal) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerFaction)}.kills`;
             documents.push(
@@ -47,7 +48,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             {$inc: {['totals.deaths']: 1}},
         );
 
-        if (event.isTeamkill) {
+        if (event.killType === Kill.TeamKill) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const teamKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerFaction)}.teamKills`;
             documents.push(
@@ -56,7 +57,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             );
         }
 
-        if (event.isSuicide) {
+        if (event.killType === Kill.Suicide) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const suicideKey = `${FactionUtils.parseFactionIdToShortName(event.characterFaction)}.suicides`;
             documents.push(

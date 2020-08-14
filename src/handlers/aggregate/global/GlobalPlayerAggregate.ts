@@ -6,6 +6,7 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import {GlobalPlayerAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalPlayerAggregateModel';
 import ApplicationException from '../../../exceptions/ApplicationException';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class GlobalPlayerAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -38,15 +39,15 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
-        if (!event.isTeamkill && !event.isSuicide) {
+        if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
         }
 
-        if (event.isTeamkill) {
+        if (event.killType === Kill.TeamKill) {
             attackerDocs.push({$inc: {teamKills: 1}});
         }
 
-        if (event.isSuicide) {
+        if (event.killType === Kill.Suicide) {
             // Attacker and victim are the same here, so it doesn't matter which
             victimDocs.push({$inc: {suicides: 1}});
         }
