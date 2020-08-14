@@ -13,6 +13,7 @@ import {TYPES} from '../../constants/types';
 import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
+import {jsonLogOutput} from '../../utils/json';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -133,8 +134,9 @@ export default class CensusStreamService implements ServiceInterface {
             }
         });
 
-        this.wsClient.on('subscribed', () => {
-            CensusStreamService.logger.info('Census stream subscribed!');
+        this.wsClient.on('subscribed', (subscriptions) => {
+            CensusStreamService.logger.info('Census stream subscribed! Subscriptons:');
+            CensusStreamService.logger.info(jsonLogOutput(subscriptions));
             this.startMessageTimer();
             this.overdueInstanceAuthority.run();
             this.populationAuthority.run();
@@ -151,11 +153,11 @@ export default class CensusStreamService implements ServiceInterface {
                     faction_tr: '19.607843',
                     faction_vs: '9.803922',
                     instance_id: instanceId,
-                    metagame_event_id: String(MetagameEventType.INDAR_ENLIGHTENMENT),
+                    metagame_event_id: String(MetagameEventType.ESAMIR_ENLIGHTENMENT),
                     metagame_event_state: '137',
                     metagame_event_state_name: 'started',
                     timestamp: String(getUnixTimestamp()),
-                    world_id: String(World.MILLER),
+                    world_id: String(World.JAEGER),
                 });
                 /* eslint-enable */
                 this.wsClient.emit(Events.PS2_META_EVENT, alertStartEvent);
