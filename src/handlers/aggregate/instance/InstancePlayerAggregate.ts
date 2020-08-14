@@ -5,7 +5,6 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import {InstancePlayerAggregateSchemaInterface} from '../../../models/aggregate/instance/InstancePlayerAggregateModel';
-import ApplicationException from '../../../exceptions/ApplicationException';
 import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
@@ -20,19 +19,6 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstancePlayerAggregate.logger.debug('InstancePlayerAggregate.handle');
-
-        // Check both attacker and victim for existence
-        const checks = [event.characterId, event.attackerCharacterId];
-
-        for (const id of checks) {
-            // Create initial record if doesn't exist
-            if (!await this.factory.model.exists({
-                instance: event.instance.instanceId,
-                player: id,
-            })) {
-                await this.insertInitial(event, id);
-            }
-        }
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -78,6 +64,9 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
                     player: event.characterId,
                 },
                 doc,
+                {
+                    upsert: true,
+                },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 InstancePlayerAggregate.logger.error(`Updating InstancePlayerAggregate Victim Error! ${err}`);
@@ -85,35 +74,5 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
         });
 
         return true;
-    }
-
-    private async insertInitial(event: DeathEvent, characterId: string): Promise<boolean> {
-        InstancePlayerAggregate.logger.debug(`Adding Initial InstancePlayerAggregate Record for Instance: ${event.instance.instanceId} | Player: ${characterId}`);
-
-        const player = {
-            instance: event.instance.instanceId,
-            player: characterId,
-            kills: 0,
-            deaths: 0,
-            teamKills: 0,
-            suicides: 0,
-            headshots: 0,
-        };
-
-        try {
-            const row = await this.factory.model.create(player);
-            InstancePlayerAggregate.logger.debug(`Inserted initial InstancePlayerAggregate record for Instance: ${row.instance} | Player: ${row.player}`);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert initial InstancePlayerAggregate record into DB! ${err}`, 'InstancePlayerAggregate');
-            }
-        }
-
-        return false;
     }
 }
