@@ -3,11 +3,13 @@ import {inject, injectable} from 'inversify';
 import {rest, Client} from 'ps2census';
 import Character from '../data/Character';
 import {Redis} from 'ioredis';
-import ApplicationException from '../exceptions/ApplicationException';
 import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
+import {getLogger} from '../logger';
 
 @injectable()
 export default class CharacterBroker implements CharacterBrokerInterface {
+    private static readonly logger = getLogger('CharacterBroker');
+
     private readonly cacheDriver: Redis;
 
     private readonly wsClient: Client;
@@ -24,8 +26,8 @@ export default class CharacterBroker implements CharacterBrokerInterface {
         if (characterId === '0' || !characterId) {
             return null;
         }
-        // Grab the character data from Census / Cache
 
+        // Grab the character data from Census / Cache
         try {
             /* eslint-disable */
             const censusCharacter: rest.character.typeData = await this.wsClient.characterManager.fetch(characterId);
@@ -34,7 +36,8 @@ export default class CharacterBroker implements CharacterBrokerInterface {
             // Convert into Character object
             return new Character(censusCharacter);
         } catch (e) {
-            throw new ApplicationException(`Unable to grab character ${characterId}`, 'CharacterBroker');
+            CharacterBroker.logger.error(`Unable to grab character ${characterId} from Census - may not exist!`);
+            return null;
         }
     }
 }
