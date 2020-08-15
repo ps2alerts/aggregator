@@ -1,12 +1,13 @@
 const TYPES = {
-    cacheDriver: Symbol.for('CacheDriver'),
-
     // Authorities
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),
 
     // Brokers
     characterBrokerInterface: Symbol.for('CharacterBrokerInterface'),
+
+    // Cache Drivers
+    censusCharacterCacheDriver: Symbol.for('CensusCharacterCacheDriver'),
 
     // Handler Interfaces
     instanceHandlerInterface: Symbol.for('InstanceHandlerInterface'),

@@ -12,5 +12,5 @@ export default class Redis implements RedisOptions {
     public readonly username = get('REDIS_USER', '');
     public readonly password = get('REDIS_PASS', '');
     public readonly db = 0;
-    public readonly keyPrefix = 'ps2alerts';
+    public readonly keyPrefix = 'ps2alerts-';
 }

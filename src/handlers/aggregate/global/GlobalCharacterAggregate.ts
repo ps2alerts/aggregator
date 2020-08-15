@@ -45,16 +45,18 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         attackerDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {character: event.attackerCharacter.id},
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Attacker Error! ${err}`);
-            });
+            if (event.attackerCharacter) {
+                void this.factory.model.updateOne(
+                    {character: event.attackerCharacter.id},
+                    doc,
+                    {
+                        upsert: true,
+                    },
+                ).catch((err) => {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Attacker Error! ${err}`);
+                });
+            }
         });
 
         victimDocs.forEach((doc) => {

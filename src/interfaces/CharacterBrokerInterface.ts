@@ -1,5 +1,5 @@
 import Character from '../data/Character';
 
 export interface CharacterBrokerInterface {
-    get(characterId: string): Promise<Character>;
+    get(characterId: string): Promise<Character|null>;
 }

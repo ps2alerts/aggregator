@@ -41,7 +41,7 @@ export default class DeathEvent {
 
     public readonly characterLoadoutId: number;
 
-    public readonly attackerCharacter: Character;
+    public readonly attackerCharacter: Character|null;
 
     public readonly attackerFiremodeId: number;
 
@@ -58,8 +58,8 @@ export default class DeathEvent {
     constructor(
         event: Death,
         instance: PS2AlertsInstanceInterface,
-        attackerCharacter: Character,
-        character: Character,
+        attackerCharacter: Character|null,
+        character: Character|null,
     ) {
         this.instance = instance;
 
@@ -72,6 +72,10 @@ export default class DeathEvent {
         // No check needed, ZoneUtils will take care of this
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
         this.timestamp = event.timestamp;
+
+        if (!character) {
+            throw new IllegalArgumentException('Character is missing from DeathEvent when required', 'DeathEvent');
+        }
 
         this.character = character;
 

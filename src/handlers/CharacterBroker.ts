@@ -20,17 +20,21 @@ export default class CharacterBroker implements CharacterBrokerInterface {
         this.wsClient = wsClient;
     }
 
-    public async get(characterId: string): Promise<Character> {
-        // Grab the character data from Census / Cache
-        /* eslint-disable */
-        const censusCharacter: rest.character.typeData = await this.wsClient.characterManager.fetch(characterId);
-        /* eslint-enable */
-
-        if (!censusCharacter.character_id) {
-            throw new ApplicationException(`Attempted to get non-existent character ID ${characterId}, this should not be possible!`, 'CharacterBroker');
+    public async get(characterId: string): Promise<Character|null> {
+        if (characterId === '0' || !characterId) {
+            return null;
         }
+        // Grab the character data from Census / Cache
 
-        // Convert into Character object
-        return new Character(censusCharacter);
+        try {
+            /* eslint-disable */
+            const censusCharacter: rest.character.typeData = await this.wsClient.characterManager.fetch(characterId);
+            /* eslint-enable */
+
+            // Convert into Character object
+            return new Character(censusCharacter);
+        } catch (e) {
+            throw new ApplicationException(`Unable to grab character ${characterId}`, 'CharacterBroker');
+        }
     }
 }
