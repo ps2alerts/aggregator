@@ -17,6 +17,7 @@ export default class Character implements CharacterInterface {
         this.name = characterData.name.first;
         this.faction = parseInt(characterData.faction_id, 10);
         this.world = parseInt(characterData.world_id, 10);
+        this.outfit = null;
 
         if (characterData.outfit_member) {
             const outfit: outfitMemberExtended = characterData.outfit_member;
