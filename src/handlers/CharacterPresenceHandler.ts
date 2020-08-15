@@ -46,12 +46,14 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         this.characters.set(character.id, characterData);
 
         await this.factory.model.updateOne({
-            characterId: characterData.character,
+            character: characterData.character,
         }, {
-            world: characterData.world,
             zone: characterData.zone,
-            faction: characterData.faction,
             lastSeen: characterData.lastSeen,
+            $setOnInsert: {
+                world: characterData.world,
+                faction: characterData.faction,
+            },
         }, {
             upsert: true,
         });
