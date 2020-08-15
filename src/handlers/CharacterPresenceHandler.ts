@@ -43,26 +43,18 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             new Date(),
         );
 
-        const alreadyExists = this.characters.has(character.id);
-
         this.characters.set(character.id, characterData);
 
-        if (!alreadyExists) {
-            await this.factory.model.create({
-                character: characterData.character,
-                world: characterData.world,
-                zone: characterData.zone,
-                faction: characterData.faction,
-                lastSeen: characterData.lastSeen,
-            });
-        } else {
-            await this.factory.model.updateOne({
-                characterId: characterData.character,
-            }, {
-                lastSeen: characterData.lastSeen,
-                zone: characterData.zone,
-            });
-        }
+        await this.factory.model.updateOne({
+            characterId: characterData.character,
+        }, {
+            world: characterData.world,
+            zone: characterData.zone,
+            faction: characterData.faction,
+            lastSeen: characterData.lastSeen,
+        }, {
+            upsert: true,
+        });
 
         return true;
     }
