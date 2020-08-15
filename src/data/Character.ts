@@ -17,12 +17,12 @@ export default class Character implements CharacterInterface {
         this.id = characterData.character_id;
         this.name = characterData.name.first;
         this.faction = parseInt(characterData.faction_id, 10);
+        this.world = parseInt(characterData.world_id, 10);
 
-        if (!this.world) {
-            throw new ApplicationException(`World is missing for Census Character ${characterData.character_id}`);
+        if (!this.world || isNaN(this.world)) {
+            throw new ApplicationException(`World is missing for character ${characterData.character_id} - world given: ${characterData.world_id}`);
         }
 
-        this.world = parseInt(characterData.world_id, 10);
         this.outfit = null;
 
         if (characterData.outfit_member) {
