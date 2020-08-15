@@ -28,7 +28,9 @@ export default class Logger {
     public readonly transports: Record<string, TransportConfig> = {
         console: {
             name: 'console',
-            options: {},
+            options: {
+                level: 'warn',
+            },
         },
         discord: {
             name: 'discord',
