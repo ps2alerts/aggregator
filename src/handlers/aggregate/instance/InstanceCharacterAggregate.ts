@@ -53,6 +53,9 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                         outfit: event.attackerCharacter.outfit?.id,
                     },
                     doc,
+                    {
+                        upsert: true,
+                    },
                 ).catch((err) => {
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     InstanceCharacterAggregate.logger.error(`Updating InstanceCharacterAggregate Attacker Error! ${err}`);
