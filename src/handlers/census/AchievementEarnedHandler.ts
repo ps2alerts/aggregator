@@ -26,7 +26,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface<A
 
         try {
             await Promise.all([
-                this.characterPresenseHandler.update(event.characterId, event.world, event.zone),
+                this.characterPresenseHandler.update(event.character, event.zone),
                 this.storeEvent(event),
             ]);
         } catch (e) {

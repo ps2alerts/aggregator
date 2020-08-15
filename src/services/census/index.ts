@@ -2,7 +2,7 @@ import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import config from '../../config';
 import CensusStreamService from './CensusStreamService';
-import {Client, EventStreamManagerConfig} from 'ps2census';
+import {Client, EventStreamManagerConfig, rest} from 'ps2census';
 import Census from '../../config/census';
 import CensusCacheDriver from '../../drivers/CensusCacheDriver';
 import {TYPES} from '../../constants/types';
@@ -28,6 +28,25 @@ export default new ContainerModule((bind) => {
             streamManagerConfig,
             characterManager: {
                 cache: container.get(TYPES.censusCharacterCacheDriver),
+
+                // TODO: Remove defaults when Microwave fixes package / resolves show
+                request: rest.resolve.default(
+                    rest.hide.default(
+                        rest.character.default,
+                        [
+                            'head_id',
+                            'times',
+                            'certs',
+                            'profile_id',
+                            'title_id',
+                            'daily_ribbon',
+                        ],
+                    ),
+                    [
+                        'world',
+                        ['outfit_member_extended', ['outfit_id', 'name', 'alias', 'leader_character_id']],
+                    ],
+                ),
             },
         }))
         .inSingletonScope();

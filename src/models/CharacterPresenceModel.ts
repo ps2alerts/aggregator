@@ -2,9 +2,10 @@ import {Document, Schema} from 'mongoose';
 import {World, worldArray} from '../constants/world';
 import {Zone, zoneArray} from '../constants/zone';
 import {Faction, factionArray} from '../constants/faction';
+import Character from '../data/Character';
 
 export interface CharacterPresenceSchemaInterface extends Document {
-    character: string;
+    character: Character['id'];
     world: World;
     zone: Zone|null;
     faction: Faction;

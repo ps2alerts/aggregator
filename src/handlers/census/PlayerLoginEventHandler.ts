@@ -23,7 +23,7 @@ export default class PlayerLoginEventHandler implements EventHandlerInterface<Pl
         }
 
         try {
-            await this.characterPresenceHandler.update(event.characterId, event.world, null);
+            await this.characterPresenceHandler.update(event.character, null);
         } catch (e) {
             if (e instanceof Error) {
                 PlayerLoginEventHandler.logger.error(`Error parsing PlayerLoginEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

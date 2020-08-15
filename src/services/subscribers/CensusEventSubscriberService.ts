@@ -109,27 +109,27 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on('death', (event) => {
             CensusEventSubscriberService.logger.silly('Passing Death to listener');
 
-            [event.character_id, event.attacker_character_id].forEach((id) => {
-                void this.characterPresenceHandler.update(
-                    id,
+            void Promise.all([
+                this.characterBroker.get(event.attacker_character_id),
+                this.characterBroker.get(event.character_id),
+            ]).then(([attacker, character]) => {
+                [attacker, character].forEach((char) => {
+                    if (!char) {
+                        return;
+                    }
+
+                    void this.characterPresenceHandler.update(
+                        char,
+                        parseInt(event.zone_id, 10),
+                    );
+                });
+
+                const instances = this.instanceHandler.getInstances(
                     parseInt(event.world_id, 10),
                     parseInt(event.zone_id, 10),
                 );
-            });
 
-            const instances = this.instanceHandler.getInstances(
-                parseInt(event.world_id, 10),
-                parseInt(event.zone_id, 10),
-            );
-
-            // Yes, the below does fetch the char data twice if there's >1 instance, however since the 2nd run will be pulled from redis, meh.
-            instances.forEach((instance) => {
-                void Promise.all([
-                    /* eslint-disable */
-                    this.characterBroker.get(event.attacker_character_id),
-                    this.characterBroker.get(event.character_id),
-                    /* eslint-enable */
-                ]).then(([attacker, character]) => {
+                instances.forEach((instance) => {
                     const deathEvent = new DeathEvent(
                         event,
                         instance,
@@ -157,10 +157,16 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             });
         });
 
-        this.wsClient.on('gainExperience', (event) => {
-            void this.characterPresenceHandler.update(
-                event.character_id,
-                parseInt(event.world_id, 10),
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.wsClient.on('gainExperience', async (event) => {
+            const character = await this.characterBroker.get(event.character_id);
+
+            if (!character) {
+                return;
+            }
+
+            await this.characterPresenceHandler.update(
+                character,
                 parseInt(event.zone_id, 10),
             );
         });
@@ -178,16 +184,31 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         });
 
-        this.wsClient.on('playerLogin', (event) => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.wsClient.on('playerLogin', async (event) => {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
-            const playerLoginEvent = new PlayerLoginEvent(event);
-            void this.playerLoginEventHandler.handle(playerLoginEvent);
+
+            const character = await this.characterBroker.get(event.character_id);
+
+            if (!character) {
+                return;
+            }
+
+            const playerLoginEvent = new PlayerLoginEvent(event, character);
+            await this.playerLoginEventHandler.handle(playerLoginEvent);
         });
 
-        this.wsClient.on('playerLogout', (event) => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.wsClient.on('playerLogout', async (event) => {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
-            const playerLogoutEvent = new PlayerLogoutEvent(event);
-            void this.playerLogoutEventHandler.handle(playerLogoutEvent);
+            const character = await this.characterBroker.get(event.character_id);
+
+            if (!character) {
+                return;
+            }
+
+            const playerLogoutEvent = new PlayerLogoutEvent(event, character);
+            await this.playerLogoutEventHandler.handle(playerLogoutEvent);
         });
     }
 }

@@ -26,7 +26,7 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
 
         try {
             await Promise.all([
-                this.characterPresenceHandler.update(event.characterId, event.world, event.zone),
+                this.characterPresenceHandler.update(event.character, event.zone),
                 this.storeEvent(event),
             ]);
         } catch (e) {
