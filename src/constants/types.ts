@@ -3,6 +3,12 @@ const TYPES = {
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),
 
+    // Brokers
+    characterBrokerInterface: Symbol.for('CharacterBrokerInterface'),
+
+    // Cache Drivers
+    censusCharacterCacheDriver: Symbol.for('CensusCharacterCacheDriver'),
+
     // Handler Interfaces
     instanceHandlerInterface: Symbol.for('InstanceHandlerInterface'),
     characterPresenceHandlerInterface: Symbol.for('CharacterPresenceHandlerInterface'),
@@ -30,14 +36,14 @@ const TYPES = {
     instanceFacilityControlAggregateFactory: Symbol.for('InstanceFacilityControlAggregateFactory'),
     instanceFactionCombatAggregateFactory: Symbol.for('InstanceFactionCombatAggregateFactory'),
     instancePopulationAggregateFactory: Symbol.for('InstancePopulationAggregateFactory'),
-    instancePlayerAggregateFactory: Symbol.for('InstancePlayerAggregateFactory'),
+    instanceCharacterAggregateFactory: Symbol.for('InstanceCharacterAggregateFactory'),
     instanceWeaponAggregateFactory: Symbol.for('InstanceWeaponAggregateFactory'),
 
     // Global Aggregates Models
     globalClassAggregateFactory: Symbol.for('GlobalClassAggregateFactory'),
     globalFacilityControlAggregateFactory: Symbol.for('GlobalFacilityControlAggregateFactory'),
     globalFactionCombatAggregateFactory: Symbol.for('GlobalFactionCombatAggregateFactory'),
-    globalPlayerAggregateFactory: Symbol.for('GlobalPlayerAggregateFactory'),
+    globalCharacterAggregateFactory: Symbol.for('GlobalCharacterAggregateFactory'),
     globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),
 
     // Metric Models

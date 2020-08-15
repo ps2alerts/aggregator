@@ -15,17 +15,18 @@ import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
 import {AchievementEarned} from 'ps2census';
 import {World} from '../../../constants/world';
+import Character from '../../../data/Character';
 
 @injectable()
 export default class AchievementEarnedEvent {
-    public readonly characterId: string;
+    public readonly character: Character;
     public readonly world: World;
     public readonly zone: Zone;
     public readonly achievementId: number;
     public readonly timestamp: Date;
 
-    constructor(event: AchievementEarned) {
-        this.characterId = event.character_id; // This is a string on purpose
+    constructor(event: AchievementEarned, character: Character) {
+        this.character = character; // This is a string on purpose
 
         this.world = Parser.parseNumericalArgument(event.world_id);
 

@@ -2,7 +2,7 @@ import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
 import {Faction} from '../constants/faction';
 
-export default class CharacterData {
+export default class CharacterPresenceData {
     public readonly character: string;
     public readonly world: World;
     public readonly zone: Zone | null;

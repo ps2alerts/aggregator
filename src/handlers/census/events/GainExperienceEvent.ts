@@ -20,18 +20,19 @@ import {Zone} from '../../../constants/zone';
 import {GainExperience} from 'ps2census';
 import {World} from '../../../constants/world';
 import {Loadout} from '../../../constants/loadout';
+import Character from '../../../data/Character';
 
 @injectable()
 export default class GainExperienceEvent {
     public readonly world: World;
     public readonly zone: Zone;
     public readonly timestamp: Date;
-    public readonly characterId: string;
+    public readonly character: Character;
     public readonly experienceId: number;
     public readonly loadout: Loadout;
     public readonly amount: number;
 
-    constructor(event: GainExperience) {
+    constructor(event: GainExperience, character: Character) {
         this.world = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.world)) {
@@ -46,7 +47,7 @@ export default class GainExperienceEvent {
 
         this.timestamp = event.timestamp;
 
-        this.characterId = event.character_id; // This is a string on purpose
+        this.character = character;
 
         this.experienceId = Parser.parseNumericalArgument(event.experience_id);
 

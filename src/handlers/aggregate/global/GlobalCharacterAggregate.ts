@@ -4,24 +4,31 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalPlayerAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalPlayerAggregateModel';
+import {GlobalCharacterAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalCharacterAggregateModel';
 import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
-export default class GlobalPlayerAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalPlayerAggregate');
+export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('GlobalCharacterAggregate');
 
-    private readonly factory: MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>;
+    private readonly factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.globalPlayerAggregateFactory) factory: MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>) {
+    constructor(@inject(TYPES.globalCharacterAggregateFactory) factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalPlayerAggregate.logger.debug('GlobalPlayerAggregate.handle');
+        GlobalCharacterAggregate.logger.debug('GlobalCharacterAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];
+
+        attackerDocs.push({$setOnInsert: {
+            world: event.character.world,
+        }});
+        victimDocs.push({$setOnInsert: {
+            world: event.character.world,
+        }});
 
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
@@ -34,7 +41,7 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
             attackerDocs.push({$inc: {teamKills: 1}});
         }
 
-        if (event.killType === Kill.Suicide) {
+        if (event.killType === Kill.Suicide || event.killType === Kill.RestrictedArea) {
             // Attacker and victim are the same here, so it doesn't matter which
             victimDocs.push({$inc: {suicides: 1}});
         }
@@ -45,28 +52,30 @@ export default class GlobalPlayerAggregate implements AggregateHandlerInterface<
 
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         attackerDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {player: event.attackerCharacterId},
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalPlayerAggregate.logger.error(`Updating GlobalPlayerAggregate Attacker Error! ${err}`);
-            });
+            if (event.attackerCharacter) {
+                void this.factory.model.updateOne(
+                    {character: event.attackerCharacter.id},
+                    doc,
+                    {
+                        upsert: true,
+                    },
+                ).catch((err) => {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Attacker Error! ${err}`);
+                });
+            }
         });
 
         victimDocs.forEach((doc) => {
             void this.factory.model.updateOne(
-                {player: event.characterId},
+                {character: event.character.id},
                 doc,
                 {
                     upsert: true,
                 },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalPlayerAggregate.logger.error(`Updating GlobalPlayerAggregate Victim Error! ${err}`);
+                GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Victim Error! ${err}`);
             });
         });
 

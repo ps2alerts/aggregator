@@ -11,15 +11,16 @@ import IllegalArgumentException from '../../../exceptions/IllegalArgumentExcepti
 import Parser from '../../../utils/parser';
 import {PlayerLogin} from 'ps2census';
 import {World} from '../../../constants/world';
+import Character from '../../../data/Character';
 
 @injectable()
 export default class PlayerLoginEvent {
-    public readonly characterId: string;
+    public readonly character: Character;
 
     public readonly world: World;
 
-    constructor(event: PlayerLogin) {
-        this.characterId = event.character_id; // This is a string on purpose
+    constructor(event: PlayerLogin, character: Character) {
+        this.character = character;
 
         this.world = Parser.parseNumericalArgument(event.world_id);
 

@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
-import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
-import CharacterData from '../data/CharacterData';
+import CharacterPresenceData from '../data/CharacterPresenceData';
 import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
@@ -11,12 +10,13 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {CharacterPresenceSchemaInterface} from '../models/CharacterPresenceModel';
 import {TYPES} from '../constants/types';
 import ApplicationException from '../exceptions/ApplicationException';
+import Character from '../data/Character';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
     private static readonly logger = getLogger('CharacterPresenceHandler');
 
-    private readonly characters: Map<string, CharacterData> = new Map<string, CharacterData>();
+    private readonly characters: Map<string, CharacterPresenceData> = new Map<string, CharacterPresenceData>();
 
     private readonly factory: MongooseModelFactory<CharacterPresenceSchemaInterface>;
 
@@ -28,52 +28,35 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         this.factory = factory;
     }
 
-    public async update(characterId: string, world: World, zone: number|null = null): Promise<boolean> {
+    public async update(character: Character, zone: number|null = null): Promise<boolean> {
         // Handle Sanctuary / unrecognised zones here
         if (zone && !Object.values(Zone).includes(zone)) {
             CharacterPresenceHandler.logger.debug(`Discarding CharacterPresence update, unrecognized zone: ${zone}`);
             return true;
         }
 
-        const faction = Math.floor(Math.random() * 4) + 1; // TODO API CALL TO FIGURE THIS OUT
-
-        const characterData = new CharacterData(
-            characterId,
-            world,
+        const characterData = new CharacterPresenceData(
+            character.id,
+            character.world,
             zone,
-            faction,
+            character.faction,
             new Date(),
         );
 
-        const alreadyExists = this.characters.has(characterId);
+        this.characters.set(character.id, characterData);
 
-        this.characters.set(characterId, characterData);
-
-        if (!alreadyExists) {
-            try {
-                await this.factory.model.create({
-                    character: characterData.character,
-                    world: characterData.world,
-                    zone: characterData.zone,
-                    faction: characterData.faction,
-                    lastSeen: characterData.lastSeen,
-                });
-            } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Error creating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
-            }
-        } else {
-            try {
-                await this.factory.model.updateMany({
-                    character: characterData.character,
-                }, {
-                    lastSeen: characterData.lastSeen,
-                });
-            } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Error updating character presence entry! Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
-            }
-        }
+        await this.factory.model.updateOne({
+            character: characterData.character,
+        }, {
+            zone: characterData.zone,
+            lastSeen: characterData.lastSeen,
+            $setOnInsert: {
+                world: characterData.world,
+                faction: characterData.faction,
+            },
+        }, {
+            upsert: true,
+        });
 
         return true;
     }
@@ -83,8 +66,8 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             this.characters.delete(characterId);
 
             try {
-                await this.factory.model.deleteMany({
-                    character: characterId,
+                await this.factory.model.deleteOne({
+                    characterId,
                 });
                 CharacterPresenceHandler.logger.debug(`Deleted CharacterPresenceHandler record for Char ${characterId}`);
             } catch (err) {
@@ -171,7 +154,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             CharacterPresenceHandler.logger.warn('No CharacterPresenceHandler records found! This could be entirely normal however.');
         } else {
             rows.forEach((row) => {
-                const characterData = new CharacterData(
+                const characterData = new CharacterPresenceData(
                     row.character,
                     row.world,
                     row.zone,

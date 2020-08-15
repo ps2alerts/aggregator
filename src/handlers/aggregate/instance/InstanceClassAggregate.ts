@@ -34,7 +34,7 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
             attackerDocs.push({$inc: {teamKills: 1}});
         }
 
-        if (event.killType === Kill.Suicide) {
+        if (event.killType === Kill.Suicide || event.killType === Kill.RestrictedArea) {
             // Attacker and victim are the same here, so it doesn't matter which
             victimDocs.push({$inc: {suicides: 1}});
         }
