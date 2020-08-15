@@ -1,4 +1,5 @@
 export enum Loadout {
+    UNKNOWN = 0,
     NC_INFILTRATOR = 1,
     // TRIGGERED
     NC_LIGHT_ASSAULT = 3,
@@ -32,6 +33,7 @@ export enum Loadout {
 }
 
 export const loadoutArray = [
+    0,
     1,
     3,
     4,
