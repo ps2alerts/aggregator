@@ -114,7 +114,11 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('warn', (error: Error) => {
-            CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
+            if (!error.message.includes('duplicate detected')) {
+                CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
+            } else {
+                CensusStreamService.logger.silly(`Census stream warn! ${error.message}`);
+            }
         });
 
         this.wsClient.on('debug', (message: string) => {
