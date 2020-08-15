@@ -5,6 +5,7 @@ import Character from '../data/Character';
 import {Redis} from 'ioredis';
 import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
 import {getLogger} from '../logger';
+import ApplicationException from '../exceptions/ApplicationException';
 
 @injectable()
 export default class CharacterBroker implements CharacterBrokerInterface {
@@ -36,9 +37,10 @@ export default class CharacterBroker implements CharacterBrokerInterface {
             // Convert into Character object
             return new Character(censusCharacter);
         } catch (e) {
+            await this.wsClient.characterManager.cache.forget(characterId);
+            CharacterBroker.logger.warn(`Forgot cache entry for ${characterId}`);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            CharacterBroker.logger.error(`Unable to grab character ${characterId} from Census - may not exist! Error: ${e.message}`);
-            return null;
+            throw new ApplicationException(`Unable to properly grab character ${characterId} from Census. Error: ${e.message}`);
         }
     }
 }

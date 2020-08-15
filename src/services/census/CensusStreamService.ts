@@ -114,11 +114,7 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('warn', (error: Error) => {
-            if (!error.message.includes('duplicate detected')) {
-                CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
-            } else {
-                CensusStreamService.logger.silly(`Census stream warn! ${error.message}`);
-            }
+            CensusStreamService.logger.warn(`Census stream warn! ${error.message}`);
         });
 
         this.wsClient.on('debug', (message: string) => {
@@ -132,7 +128,9 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('duplicate', (event: PS2Event) => {
-            CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
+            if (!['Death', 'PlayerLogin', 'PlayerLogout'].indexOf(event.event_name)) {
+                CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
+            }
         });
 
         this.wsClient.on('ps2Event', (event: PS2Event) => {

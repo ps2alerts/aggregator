@@ -124,11 +124,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                     );
                 });
 
-                if (!character) {
-                    CensusEventSubscriberService.logger.error(`Missing Character ${event.character_id}! Cannot process Death event!`);
-                    return false;
-                }
-
                 const instances = this.instanceHandler.getInstances(
                     parseInt(event.world_id, 10),
                     parseInt(event.zone_id, 10),
@@ -143,6 +138,9 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                     );
                     void this.deathEventHandler.handle(deathEvent);
                 });
+            }).catch((e) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                CensusEventSubscriberService.logger.error(`Unable to process Death event - error ${e.message}`);
             });
         });
 
@@ -164,7 +162,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.wsClient.on('gainExperience', async (event) => {
-            const character = await this.characterBroker.get(event.character_id);
+            const character = await this.characterBroker.get(event.character_id)
+                .catch((e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    CensusEventSubscriberService.logger.error(`Unable to process GainExperience event - error ${e.message}`);
+                });
 
             if (!character) {
                 return;
@@ -192,8 +194,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.wsClient.on('playerLogin', async (event) => {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
-
-            const character = await this.characterBroker.get(event.character_id);
+            const character = await this.characterBroker.get(event.character_id)
+                .catch((e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    CensusEventSubscriberService.logger.error(`Unable to process PlayerLogin event - error ${e.message}`);
+                });
 
             if (!character) {
                 return;
@@ -206,7 +211,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.wsClient.on('playerLogout', async (event) => {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
-            const character = await this.characterBroker.get(event.character_id);
+            const character = await this.characterBroker.get(event.character_id)
+                .catch((e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    CensusEventSubscriberService.logger.error(`Unable to process PlayerLogout event - error ${e.message}`);
+                });
 
             if (!character) {
                 return;
