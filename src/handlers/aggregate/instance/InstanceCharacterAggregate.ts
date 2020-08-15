@@ -34,7 +34,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
             attackerDocs.push({$inc: {teamKills: 1}});
         }
 
-        if (event.killType === Kill.Suicide) {
+        if (event.killType === Kill.Suicide || event.killType === Kill.RestrictedArea) {
             // Attacker and victim are the same here, so it doesn't matter which
             victimDocs.push({$inc: {suicides: 1}});
         }
@@ -45,16 +45,19 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
 
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         attackerDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
-                    instance: event.instance.instanceId,
-                    character: event.attackerCharacter.id,
-                },
-                doc,
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceCharacterAggregate.logger.error(`Updating InstanceCharacterAggregate Attacker Error! ${err}`);
-            });
+            if (event.attackerCharacter) {
+                void this.factory.model.updateOne(
+                    {
+                        instance: event.instance.instanceId,
+                        character: event.attackerCharacter.id,
+                        outfit: event.attackerCharacter.outfit?.id,
+                    },
+                    doc,
+                ).catch((err) => {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    InstanceCharacterAggregate.logger.error(`Updating InstanceCharacterAggregate Attacker Error! ${err}`);
+                });
+            }
         });
 
         victimDocs.forEach((doc) => {
@@ -62,6 +65,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                 {
                     instance: event.instance.instanceId,
                     character: event.character.id,
+                    outfit: event.character.outfit?.id,
                 },
                 doc,
                 {

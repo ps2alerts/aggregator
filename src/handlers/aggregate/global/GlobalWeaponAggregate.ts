@@ -30,7 +30,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
             documents.push({$inc: {teamKills: 1}});
         }
 
-        if (event.killType === Kill.Suicide) {
+        if (event.killType === Kill.Suicide || event.killType === Kill.RestrictedArea) {
             documents.push({$inc: {suicides: 1}});
         }
 

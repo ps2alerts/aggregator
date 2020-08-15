@@ -24,7 +24,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
         const documents = [];
 
         // Increment attacker faction kills
-        if (event.killType === Kill.Normal) {
+        if (event.killType === Kill.Normal && event.attackerCharacter) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.kills`;
             documents.push(
@@ -40,7 +40,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             {$inc: {['totals.deaths']: 1}},
         );
 
-        if (event.killType === Kill.TeamKill) {
+        if (event.killType === Kill.TeamKill && event.attackerCharacter) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const teamKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.teamKills`;
             documents.push(
@@ -49,7 +49,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             );
         }
 
-        if (event.killType === Kill.Suicide) {
+        if (event.killType === Kill.Suicide || event.killType === Kill.RestrictedArea) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const suicideKey = `${FactionUtils.parseFactionIdToShortName(event.character.faction)}.suicides`;
             documents.push(
@@ -58,7 +58,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             );
         }
 
-        if (event.isHeadshot) {
+        if (event.isHeadshot && event.attackerCharacter) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const attackerHeadshotKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.headshots`;
             documents.push(

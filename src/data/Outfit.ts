@@ -3,8 +3,9 @@ import {World} from '../constants/world';
 import {rest} from 'ps2census';
 import outfitMemberExtended from 'ps2census/dist/rest/types/outfitMemberExtended';
 import Character from './Character';
+import {OutfitInterface} from '../interfaces/OutfitInterface';
 
-export default class Outfit {
+export default class Outfit implements OutfitInterface {
     public id: string;
     public name: string;
     public faction: Faction;

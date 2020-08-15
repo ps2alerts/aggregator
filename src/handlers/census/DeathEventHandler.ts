@@ -63,7 +63,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
         try {
             await this.factory.model.create({
                 instance: event.instance.instanceId,
-                attacker: event.attackerCharacter.id,
+                attacker: event.attackerCharacter ? event.attackerCharacter.id : '0',
                 character: event.character.id,
                 timestamp: event.timestamp,
                 attackerFiremode: event.attackerFiremodeId,
