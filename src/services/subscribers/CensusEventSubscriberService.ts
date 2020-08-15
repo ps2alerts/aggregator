@@ -124,6 +124,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                     );
                 });
 
+                if (!character) {
+                    CensusEventSubscriberService.logger.error(`Missing Character ${event.character_id}! Cannot process Death event!`);
+                    return false;
+                }
+
                 const instances = this.instanceHandler.getInstances(
                     parseInt(event.world_id, 10),
                     parseInt(event.zone_id, 10),
