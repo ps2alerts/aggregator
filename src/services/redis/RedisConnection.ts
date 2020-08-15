@@ -1,24 +1,24 @@
 import {inject, injectable} from 'inversify';
-import Redis from '../../config/redis';
+import RedisConfig from '../../config/redis';
 import {getLogger} from '../../logger';
-import {createHandyClient, IHandyRedis} from 'handy-redis';
 import ApplicationException from '../../exceptions/ApplicationException';
+import Redis, {Redis as RedisInterface} from 'ioredis';
 
 @injectable()
 export class RedisConnection {
-    public client: IHandyRedis;
+    public client: RedisInterface;
 
     private static readonly logger = getLogger('RedisConnection');
 
-    private readonly config: Redis;
+    private readonly config: RedisConfig;
 
     private initialized = false;
 
-    constructor(@inject('redisConfig') redisConfig: Redis) {
+    constructor(@inject('redisConfig') redisConfig: RedisConfig) {
         this.config = redisConfig;
     }
 
-    public getClient(): IHandyRedis{
+    public getClient(): RedisInterface{
 
         if (this.initialized) {
             return this.client;
@@ -27,7 +27,7 @@ export class RedisConnection {
         RedisConnection.logger.debug('Creating Redis client...');
 
         try {
-            this.client = createHandyClient(this.config.config);
+            this.client = new Redis(this.config);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to connect to Redis! ${err}`, 'RedisConnection', 1);

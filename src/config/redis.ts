@@ -3,27 +3,14 @@ import {
     getInt,
 } from '../utils/env';
 import {injectable} from 'inversify';
-
-export interface RedisConfig {
-    host: string;
-    port: number;
-    pass: string;
-    db: number;
-    prefix: string;
-}
+import {RedisOptions} from 'ioredis';
 
 @injectable()
-export default class Redis {
-    public readonly config: RedisConfig;
-
-    constructor() {
-        // Must match spec as per https://www.npmjs.com/package/redis#rediscreateclient
-        this.config = {
-            host: get('REDIS_HOST', 'ps2alerts-redis'),
-            port: getInt('REDIS_PORT', 6379),
-            pass: get('REDIS_AUTH', ''),
-            db: getInt('REDIS_DB', 0),
-            prefix: 'ps2alerts',
-        };
-    }
+export default class Redis implements RedisOptions {
+    public readonly host = get('REDIS_HOST', 'ps2alerts-redis');
+    public readonly port = getInt('REDIS_PORT', 6379);
+    public readonly username = get('REDIS_USER', '');
+    public readonly password = get('REDIS_PASS', '');
+    public readonly db = 0;
+    public readonly keyPrefix = 'ps2alerts';
 }

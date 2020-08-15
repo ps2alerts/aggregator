@@ -1,15 +1,6 @@
-variable "checksum_version" {
-  default = "0.0.0"
-}
-
-variable "census_service_id" {
-  default = "foobar"
-}
-
-variable "db_user" {
-  default = "foo"
-}
-
-variable "db_pass" {
-  default = "foo"
-}
+variable "checksum_version" {}
+variable "census_service_id" {}
+variable "db_user" {}
+variable "db_pass" {}
+variable "redis_user" {}
+variable "redis_pass" {}

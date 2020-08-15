@@ -157,7 +157,7 @@ export default class CensusStreamService implements ServiceInterface {
                     metagame_event_state: '137',
                     metagame_event_state_name: 'started',
                     timestamp: String(getUnixTimestamp()),
-                    world_id: String(World.JAEGER),
+                    world_id: String(World.MILLER),
                 });
                 /* eslint-enable */
                 this.wsClient.emit(Events.PS2_META_EVENT, alertStartEvent);
