@@ -33,17 +33,19 @@ const TYPES = {
 
     // Instance Aggregates Models
     instanceClassAggregateFactory: Symbol.for('InstanceClassAggregateFactory'),
+    instanceCharacterAggregateFactory: Symbol.for('InstanceCharacterAggregateFactory'),
     instanceFacilityControlAggregateFactory: Symbol.for('InstanceFacilityControlAggregateFactory'),
     instanceFactionCombatAggregateFactory: Symbol.for('InstanceFactionCombatAggregateFactory'),
+    instanceOutfitAggregateFactory: Symbol.for('InstanceOutfitAggregateFactory'),
     instancePopulationAggregateFactory: Symbol.for('InstancePopulationAggregateFactory'),
-    instanceCharacterAggregateFactory: Symbol.for('InstanceCharacterAggregateFactory'),
     instanceWeaponAggregateFactory: Symbol.for('InstanceWeaponAggregateFactory'),
 
     // Global Aggregates Models
+    globalCharacterAggregateFactory: Symbol.for('GlobalCharacterAggregateFactory'),
     globalClassAggregateFactory: Symbol.for('GlobalClassAggregateFactory'),
     globalFacilityControlAggregateFactory: Symbol.for('GlobalFacilityControlAggregateFactory'),
     globalFactionCombatAggregateFactory: Symbol.for('GlobalFactionCombatAggregateFactory'),
-    globalCharacterAggregateFactory: Symbol.for('GlobalCharacterAggregateFactory'),
+    globalOutfitAggregateFactory: Symbol.for('GlobalOutfitAggregateFactory'),
     globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),
 
     // Metric Models

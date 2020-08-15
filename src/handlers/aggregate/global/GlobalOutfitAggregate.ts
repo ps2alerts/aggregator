@@ -1,24 +1,24 @@
+import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import {GlobalClassAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalClassAggregateModel';
+import {GlobalOutfitAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalOutfitAggregateModel';
 import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
-export default class GlobalClassAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalClassAggregate');
+export default class GlobalOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('GlobalOutfitAggregate');
 
-    private readonly factory: MongooseModelFactory<GlobalClassAggregateSchemaInterface>;
+    private readonly factory: MongooseModelFactory<GlobalOutfitAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.globalClassAggregateFactory) factory: MongooseModelFactory<GlobalClassAggregateSchemaInterface>) {
+    constructor(@inject(TYPES.globalOutfitAggregateFactory) factory: MongooseModelFactory<GlobalOutfitAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalClassAggregate.logger.debug('GlobalClassAggregate.handle');
+        GlobalOutfitAggregate.logger.debug('GlobalOutfitAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -43,12 +43,15 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
             attackerDocs.push({$inc: {headshots: 1}});
         }
 
+        // Purpose for this is we can aggregate stats for "outfitless" characters, e.g. TR (-3) got X kills
+        const attackerOutfitId = event.attackerCharacter.outfit ? event.attackerCharacter.outfit.id : `-${event.attackerCharacter.faction}`;
+        const victimOutfitId = event.character.outfit ? event.character.outfit.id : `-${event.character.faction}`;
+
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         attackerDocs.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
-                    class: event.attackerLoadoutId,
-                    world: event.instance.world,
+                    outfit: attackerOutfitId,
                 },
                 doc,
                 {
@@ -56,15 +59,14 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
                 },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Attacker Error! ${err}`);
+                GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Attacker Error! ${err}`);
             });
         });
 
         victimDocs.forEach((doc) => {
             void this.factory.model.updateOne(
                 {
-                    class: event.characterLoadoutId,
-                    world: event.instance.world,
+                    outfit: victimOutfitId,
                 },
                 doc,
                 {
@@ -72,7 +74,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
                 },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Victim Error! ${err}`);
+                GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Victim Error! ${err}`);
             });
         });
 
