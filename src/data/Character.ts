@@ -4,18 +4,24 @@ import Outfit from './Outfit';
 import {rest} from 'ps2census';
 import {CharacterInterface} from '../interfaces/CharacterInterface';
 import outfitMemberExtended from 'ps2census/dist/rest/types/outfitMemberExtended';
+import ApplicationException from '../exceptions/ApplicationException';
 
 export default class Character implements CharacterInterface {
     public id: string;
     public name: string;
     public faction: Faction;
     public world: World;
-    public outfit: Outfit | null;
+    public outfit: Outfit|null;
 
     constructor(characterData: rest.character.typeData) {
         this.id = characterData.character_id;
         this.name = characterData.name.first;
         this.faction = parseInt(characterData.faction_id, 10);
+
+        if (!this.world) {
+            throw new ApplicationException(`World is missing for Census Character ${characterData.character_id}`);
+        }
+
         this.world = parseInt(characterData.world_id, 10);
         this.outfit = null;
 
