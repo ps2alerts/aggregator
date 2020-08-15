@@ -25,7 +25,6 @@ import {Zone} from '../../../constants/zone';
 import {Death} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import {Faction} from '../../../constants/faction';
-import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
@@ -81,7 +80,11 @@ export default class DeathEvent {
             throw new IllegalArgumentException('character_loadout_id', 'DeathEvent');
         }
 
-        this.characterFaction = FactionUtils.parseFactionFromClass(this.characterLoadoutId);
+        try {
+            this.characterFaction = parseInt(event.character_faction, 10);
+        } catch (e) {
+            this.characterFaction = Faction.NONE;
+        }
 
         this.attackerCharacterId = event.attacker_character_id; // This is a sting on purpose
 
@@ -97,7 +100,11 @@ export default class DeathEvent {
             throw new IllegalArgumentException('attacker_loadout_id', 'DeathEvent');
         }
 
-        this.attackerFaction = FactionUtils.parseFactionFromClass(this.attackerLoadoutId);
+        try {
+            this.attackerFaction = parseInt(event.attacker_faction, 10);
+        } catch (e) {
+            this.attackerFaction = Faction.NONE;
+        }
 
         // This is optional, therefore requires extra figuring out
         const vehicleId = Parser.parseNumericalArgument(event.attacker_vehicle_id);
