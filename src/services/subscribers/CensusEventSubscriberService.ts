@@ -22,6 +22,7 @@ import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface'
 import PlayerLoginEvent from '../../handlers/census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from '../../handlers/census/events/PlayerLogoutEvent';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
+import {CharacterBrokerInterface} from '../../interfaces/CharacterBrokerInterface';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -44,6 +45,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly continentUnlockHandler: ContinentUnlockHandler;
     private readonly instanceHandler: InstanceHandlerInterface;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
+    private readonly characterBroker: CharacterBrokerInterface;
 
     constructor(
         wsClient: Client,
@@ -61,6 +63,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         continentUnlockHandler: ContinentUnlockHandler,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
         @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
+        @inject(TYPES.characterBrokerInterface) characterBroker: CharacterBrokerInterface,
     ) {
         this.wsClient = wsClient;
         this.deathEventHandler = deathEventHandler;
@@ -77,6 +80,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.continentUnlockHandler = continentUnlockHandler;
         this.instanceHandler = instanceHandler;
         this.characterPresenceHandler = characterPresenceHandler;
+        this.characterBroker = characterBroker;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -118,12 +122,22 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 parseInt(event.zone_id, 10),
             );
 
+            // Yes, the below does fetch the char data twice if there's >1 instance, however since the 2nd run will be pulled from redis, meh.
             instances.forEach((instance) => {
-                const deathEvent = new DeathEvent(
-                    event,
-                    instance,
-                );
-                void this.deathEventHandler.handle(deathEvent);
+                void Promise.all([
+                    /* eslint-disable */
+                    this.characterBroker.get(event.attacker_character_id),
+                    this.characterBroker.get(event.character_id),
+                    /* eslint-enable */
+                ]).then(([attacker, character]) => {
+                    const deathEvent = new DeathEvent(
+                        event,
+                        instance,
+                        attacker,
+                        character,
+                    );
+                    void this.deathEventHandler.handle(deathEvent);
+                });
             });
         });
 
@@ -153,8 +167,15 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         this.wsClient.on('metagameEvent', (event) => {
             CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
-            const metagameEvent = new MetagameEventEvent(event);
-            void this.metagameEventEventHandler.handle(metagameEvent);
+
+            try {
+                const metagameEvent = new MetagameEventEvent(event);
+                void this.metagameEventEventHandler.handle(metagameEvent);
+            } catch (e) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                CensusEventSubscriberService.logger.warn(e.message);
+            }
+
         });
 
         this.wsClient.on('playerLogin', (event) => {

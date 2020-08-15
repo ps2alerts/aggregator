@@ -4,21 +4,21 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {InstancePlayerAggregateSchemaInterface} from '../../../models/aggregate/instance/InstancePlayerAggregateModel';
+import {GlobalCharacterAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalCharacterAggregateModel';
 import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
-export default class InstancePlayerAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('InstancePlayerAggregate');
+export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('GlobalCharacterAggregate');
 
-    private readonly factory: MongooseModelFactory<InstancePlayerAggregateSchemaInterface>;
+    private readonly factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>;
 
-    constructor(@inject(TYPES.instancePlayerAggregateFactory) factory: MongooseModelFactory<InstancePlayerAggregateSchemaInterface>) {
+    constructor(@inject(TYPES.globalCharacterAggregateFactory) factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>) {
         this.factory = factory;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstancePlayerAggregate.logger.debug('InstancePlayerAggregate.handle');
+        GlobalCharacterAggregate.logger.debug('GlobalCharacterAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -46,30 +46,27 @@ export default class InstancePlayerAggregate implements AggregateHandlerInterfac
         // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
         attackerDocs.forEach((doc) => {
             void this.factory.model.updateOne(
-                {
-                    instance: event.instance.instanceId,
-                    player: event.attackerCharacterId,
-                },
-                doc,
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstancePlayerAggregate.logger.error(`Updating InstancePlayerAggregate Attacker Error! ${err}`);
-            });
-        });
-
-        victimDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
-                    instance: event.instance.instanceId,
-                    player: event.characterId,
-                },
+                {character: event.attackerCharacter.id},
                 doc,
                 {
                     upsert: true,
                 },
             ).catch((err) => {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstancePlayerAggregate.logger.error(`Updating InstancePlayerAggregate Victim Error! ${err}`);
+                GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Attacker Error! ${err}`);
+            });
+        });
+
+        victimDocs.forEach((doc) => {
+            void this.factory.model.updateOne(
+                {character: event.character.id},
+                doc,
+                {
+                    upsert: true,
+                },
+            ).catch((err) => {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Victim Error! ${err}`);
             });
         });
 

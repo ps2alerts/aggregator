@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
-import CharacterData from '../data/CharacterData';
+import CharacterPresenseData from '../data/CharacterPresenseData';
 import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
@@ -16,7 +16,7 @@ import ApplicationException from '../exceptions/ApplicationException';
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
     private static readonly logger = getLogger('CharacterPresenceHandler');
 
-    private readonly characters: Map<string, CharacterData> = new Map<string, CharacterData>();
+    private readonly characters: Map<string, CharacterPresenseData> = new Map<string, CharacterPresenseData>();
 
     private readonly factory: MongooseModelFactory<CharacterPresenceSchemaInterface>;
 
@@ -37,7 +37,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
         const faction = Math.floor(Math.random() * 4) + 1; // TODO API CALL TO FIGURE THIS OUT
 
-        const characterData = new CharacterData(
+        const characterData = new CharacterPresenseData(
             characterId,
             world,
             zone,
@@ -64,10 +64,11 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             }
         } else {
             try {
-                await this.factory.model.updateMany({
+                await this.factory.model.updateOne({
                     character: characterData.character,
                 }, {
                     lastSeen: characterData.lastSeen,
+                    zone: characterData.zone,
                 });
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -83,7 +84,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             this.characters.delete(characterId);
 
             try {
-                await this.factory.model.deleteMany({
+                await this.factory.model.deleteOne({
                     character: characterId,
                 });
                 CharacterPresenceHandler.logger.debug(`Deleted CharacterPresenceHandler record for Char ${characterId}`);
@@ -171,7 +172,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             CharacterPresenceHandler.logger.warn('No CharacterPresenceHandler records found! This could be entirely normal however.');
         } else {
             rows.forEach((row) => {
-                const characterData = new CharacterData(
+                const characterData = new CharacterPresenseData(
                     row.character,
                     row.world,
                     row.zone,

@@ -16,12 +16,12 @@ import {InstanceFacilityControlInterface, instanceFacilityControlSchema} from '.
 import {instanceFacilityControlAggregateSchema, InstanceFacilityControlAggregateInterface} from '../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
 import {instanceFactionCombatAggregateSchema, InstanceFactionCombatAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
 import {instancePopulationAggregateSchema, InstancePopulationAggregateSchemaInterface} from '../../models/aggregate/instance/InstancePopulationAggregateModel';
-import {instancePlayerAggregateSchema, InstancePlayerAggregateSchemaInterface} from '../../models/aggregate/instance/InstancePlayerAggregateModel';
+import {instanceCharacterAggregateSchema, InstanceCharacterAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceCharacterAggregateModel';
 import {instanceWeaponAggregateSchema, InstanceWeaponAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceWeaponAggregateModel';
 // Global Aggregate Models
 import {globalClassAggregateSchema, GlobalClassAggregateSchemaInterface} from '../../models/aggregate/global/GlobalClassAggregateModel';
 import {globalFactionCombatAggregateSchema, GlobalFactionCombatAggregateSchemaInterface} from '../../models/aggregate/global/GlobalFactionCombatAggregateModel';
-import {globalPlayerAggregateSchema, GlobalPlayerAggregateSchemaInterface} from '../../models/aggregate/global/GlobalPlayerAggregateModel';
+import {globalCharacterAggregateSchema, GlobalCharacterAggregateSchemaInterface} from '../../models/aggregate/global/GlobalCharacterAggregateModel';
 import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from '../../models/aggregate/global/GlobalWeaponAggregateModel';
 // World Aggregate Imports
 import {GlobalFacilityControlAggregateSchemaInterface, globalFacilityControlAggregateSchema} from '../../models/aggregate/global/GlobalFacilityControlAggregateModel';
@@ -101,11 +101,11 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    bind<MongooseModelFactory<InstancePlayerAggregateSchemaInterface>>(TYPES.instancePlayerAggregateFactory)
+    bind<MongooseModelFactory<InstanceCharacterAggregateSchemaInterface>>(TYPES.instanceCharacterAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
-            'aggregate_instance_player',
-            instancePlayerAggregateSchema,
+            'aggregate_instance_character',
+            instanceCharacterAggregateSchema,
         ))
         .inSingletonScope();
 
@@ -150,11 +150,11 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    bind<MongooseModelFactory<GlobalPlayerAggregateSchemaInterface>>(TYPES.globalPlayerAggregateFactory)
+    bind<MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>>(TYPES.globalCharacterAggregateFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
-            'aggregate_global_player',
-            globalPlayerAggregateSchema,
+            'aggregate_global_character',
+            globalCharacterAggregateSchema,
         ))
         .inSingletonScope();
 

@@ -24,8 +24,8 @@ import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
 import {Death} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
-import {Faction} from '../../../constants/faction';
 import {Kill} from 'ps2census/dist/client/events/Death';
+import Character from '../../../data/Character';
 
 @injectable()
 export default class DeathEvent {
@@ -37,13 +37,11 @@ export default class DeathEvent {
 
     public readonly timestamp: Date;
 
-    public readonly characterId: string;
+    public readonly character: Character;
 
     public readonly characterLoadoutId: number;
 
-    public readonly characterFaction: Faction;
-
-    public readonly attackerCharacterId: string;
+    public readonly attackerCharacter: Character;
 
     public readonly attackerFiremodeId: number;
 
@@ -53,13 +51,16 @@ export default class DeathEvent {
 
     public readonly attackerWeaponId: number;
 
-    public readonly attackerFaction: Faction;
-
     public readonly isHeadshot: boolean;
 
     public readonly killType: Kill;
 
-    constructor(event: Death, instance: PS2AlertsInstanceInterface) {
+    constructor(
+        event: Death,
+        instance: PS2AlertsInstanceInterface,
+        attackerCharacter: Character,
+        character: Character,
+    ) {
         this.instance = instance;
 
         this.world = Parser.parseNumericalArgument(event.world_id);
@@ -72,7 +73,7 @@ export default class DeathEvent {
         this.zone = ZoneUtils.parse(Parser.parseNumericalArgument(event.zone_id));
         this.timestamp = event.timestamp;
 
-        this.characterId = event.character_id;
+        this.character = character;
 
         this.characterLoadoutId = Parser.parseNumericalArgument(event.character_loadout_id);
 
@@ -80,13 +81,7 @@ export default class DeathEvent {
             throw new IllegalArgumentException('character_loadout_id', 'DeathEvent');
         }
 
-        try {
-            this.characterFaction = parseInt(event.character_faction, 10);
-        } catch (e) {
-            this.characterFaction = Faction.NONE;
-        }
-
-        this.attackerCharacterId = event.attacker_character_id; // This is a sting on purpose
+        this.attackerCharacter = attackerCharacter;
 
         this.attackerFiremodeId = Parser.parseNumericalArgument(event.attacker_fire_mode_id);
 
@@ -98,12 +93,6 @@ export default class DeathEvent {
 
         if (isNaN(this.attackerLoadoutId)) {
             throw new IllegalArgumentException('attacker_loadout_id', 'DeathEvent');
-        }
-
-        try {
-            this.attackerFaction = parseInt(event.attacker_faction, 10);
-        } catch (e) {
-            this.attackerFaction = Faction.NONE;
         }
 
         // This is optional, therefore requires extra figuring out
