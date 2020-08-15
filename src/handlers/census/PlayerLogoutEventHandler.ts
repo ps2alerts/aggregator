@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
-import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import PlayerLogoutEvent from './events/PlayerLogoutEvent';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
@@ -18,9 +17,7 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface<P
     }
 
     public async handle(event: PlayerLogoutEvent): Promise<boolean> {
-        if (config.features.logging.censusEventContent) {
-            PlayerLogoutEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
-        }
+        PlayerLogoutEventHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
 
         try {
             await this.characterPresenceHandler.delete(event.character.id);
