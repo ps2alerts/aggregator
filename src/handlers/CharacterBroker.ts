@@ -36,7 +36,8 @@ export default class CharacterBroker implements CharacterBrokerInterface {
             // Convert into Character object
             return new Character(censusCharacter);
         } catch (e) {
-            CharacterBroker.logger.error(`Unable to grab character ${characterId} from Census - may not exist!`);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            CharacterBroker.logger.error(`Unable to grab character ${characterId} from Census - may not exist! Error: ${e.message}`);
             return null;
         }
     }
