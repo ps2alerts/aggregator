@@ -5,52 +5,74 @@ import RabbitMQ from '../../../config/rabbitmq';
 import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {jsonLogOutput} from '../../../utils/json';
+import {inject} from 'inversify';
 
 export abstract class BaseChannelWrapper {
     private static readonly baseChannelLogger = getLogger('BaseChannelWrapper');
 
     private readonly config: RabbitMQ;
 
-    private readonly queueName: string;
+    private isConnected = false;
 
-    constructor(
-        rabbitMQConfig: RabbitMQ,
-        queueName: string,
-    ) {
+    constructor(@inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ) {
         this.config = rabbitMQConfig;
-        this.queueName = queueName;
     }
 
-    protected async setupConnection(callback: any): Promise<ChannelWrapper> {
-        const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}`;
+    protected async setupConnection(queueName: string, callback: any): Promise<ChannelWrapper> {
+        const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}?heartbeat=10&connection_timeout=10000`;
 
-        BaseChannelWrapper.baseChannelLogger.debug(`[${this.queueName}] Setting up queue...`);
-
-        // if (this.queuesInitialized.adminWebsocket) {
-        //     RabbitMQSubscription.logger.error(`[${this.queueName}] Queue already initialized!`);
-        //     return false;
-        // }
-
-        BaseChannelWrapper.baseChannelLogger.debug(`amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}`);
+        BaseChannelWrapper.baseChannelLogger.debug(`[${queueName}] Setting up queue...`);
+        BaseChannelWrapper.baseChannelLogger.debug(connectionString);
 
         const connection = connect([connectionString]);
         const channelWrapper = connection.createChannel({
             json: true,
             setup: (channel: ConfirmChannel) => {
                 return Promise.all([
-                    channel.assertQueue(this.config.queues.adminWebsocket.name, {durable: true}),
-                    channel.bindQueue(this.config.queues.adminWebsocket.name, this.config.exchange, 'create'),
+                    channel.assertQueue(queueName, {durable: true}),
+                    channel.bindQueue(queueName, this.config.exchange, 'create'),
                     // eslint-disable-next-line @typescript-eslint/unbound-method
-                    channel.consume(this.config.queues.adminWebsocket.name, callback),
+                    channel.consume(queueName, callback),
                 ]);
             },
         });
 
-        BaseChannelWrapper.baseChannelLogger.debug(`[${this.queueName}] Connecting queue...`);
+        channelWrapper.on('connect', () => {
+            BaseChannelWrapper.baseChannelLogger.info(`[${queueName}] connected!`);
+            this.isConnected = true;
+        });
 
-        await channelWrapper.waitForConnect();
+        channelWrapper.on('close', () => {
+            BaseChannelWrapper.baseChannelLogger.error(`[${queueName}] closed!`);
+        });
 
-        BaseChannelWrapper.baseChannelLogger.info(`[${this.queueName}] connected!`);
+        channelWrapper.on('error', (error) => {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string,@typescript-eslint/restrict-template-expressions
+            BaseChannelWrapper.baseChannelLogger.error(`[${queueName}] error! ${error}`);
+        });
+
+        BaseChannelWrapper.baseChannelLogger.debug(`[${queueName}] Connecting queue...`);
+
+        // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
+        const timeout = new Promise((resolve, reject) => {
+            const id = setTimeout(() => {
+                clearTimeout(id);
+
+                if (!this.isConnected) {
+                    reject(new Error('Timed out connecting to MQ!'));
+                } else {
+                    resolve();
+                }
+            }, 10000);
+        });
+
+        Promise.race([
+            channelWrapper.waitForConnect(),
+            timeout,
+        ]).catch((err) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            throw new ApplicationException(err.message);
+        });
 
         return channelWrapper;
     }

@@ -3,6 +3,7 @@ import {getLogger} from '../../logger';
 import {injectable, multiInject} from 'inversify';
 import {TYPES} from '../../constants/types';
 import {MessageQueueChannelWrapperInterface} from '../../interfaces/MessageQueueChannelWrapperInterface';
+import ApplicationException from '../../exceptions/ApplicationException';
 
 @injectable()
 export default class RabbitMQSubscriptionService implements ServiceInterface {
@@ -21,10 +22,10 @@ export default class RabbitMQSubscriptionService implements ServiceInterface {
     public async boot(): Promise<void> {
         RabbitMQSubscriptionService.logger.debug('Booting RabbitMQSubscriptionService...');
         this.messageQueueSubscribers.map(
-            (subscriber: MessageQueueChannelWrapperInterface) => void subscriber.subscribe()
+            async (subscriber: MessageQueueChannelWrapperInterface) => await subscriber.subscribe()
                 .catch((e) => {
                     if (e instanceof Error) {
-                        RabbitMQSubscriptionService.logger.error(`Error subscribing to RabbitMQ! E: ${e.message}`);
+                        throw new ApplicationException(`Error subscribing to RabbitMQ! E: ${e.message}`);
                     } else {
                         RabbitMQSubscriptionService.logger.error('UNEXPECTED ERROR subscribing to RabbitMQ!');
                     }

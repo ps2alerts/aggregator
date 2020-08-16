@@ -1,9 +1,8 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {BaseChannelWrapper} from './BaseChannelWrapper';
 import {ConsumeMessage} from 'amqplib';
 import {jsonLogOutput} from '../../../utils/json';
 import {getLogger} from '../../../logger';
-import RabbitMQ from '../../../config/rabbitmq';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {MessageQueueChannelWrapperInterface} from '../../../interfaces/MessageQueueChannelWrapperInterface';
 import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
@@ -17,16 +16,9 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private static readonly queueName: string = 'adminWebsocket';
 
-    constructor(@inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ) {
-        super(
-            rabbitMQConfig,
-            AdminWebsocketWrapper.queueName,
-        );
-    }
-
     public async subscribe(): Promise<boolean> {
         AdminWebsocketWrapper.logger.info('Subscribing...');
-        AdminWebsocketWrapper.channelWrapper = await this.setupConnection(this.handleMessage);
+        AdminWebsocketWrapper.channelWrapper = await this.setupConnection(AdminWebsocketWrapper.queueName, this.handleMessage);
         AdminWebsocketWrapper.logger.info('Subscribed!');
 
         return true;
