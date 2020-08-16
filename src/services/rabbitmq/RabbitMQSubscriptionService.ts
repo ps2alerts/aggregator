@@ -3,7 +3,6 @@ import {getLogger} from '../../logger';
 import {injectable, multiInject} from 'inversify';
 import {TYPES} from '../../constants/types';
 import {MessageQueueChannelWrapperInterface} from '../../interfaces/MessageQueueChannelWrapperInterface';
-import {jsonLogOutput} from '../../utils/json';
 
 @injectable()
 export default class RabbitMQSubscriptionService implements ServiceInterface {
@@ -25,7 +24,7 @@ export default class RabbitMQSubscriptionService implements ServiceInterface {
             (subscriber: MessageQueueChannelWrapperInterface) => void subscriber.subscribe()
                 .catch((e) => {
                     if (e instanceof Error) {
-                        RabbitMQSubscriptionService.logger.error(`Error subscribing to RabbitMQ! E: ${e.message}\r\n${jsonLogOutput(event)}`);
+                        RabbitMQSubscriptionService.logger.error(`Error subscribing to RabbitMQ! E: ${e.message}`);
                     } else {
                         RabbitMQSubscriptionService.logger.error('UNEXPECTED ERROR subscribing to RabbitMQ!');
                     }
