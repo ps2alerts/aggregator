@@ -22,7 +22,6 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
             rabbitMQConfig,
             AdminWebsocketWrapper.queueName,
         );
-
     }
 
     public async subscribe(): Promise<boolean> {
@@ -57,5 +56,4 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
 
         return true;
     };
-
 }
