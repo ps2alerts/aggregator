@@ -90,25 +90,25 @@ Where the meat of the application will live. This is where all the event handler
 
 It also contains useful services such as `CharacterBroker`, who's job is to go to Census and retrieve character information.
 
-### `/instances`
+### `/src/instances`
 
 Everything in PS2Alerts is driven around an instance. If there is no instance, it won't get recorded. Therefore, we have created the system to be able to define custom instance types, e.g. a Planetside Battles event on Jaeger. By default, we use the `PS2AlertsMetagameInstabce`. Each instance must implement the contained interface, which describes common attributes.
 
-### `/interfaces`
+### `/src/interfaces`
 
 This is where our code interfaces will live. E.g. each Handler will have an assoiciated parent Interface which each handler must adhere to. We will self-enforce usage of interfaces as it's simply **good coding practice**.
 
-### `/logger`
+### `/src/logger`
 
 Where the logging class exists. May move into a service instead, but the concept of a service for us isn't quite the same as what you may expect from say PHP services. It's more of a utility class.
 
-### `/models`
+### `/src/models`
 
 Herein lies all of our models which we use to interact with MongoDB. Each model is instantiated from `/src/services/mongo/index.ts`, and within each model contains the collection structure, along with an interface which enforces certain data structure patterns.
 
-### `/services`
+### `/src/services`
 
-This is where the census websocket subscriber currently exists. This may be expanded to be other services such as an Admin Message Service (I have the idea in my head where an admin can log into a backend and manually trigger an alert for special events etc)
+This is where our services exist which are used throughout the application, such as connecting to Planetside 2's Census websocket stream, Mongo and Redis connectivity.
 
 ### `/utils`
 
