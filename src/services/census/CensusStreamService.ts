@@ -3,10 +3,8 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {inject, injectable} from 'inversify';
-import {Client, Events, MetagameEvent, PS2Event} from 'ps2census';
-import {getUnixTimestamp} from '../../utils/time';
+import {Client, PS2Event} from 'ps2census';
 import {World} from '../../constants/world';
-import {MetagameEventType} from '../../constants/metagameEventType';
 import Census from '../../config/census';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import {TYPES} from '../../constants/types';
@@ -141,34 +139,11 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('subscribed', (subscriptions) => {
-            CensusStreamService.logger.info('Census stream subscribed! Subscriptons:');
+            CensusStreamService.logger.info('Census stream subscribed! Subscriptions:');
             CensusStreamService.logger.info(jsonLogOutput(subscriptions));
             this.startMessageTimer();
             this.overdueInstanceAuthority.run();
             this.populationAuthority.run();
-
-            // The below injects a metagame event start on a World and Zone of your choosing, so you don't have to wait.
-            // REVERT THIS FROM VERSION CONTROL ONCE YOU'RE DONE
-            if (this.config.enableInjections) {
-                /* eslint-disable */
-                const instanceId = String(Math.floor(Math.random() * 100000) + 1)
-                const alertStartEvent = new MetagameEvent(this.wsClient, {
-                    event_name: 'MetagameEvent',
-                    experience_bonus: '25.000000',
-                    faction_nc: '6.274510',
-                    faction_tr: '19.607843',
-                    faction_vs: '9.803922',
-                    instance_id: instanceId,
-                    metagame_event_id: String(MetagameEventType.INDAR_ENLIGHTENMENT),
-                    metagame_event_state: '137',
-                    metagame_event_state_name: 'started',
-                    timestamp: String(getUnixTimestamp()),
-                    world_id: String(World.MILLER),
-                });
-                /* eslint-enable */
-                this.wsClient.emit(Events.PS2_META_EVENT, alertStartEvent);
-                CensusStreamService.logger.debug('Emitted Metagame Start event');
-            }
         });
     }
 
