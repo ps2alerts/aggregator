@@ -69,7 +69,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                 await this.factory.model.deleteOne({
                     characterId,
                 });
-                CharacterPresenceHandler.logger.debug(`Deleted CharacterPresenceHandler record for Char ${characterId}`);
+                CharacterPresenceHandler.logger.silly(`Deleted CharacterPresenceHandler record for Char ${characterId}`);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`Error creating CharacterPresenceHandler record for Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
