@@ -3,14 +3,13 @@ import {ContainerModule} from 'inversify';
 import config from '../../config';
 import RabbitMQ from '../../config/rabbitmq';
 import RabbitMQSubscriptionService from './RabbitMQSubscriptionService';
-import {RabbitMQSubscription} from './RabbitMQSubscription';
+import AdminWebsocketWrapper from './channels/AdminWebsocketWrapper';
+import {TYPES} from '../../constants/types';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(RabbitMQSubscriptionService);
 
     bind<RabbitMQ>('rabbitMQConfig').toConstantValue(config.rabbitmq);
 
-    bind<RabbitMQSubscription>(RabbitMQSubscription)
-        .toSelf()
-        .inSingletonScope();
+    bind<AdminWebsocketWrapper>(TYPES.messageQueueSubscribers).to(AdminWebsocketWrapper).inSingletonScope();
 });

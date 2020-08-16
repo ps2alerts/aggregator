@@ -1,34 +1,46 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
-import {injectable} from 'inversify';
-import {RabbitMQSubscription} from './RabbitMQSubscription';
+import {injectable, multiInject} from 'inversify';
+import {TYPES} from '../../constants/types';
+import {MessageQueueChannelWrapperInterface} from '../../interfaces/MessageQueueChannelWrapperInterface';
+import {jsonLogOutput} from '../../utils/json';
 
 @injectable()
 export default class RabbitMQSubscriptionService implements ServiceInterface {
     public readonly bootPriority = 10;
 
-    private static readonly logger = getLogger('MongoDatabaseConnectionService');
+    private static readonly logger = getLogger('RabbitMQSubscriptionService');
 
-    private readonly rabbitMQSubscription: RabbitMQSubscription;
+    private readonly messageQueueSubscribers: MessageQueueChannelWrapperInterface[];
 
-    constructor(rabbitMQSubscription: RabbitMQSubscription) {
-        this.rabbitMQSubscription = rabbitMQSubscription;
+    constructor(@multiInject(TYPES.messageQueueSubscribers) messageQueueSubscribers: MessageQueueChannelWrapperInterface[],
+    ) {
+        this.messageQueueSubscribers = messageQueueSubscribers;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        RabbitMQSubscriptionService.logger.debug('Booting RabbitMQSubscription Service...');
-        await this.rabbitMQSubscription.subscribeAdminWebsocket();
+        RabbitMQSubscriptionService.logger.debug('Booting RabbitMQSubscriptionService...');
+        this.messageQueueSubscribers.map(
+            (subscriber: MessageQueueChannelWrapperInterface) => void subscriber.subscribe()
+                .catch((e) => {
+                    if (e instanceof Error) {
+                        RabbitMQSubscriptionService.logger.error(`Error subscribing to RabbitMQ! E: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    } else {
+                        RabbitMQSubscriptionService.logger.error('UNEXPECTED ERROR subscribing to RabbitMQ!');
+                    }
+                }),
+        );
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async start(): Promise<void> {
-        RabbitMQSubscriptionService.logger.debug('Starting RabbitMQSubscription Service... (NOT IMPLEMENTED)');
+        RabbitMQSubscriptionService.logger.debug('Starting RabbitMQSubscriptionService... (NOT IMPLEMENTED)');
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async terminate(): Promise<void> {
-        RabbitMQSubscriptionService.logger.warn('Terminating RabbitMQSubscription Service... (NOT IMPLEMENTED)');
+        RabbitMQSubscriptionService.logger.warn('Terminating RabbitMQSubscriptionService... (NOT IMPLEMENTED)');
         // TODO: Terminate subscription from consuming, drop current messages and mark them as failed
     }
 }

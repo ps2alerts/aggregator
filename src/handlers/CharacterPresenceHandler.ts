@@ -175,7 +175,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             for (const characterData of this.characters.values()) {
 
                 if (characterData.lastSeen.getTime() < deadline) {
-                    CharacterPresenceHandler.logger.debug(`Deleting CharacterPresence record for char: ${characterData.character} due to inactivity`);
+                    CharacterPresenceHandler.logger.silly(`Deleting CharacterPresence record for char: ${characterData.character} due to inactivity`);
                     void this.delete(characterData.character);
                 }
             }
