@@ -12,7 +12,7 @@ export default class RabbitMQ {
     public readonly exchange = get('MQ_EXCHANGE', 'ps2alertsExchange');
     public readonly queues = {
         adminWebsocket: {
-            name: 'test',
+            name: 'websocketAdmin',
         },
     };
 }
