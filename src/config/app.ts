@@ -18,6 +18,7 @@ export default class App {
             require('../services/census').default,
             require('../services/mongo').default,
             require('../services/subscribers').default,
+            require('../services/rabbitmq').default,
             require('../services/redis').default,
         ];
         /* eslint-enable */
