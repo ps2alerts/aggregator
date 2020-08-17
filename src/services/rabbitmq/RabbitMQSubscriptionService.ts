@@ -25,21 +25,12 @@ export default class RabbitMQSubscriptionService implements ServiceInterface {
             (subscriber: MessageQueueChannelWrapperInterface) => subscriber.subscribe()
                 .catch((e) => {
                     if (e instanceof Error) {
-                        throw new ApplicationException(`Error subscribing to RabbitMQ! E: ${e.message}`);
+                        throw new ApplicationException(`Error subscribing to RabbitMQ! E: ${e.message}`, 'RabbitMQSubscriptionService', 1);
                     } else {
                         RabbitMQSubscriptionService.logger.error('UNEXPECTED ERROR subscribing to RabbitMQ!');
                     }
                 }),
         ));
-            async (subscriber: MessageQueueChannelWrapperInterface) => await subscriber.subscribe()
-                .catch((e) => {
-                    if (e instanceof Error) {
-                        throw new ApplicationException(`Error subscribing to RabbitMQ! E: ${e.message}`);
-                    } else {
-                        RabbitMQSubscriptionService.logger.error('UNEXPECTED ERROR subscribing to RabbitMQ!');
-                    }
-                }),
-        );
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await

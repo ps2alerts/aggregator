@@ -12,14 +12,13 @@ export abstract class BaseChannelWrapper {
 
     private readonly config: RabbitMQ;
 
-    private isConnected = false;
-
     constructor(@inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ) {
         this.config = rabbitMQConfig;
     }
 
     protected async setupConnection(queueName: string, callback: any): Promise<ChannelWrapper> {
-        const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}?heartbeat=10&connection_timeout=10000`;
+        let connected = false;
+        const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}?heartbeat=${this.config.heartbeat}&connection_timeout=${this.config.timeout}`;
 
         BaseChannelWrapper.baseChannelLogger.debug(`[${queueName}] Setting up queue...`);
         BaseChannelWrapper.baseChannelLogger.debug(connectionString);
@@ -39,7 +38,7 @@ export abstract class BaseChannelWrapper {
 
         channelWrapper.on('connect', () => {
             BaseChannelWrapper.baseChannelLogger.info(`[${queueName}] connected!`);
-            this.isConnected = true;
+            connected = true;
         });
 
         channelWrapper.on('close', () => {
@@ -58,15 +57,15 @@ export abstract class BaseChannelWrapper {
             const id = setTimeout(() => {
                 clearTimeout(id);
 
-                if (!this.isConnected) {
+                if (!connected) {
                     reject(new Error('Timed out connecting to MQ!'));
                 } else {
                     resolve();
                 }
-            }, 10000);
+            }, this.config.timeout);
         });
 
-        Promise.race([
+        await Promise.race([
             channelWrapper.waitForConnect(),
             timeout,
         ]).catch((err) => {

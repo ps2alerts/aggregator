@@ -10,9 +10,6 @@ export default class RabbitMQ {
     public readonly user = get('MQ_USER', 'user');
     public readonly pass = get('MQ_PASS', 'bitnami');
     public readonly exchange = get('MQ_EXCHANGE', 'ps2alertsExchange');
-    public readonly queues = {
-        adminWebsocket: {
-            name: 'websocketAdmin',
-        },
-    };
+    public readonly heartbeat = 10;
+    public readonly timeout = 10000;
 }
