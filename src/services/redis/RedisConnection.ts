@@ -35,6 +35,8 @@ export class RedisConnection {
 
         this.initialized = true;
 
+        RedisConnection.logger.info('Redis Client ready!');
+
         return this.client;
     }
 }

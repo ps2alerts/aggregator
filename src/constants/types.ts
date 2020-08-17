@@ -50,6 +50,9 @@ const TYPES = {
 
     // Metric Models
     characterPresenceFactory: Symbol.for('CharacterPresenceFactory'),
+
+    // Message Queues
+    messageQueueSubscribers: Symbol.for('MessageQueueSubscribers'),
 };
 
 export {TYPES};
