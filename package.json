@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/ps2alerts/websocket#readme",
   "dependencies": {
+    "amqp-connection-manager": "^3.2.0",
+    "amqplib": "^0.6.0",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
@@ -32,6 +34,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "inversify": "^5.0.1",
+    "ioredis": "^4.17.3",
     "lodash": "^4.17.15",
     "logform": "^2.2.0",
     "mongoose": "^5.9.24",
@@ -46,6 +49,9 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
+    "@types/amqp-connection-manager": "^2.0.10",
+    "@types/amqplib": "^0.5.13",
+    "@types/ioredis": "^4.17.3",
     "@types/lodash": "^4.14.155",
     "@types/mongoose": "^5.7.31",
     "@types/node": "^14.0.13",

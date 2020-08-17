@@ -1,22 +1,20 @@
 import {Document, Schema} from 'mongoose';
 import {Loadout, loadoutArray} from '../../constants/loadout';
-import {Faction, factionArray} from '../../constants/faction';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
+import Character from '../../data/Character';
+import {Kill} from 'ps2census/dist/client/events/Death';
 
 export interface InstanceDeathSchemaInterface extends Document {
     instance: PS2AlertsInstanceInterface['instanceId'];
-    attacker: string;
-    player: string;
+    attacker: Character['id'];
+    character: Character['id'];
     timestamp: Date;
     attackerFiremode: number;
-    attackerLoadout: number;
-    attackerFaction: Faction;
+    attackerLoadout: Loadout;
     weapon: number;
-    playerLoadout: Loadout;
-    playerFaction: Faction;
+    characterLoadout: Loadout;
     isHeadshot: boolean;
-    isSuicide: boolean;
-    isTeamkill: boolean;
+    killType: Kill;
     vehicle: number;
 }
 
@@ -29,7 +27,7 @@ export const instanceDeathSchema: Schema = new Schema({
         type: String,
         required: true,
     },
-    player: {
+    character: {
         type: String,
         required: true,
     },
@@ -43,43 +41,30 @@ export const instanceDeathSchema: Schema = new Schema({
     },
     attackerLoadout: {
         type: Number,
-        required: true,
-    },
-    attackerFaction: {
-        type: Number,
-        enum: factionArray,
+        enum: loadoutArray,
         required: true,
     },
     weapon: {
         type: Number,
         required: true,
     },
-    playerLoadout: {
+    characterLoadout: {
         type: Number,
         enum: loadoutArray,
-        required: true,
-    },
-    playerFaction: {
-        type: Number,
-        enum: factionArray,
         required: true,
     },
     isHeadshot: {
         type: Boolean,
         required: true,
     },
-    isSuicide: {
-        type: Boolean,
-        required: true,
-    },
-    isTeamkill: {
-        type: Boolean,
+    killType: {
+        type: Number,
         required: true,
     },
     vehicle: {
         type: Number,
     },
 }).index(
-    {instance: 1, attacker: 1, player: 1, timestamp: 1},
+    {instance: 1, attacker: 1, character: 1, timestamp: 1},
     {unique: true},
 );

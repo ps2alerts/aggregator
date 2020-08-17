@@ -136,9 +136,10 @@ export default class Kernel implements KernelInterface {
         process.exit(code);
     }
 
-    public terminateWithUnhandledRejection(error: unknown): void {
+    public terminateWithUnhandledRejection(error: any): void {
         Kernel.logger.error('unhandledRejection detected!');
-        Kernel.logger.error(error);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        Kernel.logger.error(error.stack ?? error);
 
         void this.terminate(1);
     }

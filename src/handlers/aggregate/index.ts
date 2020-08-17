@@ -6,27 +6,31 @@ import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import GlobalClassAggregate from './global/GlobalClassAggregate';
 import GlobalFacilityControlAggregate from './global/GlobalFacilityControlAggregate';
 import GlobalFactionCombatAggregate from './global/GlobalFactionCombatAggregate';
-import GlobalPlayerAggregate from './global/GlobalPlayerAggregate';
+import GlobalCharacterAggregate from './global/GlobalCharacterAggregate';
 import GlobalWeaponAggregate from './global/GlobalWeaponAggregate';
 import InstanceClassAggregate from './instance/InstanceClassAggregate';
 import InstanceFacilityControlAggregate from './instance/InstanceFacilityControlAggregate';
 import InstanceFactionCombatAggregate from './instance/InstanceFactionCombatAggregate';
-import InstancePlayerAggregate from './instance/InstancePlayerAggregate';
+import InstanceCharacterAggregate from './instance/InstanceCharacterAggregate';
 import InstanceWeaponAggregate from './instance/InstanceWeaponAggregate';
 import PopulationHandlerInterface from '../../interfaces/PopulationHandlerInterface';
 import InstancePopulationAggregate from './instance/InstancePopulationAggregate';
 import PopulationData from '../../data/PopulationData';
+import InstanceOutfitAggregate from './instance/InstanceOutfitAggregate';
+import GlobalOutfitAggregate from './global/GlobalOutfitAggregate';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers are registered here
     // Death Event
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalClassAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalFactionCombatAggregate).inSingletonScope();
-    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalPlayerAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalCharacterAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalOutfitAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(GlobalWeaponAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstanceCharacterAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstanceClassAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstanceFactionCombatAggregate).inSingletonScope();
-    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstancePlayerAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstanceOutfitAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstanceWeaponAggregate).inSingletonScope();
 
     // FacilityControl Event

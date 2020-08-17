@@ -22,6 +22,7 @@ import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface'
 import PlayerLoginEvent from '../../handlers/census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from '../../handlers/census/events/PlayerLogoutEvent';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
+import {CharacterBrokerInterface} from '../../interfaces/CharacterBrokerInterface';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -44,6 +45,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly continentUnlockHandler: ContinentUnlockHandler;
     private readonly instanceHandler: InstanceHandlerInterface;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
+    private readonly characterBroker: CharacterBrokerInterface;
 
     constructor(
         wsClient: Client,
@@ -61,6 +63,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         continentUnlockHandler: ContinentUnlockHandler,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
         @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
+        @inject(TYPES.characterBrokerInterface) characterBroker: CharacterBrokerInterface,
     ) {
         this.wsClient = wsClient;
         this.deathEventHandler = deathEventHandler;
@@ -77,6 +80,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.continentUnlockHandler = continentUnlockHandler;
         this.instanceHandler = instanceHandler;
         this.characterPresenceHandler = characterPresenceHandler;
+        this.characterBroker = characterBroker;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -105,25 +109,34 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on('death', (event) => {
             CensusEventSubscriberService.logger.silly('Passing Death to listener');
 
-            [event.character_id, event.attacker_character_id].forEach((id) => {
-                void this.characterPresenceHandler.update(
-                    id,
+            void Promise.all([
+                this.characterBroker.get(event.attacker_character_id),
+                this.characterBroker.get(event.character_id),
+            ]).then(([attacker, character]) => {
+                [attacker, character].forEach((char) => {
+                    void this.characterPresenceHandler.update(
+                        char,
+                        parseInt(event.zone_id, 10),
+                    );
+                });
+
+                const instances = this.instanceHandler.getInstances(
                     parseInt(event.world_id, 10),
                     parseInt(event.zone_id, 10),
                 );
-            });
 
-            const instances = this.instanceHandler.getInstances(
-                parseInt(event.world_id, 10),
-                parseInt(event.zone_id, 10),
-            );
-
-            instances.forEach((instance) => {
-                const deathEvent = new DeathEvent(
-                    event,
-                    instance,
-                );
-                void this.deathEventHandler.handle(deathEvent);
+                instances.forEach((instance) => {
+                    const deathEvent = new DeathEvent(
+                        event,
+                        instance,
+                        attacker,
+                        character,
+                    );
+                    void this.deathEventHandler.handle(deathEvent);
+                });
+            }).catch((e) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                CensusEventSubscriberService.logger.error(`Unable to process Death event - error ${e.message}`);
             });
         });
 
@@ -143,30 +156,69 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             });
         });
 
-        this.wsClient.on('gainExperience', (event) => {
-            void this.characterPresenceHandler.update(
-                event.character_id,
-                parseInt(event.world_id, 10),
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.wsClient.on('gainExperience', async (event) => {
+            const character = await this.characterBroker.get(event.character_id)
+                .catch((e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    CensusEventSubscriberService.logger.error(`Unable to process GainExperience event - error ${e.message}`);
+                });
+
+            if (!character) {
+                return;
+            }
+
+            await this.characterPresenceHandler.update(
+                character,
                 parseInt(event.zone_id, 10),
             );
         });
 
         this.wsClient.on('metagameEvent', (event) => {
             CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
-            const metagameEvent = new MetagameEventEvent(event);
-            void this.metagameEventEventHandler.handle(metagameEvent);
+
+            try {
+                const metagameEvent = new MetagameEventEvent(event);
+                void this.metagameEventEventHandler.handle(metagameEvent);
+            } catch (e) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                CensusEventSubscriberService.logger.warn(e.message);
+            }
+
         });
 
-        this.wsClient.on('playerLogin', (event) => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.wsClient.on('playerLogin', async (event) => {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
-            const playerLoginEvent = new PlayerLoginEvent(event);
-            void this.playerLoginEventHandler.handle(playerLoginEvent);
+            const character = await this.characterBroker.get(event.character_id)
+                .catch((e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    CensusEventSubscriberService.logger.error(`Unable to process PlayerLogin event - error ${e.message}`);
+                });
+
+            if (!character) {
+                return;
+            }
+
+            const playerLoginEvent = new PlayerLoginEvent(event, character);
+            await this.playerLoginEventHandler.handle(playerLoginEvent);
         });
 
-        this.wsClient.on('playerLogout', (event) => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.wsClient.on('playerLogout', async (event) => {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
-            const playerLogoutEvent = new PlayerLogoutEvent(event);
-            void this.playerLogoutEventHandler.handle(playerLogoutEvent);
+            const character = await this.characterBroker.get(event.character_id)
+                .catch((e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    CensusEventSubscriberService.logger.error(`Unable to process PlayerLogout event - error ${e.message}`);
+                });
+
+            if (!character) {
+                return;
+            }
+
+            const playerLogoutEvent = new PlayerLogoutEvent(event, character);
+            await this.playerLogoutEventHandler.handle(playerLogoutEvent);
         });
     }
 }

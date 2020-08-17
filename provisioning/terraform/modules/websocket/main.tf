@@ -106,6 +106,22 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
             value = var.census_service_id
           }
           env {
+            name = "REDIS_HOST"
+            value = var.redis_host
+          }
+          env {
+            name = "REDIS_USER"
+            value = var.redis_user
+          }
+          env {
+            name = "REDIS_PASS"
+            value = var.redis_pass
+          }
+          env {
+            name = "REDIS_DB"
+            value = var.redis_db
+          }
+          env {
             name = "LOGGER_DISCORD_WEBHOOK"
             value = var.discord_webhook
           }

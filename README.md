@@ -22,9 +22,9 @@ To start the websocket for development, run `ps2alerts-websocket-dev`. This will
 
 For local development, you're recommended to have the following installed:
 
-* [Node v10+](https://nodejs.org/en/download) recommend using NVM (node Version Manager)
+* [Node v10+](https://nodejs.org/en/download) recommend using NVM (Node Version Manager)
 * [NPM](https://www.npmjs.com/get-npm)
-* npx `sudo npm install -g npx`
+* Recommend to install npx `sudo npm install -g npx`
 
 ## Contributions
 
@@ -36,54 +36,80 @@ If you don't quite understand IoC, I suggest you create an application as per th
 
 ## File structure 
 
-### `/app/src`
+### `/src`
 
-All application code is located within `/app/src`.
+All application code is located within `/src`.
 
 All provisioning and supported services are located within `/provisioning`. This includes the development environment, staging, and production build methods.
 
 All pipelines are located within `./github/workflows`, which performs consistency tests and checks.
 
-### `/bootstrap.ts`
+### `/src/bootstrap.ts`
 
 This is where the IoC container is instantiated and told to load the modules via the Kernel, to return to `index.ts`
 
-### `/index.ts`
+### `/src/index.ts`
 
 This is where the fun begins. Index.ts loads the Kernel, which in turn loads the Container, which in turn sets everything up, and then once that's all running, listens for kernel level exceptions which we haven't caught within the application and logs it, then gracefully terminates the application.
 
-### `/bootstrap`
+### `/src/authorities`
+
+This folder contains various subroutines which checks various things, e.g. shutting overdue alerts, population statistics gathering etc.
+
+### `/src/bootstrap`
 
 Kernel.ts - herein lies the Kernel, essentially the container for the application. This boots and loads all services and is where everything begins.
 
-### `/config`
+### `/src/config`
 
 Herein contains all the application config information, some of it hardcoded, some of it from env vars.
 
-### `/exceptions `
+### `/src/constants`
+
+This folder contains all of our enumuates and static data / game data which is constant.
+
+### `/src/data`
+
+This is where our custom classes go, e.g. CharacterPresenceData.
+
+### `/src/drivers`
+
+Contains drivers which provide override functionality, e.g. CensusCacheDriver which implements Redis on behalf of the Census Package.
+
+### `/src/exceptions`
 
 Where our custom exceptions will exist. Currently have ApplicationException which provides a standard format.
 
-### `/handlers`
+### `/src/factories`
+
+Contains the MongooseModelFactory, which is where each of our MongoDB collections are dependant upon.
+
+### `/src/handlers`
 
 Where the meat of the application will live. This is where all the event handlers will exist, e.g. DeathEvent. This is where all the processing, database updates, event emits etc will be triggered. This folder will get quite large eventually.
 
-### `/interfaces`
+It also contains useful services such as `CharacterBroker`, who's job is to go to Census and retrieve character information.
+
+### `/src/instances`
+
+Everything in PS2Alerts is driven around an instance. If there is no instance, it won't get recorded. Therefore, we have created the system to be able to define custom instance types, e.g. a Planetside Battles event on Jaeger. By default, we use the `PS2AlertsMetagameInstabce`. Each instance must implement the contained interface, which describes common attributes.
+
+### `/src/interfaces`
 
 This is where our code interfaces will live. E.g. each Handler will have an assoiciated parent Interface which each handler must adhere to. We will self-enforce usage of interfaces as it's simply **good coding practice**.
 
-### `/logger`
+### `/src/logger`
 
 Where the logging class exists. May move into a service instead, but the concept of a service for us isn't quite the same as what you may expect from say PHP services. It's more of a utility class.
 
-### `/services`
+### `/src/models`
 
-This is where the census websocket subscriber currently exists. This may be expanded to be other services such as an Admin Message Service (I have the idea in my head where an admin can log into a backend and manually trigger an alert for special events etc)
+Herein lies all of our models which we use to interact with MongoDB. Each model is instantiated from `/src/services/mongo/index.ts`, and within each model contains the collection structure, along with an interface which enforces certain data structure patterns.
+
+### `/src/services`
+
+This is where our services exist which are used throughout the application, such as connecting to Planetside 2's Census websocket stream, Mongo and Redis connectivity.
 
 ### `/utils`
 
 This is where utility classes / functions will live.
-
-### `/validators`
-
-This is where we will contain our validation classes. Currently this is simply just a world and Zone ID checkers to chuck out messages we either don't care about or don't support.

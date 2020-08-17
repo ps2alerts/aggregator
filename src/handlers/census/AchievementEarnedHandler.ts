@@ -11,10 +11,10 @@ import AchievementEarnedEvent from './events/AchievementEarnedEvent';
 export default class AchievementEarnedHandler implements EventHandlerInterface<AchievementEarnedEvent> {
     private static readonly logger = getLogger('AchievementEarnedHandler');
 
-    private readonly characterPrecenseHandler: CharacterPresenceHandlerInterface;
+    private readonly characterPresenseHandler: CharacterPresenceHandlerInterface;
 
     constructor(@inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface) {
-        this.characterPrecenseHandler = characterPresenceHandler;
+        this.characterPresenseHandler = characterPresenceHandler;
     }
 
     public async handle(event: AchievementEarnedEvent): Promise<boolean>{
@@ -26,7 +26,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface<A
 
         try {
             await Promise.all([
-                this.characterPrecenseHandler.update(event.characterId, event.world, event.zone),
+                this.characterPresenseHandler.update(event.character, event.zone),
                 this.storeEvent(event),
             ]);
         } catch (e) {

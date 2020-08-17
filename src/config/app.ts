@@ -12,12 +12,14 @@ export default class App {
     get modules(): ContainerModule[] {
         /* eslint-disable */
         return [
-            require('../services/census').default,
+            require('../authorities').default,
             require('../handlers').default,
+            require('../handlers/aggregate').default,
+            require('../services/census').default,
             require('../services/mongo').default,
             require('../services/subscribers').default,
-            require('../authorities').default,
-            require('../handlers/aggregate').default,
+            require('../services/rabbitmq').default,
+            require('../services/redis').default,
         ];
         /* eslint-enable */
     }

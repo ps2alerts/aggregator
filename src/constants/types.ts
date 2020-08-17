@@ -3,6 +3,12 @@ const TYPES = {
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),
 
+    // Brokers
+    characterBrokerInterface: Symbol.for('CharacterBrokerInterface'),
+
+    // Cache Drivers
+    censusCharacterCacheDriver: Symbol.for('CensusCharacterCacheDriver'),
+
     // Handler Interfaces
     instanceHandlerInterface: Symbol.for('InstanceHandlerInterface'),
     characterPresenceHandlerInterface: Symbol.for('CharacterPresenceHandlerInterface'),
@@ -27,21 +33,26 @@ const TYPES = {
 
     // Instance Aggregates Models
     instanceClassAggregateFactory: Symbol.for('InstanceClassAggregateFactory'),
+    instanceCharacterAggregateFactory: Symbol.for('InstanceCharacterAggregateFactory'),
     instanceFacilityControlAggregateFactory: Symbol.for('InstanceFacilityControlAggregateFactory'),
     instanceFactionCombatAggregateFactory: Symbol.for('InstanceFactionCombatAggregateFactory'),
+    instanceOutfitAggregateFactory: Symbol.for('InstanceOutfitAggregateFactory'),
     instancePopulationAggregateFactory: Symbol.for('InstancePopulationAggregateFactory'),
-    instancePlayerAggregateFactory: Symbol.for('InstancePlayerAggregateFactory'),
     instanceWeaponAggregateFactory: Symbol.for('InstanceWeaponAggregateFactory'),
 
     // Global Aggregates Models
+    globalCharacterAggregateFactory: Symbol.for('GlobalCharacterAggregateFactory'),
     globalClassAggregateFactory: Symbol.for('GlobalClassAggregateFactory'),
     globalFacilityControlAggregateFactory: Symbol.for('GlobalFacilityControlAggregateFactory'),
     globalFactionCombatAggregateFactory: Symbol.for('GlobalFactionCombatAggregateFactory'),
-    globalPlayerAggregateFactory: Symbol.for('GlobalPlayerAggregateFactory'),
+    globalOutfitAggregateFactory: Symbol.for('GlobalOutfitAggregateFactory'),
     globalWeaponAggregateFactory: Symbol.for('GlobalWeaponAggregateFactory'),
 
     // Metric Models
     characterPresenceFactory: Symbol.for('CharacterPresenceFactory'),
+
+    // Message Queues
+    messageQueueSubscribers: Symbol.for('MessageQueueSubscribers'),
 };
 
 export {TYPES};

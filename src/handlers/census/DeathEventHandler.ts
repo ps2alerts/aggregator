@@ -8,7 +8,6 @@ import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenc
 import ApplicationException from '../../exceptions/ApplicationException';
 import {InstanceDeathSchemaInterface} from '../../models/instance/InstanceDeathModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import {Kill} from 'ps2census/dist/client/events/Death';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
@@ -46,6 +45,8 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
             return false;
         }
 
+        DeathEventHandler.logger.debug('=== Processing DeathEvent Handlers ===');
+
         this.aggregateHandlers.map(
             (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event)
                 .catch((e) => {
@@ -57,6 +58,8 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                 }),
         );
 
+        DeathEventHandler.logger.debug('=== DeathEvent Handlers Processed! ===');
+
         return true;
     }
 
@@ -64,18 +67,15 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
         try {
             await this.factory.model.create({
                 instance: event.instance.instanceId,
-                attacker: event.attackerCharacterId,
-                player: event.characterId,
+                attacker: event.attackerCharacter ? event.attackerCharacter.id : '0',
+                character: event.character.id,
                 timestamp: event.timestamp,
                 attackerFiremode: event.attackerFiremodeId,
                 attackerLoadout: event.attackerLoadoutId,
-                attackerFaction: event.attackerFaction,
                 weapon: event.attackerWeaponId,
-                playerLoadout: event.characterLoadoutId,
-                playerFaction: event.characterFaction,
+                characterLoadout: event.characterLoadoutId,
                 isHeadshot: event.isHeadshot,
-                isSuicide: event.killType === Kill.Suicide,
-                isTeamkill: event.killType === Kill.TeamKill,
+                killType: event.killType,
                 vehicle: event.attackerVehicleId,
             });
             return true;

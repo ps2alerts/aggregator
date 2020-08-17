@@ -1,22 +1,25 @@
 import {Document, Schema} from 'mongoose';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
+import {CharacterInterface} from '../../../interfaces/CharacterInterface';
+import {OutfitInterface} from '../../../interfaces/OutfitInterface';
 
-export interface InstancePlayerAggregateSchemaInterface extends Document {
+export interface InstanceCharacterAggregateSchemaInterface extends Document {
     instance: PS2AlertsInstanceInterface['instanceId'];
-    player: string; // Subject to change to a PlayerInterface
+    character: CharacterInterface['id'];
     kills: number;
     deaths: number;
     teamKills: number;
     suicides: number;
     headshots: number;
+    outfit: OutfitInterface['id'] | null;
 }
 
-export const instancePlayerAggregateSchema: Schema = new Schema({
+export const instanceCharacterAggregateSchema: Schema = new Schema({
     instance: {
         type: String,
         required: true,
     },
-    player: {
+    character: {
         type: String,
         required: true,
     },
@@ -45,7 +48,11 @@ export const instancePlayerAggregateSchema: Schema = new Schema({
         required: true,
         default: 0,
     },
+    outfit: {
+        type: String,
+        default: 0,
+    },
 }).index(
-    {instance: 1, player: 1},
+    {instance: 1, character: 1},
     {unique: true},
 );

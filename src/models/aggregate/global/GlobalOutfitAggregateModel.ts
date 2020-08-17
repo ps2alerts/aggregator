@@ -1,8 +1,9 @@
 import {Document, Schema} from 'mongoose';
 import {World, worldArray} from '../../../constants/world';
+import {OutfitInterface} from '../../../interfaces/OutfitInterface';
 
-export interface GlobalPlayerAggregateSchemaInterface extends Document {
-    player: string; // Subject to change to a PlayerInterface
+export interface GlobalOutfitAggregateSchemaInterface extends Document {
+    outfit: OutfitInterface['id'];
     world: World;
     kills: number;
     deaths: number;
@@ -11,8 +12,8 @@ export interface GlobalPlayerAggregateSchemaInterface extends Document {
     headshots: number;
 }
 
-export const globalPlayerAggregateSchema: Schema = new Schema({
-    player: {
+export const globalOutfitAggregateSchema: Schema = new Schema({
+    outfit: {
         type: String,
         required: true,
     },
@@ -47,6 +48,6 @@ export const globalPlayerAggregateSchema: Schema = new Schema({
         default: 0,
     },
 }).index(
-    {player: 1, world: 1},
+    {outfit: 1, world: 1},
     {unique: true},
 );

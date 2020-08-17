@@ -16,17 +16,18 @@ import ZoneUtils from '../../../utils/ZoneUtils';
 import {Zone} from '../../../constants/zone';
 import {PlayerFacilityDefend} from 'ps2census';
 import {World} from '../../../constants/world';
+import Character from '../../../data/Character';
 
 @injectable()
 export default class PlayerFacilityDefendEvent {
     public readonly world: World;
     public readonly zone: Zone;
     public readonly timestamp: Date;
-    public readonly characterId: string;
+    public readonly character: Character;
     public readonly facilityId: number;
     public readonly outfitId: number;
 
-    constructor(event: PlayerFacilityDefend) {
+    constructor(event: PlayerFacilityDefend, character: Character) {
 
         this.world = Parser.parseNumericalArgument(event.world_id);
 
@@ -43,7 +44,7 @@ export default class PlayerFacilityDefendEvent {
 
         this.timestamp = event.timestamp;
 
-        this.characterId = event.character_id; // This is a string on purpose
+        this.character = character;
 
         this.facilityId = Parser.parseNumericalArgument(event.facility_id);
 
