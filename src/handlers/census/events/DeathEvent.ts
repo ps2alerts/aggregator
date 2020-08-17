@@ -41,7 +41,7 @@ export default class DeathEvent {
 
     public readonly characterLoadoutId: number;
 
-    public readonly attackerCharacter: Character|null;
+    public readonly attackerCharacter: Character;
 
     public readonly attackerFiremodeId: number;
 
@@ -58,8 +58,8 @@ export default class DeathEvent {
     constructor(
         event: Death,
         instance: PS2AlertsInstanceInterface,
-        attackerCharacter: Character|null,
-        character: Character|null,
+        attackerCharacter: Character,
+        character: Character,
     ) {
         this.instance = instance;
 
@@ -83,6 +83,10 @@ export default class DeathEvent {
 
         if (isNaN(this.characterLoadoutId)) {
             throw new IllegalArgumentException('character_loadout_id', 'DeathEvent');
+        }
+
+        if (!attackerCharacter) {
+            throw new IllegalArgumentException('Attacker Character is missing from DeathEvent when required', 'DeathEvent');
         }
 
         this.attackerCharacter = attackerCharacter;

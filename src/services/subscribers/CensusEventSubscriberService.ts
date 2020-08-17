@@ -114,10 +114,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 this.characterBroker.get(event.character_id),
             ]).then(([attacker, character]) => {
                 [attacker, character].forEach((char) => {
-                    if (!char) {
-                        return;
-                    }
-
                     void this.characterPresenceHandler.update(
                         char,
                         parseInt(event.zone_id, 10),
