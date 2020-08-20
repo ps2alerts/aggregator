@@ -1,1 +1,3 @@
 .terraform
+.tfout
+.auto.tfvars

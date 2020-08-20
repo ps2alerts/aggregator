@@ -14,14 +14,10 @@ variable "database_pool_size" {
 variable "database_debug" {
   default = false
 }
-variable "redis_enabled" {
-  default = false
-}
 variable "redis_host" {}
 variable "redis_db" {
   default = 0
 }
-variable "redis_user" {}
 variable "redis_pass" {}
 variable "census_service_id" {}
 variable "cpu_limit" {
@@ -31,7 +27,7 @@ variable "mem_limit" {}
 variable "cpu_request" {}
 variable "mem_request" {}
 variable "discord_webhook" {
-  default = "foo"
+  default = ""
 }
 variable "logger_transports" {
   default = "console"

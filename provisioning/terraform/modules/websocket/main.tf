@@ -110,10 +110,6 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
             value = var.redis_host
           }
           env {
-            name = "REDIS_USER"
-            value = var.redis_user
-          }
-          env {
             name = "REDIS_PASS"
             value = var.redis_pass
           }

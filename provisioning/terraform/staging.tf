@@ -12,7 +12,9 @@ module "websocket_staging" {
   database_name      = "ps2alerts-staging"
   database_pool_size = 20
   database_debug     = false
-  redis_enabled      = false
+  redis_host         = "ps2alerts-redis-master"
+  redis_pass         = var.redis_pass
+  redis_db           = 1
   census_service_id  = var.census_service_id
   cpu_limit          = "1000m"
   mem_limit          = "512Mi"

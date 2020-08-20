@@ -76,6 +76,7 @@ jobs:
             -var='db_user=${{ secrets.DB_USER }}' \
             -var='db_pass=${{ secrets.DB_PASS }}' \
             -var='census_service_id=${{ secrets.CENSUS_SERVICE_ID }}' \
+            -var='redis_pass=${{ secrets.REDIS_PASS }}' \
             -target=module.websocket_staging -out='.tfout'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
