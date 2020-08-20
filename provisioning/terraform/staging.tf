@@ -15,6 +15,9 @@ module "websocket_staging" {
   redis_host         = "ps2alerts-redis-master"
   redis_pass         = var.redis_pass
   redis_db           = 1
+  rabbitmq_host      = "ps2alerts-rabbitmq"
+  rabbitmq_user      = "ps2alerts"
+  rabbitmq_pass      = var.rabbitmq_pass
   census_service_id  = var.census_service_id
   cpu_limit          = "1000m"
   mem_limit          = "512Mi"
