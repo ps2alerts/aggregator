@@ -57,9 +57,10 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Attacker Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Attacker Error! ${err.message}`);
+                }
             });
         });
 
@@ -72,9 +73,10 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Victim Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Victim Error! ${err.message}`);
+                }
             });
         });
 

@@ -54,9 +54,10 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Attacker Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Attacker Error! ${err.message}`);
+                }
             });
         });
 
@@ -70,9 +71,10 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Victim Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalClassAggregate.logger.error(`Updating GlobalClassAggregate Victim Error! ${err.message}`);
+                }
             });
         });
 

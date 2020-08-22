@@ -49,9 +49,10 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalFacilityControlAggregate.logger.error(`Updating WorldFacilityControlAggregate Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalFacilityControlAggregate.logger.error(`Updating GlobalFacilityControlAggregate Error! ${err.message}`);
+                }
             });
         });
 

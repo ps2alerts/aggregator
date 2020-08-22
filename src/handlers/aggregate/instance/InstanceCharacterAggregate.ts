@@ -56,9 +56,10 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                     {
                         upsert: true,
                     },
-                ).catch((err) => {
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    InstanceCharacterAggregate.logger.error(`Updating InstanceCharacterAggregate Attacker Error! ${err}`);
+                ).catch((err: Error) => {
+                    if (!err.message.includes('E11000')) {
+                        InstanceCharacterAggregate.logger.error(`Updating InstanceCharacterAggregate Attacker Error! ${err.message}`);
+                    }
                 });
             }
         });
@@ -74,9 +75,10 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceCharacterAggregate.logger.error(`Updating InstanceCharacterAggregate Victim Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    InstanceCharacterAggregate.logger.error(`Updating InstanceCharacterAggregate Victim Error! ${err.message}`);
+                }
             });
         });
 

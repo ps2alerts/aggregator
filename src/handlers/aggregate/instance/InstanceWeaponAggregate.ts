@@ -49,9 +49,10 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceWeaponAggregate.logger.error(`Updating InstanceWeaponAggregate Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    InstanceWeaponAggregate.logger.error(`Updating InstanceWeaponAggregate Error! ${err.message}`);
+                }
             });
         });
 

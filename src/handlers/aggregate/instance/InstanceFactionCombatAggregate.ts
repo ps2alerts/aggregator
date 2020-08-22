@@ -75,9 +75,10 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceFactionCombatAggregate.logger.error(`Updating InstanceFactionCombatAggregate Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    InstanceFactionCombatAggregate.logger.error(`Updating InstanceFactionCombatAggregate Error! ${err.message}`);
+                }
             });
         });
 

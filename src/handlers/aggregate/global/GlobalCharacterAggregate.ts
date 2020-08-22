@@ -59,9 +59,10 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     {
                         upsert: true,
                     },
-                ).catch((err) => {
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Attacker Error! ${err}`);
+                ).catch((err: Error) => {
+                    if (!err.message.includes('E11000')) {
+                        GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Attacker Error! ${err.message}`);
+                    }
                 });
             }
         });
@@ -73,9 +74,10 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Victim Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalCharacterAggregate.logger.error(`Updating GlobalCharacterAggregate Victim Error! ${err.message}`);
+                }
             });
         });
 

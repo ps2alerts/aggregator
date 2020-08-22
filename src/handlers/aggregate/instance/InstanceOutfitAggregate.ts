@@ -74,9 +74,10 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceOutfitAggregate.logger.error(`Updating InstanceOutfitAggregate Victim Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    InstanceOutfitAggregate.logger.error(`Updating InstanceOutfitAggregate Victim Error! ${err.message}`);
+                }
             });
         });
 

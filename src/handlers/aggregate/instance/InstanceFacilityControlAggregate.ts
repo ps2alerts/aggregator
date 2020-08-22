@@ -49,9 +49,10 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceFacilityControlAggregate.logger.error(`Updating InstanceFacilityControlAggregate Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    InstanceFacilityControlAggregate.logger.error(`Updating InstanceFacilityControlAggregate Error! ${err.message}`);
+                }
             });
         });
 

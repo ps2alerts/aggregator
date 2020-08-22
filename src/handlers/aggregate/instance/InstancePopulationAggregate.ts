@@ -63,7 +63,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
 
                     if (!error.message.includes('E11000')) {
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                        throw new ApplicationException(`Unable to insert initial InstanceWeaponAggregate record into DB! ${err}`, 'InstanceWeaponAggregate');
+                        throw new ApplicationException(`Unable to insert initial InstancePopulationAggregate record into DB! ${err}`, 'InstancePopulationAggregate');
                     }
                 });
             promises.push(promise);

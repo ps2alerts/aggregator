@@ -49,9 +49,10 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalWeaponAggregate.logger.error(`Updating Aggregate Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalWeaponAggregate.logger.error(`Updating GlobalWeaponAggregate Error! ${err.message}`);
+                }
             });
         });
 

@@ -75,9 +75,10 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                GlobalFactionCombatAggregate.logger.error(`Updating GlobalFactionCombatAggregate Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    GlobalFactionCombatAggregate.logger.error(`Updating GlobalFactionCombatAggregate Error! ${err.message}`);
+                }
             });
         });
 

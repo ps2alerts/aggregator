@@ -54,9 +54,10 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceClassAggregate.logger.error(`Updating InstanceClassAggregate Attacker Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    InstanceClassAggregate.logger.error(`Updating InstanceClassAggregate Attacker Error! ${err.message}`);
+                }
             });
         });
 
@@ -70,9 +71,10 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
                 {
                     upsert: true,
                 },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceClassAggregate.logger.error(`Updating InstanceClassAggregate Victim Error! ${err}`);
+            ).catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    InstanceClassAggregate.logger.error(`Updating InstanceClassAggregate Victim Error! ${err.message}`);
+                }
             });
         });
 
