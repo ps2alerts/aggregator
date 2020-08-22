@@ -22,7 +22,7 @@ export abstract class BaseChannelWrapper {
         const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}${vhost}?heartbeat=${this.config.heartbeat}&connection_timeout=${this.config.timeout}`;
 
         BaseChannelWrapper.baseChannelLogger.debug(`[${queueName}] Setting up queue...`);
-        BaseChannelWrapper.baseChannelLogger.warn(connectionString);
+        BaseChannelWrapper.baseChannelLogger.debug(connectionString);
 
         const connection = connect([connectionString]);
         const channelWrapper = connection.createChannel({
@@ -73,6 +73,8 @@ export abstract class BaseChannelWrapper {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             throw new ApplicationException(err.message);
         });
+
+        BaseChannelWrapper.baseChannelLogger.info(`[${queueName} connected!`);
 
         return channelWrapper;
     }
