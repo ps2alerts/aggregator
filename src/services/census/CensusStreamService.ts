@@ -126,7 +126,11 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('duplicate', (event: PS2Event) => {
-            if (!['Death', 'PlayerLogin', 'PlayerLogout'].indexOf(event.event_name)) {
+            if (
+                !event.event_name.indexOf('Death') &&
+                !event.event_name.indexOf('PlayerLogin') &&
+                !event.event_name.indexOf('PlayerLogout')
+            ) {
                 CensusStreamService.logger.warn(`Census stream duplicate detected: ${event.event_name}`);
             }
         });
