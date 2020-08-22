@@ -18,7 +18,8 @@ export abstract class BaseChannelWrapper {
 
     protected async setupConnection(queueName: string, callback: any): Promise<ChannelWrapper> {
         let connected = false;
-        const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}/${this.config.vhost}?heartbeat=${this.config.heartbeat}&connection_timeout=${this.config.timeout}`;
+        const vhost = this.config.vhost ? `/${this.config.vhost}` : '';
+        const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}${vhost}?heartbeat=${this.config.heartbeat}&connection_timeout=${this.config.timeout}`;
 
         BaseChannelWrapper.baseChannelLogger.debug(`[${queueName}] Setting up queue...`);
         BaseChannelWrapper.baseChannelLogger.debug(connectionString);
