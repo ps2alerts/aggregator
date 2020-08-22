@@ -130,6 +130,10 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
             value = var.rabbitmq_pass
           }
           env {
+            name = "RABBITMQ_VHOST"
+            value = "/ps2alerts"
+          }
+          env {
             name = "LOGGER_DISCORD_WEBHOOK"
             value = var.discord_webhook
           }
