@@ -22,7 +22,7 @@ export abstract class BaseChannelWrapper {
         const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}${vhost}?heartbeat=${this.config.heartbeat}&connection_timeout=${this.config.timeout}`;
 
         BaseChannelWrapper.baseChannelLogger.debug(`[${queueName}] Setting up queue...`);
-        BaseChannelWrapper.baseChannelLogger.debug(connectionString);
+        BaseChannelWrapper.baseChannelLogger.warn(connectionString);
 
         const connection = connect([connectionString]);
         const channelWrapper = connection.createChannel({
