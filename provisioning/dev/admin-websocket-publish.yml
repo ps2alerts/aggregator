@@ -1,0 +1,122 @@
+---
+# This playbook handles publishing a AdminWebsocket control message.
+
+- hosts: localhost
+  vars:
+    queue_name: "adminWebsocket"
+    world: ""
+    zone: ""
+    valid_worlds: ["1", "10", "13", "17", "19", "40", "1000", "2000"]
+    valid_zones: ["2", "4", "6", "8"]
+    valid_factions: ["1", "2", "3"]
+  vars_prompt:
+    - name: type
+      prompt: "Select message type [instanceStart, instanceEnd, activeInstances]"
+      private: no
+      default: "instanceStart"
+
+    - name: world
+      prompt: "[instanceStart] Select world {{ valid_worlds }}"
+      private: no
+      default: 10
+
+    - name: zone
+      prompt: "[instanceStart] Select zone {{ valid_zones }} "
+      private: no
+      default: 2
+
+    - name: faction
+      prompt: "[instanceStart] Select triggering faction {{ valid_factions }} "
+      private: no
+      default: 1
+
+    - name: meltdown
+      prompt: "[instanceStart] Meltdown? [true/false]"
+      private: no
+      default: false
+
+    - name: duration
+      prompt: "[instanceStart] Specify duration in seconds. Default is \"5400\" for 1:30 hours"
+      private: no
+      default: 5400
+
+    - name: instanceId
+      prompt: "[instanceEnd] Specify PS2Alerts Instance ID to end"
+      private: no
+
+  tasks:
+    - name: Ensure world was defined if instanceStart type
+      fail:
+        msg: "World wasn't defined!"
+      when: type == "instanceStart" and world == ""
+
+    - name: Ensure world is valid if instanceStart type
+      fail:
+        msg: "World isn't valid!"
+      when: type == "instanceStart" and world not in valid_worlds
+
+    - name: Ensure zone was defined if instanceStart type
+      fail:
+        msg: "Zone wasn't defined!"
+      when: type == "instanceStart" and zone == ""
+
+    - name: Ensure zone is valid if instanceStart type
+      fail:
+        msg: "Zone isn't valid!"
+      when: type == "instanceStart" and zone is not in valid_zones
+
+    - name: Ensure faction was defined if instanceStart type
+      fail:
+        msg: "Zone wasn't defined!"
+      when: type == "instanceStart" and faction == ""
+
+    - name: Ensure faction is valid if instanceStart type
+      fail:
+        msg: "Zone isn't valid!"
+      when: type == "instanceStart" and faction is not in valid_factions
+
+    - name: Create instanceStart message body
+      set_fact:
+        message:
+          type: "{{ type }}"
+          body:
+            instanceId: "{{ 100000 | random }}"
+            world: "{{ world }}"
+            zone: "{{ zone }}"
+            faction: "{{ faction }}"
+            meltdown: "{{ meltdown }}"
+            type: "metagame"
+            start: "{{ ansible_date_time.epoch }}"
+            duration: "{{ duration }}"
+      when: type == "instanceStart"
+
+    - name: Create instanceEnd message body
+      set_fact:
+        message:
+          type: "{{ type }}"
+          body:
+            instanceId: "{{ instanceId }}"
+      when: type == "instanceEnd"
+
+    - name: Create activeInstances message body
+      set_fact:
+        message:
+          type: "{{ type }}"
+          body:
+            foo: "bar"
+      when: type == "activeInstances"
+
+    - debug:
+        msg: "{{ message }}"
+
+    - name: Publish Instance message
+      rabbitmq_publish:
+        queue: "{{ queue_name }}"
+        body: "{{ message | to_json }}"
+        proto: amqp
+        host: localhost
+        port: 5672
+        username: user
+        password: bitnami
+        vhost: "%2F"
+        durable: true

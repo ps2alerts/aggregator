@@ -17,7 +17,8 @@ export enum MetagameEventType {
     AMERISH_ENLIGHTENMENT = 157,
     AMERISH_LIBERATION = 158,
 
-    // Current Generation Unstable Meltdowns
+    // Current Generation Unstable Meltdowns, presumably based off faction trigger
+    // TODO: VERIFY FACTION TRIGGERS https://github.com/ps2alerts/websocket/issues/138
     ESAMIR_UNSTABLE_MELTDOWN = 176,
     HOSSIN_UNSTABLE_MELTDOWN = 177,
     AMERISH_UNSTABLE_MELTDOWN = 178,
@@ -64,6 +65,7 @@ const longAlert = 90 * 60 * 1000;
 const shortAlert = 45 * 60 * 1000;
 
 // TODO: Generate this from the API
+// TODO: VERIFY FACTION TRIGGERS https://github.com/ps2alerts/websocket/issues/138
 export const metagameEventTypeDetailsMap: Map<number, MetagameDetailsInterface> = new Map<number, MetagameDetailsInterface>(
     [
         [147, {title: 'Indar Superiority', zone: Zone.INDAR, duration: longAlert, triggeringFaction: Faction.TERRAN_REPUBLIC, unstable: false}],

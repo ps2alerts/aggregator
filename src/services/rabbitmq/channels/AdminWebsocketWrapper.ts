@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import {inject, injectable, multiInject} from 'inversify';
 import {BaseChannelWrapper} from './BaseChannelWrapper';
 import {ConsumeMessage} from 'amqplib';
 import {jsonLogOutput} from '../../../utils/json';
@@ -6,6 +6,9 @@ import {getLogger} from '../../../logger';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {MessageQueueChannelWrapperInterface} from '../../../interfaces/MessageQueueChannelWrapperInterface';
 import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
+import {TYPES} from '../../../constants/types';
+import {MessageQueueHandlerInterface} from '../../../interfaces/MessageQueueHandlerInterface';
+import RabbitMQ from '../../../config/rabbitmq';
 
 @injectable()
 export default class AdminWebsocketWrapper extends BaseChannelWrapper implements MessageQueueChannelWrapperInterface {
@@ -15,6 +18,16 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private static readonly queueName: string = 'adminWebsocket';
+
+    private static mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
+
+    constructor(
+    @multiInject(TYPES.mqAdminMessage) mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>,
+        @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,
+    ) {
+        super(rabbitMQConfig);
+        AdminWebsocketWrapper.mqAdminMessageSubscribers = mqAdminMessageSubscribers;
+    }
 
     public async subscribe(): Promise<boolean> {
         AdminWebsocketWrapper.logger.info('Subscribing...');
@@ -41,8 +54,16 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
             return false;
         }
 
-        AdminWebsocketWrapper.logger.info(jsonLogOutput(message));
-        // TODO: Handle message
+        AdminWebsocketWrapper.mqAdminMessageSubscribers.map(
+            (handler: MessageQueueHandlerInterface<ParsedQueueMessage>) => void handler.handle(message)
+                .catch((e) => {
+                    if (e instanceof Error) {
+                        AdminWebsocketWrapper.logger.error(`[${AdminWebsocketWrapper.queueName}] Error processing message! E: ${e.message}\r\n${jsonLogOutput(e)}`);
+                    } else {
+                        AdminWebsocketWrapper.logger.error('UNEXPECTED ERROR processing message!');
+                    }
+                }),
+        );
         AdminWebsocketWrapper.channelWrapper.ack(msg);
         AdminWebsocketWrapper.logger.debug(`Acked message for ${AdminWebsocketWrapper.queueName}`);
 

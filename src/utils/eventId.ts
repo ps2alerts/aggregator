@@ -1,6 +1,82 @@
 import {Zone} from '../constants/zone';
+import {Faction} from '../constants/faction';
+import {MetagameEventType} from '../constants/metagameEventType';
+
+export enum MeltdownState {
+    NORMAL = 1,
+    UNSTABLE = 2
+}
 
 export default class EventId {
+    // FML
+    private static readonly normalStateZoneFactionMap: Map<Zone, Map<Faction, MetagameEventType>> = new Map<Zone, Map<Faction, MetagameEventType>>(
+        [
+            [Zone.INDAR, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.INDAR_ENLIGHTENMENT],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.INDAR_LIBERATION],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.INDAR_SUPERIORITY],
+                ],
+            )],
+            [Zone.HOSSIN, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.HOSSIN_ENLIGHTENMENT],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.HOSSIN_LIBERATION],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.HOSSIN_SUPERIORITY],
+                ],
+            )],
+            [Zone.AMERISH, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.AMERISH_ENLIGHTENMENT],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.AMERISH_LIBERATION],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.AMERISH_SUPERIORITY],
+                ],
+            )],
+            [Zone.ESAMIR, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.ESAMIR_ENLIGHTENMENT],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.ESAMIR_LIBERATION],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.ESAMIR_SUPERIORITY],
+                ],
+            )],
+        ],
+    );
+
+    // Don't have a clue if any of these are right...
+    // TODO: VERIFY FACTION TRIGGERS https://github.com/ps2alerts/websocket/issues/138
+    private static readonly unstableMeltdownZoneFactionMap: Map<Zone, Map<Faction, MetagameEventType>> = new Map<Zone, Map<Faction, MetagameEventType>>(
+        [
+            [Zone.INDAR, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.INDAR_UNSTABLE_MELTDOWN_2],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.INDAR_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.INDAR_UNSTABLE_MELTDOWN_3],
+                ],
+            )],
+            [Zone.HOSSIN, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.HOSSIN_UNSTABLE_MELTDOWN_2],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.HOSSIN_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.HOSSIN_UNSTABLE_MELTDOWN_3],
+                ],
+            )],
+            [Zone.AMERISH, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.AMERISH_UNSTABLE_MELTDOWN_2],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.AMERISH_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.AMERISH_UNSTABLE_MELTDOWN_3],
+                ],
+            )],
+            [Zone.ESAMIR, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.ESAMIR_UNSTABLE_MELTDOWN_2],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.ESAMIR_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.ESAMIR_UNSTABLE_MELTDOWN_3],
+                ],
+            )],
+        ],
+    );
+
     public static eventIdToZoneId(eventId: number): number {
         switch (eventId) {
             case 1: // Territory Control
@@ -52,21 +128,21 @@ export default class EventId {
             case 133:
             case 134:
                 return Zone.AMERISH;
-            case 147: // Indar Territory Control
-            case 148:
-            case 149:
+            case 147: // Indar TR Territory Control (ACTIVE)
+            case 148: // Indar VS Territory Control (ACTIVE)
+            case 149: // Indar NC Territory Control (ACTIVE)
                 return Zone.INDAR;
-            case 150: // Esamir Territory Control
-            case 151:
-            case 152:
+            case 150: // Esamir TR Territory Control (ACTIVE)
+            case 151: // Esamir VS Territory Control (ACTIVE)
+            case 152: // Esamir NC Territory Control (ACTIVE)
                 return Zone.ESAMIR;
-            case 153: // Hossin Territory Control
-            case 154:
-            case 155:
+            case 153: // Hossin TR Territory Control (ACTIVE)
+            case 154: // Hossin VS Territory Control (ACTIVE)
+            case 155: // Hossin NC Territory Control (ACTIVE)
                 return Zone.HOSSIN;
-            case 156: // Amerish Territory Control
-            case 157:
-            case 158:
+            case 156: // Amerish TR Territory Control (ACTIVE)
+            case 157: // Amerish NC Territory Control (ACTIVE)
+            case 158: // Amerish NC Territory Control (ACTIVE)
                 return Zone.AMERISH;
             case 159: // Amerish Warpgates Stabilizing
                 return Zone.AMERISH;
@@ -86,34 +162,34 @@ export default class EventId {
             case 174: // Aerial Anomalies
             case 175: // Race for Readings
                 return -1;
-            case 176: // Esamir Unstable Meltdown
+            case 176: // Esamir Unstable Meltdown NC TRIGGER??? (ACTIVE)
                 return Zone.ESAMIR;
-            case 177: // Hossin Unstable Meltdown
+            case 177: // Hossin Unstable Meltdown NC TRIGGER??? (ACTIVE)
                 return Zone.HOSSIN;
-            case 178: // Amerish Unstable Meltdown
+            case 178: // Amerish Unstable Meltdown NC TRIGGER??? (ACTIVE)
                 return Zone.AMERISH;
-            case 179: // Indar Unstable Meltdown
+            case 179: // Indar Unstable Meltdown NC TRIGGER??? (ACTIVE)
                 return Zone.INDAR;
             case 180: // Large Outposts "Gaining Ground"
             case 181: // Large Outposts "Gaining Ground"
             case 182: // Large Outposts "Gaining Ground"
             case 183: // Large Outposts "Gaining Ground"
                 return -1;
-            case 186: // Esamir Unstable Meltdown
+            case 186: // Esamir Unstable Meltdown VS TRIGGER??? (ACTIVE)
                 return Zone.ESAMIR;
-            case 187: // Hossin Unstable Meltdown
+            case 187: // Hossin Unstable Meltdown VS TRIGGER??? (ACTIVE)
                 return Zone.HOSSIN;
-            case 188: // Amerish Unstable Meltdown
+            case 188: // Amerish Unstable Meltdown VS TRIGGER??? (ACTIVE)
                 return Zone.AMERISH;
-            case 189: // Indar Unstable Meltdown
+            case 189: // Indar Unstable Meltdown VS TRIGGER???(ACTIVE)
                 return Zone.INDAR;
-            case 190: // Esamir Unstable Meltdown
+            case 190: // Esamir Unstable Meltdown TR TRIGGER??? (ACTIVE)
                 return Zone.ESAMIR;
-            case 191: // Hossin Unstable Meltdown
+            case 191: // Hossin Unstable Meltdown TR TRIGGER??? (ACTIVE)
                 return Zone.HOSSIN;
-            case 192: // Amerish Unstable Meltdown
+            case 192: // Amerish Unstable Meltdown TR TRIGGER??? (ACTIVE)
                 return Zone.AMERISH;
-            case 193: // Indar Unstable Meltdown
+            case 193: // Indar Unstable Meltdown TR TRIGGER??? (ACTIVE)
                 return Zone.INDAR;
             case 194: // Refine and refuel
             case 195: // Refine and refuel
@@ -129,13 +205,26 @@ export default class EventId {
             case 205: // Outfit wars pre-match
             case 206: // Outfit wars relics changing
             case 207: // Outfit wars begin (750 points)
-            case 208: // Koltyr Territory Control NC Triggered
-            case 209: // Koltyr Territory Control TR Triggered
-            case 210: // Koltyr Territory Control VS Triggered
+            case 208: // Koltyr Territory Control NC Triggered (ACTIVE - BUT WE DON'T TRACK)
+            case 209: // Koltyr Territory Control TR Triggered (ACTIVE - BUT WE DON'T TRACK)
+            case 210: // Koltyr Territory Control VS Triggered (ACTIVE - BUT WE DON'T TRACK)
                 // return Zone.KOLTYR OR Zone.DESOLATION
                 return -1;
         }
 
         return -1;
+    }
+
+    public static zoneFactionMeltdownToEventId(zone: Zone, faction: Faction, meltdown: boolean): MetagameEventType {
+        if (!meltdown) {
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return EventId.normalStateZoneFactionMap.get(zone).get(faction);
+        }
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return EventId.unstableMeltdownZoneFactionMap.get(zone).get(faction);
     }
 }

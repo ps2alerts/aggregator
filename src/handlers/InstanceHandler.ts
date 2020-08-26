@@ -12,6 +12,7 @@ import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetaga
 import {InstanceCustomWorldZoneSchemaInterface} from '../models/instance/InstanceCustomWorldZone';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {remove} from 'lodash';
+import {jsonLogOutput} from '../utils/json';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
@@ -31,6 +32,23 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     ) {
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
         this.instanceCustomWorldZoneInstanceModelFactory = instanceCustomWorldZoneInstanceModelFactory;
+    }
+
+    public getInstance(instanceId: string): PS2AlertsInstanceInterface {
+        InstanceHandler.logger.debug(`Attempting to find an instance with ID: "${instanceId}"...`);
+
+        const instance = this.currentInstances.find((i) => {
+            return i.instanceId === instanceId;
+        });
+
+        if (!instance) {
+            throw new ApplicationException(`Unable to find InstanceID "${instanceId}"!`, 'InstanceHandler');
+        }
+
+        InstanceHandler.logger.debug(`Found instance with ID: "${instanceId}"!`);
+        InstanceHandler.logger.debug(`${jsonLogOutput(instance)}`);
+
+        return instance;
     }
 
     public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
@@ -69,7 +87,9 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             }
         }
 
-        return false;
+        // Other types to add eventually
+
+        throw new ApplicationException('Start instance ended unexpectedly!', 'InstanceHandler');
     }
 
     public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
@@ -93,17 +113,15 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             }
 
             remove(this.currentInstances, (i) => {
-                if (i instanceof PS2AlertsMetagameInstance) {
-                    return instance.match(i.world, i.zone);
-                }
+                return i.instanceId === instance.instanceId;
             });
 
-            InstanceHandler.logger.info(`================ SUCCESSFULLY ENDED INSTANCE ${instance.instanceId} ================`);
+            InstanceHandler.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives();
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to end instance ${instance.instanceId}! ${err}`, 'InstanceHandler');
+            throw new ApplicationException(`Unable to end instance "${instance.instanceId}"! ${err}`, 'InstanceHandler');
         }
     }
 

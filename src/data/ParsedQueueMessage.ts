@@ -1,9 +1,11 @@
 export default class ParsedQueueMessage {
-    public type: string;
-    public readonly data: string;
+    public readonly type: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public readonly body: Record<string, any>;
 
-    constructor(type: string, data: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    constructor(type: string, body: Record<string, any>) {
         this.type = type;
-        this.data = data;
+        this.body = body;
     }
 }

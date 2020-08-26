@@ -10,6 +10,11 @@
         name: docker
         state: present
 
+    - name: Install pika package to ensure devs can send messages to the queue
+      pip:
+        name: pika
+        state: present
+
     - name: Create docker network
       docker_network:
         name: ps2alerts
