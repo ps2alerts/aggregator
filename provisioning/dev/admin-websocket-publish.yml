@@ -45,30 +45,15 @@
       private: no
 
   tasks:
-    - name: Ensure world was defined if instanceStart type
-      fail:
-        msg: "World wasn't defined!"
-      when: type == "instanceStart" and world == ""
-
     - name: Ensure world is valid if instanceStart type
       fail:
         msg: "World isn't valid!"
       when: type == "instanceStart" and world not in valid_worlds
 
-    - name: Ensure zone was defined if instanceStart type
-      fail:
-        msg: "Zone wasn't defined!"
-      when: type == "instanceStart" and zone == ""
-
     - name: Ensure zone is valid if instanceStart type
       fail:
         msg: "Zone isn't valid!"
       when: type == "instanceStart" and zone is not in valid_zones
-
-    - name: Ensure faction was defined if instanceStart type
-      fail:
-        msg: "Zone wasn't defined!"
-      when: type == "instanceStart" and faction == ""
 
     - name: Ensure faction is valid if instanceStart type
       fail:
