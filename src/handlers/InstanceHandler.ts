@@ -129,14 +129,6 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 throw new ApplicationException(err.message);
             });
 
-            // console.log(res.nModified);
-            //
-            // // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            // if (!res.nModified) {
-            //     InstanceHandler.logger.error(`No instances were modified on end message! ${instance.instanceId}`);
-            //     return false;
-            // }
-
             remove(this.currentInstances, (i) => {
                 return i.instanceId === instance.instanceId;
             });
