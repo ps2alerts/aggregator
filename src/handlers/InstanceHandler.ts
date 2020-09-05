@@ -93,12 +93,27 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     }
 
     public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
-        InstanceHandler.logger.info(`================== ENDING INSTANCE ${instance.instanceId} ==================`);
+        InstanceHandler.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
+
+        const done = false;
+
+        // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
+        const timeout = new Promise((resolve, reject) => {
+            const id = setTimeout(() => {
+                clearTimeout(id);
+
+                if (!done) {
+                    reject(new Error('Instance end timeout!'));
+                } else {
+                    resolve();
+                }
+            }, 5000);
+        });
 
         // Find Instance and update
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const res = await this.instanceMetagameModelFactory.model.updateOne(
+            const promise = this.instanceMetagameModelFactory.model.updateOne(
                 {instanceId: instance.instanceId},
                 {
                     state: Ps2alertsEventState.ENDED,
@@ -106,11 +121,21 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 },
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (!res.nModified) {
-                InstanceHandler.logger.error(`No instances were modified on end message! ${instance.instanceId}`);
-                return false;
-            }
+            await Promise.race([
+                promise,
+                timeout,
+            ]).catch((err) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                throw new ApplicationException(err.message);
+            });
+
+            // console.log(res.nModified);
+            //
+            // // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            // if (!res.nModified) {
+            //     InstanceHandler.logger.error(`No instances were modified on end message! ${instance.instanceId}`);
+            //     return false;
+            // }
 
             remove(this.currentInstances, (i) => {
                 return i.instanceId === instance.instanceId;
