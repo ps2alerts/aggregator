@@ -23,7 +23,7 @@ export default class PS2AlertsMetagameInstance extends PS2AlertsInstanceAbstract
         state: Ps2alertsEventState,
     ) {
         super(
-            `${world}-${censusInstanceId}`, // lul
+            `${world}-${censusInstanceId}`,
             world,
             timeStarted,
             timeEnded,

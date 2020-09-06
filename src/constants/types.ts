@@ -19,7 +19,6 @@ const TYPES = {
 
     // Instance Models
     instanceMetagameModelFactory: Symbol.for('InstanceMetagameModelFactory'),
-    instanceCustomWorldZoneModelFactory: Symbol.for('InstanceCustomWorldZoneModelFactory'),
 
     // Model Factory Symbols
     instanceDeathModelFactory: Symbol.for('InstanceDeathModelFactory'),
@@ -54,6 +53,9 @@ const TYPES = {
     // Message Queues
     messageQueueSubscribers: Symbol.for('MessageQueueSubscribers'),
     mqAdminMessage: Symbol.for('MQAdminMessage'),
+
+    // Factories
+    instanceActionFactory: Symbol.for('InstanceActionFactory'),
 };
 
 export {TYPES};

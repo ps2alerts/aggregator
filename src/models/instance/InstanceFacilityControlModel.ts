@@ -2,7 +2,7 @@ import {Document, Schema} from 'mongoose';
 import {Faction, factionArray} from '../../constants/faction';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 
-export interface InstanceFacilityControlInterface extends Document {
+export interface InstanceFacilityControlSchemaInterface extends Document {
     instance: PS2AlertsInstanceInterface['instanceId'];
     facility: number;
     timestamp: Date;
@@ -43,6 +43,11 @@ export const instanceFacilityControlSchema: Schema = new Schema({
     isDefence: {
         type: Boolean,
         required: true,
+    },
+    isInitial: {
+        type: Boolean,
+        required: false,
+        default: false,
     },
     outfitCaptured: {
         type: String,
