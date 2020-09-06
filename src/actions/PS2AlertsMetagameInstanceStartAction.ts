@@ -51,6 +51,12 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             mapData[0].Regions.Row.forEach((row: any) => {
+                // Ignore Warpgates
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (row.RowData.map_region.facility_type_id === '7') {
+                    return;
+                }
+
                 docs.push({
                     instance: this.instance.instanceId,
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
