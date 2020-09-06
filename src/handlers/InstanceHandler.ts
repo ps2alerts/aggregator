@@ -102,7 +102,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         const done = false;
 
         // Execute end actions (e.g. calculating territory %)
-        await this.instanceActionFactory.buildStart(instance).execute();
+        await this.instanceActionFactory.buildEnd(instance).execute();
 
         // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
         const timeout = new Promise((resolve, reject) => {
