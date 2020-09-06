@@ -1,10 +1,11 @@
-import {RedisConnection} from '../services/redis/RedisConnection';
 import {inject, injectable} from 'inversify';
-import {rest, Client} from 'ps2census';
-import Character from '../data/Character';
-import {Redis} from 'ioredis';
-import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
 import {getLogger} from '../logger';
+import {RedisConnection} from '../services/redis/RedisConnection';
+import {Client} from 'ps2census';
+import {Redis} from 'ioredis';
+import Character from '../data/Character';
+import {CharacterWorldOutfitResolved} from '../types/CharacterWorldOutfitResolvedType';
+import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 
 @injectable()
@@ -31,7 +32,7 @@ export default class CharacterBroker implements CharacterBrokerInterface {
         // Grab the character data from Census / Cache
         try {
             /* eslint-disable */
-            const censusCharacter: rest.character.typeData = await this.wsClient.characterManager.fetch(characterId);
+            const censusCharacter: CharacterWorldOutfitResolved = await this.wsClient.characterManager.fetch(characterId);
             /* eslint-enable */
 
             // Convert into Character object
