@@ -5,17 +5,17 @@ import RabbitMQ from '../../../config/rabbitmq';
 import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {jsonLogOutput} from '../../../utils/json';
-import {inject} from 'inversify';
 
 export abstract class BaseChannelWrapper {
     private static readonly baseChannelLogger = getLogger('BaseChannelWrapper');
 
     private readonly config: RabbitMQ;
 
-    constructor(@inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ) {
+    constructor(rabbitMQConfig: RabbitMQ) {
         this.config = rabbitMQConfig;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
     protected async setupConnection(queueName: string, callback: any): Promise<ChannelWrapper> {
         let connected = false;
         const vhost = this.config.vhost ? `/${this.config.vhost}` : '';
@@ -93,7 +93,8 @@ export abstract class BaseChannelWrapper {
             throw new ApplicationException(`[${queueName}] Got empty message!`, 'BaseChannelWrapper.parseMessage');
         }
 
-        let data: {type: string, body: string};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let data: {type: string, body: any};
 
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -109,6 +110,8 @@ export abstract class BaseChannelWrapper {
         if (!data.body) {
             throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'BaseChannelWrapper.parseMessage');
         }
+
+        BaseChannelWrapper.baseChannelLogger.info(`[${queueName}] successfully parsed message! ${jsonLogOutput(data)}`);
 
         return new ParsedQueueMessage(data.type, data.body);
     }

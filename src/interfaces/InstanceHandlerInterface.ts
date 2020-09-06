@@ -3,6 +3,8 @@ import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
 
 export default interface InstanceHandlerInterface {
+    getInstance(instanceId: string): PS2AlertsInstanceInterface;
+
     getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[];
 
     getAllInstances(): PS2AlertsInstanceInterface[];

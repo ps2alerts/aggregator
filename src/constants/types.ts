@@ -53,6 +53,7 @@ const TYPES = {
 
     // Message Queues
     messageQueueSubscribers: Symbol.for('MessageQueueSubscribers'),
+    mqAdminMessage: Symbol.for('MQAdminMessage'),
 };
 
 export {TYPES};
