@@ -43,6 +43,7 @@ export default class InstanceActionFactory {
         if (instance instanceof PS2AlertsMetagameInstance) {
             return new PS2AlertsMetagameInstanceEndAction(
                 instance,
+                this.instanceFacilityControlModelFactory,
                 this.instanceMetagameModelFactory,
                 this.censusConfig,
             );
