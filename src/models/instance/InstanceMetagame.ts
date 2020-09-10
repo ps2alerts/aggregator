@@ -4,6 +4,7 @@ import {Zone, zoneArray} from '../../constants/zone';
 import {MetagameEventType, metagameEventTypeArray} from '../../constants/metagameEventType';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import {Ps2alertsEventState, ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
+import {Faction, factionArray} from '../../constants/faction';
 
 export interface InstanceMetagameSchemaInterface extends Document {
     instanceId: PS2AlertsInstanceInterface['instanceId'];
@@ -15,6 +16,7 @@ export interface InstanceMetagameSchemaInterface extends Document {
     censusMetagameEventType: MetagameEventType;
     duration: number;
     state: Ps2alertsEventState;
+    winner: Faction | null;
 }
 
 export const instanceMetagameSchema: Schema = new Schema({
@@ -56,6 +58,11 @@ export const instanceMetagameSchema: Schema = new Schema({
         type: Number,
         enum: ps2alertsEventStateArray,
         required: true,
+    },
+    winner: {
+        type: Number,
+        enum: factionArray,
+        default: null,
     },
 }).index(
     {world: 1, censusInstanceId: 1},
