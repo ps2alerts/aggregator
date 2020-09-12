@@ -19,7 +19,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceFactionCombatAggregate.logger.debug('InstanceFactionCombatAggregate.handle');
+        InstanceFactionCombatAggregate.logger.silly('InstanceFactionCombatAggregate.handle');
 
         const documents = [];
 

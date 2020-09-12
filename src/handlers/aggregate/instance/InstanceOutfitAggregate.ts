@@ -18,7 +18,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceOutfitAggregate.logger.debug('InstanceOutfitAggregate.handle');
+        InstanceOutfitAggregate.logger.silly('InstanceOutfitAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];
