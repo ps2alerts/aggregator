@@ -19,7 +19,7 @@ export default class PS2AlertsMetagameInstance extends PS2AlertsInstanceAbstract
         zone: Zone,
         censusInstanceId: number,
         censusMetagameEventType: MetagameEventType,
-        duration: number,
+        duration: number, // Stored in Milliseconds
         state: Ps2alertsEventState,
     ) {
         super(
@@ -40,7 +40,7 @@ export default class PS2AlertsMetagameInstance extends PS2AlertsInstanceAbstract
     }
 
     public overdue(): boolean {
-        // If now in milliseconds is greater th an start time + duration
+        // If now in milliseconds is greater than start time + duration
         return Date.now() > (this.timeStarted.getTime() + this.duration);
     }
 }

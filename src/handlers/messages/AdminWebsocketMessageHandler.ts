@@ -60,7 +60,7 @@ export default class AdminWebsocketMessageHandler implements MessageQueueHandler
             adminWebsocketInstanceStart.zone,
             adminWebsocketInstanceStart.instanceId,
             censusEventId,
-            metagameDetails.duration,
+            adminWebsocketInstanceStart.duration,
             Ps2alertsEventState.STARTED,
         );
 
