@@ -10,7 +10,7 @@ export default class ContinentUnlockHandler implements EventHandlerInterface<Con
     private static readonly logger = getLogger('ContinentUnlockHandler');
 
     public async handle(event: ContinentUnlockEvent): Promise<boolean>{
-        ContinentUnlockHandler.logger.debug('Parsing message...');
+        ContinentUnlockHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             ContinentUnlockHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

@@ -18,7 +18,7 @@ export default class PlayerFacilityCaptureHandler implements EventHandlerInterfa
     }
 
     public async handle(event: PlayerFacilityCaptureEvent): Promise<boolean>{
-        PlayerFacilityCaptureHandler.logger.debug('Parsing message...');
+        PlayerFacilityCaptureHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             PlayerFacilityCaptureHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

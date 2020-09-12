@@ -18,7 +18,7 @@ export default class BattleRankUpHandler implements EventHandlerInterface<Battle
     }
 
     public async handle(event: BattleRankUpEvent): Promise<boolean> {
-        BattleRankUpHandler.logger.debug('Parsing message...');
+        BattleRankUpHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             BattleRankUpHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

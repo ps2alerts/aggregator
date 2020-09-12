@@ -9,6 +9,7 @@ import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import {InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
+import FactionUtils from '../../utils/FactionUtils';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
@@ -33,11 +34,13 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean>{
-        FacilityControlEventHandler.logger.debug('Parsing message...');
+        FacilityControlEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
+
+        FacilityControlEventHandler.logger.info(`[Instance ${event.instance.instanceId}] Facility ${event.facility} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
 
         try {
             await this.storeEvent(event);
