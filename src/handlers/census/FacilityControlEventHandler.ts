@@ -40,7 +40,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
-        FacilityControlEventHandler.logger.debug(`Facility ${event.facility} was ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} - Instance ${event.instance.instanceId}`);
+        FacilityControlEventHandler.logger.info(`[Instance ${event.instance.instanceId}] Facility ${event.facility} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
 
         try {
             await this.storeEvent(event);
