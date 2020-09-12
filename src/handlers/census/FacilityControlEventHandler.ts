@@ -9,6 +9,7 @@ import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import {InstanceFacilityControlInterface} from '../../models/instance/InstanceFacilityControlModel';
+import FactionUtils from '../../utils/FactionUtils';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
@@ -38,6 +39,8 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
+
+        FacilityControlEventHandler.logger.debug(`Facility ${event.facility} was ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} - Instance ${event.instance.instanceId}`);
 
         try {
             await this.storeEvent(event);
