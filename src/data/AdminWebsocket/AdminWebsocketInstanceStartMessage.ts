@@ -17,6 +17,7 @@ export default class AdminWebsocketInstanceStartMessage {
     public readonly faction: Faction;
     public readonly meltdown: boolean;
     public readonly start: Date;
+    public readonly duration: number;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(body: Record<string, any>) {
@@ -58,6 +59,13 @@ export default class AdminWebsocketInstanceStartMessage {
 
         if (!body.start) {
             throw new ApplicationException('Failed to parse AdminWebsocketInstanceStartMessage missing field start', 'AdminWebsocketInstanceStartMessage');
+        }
+
+        this.duration = (60 * 90) * 1000;
+
+        // We expect this in seconds, we convert this to milliseconds
+        if (typeof body.duration !== 'undefined') {
+            this.duration = parseInt(body.duration, 10) * 1000;
         }
 
         this.start = new Date(body.start);
