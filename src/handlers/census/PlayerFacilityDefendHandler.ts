@@ -18,7 +18,7 @@ export default class PlayerFacilityDefendHandler implements EventHandlerInterfac
     }
 
     public async handle(event: PlayerFacilityDefendEvent): Promise<boolean>{
-        PlayerFacilityDefendHandler.logger.debug('Parsing message...');
+        PlayerFacilityDefendHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             PlayerFacilityDefendHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

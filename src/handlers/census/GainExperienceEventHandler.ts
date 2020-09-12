@@ -18,7 +18,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
     }
 
     public async handle(event: GainExperienceEvent): Promise<boolean>{
-        GainExperienceEventHandler.logger.debug('Parsing message...');
+        GainExperienceEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             GainExperienceEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

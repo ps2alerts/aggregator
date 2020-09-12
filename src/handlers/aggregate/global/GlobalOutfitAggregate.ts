@@ -18,7 +18,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalOutfitAggregate.logger.debug('GlobalOutfitAggregate.handle');
+        GlobalOutfitAggregate.logger.silly('GlobalOutfitAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];

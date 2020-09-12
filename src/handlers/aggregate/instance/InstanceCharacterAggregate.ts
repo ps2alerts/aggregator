@@ -18,7 +18,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceCharacterAggregate.logger.debug('InstanceCharacterAggregate.handle');
+        InstanceCharacterAggregate.logger.silly('InstanceCharacterAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];

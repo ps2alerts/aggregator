@@ -33,7 +33,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean>{
-        FacilityControlEventHandler.logger.debug('Parsing message...');
+        FacilityControlEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

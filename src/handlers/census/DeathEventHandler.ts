@@ -45,7 +45,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
             return false;
         }
 
-        DeathEventHandler.logger.debug('=== Processing DeathEvent Handlers ===');
+        DeathEventHandler.logger.silly('=== Processing DeathEvent Handlers ===');
 
         this.aggregateHandlers.map(
             (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event)
@@ -58,7 +58,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                 }),
         );
 
-        DeathEventHandler.logger.debug('=== DeathEvent Handlers Processed! ===');
+        DeathEventHandler.logger.silly('=== DeathEvent Handlers Processed! ===');
 
         return true;
     }

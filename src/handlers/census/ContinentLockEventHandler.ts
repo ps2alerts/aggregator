@@ -10,7 +10,7 @@ export default class ContinentLockEventHandler implements EventHandlerInterface<
     private static readonly logger = getLogger('ContinentLockEventHandler');
 
     public async handle(event: ContinentLockEvent): Promise<boolean> {
-        ContinentLockEventHandler.logger.debug('Parsing message...');
+        ContinentLockEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             ContinentLockEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

@@ -18,7 +18,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalWeaponAggregate.logger.debug('GlobalWeaponAggregate.handle');
+        GlobalWeaponAggregate.logger.silly('GlobalWeaponAggregate.handle');
 
         const documents = [];
 

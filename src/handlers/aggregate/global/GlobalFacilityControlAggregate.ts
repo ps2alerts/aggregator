@@ -18,7 +18,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        GlobalFacilityControlAggregate.logger.debug('GlobalFacilityControlAggregate.handle');
+        GlobalFacilityControlAggregate.logger.silly('GlobalFacilityControlAggregate.handle');
 
         const documents = [];
 

@@ -31,7 +31,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
     public async update(character: Character, zone: number|null = null): Promise<boolean> {
         // Handle Sanctuary / unrecognised zones here
         if (zone && !Object.values(Zone).includes(zone)) {
-            CharacterPresenceHandler.logger.debug(`Discarding CharacterPresence update, unrecognized zone: ${zone}`);
+            CharacterPresenceHandler.logger.silly(`Discarding CharacterPresence update, unrecognized zone: ${zone}`);
             return true;
         }
 
