@@ -55,7 +55,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
     public async collate(): Promise<Map<string, PopulationData>> {
         const populationData: Map<string, PopulationData> = new Map<string, PopulationData>();
 
-        // Scan through each world, each zone, each faction and get the count from the list, then flush Redis sets.
+        // Scan through each world, each zone, each faction and get the count from the set.
         for (const world of worldArray) {
             for (const zone of zoneArray) {
                 let total = 0;
@@ -64,8 +64,8 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                 for (const faction of factionArray) {
                     const chars = await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
 
-                    // For each character, loop through and check if they still exist in Redis, which is based off a timer.
-                    // If they don't, we're regarding them as inactive so we'll delete them out of the set.
+                    // For each character, loop through and check if they still exist in Redis, which is based off an expiry.
+                    // If they don't, they're inactive, so we'll delete them out of the set.
                     // eslint-disable-next-line @typescript-eslint/no-for-in-array
                     for (const char in chars) {
                         const exists = await this.cache.exists(`CharacterPresence-${chars[char]}`);
