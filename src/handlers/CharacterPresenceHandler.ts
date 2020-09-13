@@ -116,14 +116,10 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             }
         }
 
-        CharacterPresenceHandler.logger.debug('==== Population Metrics ====');
-
         if (CharacterPresenceHandler.logger.isDebugEnabled()) {
             // eslint-disable-next-line no-console
             console.log(populationData);
         }
-
-        CharacterPresenceHandler.logger.debug('==== End Population Metrics ====');
 
         return populationData;
     }
