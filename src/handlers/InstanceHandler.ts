@@ -102,24 +102,23 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
         const done = false;
 
-        // Execute end actions (e.g. calculating territory %)
-        await this.instanceActionFactory.buildEnd(instance).execute();
-
-        // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
-        const timeout = new Promise((resolve, reject) => {
-            const id = setTimeout(() => {
-                clearTimeout(id);
-
-                if (!done) {
-                    reject(new Error('Instance end timeout!'));
-                } else {
-                    resolve();
-                }
-            }, 5000);
-        });
-
         // Find Instance and update
         try {
+            await this.instanceActionFactory.buildEnd(instance).execute();
+
+            // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
+            const timeout = new Promise((resolve, reject) => {
+                const id = setTimeout(() => {
+                    clearTimeout(id);
+
+                    if (!done) {
+                        reject(new Error('Instance end timeout!'));
+                    } else {
+                        resolve();
+                    }
+                }, 5000);
+            });
+
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const promise = this.instanceMetagameModelFactory.model.updateOne(
                 {instanceId: instance.instanceId},
@@ -146,7 +145,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to end instance "${instance.instanceId}"! ${err}`, 'InstanceHandler');
+            throw new ApplicationException(`Unable to end instance "${instance.instanceId}" correctly! ${err}`, 'InstanceHandler');
         }
     }
 

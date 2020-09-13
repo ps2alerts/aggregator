@@ -137,7 +137,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 });
             }).catch((e) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                CensusEventSubscriberService.logger.error(`Unable to process Death event - error ${e.message}`);
+                CensusEventSubscriberService.logger.error(`Unable to process Death event! ${e.message}`);
             });
         });
 
