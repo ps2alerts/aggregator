@@ -9,6 +9,7 @@ import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
 import {TYPES} from '../../../constants/types';
 import {MessageQueueHandlerInterface} from '../../../interfaces/MessageQueueHandlerInterface';
 import RabbitMQ from '../../../config/rabbitmq';
+import {get} from '../../../utils/env';
 
 @injectable()
 export default class AdminWebsocketWrapper extends BaseChannelWrapper implements MessageQueueChannelWrapperInterface {
@@ -16,8 +17,7 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
 
     private static channelWrapper: ChannelWrapper;
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    private static readonly queueName: string = 'adminWebsocket';
+    private static queueName = '';
 
     private static mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
 
@@ -26,6 +26,7 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
         @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,
     ) {
         super(rabbitMQConfig);
+        AdminWebsocketWrapper.queueName = `adminWebsocket-${get('NODE_ENV', 'development')}`;
         AdminWebsocketWrapper.mqAdminMessageSubscribers = mqAdminMessageSubscribers;
     }
 

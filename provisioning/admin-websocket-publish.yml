@@ -3,7 +3,10 @@
 
 - hosts: localhost
   vars:
-    queue_name: "adminWebsocket"
+    queue_name: "adminWebsocket-development"
+    environment: ""
+    hostname: "localhost"
+    password: "bitnami"
     world: ""
     zone: ""
     valid_worlds: ["1", "10", "13", "17", "19", "40", "1000", "2000"]
@@ -44,6 +47,10 @@
       prompt: "[instanceEnd] Specify PS2Alerts Instance ID to end"
       private: no
 
+    - name: environment
+      prompt: "Select environment to send message to [dev, staging, production]"
+      private: no
+      default: "dev"
   tasks:
     - name: Ensure world is valid if instanceStart type
       fail:
@@ -91,6 +98,13 @@
             foo: "bar"
       when: type == "activeInstances"
 
+    - name: Set hostname if staging or production, set correct hostname and password
+      set_fact:
+        hostname: "localhost"
+        password: "rabbit_admin_password"
+        queue_name: "adminWebsocket-{{ environment }}"
+      when: environment == "staging" or environment == "production"
+
     - debug:
         msg: "{{ message }}"
 
@@ -99,9 +113,9 @@
         queue: "{{ queue_name }}"
         body: "{{ message | to_json }}"
         proto: amqp
-        host: localhost
+        host: "{{ hostname }}"
         port: 5672
         username: user
-        password: bitnami
+        password: "{{ password }}"
         vhost: "%2F"
         durable: true
