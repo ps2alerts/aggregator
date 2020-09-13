@@ -147,7 +147,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             );
 
             instances.forEach((instance) => {
-                CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
+                CensusEventSubscriberService.logger.silly('Passing FacilityControl to listener');
                 const facilityControl = new FacilityControlEvent(
                     event,
                     instance,

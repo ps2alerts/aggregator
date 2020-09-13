@@ -1,190 +1,143 @@
 import {inject, injectable} from 'inversify';
-import {Zone} from '../constants/zone';
-import CharacterPresenceData from '../data/CharacterPresenceData';
+import {Zone, zoneArray} from '../constants/zone';
 import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
-import {Faction} from '../constants/faction';
-import MongooseModelFactory from '../factories/MongooseModelFactory';
-import {CharacterPresenceSchemaInterface} from '../models/CharacterPresenceModel';
-import {TYPES} from '../constants/types';
-import ApplicationException from '../exceptions/ApplicationException';
+import {Faction, factionArray} from '../constants/faction';
 import Character from '../data/Character';
+import {RedisConnection} from '../services/redis/RedisConnection';
+import {Redis} from 'ioredis';
+import {World, worldArray} from '../constants/world';
+import FactionUtils from '../utils/FactionUtils';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
     private static readonly logger = getLogger('CharacterPresenceHandler');
+    private readonly cache: Redis;
 
-    private readonly characters: Map<string, CharacterPresenceData> = new Map<string, CharacterPresenceData>();
-
-    private readonly factory: MongooseModelFactory<CharacterPresenceSchemaInterface>;
-
-    private readonly initialized = false;
-
-    private flushTimer: NodeJS.Timeout|null = null;
-
-    constructor(@inject(TYPES.characterPresenceFactory) factory: MongooseModelFactory<CharacterPresenceSchemaInterface>) {
-        this.factory = factory;
+    constructor(
+    @inject(RedisConnection) cacheClient: RedisConnection,
+    ) {
+        this.cache = cacheClient.getClient();
     }
 
-    public async update(character: Character, zone: number|null = null): Promise<boolean> {
+    // Updates / adds characters presence, setting a Redis key with expiry.
+    public async update(character: Character, zone: number): Promise<boolean> {
         // Handle Sanctuary / unrecognised zones here
-        if (zone && !Object.values(Zone).includes(zone)) {
+        if (!Object.values(Zone).includes(zone)) {
             CharacterPresenceHandler.logger.silly(`Discarding CharacterPresence update, unrecognized zone: ${zone}`);
             return true;
         }
 
-        const characterData = new CharacterPresenceData(
-            character.id,
-            character.world,
-            zone,
-            character.faction,
-            new Date(),
-        );
+        // Add character to overall Redis collection to control expiry.
+        await this.cache.setex(`CharacterPresence-${character.id}`, 60 * 5, 'foo');
 
-        this.characters.set(character.id, characterData);
-
-        await this.factory.model.updateOne({
-            character: characterData.character,
-        }, {
-            zone: characterData.zone,
-            lastSeen: characterData.lastSeen,
-            $setOnInsert: {
-                world: characterData.world,
-                faction: characterData.faction,
-            },
-        }, {
-            upsert: true,
-        });
+        // Add character to Redis set based on World, Zone and Faction.
+        await this.cache.sadd(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
 
         return true;
     }
 
-    public async delete(characterId: string): Promise<boolean> {
-        if (this.characters.has(characterId)) {
-            this.characters.delete(characterId);
+    // Deletes characters out of Redis and the Redis Set.
+    public async delete(character: Character): Promise<boolean> {
+        // Delete character out of Redis
+        await this.cache.del(`CharacterPresence-${character.id}`);
 
-            try {
-                await this.factory.model.deleteOne({
-                    characterId,
-                });
-                CharacterPresenceHandler.logger.silly(`Deleted CharacterPresenceHandler record for Char ${characterId}`);
-            } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Error creating CharacterPresenceHandler record for Char: ${characterId} - E: ${err}`, 'CharacterPresenceHandler');
-            }
-
-            return true;
+        // If the character is a member of any Redis sets, remove them from the sets.
+        for (const zone of zoneArray) {
+            await this.cache.srem(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
         }
 
-        CharacterPresenceHandler.logger.silly(`Attempted to delete non-existent CharacterPresenceHandler record for Char: ${characterId} - potentially missing PlayerLogin event`, 'CharacterPresenceHandler');
+        CharacterPresenceHandler.logger.silly(`Deleted CharacterPresence cache entry for char ${character.id}`, 'CharacterPresenceHandler');
 
-        return false;
+        return true;
     }
 
-    // Calculate the current characters, their worlds / zones and return that back as a series of objects separated by world and zone
-    public collate(): Map<string, PopulationData> {
+    // Calculate the current characters, their worlds / zones and return that back as a series of objects separated by world and zone.
+    public async collate(): Promise<Map<string, PopulationData>> {
         const populationData: Map<string, PopulationData> = new Map<string, PopulationData>();
 
-        for (const characterData of this.characters.values()) {
-            if (!characterData.zone) {
-                CharacterPresenceHandler.logger.silly(
-                    `Character has no zone! Char: ${characterData.character} World: ${characterData.world}`,
-                );
-                continue;
+        // Scan through each world, each zone and each faction to get the count from the set.
+        for (const world of worldArray) {
+            for (const zone of zoneArray) {
+                let total = 0;
+                const mapKey = `${world}-${zone}`;
+
+                for (const faction of factionArray) {
+                    const chars = await this.getCharacterList(world, zone, faction);
+
+                    // If there are no characters, don't bother.
+                    if (chars.length === 0) {
+                        continue;
+                    }
+
+                    total += chars.length;
+
+                    // If this is the first run for the world / zone, make a empty PopulationData entry.
+                    if (!populationData.has(mapKey)) {
+                        populationData.set(mapKey, new PopulationData(
+                            world,
+                            zone,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                        ));
+                    }
+
+                    const map = populationData.get(mapKey);
+
+                    if (map) {
+                        const factionShortKey = FactionUtils.parseFactionIdToShortName(faction);
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        map[factionShortKey] = chars.length;
+                        populationData.set(mapKey, map);
+                    }
+                }
+
+                // Update totals
+                const map = populationData.get(mapKey);
+
+                if (map) {
+                    map.total = total;
+                    populationData.set(mapKey, map);
+                }
             }
-
-            const mapKey = `${characterData.world}-${characterData.zone}`;
-
-            if (!populationData.has(mapKey)) {
-                populationData.set(mapKey, new PopulationData(
-                    characterData.world,
-                    characterData.zone,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                ));
-            }
-
-            const entry = populationData.get(mapKey);
-
-            if (!entry) {
-                CharacterPresenceHandler.logger.error('Unable to get population data of just freshly created / existing entry!');
-                continue;
-            }
-
-            // Perform calculations & increases here
-            populationData.set(mapKey, new PopulationData(
-                entry.world,
-                entry.zone,
-                characterData.faction === Faction.VANU_SOVEREIGNTY ? entry.vs + 1 : entry.vs,
-                characterData.faction === Faction.NEW_CONGLOMERATE ? entry.nc + 1 : entry.nc,
-                characterData.faction === Faction.TERRAN_REPUBLIC ? entry.tr + 1 : entry.tr,
-                characterData.faction === Faction.NS_OPERATIVES ? entry.nso + 1 : entry.nso,
-                entry.total + 1,
-            ));
         }
 
-        CharacterPresenceHandler.logger.debug('==== Population Metrics ====');
-
         if (CharacterPresenceHandler.logger.isDebugEnabled()) {
+            // Using console here rather than the normal logger - it wasn't spitting out stuff the way I wanted. This is only for debug anyway so it won't show up in prod logs.
             // eslint-disable-next-line no-console
             console.log(populationData);
         }
 
-        CharacterPresenceHandler.logger.debug('==== End Population Metrics ====');
-
         return populationData;
     }
 
-    public async init(): Promise<void> {
-        CharacterPresenceHandler.logger.debug('Initializing CharacterPresenceHandler...');
+    private async getCharacterList(world: World, zone: Zone, faction: Faction): Promise<string[]> {
+        let changes = false;
+        const chars = await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
 
-        if (this.initialized) {
-            throw new ApplicationException('CharacterPresenceHandler was called to be initialized more than once!', 'CharacterPresenceHandler');
-        }
+        // For each character, loop through and check if they still exist in Redis, which is based off an expiry.
+        // If they don't, they're inactive, so we'll delete them out of the set.
+        // eslint-disable-next-line @typescript-eslint/no-for-in-array
+        for (const char in chars) {
+            const exists = await this.cache.exists(`CharacterPresence-${chars[char]}`);
 
-        let rows: CharacterPresenceSchemaInterface[] = [];
-
-        try {
-            rows = await this.factory.model.find().exec();
-        } catch (err) {
-            throw new ApplicationException('Unable to retrieve CharacterPresenceHandler records!', 'CharacterPresenceHandler');
-        }
-
-        if (!rows.length) {
-            CharacterPresenceHandler.logger.warn('No CharacterPresenceHandler records found! This could be entirely normal however.');
-        } else {
-            rows.forEach((row) => {
-                const characterData = new CharacterPresenceData(
-                    row.character,
-                    row.world,
-                    row.zone,
-                    row.faction,
-                    row.lastSeen,
-                );
-                this.characters.set(row.character, characterData);
-            });
-        }
-
-        // Start timer to scan the data and flush old records
-        this.flushTimer = setInterval(() => {
-            CharacterPresenceHandler.logger.debug('Running CharacterPresenceHandler flushTimer');
-            const threshold = 5 * 60 * 1000; // 5 mins
-            const now = new Date().getTime();
-            const deadline = now - threshold;
-
-            for (const characterData of this.characters.values()) {
-
-                if (characterData.lastSeen.getTime() < deadline) {
-                    CharacterPresenceHandler.logger.silly(`Deleting CharacterPresence record for char: ${characterData.character} due to inactivity`);
-                    void this.delete(characterData.character);
-                }
+            if (!exists) {
+                CharacterPresenceHandler.logger.silly(`Removing stale char ${chars[char]} from set CharacterPresencePops-${world}-${zone}-${faction}`);
+                await this.cache.srem(`CharacterPresencePops-${world}-${zone}-${faction}`, chars[char]);
+                changes = true;
             }
-        }, 60000);
+        }
 
-        CharacterPresenceHandler.logger.debug(`${rows.length} records loaded from CharacterPresence collection.`);
+        // Since the above list has been changed, we'll return the characters again.
+        if (changes) {
+            return await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
+        }
+
+        return chars;
     }
 }
