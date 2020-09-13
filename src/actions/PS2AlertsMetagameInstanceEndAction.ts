@@ -32,13 +32,18 @@ export default class PS2AlertsMetagameInstanceEndAction implements ActionInterfa
     public async execute(): Promise<boolean> {
         PS2AlertsMetagameInstanceEndAction.logger.info(`Running endActions() for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
 
-        // Update database record with the winner of the Metagame (currently territory)
-        await this.instanceMetagameFactory.model.updateOne(
-            {instanceId: this.instance.instanceId},
-            {winner: await this.calculateWinner()}, // 0 = Draw
-        ).catch((err: Error) => {
-            throw new ApplicationException(`Unable to set winner for instance ${this.instance.instanceId}! Err: ${err.message}`);
-        });
+        try {
+            // Update database record with the winner of the Metagame (currently territory)
+            await this.instanceMetagameFactory.model.updateOne(
+                {instanceId: this.instance.instanceId},
+                {winner: await this.calculateWinner()}, // 0 = Draw
+            ).catch((err: Error) => {
+                throw new ApplicationException(`Unable to set winner for instance ${this.instance.instanceId}! Err: ${err.message}`);
+            });
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            PS2AlertsMetagameInstanceEndAction.logger.error(`Unable to process endActionfor instance ${this.instance.instanceId}! Err: ${err.message}`);
+        }
 
         return true;
     }
