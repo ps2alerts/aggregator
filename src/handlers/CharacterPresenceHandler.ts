@@ -21,6 +21,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         this.cache = cacheClient.getClient();
     }
 
+    // Updates / adds characters presence, setting a Redis key with expiry.
     public async update(character: Character, zone: number): Promise<boolean> {
         // Handle Sanctuary / unrecognised zones here
         if (!Object.values(Zone).includes(zone)) {
@@ -28,34 +29,35 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             return true;
         }
 
-        // Add character to overall redis collection to control expiry
+        // Add character to overall Redis collection to control expiry.
         await this.cache.setex(`CharacterPresence-${character.id}`, 60 * 5, 'foo');
 
-        // Add character to Redis set based on World, Zone and Faction
+        // Add character to Redis set based on World, Zone and Faction.
         await this.cache.sadd(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
 
         return true;
     }
 
+    // Deletes characters out of Redis and the Redis Set.
     public async delete(character: Character): Promise<boolean> {
         // Delete character out of Redis
         await this.cache.del(`CharacterPresence-${character.id}`);
 
-        // If the character is a member of any sets, scan the world zones and remove them
+        // If the character is a member of any Redis sets, remove them from the sets.
         for (const zone of zoneArray) {
             await this.cache.srem(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
         }
 
-        CharacterPresenceHandler.logger.silly(`Forcefully deleted CharacterPresence cache entry for char ${character.id}`, 'CharacterPresenceHandler');
+        CharacterPresenceHandler.logger.silly(`Deleted CharacterPresence cache entry for char ${character.id}`, 'CharacterPresenceHandler');
 
         return true;
     }
 
-    // Calculate the current characters, their worlds / zones and return that back as a series of objects separated by world and zone
+    // Calculate the current characters, their worlds / zones and return that back as a series of objects separated by world and zone.
     public async collate(): Promise<Map<string, PopulationData>> {
         const populationData: Map<string, PopulationData> = new Map<string, PopulationData>();
 
-        // Scan through each world, each zone, each faction and get the count from the set.
+        // Scan through each world, each zone and each faction to get the count from the set.
         for (const world of worldArray) {
             for (const zone of zoneArray) {
                 let total = 0;
@@ -76,13 +78,14 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                         }
                     }
 
-                    // If there are no characters, don't bother
+                    // If there are no characters, don't bother.
                     if (chars.length === 0) {
                         continue;
                     }
 
                     total += chars.length;
 
+                    // If this is the first run for the world / zone, make a empty PopulationData entry.
                     if (!populationData.has(mapKey)) {
                         populationData.set(mapKey, new PopulationData(
                             world,
@@ -117,6 +120,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         }
 
         if (CharacterPresenceHandler.logger.isDebugEnabled()) {
+            // Using console here rather than the normal logger - it wasn't spitting out stuff the way I wanted. This is only for debug anyway so it won't show up in prod logs.
             // eslint-disable-next-line no-console
             console.log(populationData);
         }
