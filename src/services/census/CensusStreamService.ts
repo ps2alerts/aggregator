@@ -73,10 +73,7 @@ export default class CensusStreamService implements ServiceInterface {
         CensusStreamService.logger.debug('Terminating Census Stream Service!');
 
         try {
-            if (this.messageTimer) {
-                clearInterval(this.messageTimer);
-            }
-
+            this.stopMessageTimer();
             this.wsClient.destroy();
         } catch {
             // Fucked
@@ -96,7 +93,6 @@ export default class CensusStreamService implements ServiceInterface {
 
         this.wsClient.on('disconnected', () => {
             this.stopMessageTimer();
-
             this.overdueInstanceAuthority.stop();
             this.populationAuthority.stop();
 
