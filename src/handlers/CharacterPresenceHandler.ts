@@ -3,11 +3,11 @@ import {Zone, zoneArray} from '../constants/zone';
 import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
-import {factionArray} from '../constants/faction';
+import {Faction, factionArray} from '../constants/faction';
 import Character from '../data/Character';
 import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis} from 'ioredis';
-import {worldArray} from '../constants/world';
+import {World, worldArray} from '../constants/world';
 import FactionUtils from '../utils/FactionUtils';
 
 @injectable()
@@ -64,19 +64,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
                 const mapKey = `${world}-${zone}`;
 
                 for (const faction of factionArray) {
-                    const chars = await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
-
-                    // For each character, loop through and check if they still exist in Redis, which is based off an expiry.
-                    // If they don't, they're inactive, so we'll delete them out of the set.
-                    // eslint-disable-next-line @typescript-eslint/no-for-in-array
-                    for (const char in chars) {
-                        const exists = await this.cache.exists(`CharacterPresence-${chars[char]}`);
-
-                        if (!exists) {
-                            CharacterPresenceHandler.logger.silly(`Removing stale char ${chars[char]} from set CharacterPresencePops-${world}-${zone}-${faction}`);
-                            await this.cache.srem(`CharacterPresencePops-${world}-${zone}-${faction}`, chars[char]);
-                        }
-                    }
+                    const chars = await this.getCharacterList(world, zone, faction);
 
                     // If there are no characters, don't bother.
                     if (chars.length === 0) {
@@ -126,5 +114,30 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         }
 
         return populationData;
+    }
+
+    private async getCharacterList(world: World, zone: Zone, faction: Faction): Promise<string[]> {
+        let changes = false;
+        const chars = await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
+
+        // For each character, loop through and check if they still exist in Redis, which is based off an expiry.
+        // If they don't, they're inactive, so we'll delete them out of the set.
+        // eslint-disable-next-line @typescript-eslint/no-for-in-array
+        for (const char in chars) {
+            const exists = await this.cache.exists(`CharacterPresence-${chars[char]}`);
+
+            if (!exists) {
+                CharacterPresenceHandler.logger.silly(`Removing stale char ${chars[char]} from set CharacterPresencePops-${world}-${zone}-${faction}`);
+                await this.cache.srem(`CharacterPresencePops-${world}-${zone}-${faction}`, chars[char]);
+                changes = true;
+            }
+        }
+
+        // Since the above list has been changed, we'll return the new characters again.
+        if (changes) {
+            return await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
+        }
+
+        return chars;
     }
 }
