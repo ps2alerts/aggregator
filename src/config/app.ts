@@ -15,6 +15,7 @@ export default class App {
             require('../authorities').default,
             require('../handlers').default,
             require('../handlers/aggregate').default,
+            require('../factories').default,
             require('../services/census').default,
             require('../services/mongo').default,
             require('../services/subscribers').default,

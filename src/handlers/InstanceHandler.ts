@@ -9,29 +9,25 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
 import {Zone} from '../constants/zone';
 import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetagame';
-import {InstanceCustomWorldZoneSchemaInterface} from '../models/instance/InstanceCustomWorldZone';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
+import InstanceActionFactory from '../factories/InstanceActionFactory';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
     private static readonly logger = getLogger('InstanceHandler');
-
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
-
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
-
-    private readonly instanceCustomWorldZoneInstanceModelFactory: MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>;
-
+    private readonly instanceActionFactory: InstanceActionFactory;
     private initialized = false;
 
     constructor(
     @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>,
-        @inject(TYPES.instanceCustomWorldZoneModelFactory) instanceCustomWorldZoneInstanceModelFactory: MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>,
+        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
     ) {
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
-        this.instanceCustomWorldZoneInstanceModelFactory = instanceCustomWorldZoneInstanceModelFactory;
+        this.instanceActionFactory = instanceActionFactory;
     }
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface {
@@ -76,10 +72,19 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     censusMetagameEventType: instance.censusMetagameEventType,
                     duration: instance.duration,
                     state: instance.state,
+                    winner: null,
                 });
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
+
+                // Execute start actions
+                await this.instanceActionFactory.buildStart(instance).execute();
+
+                // Add instance to the in-memory data so it can be called upon rapidly without polling DB
                 this.currentInstances.push(instance);
+
+                // Show currently running alerts in console / log
                 this.printActives();
+
                 return true;
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -96,6 +101,9 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         InstanceHandler.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
 
         const done = false;
+
+        // Execute end actions (e.g. calculating territory %)
+        await this.instanceActionFactory.buildEnd(instance).execute();
 
         // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
         const timeout = new Promise((resolve, reject) => {
