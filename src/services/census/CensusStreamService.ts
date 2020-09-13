@@ -152,7 +152,7 @@ export default class CensusStreamService implements ServiceInterface {
         }
 
         this.messageTimer = setInterval(() => {
-            CensusStreamService.logger.debug('Census message timeout check running...');
+            CensusStreamService.logger.silly('Census message timeout check running...');
 
             this.lastMessagesMap.forEach((lastTime: number, world: World) => {
                 const thresholdLimit = 120000;
