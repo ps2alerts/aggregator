@@ -38,7 +38,7 @@ export default class Logger {
             name: 'discord',
             options: {
                 webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
-                level: 'info',
+                level: 'error',
             },
             filter: [],
         },
