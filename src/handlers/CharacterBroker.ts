@@ -31,7 +31,7 @@ export default class CharacterBroker implements CharacterBrokerInterface {
             return new Character(censusCharacter);
         } catch (e) {
             await this.wsClient.characterManager.cache.forget(characterId);
-            CharacterBroker.logger.warn(`Forgot cache entry for ${characterId}`);
+            CharacterBroker.logger.silly(`Forgot cache entry for ${characterId}`);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to properly grab character ${characterId} from Census. Error: ${e.message}`, 'CharacterBroker');
         }
