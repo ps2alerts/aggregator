@@ -89,17 +89,13 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('reconnecting', () => {
-            if (this.messageTimer) {
-                clearInterval(this.messageTimer);
-            }
+            this.stopMessageTimer();
 
             CensusStreamService.logger.warn('Census stream connection lost... reconnecting...');
         });
 
         this.wsClient.on('disconnected', () => {
-            if (this.messageTimer) {
-                clearInterval(this.messageTimer);
-            }
+            this.stopMessageTimer();
 
             this.overdueInstanceAuthority.stop();
             this.populationAuthority.stop();
@@ -154,6 +150,11 @@ export default class CensusStreamService implements ServiceInterface {
     private startMessageTimer(): void {
         CensusStreamService.logger.info('Census message timer started');
 
+        if (this.messageTimer) {
+            CensusStreamService.logger.warn('Census message timeout check already defined!');
+            this.stopMessageTimer();
+        }
+
         this.messageTimer = setInterval(() => {
             CensusStreamService.logger.debug('Census message timeout check running...');
 
@@ -167,5 +168,12 @@ export default class CensusStreamService implements ServiceInterface {
                 }
             });
         }, 15000);
+    }
+
+    private stopMessageTimer(): void {
+        if (this.messageTimer) {
+            CensusStreamService.logger.info('Census message timer cleared!');
+            clearInterval(this.messageTimer);
+        }
     }
 }
