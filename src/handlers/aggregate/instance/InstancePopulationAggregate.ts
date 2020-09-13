@@ -29,7 +29,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
     }
 
     public async handle(event: PopulationData): Promise<boolean> {
-        InstancePopulationAggregate.logger.debug('InstancePopulationAggregate.handle');
+        InstancePopulationAggregate.logger.silly('InstancePopulationAggregate.handle');
 
         // Figure out running instances and generate new InstancePopulationData object
         const activeInstances = this.instanceHandler.getAllInstances().filter((instance) => {

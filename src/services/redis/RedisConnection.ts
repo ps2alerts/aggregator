@@ -7,11 +7,8 @@ import Redis, {Redis as RedisInterface} from 'ioredis';
 @injectable()
 export class RedisConnection {
     public client: RedisInterface;
-
     private static readonly logger = getLogger('RedisConnection');
-
     private readonly config: RedisConfig;
-
     private initialized = false;
 
     constructor(@inject('redisConfig') redisConfig: RedisConfig) {
@@ -19,7 +16,6 @@ export class RedisConnection {
     }
 
     public getClient(): RedisInterface{
-
         if (this.initialized) {
             return this.client;
         }

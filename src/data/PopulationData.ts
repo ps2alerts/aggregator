@@ -4,11 +4,11 @@ import {Zone} from '../constants/zone';
 export default class PopulationData {
     public readonly world: World;
     public readonly zone: Zone;
-    public readonly vs: number;
-    public readonly nc: number;
-    public readonly tr: number;
-    public readonly nso: number;
-    public readonly total: number;
+    public vs: number;
+    public nc: number;
+    public tr: number;
+    public nso: number;
+    public total: number;
 
     constructor(
         world: World,

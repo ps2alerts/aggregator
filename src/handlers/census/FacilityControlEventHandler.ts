@@ -8,7 +8,8 @@ import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import {InstanceFacilityControlInterface} from '../../models/instance/InstanceFacilityControlModel';
+import {InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
+import FactionUtils from '../../utils/FactionUtils';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
@@ -16,14 +17,14 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     private readonly playerHandler: CharacterPresenceHandlerInterface;
 
-    private readonly factory: MongooseModelFactory<InstanceFacilityControlInterface>;
+    private readonly factory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
 
     /* eslint-disable */
     private aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[];
 
     constructor(
         @inject(TYPES.characterPresenceHandlerInterface) playerHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlInterface>,
+        @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[]
     ) {
         /* eslint-enable */
@@ -33,11 +34,13 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean>{
-        FacilityControlEventHandler.logger.debug('Parsing message...');
+        FacilityControlEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
+
+        FacilityControlEventHandler.logger.info(`[Instance ${event.instance.instanceId}] Facility ${event.facility} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
 
         try {
             await this.storeEvent(event);

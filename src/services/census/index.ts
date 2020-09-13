@@ -28,11 +28,10 @@ export default new ContainerModule((bind) => {
             streamManagerConfig,
             characterManager: {
                 cache: container.get(TYPES.censusCharacterCacheDriver),
-
-                // TODO: Remove defaults when Microwave fixes package / resolves show
-                request: rest.resolve.default(
-                    rest.hide.default(
-                        rest.character.default,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                request: rest.resolve(
+                    rest.hide(
+                        rest.character,
                         [
                             'head_id',
                             'times',

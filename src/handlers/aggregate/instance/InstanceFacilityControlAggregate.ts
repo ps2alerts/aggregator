@@ -18,7 +18,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        InstanceFacilityControlAggregate.logger.debug('InstanceFacilityControlAggregate.handle');
+        InstanceFacilityControlAggregate.logger.silly('InstanceFacilityControlAggregate.handle');
 
         const documents = [];
 

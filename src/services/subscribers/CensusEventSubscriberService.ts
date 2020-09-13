@@ -23,6 +23,7 @@ import PlayerLoginEvent from '../../handlers/census/events/PlayerLoginEvent';
 import PlayerLogoutEvent from '../../handlers/census/events/PlayerLogoutEvent';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import {CharacterBrokerInterface} from '../../interfaces/CharacterBrokerInterface';
+import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -147,12 +148,20 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             );
 
             instances.forEach((instance) => {
-                CensusEventSubscriberService.logger.debug('Passing FacilityControl to listener');
-                const facilityControl = new FacilityControlEvent(
-                    event,
-                    instance,
-                );
-                void this.facilityControlEventHandler.handle(facilityControl);
+                let delay = 1;
+
+                if (instance instanceof PS2AlertsMetagameInstance) {
+                    delay = 2000;
+                }
+
+                setTimeout(() => {
+                    CensusEventSubscriberService.logger.silly('Passing FacilityControl to listener');
+                    const facilityControl = new FacilityControlEvent(
+                        event,
+                        instance,
+                    );
+                    void this.facilityControlEventHandler.handle(facilityControl);
+                }, delay);
             });
         });
 

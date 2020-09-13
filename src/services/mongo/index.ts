@@ -10,7 +10,7 @@ import {Context} from 'inversify/dts/planning/context';
 import {TYPES} from '../../constants/types';
 // Census Event models
 import {InstanceDeathSchemaInterface, instanceDeathSchema} from '../../models/instance/InstanceDeathModel';
-import {instanceFacilityControlSchema, InstanceFacilityControlInterface} from '../../models/instance/InstanceFacilityControlModel';
+import {instanceFacilityControlSchema, InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
 // Instance Aggregate Models
 import {instanceClassAggregateSchema, InstanceClassAggregateSchemaInterface} from '../../models/aggregate/instance/InstanceClassAggregateModel';
 import {instanceFacilityControlAggregateSchema, InstanceFacilityControlAggregateInterface} from '../../models/aggregate/instance/InstanceFacilityControlAggregateModel';
@@ -27,10 +27,7 @@ import {globalOutfitAggregateSchema, GlobalOutfitAggregateSchemaInterface} from 
 import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from '../../models/aggregate/global/GlobalWeaponAggregateModel';
 import {globalFacilityControlAggregateSchema, GlobalFacilityControlAggregateSchemaInterface} from '../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 // Instance Type Models
-import {instanceCustomWorldZoneSchema, InstanceCustomWorldZoneSchemaInterface} from '../../models/instance/InstanceCustomWorldZone';
 import {instanceMetagameSchema, InstanceMetagameSchemaInterface} from '../../models/instance/InstanceMetagame';
-// Other Models
-import {characterPresenceSchema} from '../../models/CharacterPresenceModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -54,7 +51,7 @@ export default new ContainerModule((bind) => {
         ))
         .inSingletonScope();
 
-    bind<MongooseModelFactory<InstanceFacilityControlInterface>>(TYPES.instanceFacilityControlModelFactory)
+    bind<MongooseModelFactory<InstanceFacilityControlSchemaInterface>>(TYPES.instanceFacilityControlModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
             'instance_facility_control',
@@ -174,23 +171,6 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'instance_metagame',
             instanceMetagameSchema,
-        ))
-        .inSingletonScope();
-
-    bind<MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>>(TYPES.instanceCustomWorldZoneModelFactory)
-        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
-            container.get(Mongoose),
-            'instance_custom_world_zone',
-            instanceCustomWorldZoneSchema,
-        ))
-        .inSingletonScope();
-
-    // Other models
-    bind<MongooseModelFactory<GlobalWeaponAggregateSchemaInterface>>(TYPES.characterPresenceFactory)
-        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
-            container.get(Mongoose),
-            'character_presence',
-            characterPresenceSchema,
         ))
         .inSingletonScope();
 });

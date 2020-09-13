@@ -18,7 +18,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalClassAggregate.logger.debug('GlobalClassAggregate.handle');
+        GlobalClassAggregate.logger.silly('GlobalClassAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];

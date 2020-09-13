@@ -9,28 +9,42 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
 import {Zone} from '../constants/zone';
 import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetagame';
-import {InstanceCustomWorldZoneSchemaInterface} from '../models/instance/InstanceCustomWorldZone';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {remove} from 'lodash';
+import {jsonLogOutput} from '../utils/json';
+import InstanceActionFactory from '../factories/InstanceActionFactory';
 
 @injectable()
 export default class InstanceHandler implements InstanceHandlerInterface {
     private static readonly logger = getLogger('InstanceHandler');
-
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
-
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
-
-    private readonly instanceCustomWorldZoneInstanceModelFactory: MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>;
-
+    private readonly instanceActionFactory: InstanceActionFactory;
     private initialized = false;
 
     constructor(
     @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>,
-        @inject(TYPES.instanceCustomWorldZoneModelFactory) instanceCustomWorldZoneInstanceModelFactory: MongooseModelFactory<InstanceCustomWorldZoneSchemaInterface>,
+        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
     ) {
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
-        this.instanceCustomWorldZoneInstanceModelFactory = instanceCustomWorldZoneInstanceModelFactory;
+        this.instanceActionFactory = instanceActionFactory;
+    }
+
+    public getInstance(instanceId: string): PS2AlertsInstanceInterface {
+        InstanceHandler.logger.debug(`Attempting to find an instance with ID: "${instanceId}"...`);
+
+        const instance = this.currentInstances.find((i) => {
+            return i.instanceId === instanceId;
+        });
+
+        if (!instance) {
+            throw new ApplicationException(`Unable to find InstanceID "${instanceId}"!`, 'InstanceHandler');
+        }
+
+        InstanceHandler.logger.debug(`Found instance with ID: "${instanceId}"!`);
+        InstanceHandler.logger.debug(`${jsonLogOutput(instance)}`);
+
+        return instance;
     }
 
     public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
@@ -58,10 +72,19 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     censusMetagameEventType: instance.censusMetagameEventType,
                     duration: instance.duration,
                     state: instance.state,
+                    winner: null,
                 });
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
+
+                // Execute start actions
+                await this.instanceActionFactory.buildStart(instance).execute();
+
+                // Add instance to the in-memory data so it can be called upon rapidly without polling DB
                 this.currentInstances.push(instance);
+
+                // Show currently running alerts in console / log
                 this.printActives();
+
                 return true;
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -69,16 +92,36 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             }
         }
 
-        return false;
+        // Other types to add eventually
+
+        throw new ApplicationException('Start instance ended unexpectedly!', 'InstanceHandler');
     }
 
     public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
-        InstanceHandler.logger.info(`================== ENDING INSTANCE ${instance.instanceId} ==================`);
+        InstanceHandler.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
+
+        const done = false;
+
+        // Execute end actions (e.g. calculating territory %)
+        await this.instanceActionFactory.buildEnd(instance).execute();
+
+        // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
+        const timeout = new Promise((resolve, reject) => {
+            const id = setTimeout(() => {
+                clearTimeout(id);
+
+                if (!done) {
+                    reject(new Error('Instance end timeout!'));
+                } else {
+                    resolve();
+                }
+            }, 5000);
+        });
 
         // Find Instance and update
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const res = await this.instanceMetagameModelFactory.model.updateOne(
+            const promise = this.instanceMetagameModelFactory.model.updateOne(
                 {instanceId: instance.instanceId},
                 {
                     state: Ps2alertsEventState.ENDED,
@@ -86,24 +129,24 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 },
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (!res.nModified) {
-                InstanceHandler.logger.error(`No instances were modified on end message! ${instance.instanceId}`);
-                return false;
-            }
-
-            remove(this.currentInstances, (i) => {
-                if (i instanceof PS2AlertsMetagameInstance) {
-                    return instance.match(i.world, i.zone);
-                }
+            await Promise.race([
+                promise,
+                timeout,
+            ]).catch((err) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                throw new ApplicationException(err.message);
             });
 
-            InstanceHandler.logger.info(`================ SUCCESSFULLY ENDED INSTANCE ${instance.instanceId} ================`);
+            remove(this.currentInstances, (i) => {
+                return i.instanceId === instance.instanceId;
+            });
+
+            InstanceHandler.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives();
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to end instance ${instance.instanceId}! ${err}`, 'InstanceHandler');
+            throw new ApplicationException(`Unable to end instance "${instance.instanceId}"! ${err}`, 'InstanceHandler');
         }
     }
 

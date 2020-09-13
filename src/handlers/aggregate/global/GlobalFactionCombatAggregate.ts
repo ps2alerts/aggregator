@@ -19,7 +19,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalFactionCombatAggregate.logger.debug('GlobalFactionCombatAggregate.handle');
+        GlobalFactionCombatAggregate.logger.silly('GlobalFactionCombatAggregate.handle');
 
         const documents = [];
 

@@ -18,7 +18,7 @@ export default class AchievementEarnedHandler implements EventHandlerInterface<A
     }
 
     public async handle(event: AchievementEarnedEvent): Promise<boolean>{
-        AchievementEarnedHandler.logger.debug('Parsing message...');
+        AchievementEarnedHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
             AchievementEarnedHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
