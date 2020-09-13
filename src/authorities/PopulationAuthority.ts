@@ -43,7 +43,6 @@ export default class PopulationAuthority {
         }, 60000);
 
         PopulationAuthority.logger.debug('Creating PopulationAuthority timer');
-
     }
 
     public stop(): void {
