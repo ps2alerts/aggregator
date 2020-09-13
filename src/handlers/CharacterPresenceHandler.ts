@@ -133,7 +133,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
             }
         }
 
-        // Since the above list has been changed, we'll return the new characters again.
+        // Since the above list has been changed, we'll return the characters again.
         if (changes) {
             return await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
         }
