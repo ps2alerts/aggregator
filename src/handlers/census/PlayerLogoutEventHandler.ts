@@ -20,7 +20,7 @@ export default class PlayerLogoutEventHandler implements EventHandlerInterface<P
         PlayerLogoutEventHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
 
         try {
-            await this.characterPresenceHandler.delete(event.character.id);
+            await this.characterPresenceHandler.delete(event.character);
         } catch (e) {
             if (e instanceof Error) {
                 PlayerLogoutEventHandler.logger.error(`Error parsing PlayerLogoutEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

@@ -28,8 +28,6 @@ import {globalWeaponAggregateSchema, GlobalWeaponAggregateSchemaInterface} from 
 import {globalFacilityControlAggregateSchema, GlobalFacilityControlAggregateSchemaInterface} from '../../models/aggregate/global/GlobalFacilityControlAggregateModel';
 // Instance Type Models
 import {instanceMetagameSchema, InstanceMetagameSchemaInterface} from '../../models/instance/InstanceMetagame';
-// Other Models
-import {characterPresenceSchema} from '../../models/CharacterPresenceModel';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -173,15 +171,6 @@ export default new ContainerModule((bind) => {
             container.get(Mongoose),
             'instance_metagame',
             instanceMetagameSchema,
-        ))
-        .inSingletonScope();
-
-    // Other models
-    bind<MongooseModelFactory<GlobalWeaponAggregateSchemaInterface>>(TYPES.characterPresenceFactory)
-        .toDynamicValue(({container}: Context) => new MongooseModelFactory(
-            container.get(Mongoose),
-            'character_presence',
-            characterPresenceSchema,
         ))
         .inSingletonScope();
 });
