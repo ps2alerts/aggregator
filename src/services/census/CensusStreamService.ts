@@ -58,7 +58,6 @@ export default class CensusStreamService implements ServiceInterface {
 
         await Promise.all([
             this.instanceHandler.init(),
-            this.characterPresenceHandler.init(),
         ]);
     }
 
