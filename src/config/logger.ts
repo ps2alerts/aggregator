@@ -23,9 +23,13 @@ export default class Logger {
 
     public readonly globalFilter: LogFilter = [];
 
-    public readonly transport: string | string[] = get('LOGGER_TRANSPORTS', 'console').split(',');
+    public readonly transport: string | string[] = get('LOGGER_TRANSPORTS', 'consoleDev').split(',');
 
     public readonly transports: Record<string, TransportConfig> = {
+        consoleColour: {
+            name: 'console',
+            options: {},
+        },
         console: {
             name: 'console',
             options: {},

@@ -42,7 +42,7 @@ export default class PS2AlertsMetagameInstanceEndAction implements ActionInterfa
             });
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            PS2AlertsMetagameInstanceEndAction.logger.error(`Unable to process endActionfor instance ${this.instance.instanceId}! Err: ${err.message}`);
+            PS2AlertsMetagameInstanceEndAction.logger.error(`Unable to process endAction for instance ${this.instance.instanceId}! Err: ${err.message}`);
         }
 
         return true;
