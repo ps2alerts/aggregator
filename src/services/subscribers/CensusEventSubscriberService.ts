@@ -167,6 +167,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.wsClient.on('gainExperience', async (event) => {
+            return true;
             const character = await this.characterBroker.get(event.character_id)
                 .catch((e) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
