@@ -26,7 +26,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
 
         try {
             await Promise.all([
-                this.characterPresenceHandler.update(event.character, event.zone),
+                // this.characterPresenceHandler.update(event.character, event.zone),
                 this.storeEvent(event),
             ]);
         } catch (e) {
