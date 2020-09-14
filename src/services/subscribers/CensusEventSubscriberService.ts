@@ -166,23 +166,22 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        // this.wsClient.on('gainExperience', async (event) => {
-        //     return true;
-        //     const character = await this.characterBroker.get(event.character_id)
-        //         .catch((e) => {
-        //             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        //             CensusEventSubscriberService.logger.error(`Unable to process GainExperience event - error ${e.message}`);
-        //         });
-        //
-        //     if (!character) {
-        //         return;
-        //     }
-        //
-        //     await this.characterPresenceHandler.update(
-        //         character,
-        //         parseInt(event.zone_id, 10),
-        //     );
-        // });
+        this.wsClient.on('gainExperience', async (event) => {
+            const character = await this.characterBroker.get(event.character_id)
+                .catch((e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    CensusEventSubscriberService.logger.error(`Unable to process GainExperience event - error ${e.message}`);
+                });
+
+            if (!character) {
+                return;
+            }
+
+            await this.characterPresenceHandler.update(
+                character,
+                parseInt(event.zone_id, 10),
+            );
+        });
 
         this.wsClient.on('metagameEvent', (event) => {
             CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
