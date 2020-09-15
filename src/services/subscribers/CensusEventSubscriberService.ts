@@ -232,7 +232,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private handleCharacterException(service: string, message: string): void {
         if (
             message.includes('No data found') ||
-            message.includes('api returned no matches for')
+            message.includes('api returned no matches for') ||
+            message.includes('No character ID was supplied!')
         ) {
             CensusEventSubscriberService.logger.warn(`Unable to process ${service} event! W: ${message}`);
         } else {
