@@ -99,8 +99,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     // eslint-disable-next-line @typescript-eslint/require-await
     public async terminate(): Promise<void> {
         CensusEventSubscriberService.logger.debug('Terminating Census Stream Service!');
-
-        // this.destructHandlers();
     }
 
     // Here we pass all the events
@@ -136,8 +134,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                     void this.deathEventHandler.handle(deathEvent);
                 });
             }).catch((e) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                CensusEventSubscriberService.logger.error(`Unable to process Death event! ${e.message}`);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                this.handleCharacterException('Death', e.message);
             });
         });
 
@@ -169,8 +167,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on('gainExperience', async (event) => {
             const character = await this.characterBroker.get(event.character_id)
                 .catch((e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    CensusEventSubscriberService.logger.error(`Unable to process GainExperience event - error ${e.message}`);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    this.handleCharacterException('GainExperience', e.message);
                 });
 
             if (!character) {
@@ -191,7 +189,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 void this.metagameEventEventHandler.handle(metagameEvent);
             } catch (e) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                CensusEventSubscriberService.logger.warn(e.message);
+                CensusEventSubscriberService.logger.error(e.message);
             }
 
         });
@@ -201,8 +199,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
             const character = await this.characterBroker.get(event.character_id)
                 .catch((e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    CensusEventSubscriberService.logger.error(`Unable to process PlayerLogin event - error ${e.message}`);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    this.handleCharacterException('PlayerLogin', e.message);
                 });
 
             if (!character) {
@@ -218,8 +216,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
             const character = await this.characterBroker.get(event.character_id)
                 .catch((e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    CensusEventSubscriberService.logger.error(`Unable to process PlayerLogout event - error ${e.message}`);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    this.handleCharacterException('PlayerLogout', e.message);
                 });
 
             if (!character) {
@@ -229,5 +227,16 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             const playerLogoutEvent = new PlayerLogoutEvent(event, character);
             await this.playerLogoutEventHandler.handle(playerLogoutEvent);
         });
+    }
+
+    private handleCharacterException(service: string, message: string): void {
+        if (
+            message.includes('No data found') ||
+            message.includes('api returned no matches for')
+        ) {
+            CensusEventSubscriberService.logger.warn(`Unable to process ${service} event! W: ${message}`);
+        } else {
+            CensusEventSubscriberService.logger.error(`Unable to process ${service} event! E: ${message}`);
+        }
     }
 }
