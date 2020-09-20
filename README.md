@@ -1,22 +1,22 @@
-# PS2Alerts Websocket
+# PS2Alerts Aggregator
 
-![Discord](https://img.shields.io/discord/708061542649954315?label=Discord) ![Ansible Linter](https://github.com/ps2alerts/websocket/workflows/Ansible%20Linter/badge.svg) ![ESLint](https://github.com/ps2alerts/websocket/workflows/ESLint/badge.svg) ![Yaml Linter](https://github.com/ps2alerts/websocket/workflows/Yaml%20Linter/badge.svg)
+![Discord](https://img.shields.io/discord/708061542649954315?label=Discord) ![Ansible Linter](https://github.com/ps2alerts/aggregator/workflows/Ansible%20Linter/badge.svg) ![ESLint](https://github.com/ps2alerts/aggregator/workflows/ESLint/badge.svg) ![Yaml Linter](https://github.com/ps2alerts/aggregator/workflows/Yaml%20Linter/badge.svg)
 
-The websocket collection script that powers PS2Alerts.com.
+The aggregator collection script that powers PS2Alerts.com.
 
 **This project is undergoing a full rewrite**. If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
 
 ## Preface
 
-This project powers the PS2Alerts website. Its primary purpose is to act as a Data Collector, which listens in on events coming in from [Census](https://census.daybreakgames.com) and formats that data into a legible format, commits it to a database, which in turn the [API](https://github.com/PS2Alerts/api) will serve to the [frontend website](https://github.com/PS2Alerts/website).
+This project powers the PS2Alerts website. Its primary purpose is to act as a Data Collector, which listens in on events coming in from the [Census Stremaing Service](https://census.daybreakgames.com) and formats that data into a legible format, commits it to a database, which in turn the [API](https://github.com/PS2Alerts/api) will serve to the [frontend website](https://github.com/PS2Alerts/website).
 
 ## Installation
 
-Run `ps2alerts-start` to start all associated services and this module. Dependencies will be handled via the bootstrap process.
+Run `ps2alerts-start` to start all associated services including this module. Dependencies will be handled via the bootstrap process.
 
-For first time runs, you must run `ps2alerts-websocket-start-full`, which goes ahead and builds the base image required for the dev Docker image to run.
+For first time runs, you must run `ps2alerts-aggregator-start-full`, which goes ahead and builds the base image required for the dev Docker image to run.
 
-To start the websocket for development, run `ps2alerts-websocket-dev`. This will bootstrap the container with ENV vars etc and tail the docker logs, as you would if you ran it manually via NPM.
+To start the aggregator for development, run `ps2alerts-aggregator-dev`. This will bootstrap the container with ENV vars etc and tail the docker logs, as you would if you ran it manually via NPM.
 
 ### Local dependencies
 
@@ -24,7 +24,6 @@ For local development, you're recommended to have the following installed:
 
 * [Node v10+](https://nodejs.org/en/download) recommend using NVM (Node Version Manager)
 * [NPM](https://www.npmjs.com/get-npm)
-* Recommend to install npx `sudo npm install -g npx`
 
 ## Contributions
 
@@ -46,7 +45,7 @@ All pipelines are located within `./github/workflows`, which performs consistenc
 
 ### `/src/bootstrap.ts`
 
-This is where the IoC container is instantiated and told to load the modules via the Kernel, to return to `index.ts`
+This is where we instantiate the IoC container and load the Kernel modules.`
 
 ### `/src/index.ts`
 
@@ -66,7 +65,7 @@ Herein contains all the application config information, some of it hardcoded, so
 
 ### `/src/constants`
 
-This folder contains all of our enumuates and static data / game data which is constant.
+This folder contains all of our enumerates and static data / game data which is constant.
 
 ### `/src/data`
 
@@ -78,7 +77,7 @@ Contains drivers which provide override functionality, e.g. CensusCacheDriver wh
 
 ### `/src/exceptions`
 
-Where our custom exceptions will exist. Currently have ApplicationException which provides a standard format.
+Where our custom exceptions will exist. Currently has ApplicationException which provides a standard format.
 
 ### `/src/factories`
 
@@ -96,7 +95,7 @@ Everything in PS2Alerts is driven around an instance. If there is no instance, i
 
 ### `/src/interfaces`
 
-This is where our code interfaces will live. E.g. each Handler will have an assoiciated parent Interface which each handler must adhere to. We will self-enforce usage of interfaces as it's simply **good coding practice**.
+This is where our code interfaces will live. E.g. each Handler will have an associated parent Interface which each handler must adhere to. We will self-enforce usage of interfaces as it's simply **good coding practice**.
 
 ### `/src/logger`
 
@@ -104,11 +103,11 @@ Where the logging class exists. May move into a service instead, but the concept
 
 ### `/src/models`
 
-Herein lies all of our models which we use to interact with MongoDB. Each model is instantiated from `/src/services/mongo/index.ts`, and within each model contains the collection structure, along with an interface which enforces certain data structure patterns.
+Herein lies all of our models which we use to interact with MongoDB. Each model instantiates from `/src/services/mongo/index.ts`, and within each model contains the collection structure, along with an interface which enforces certain data structure patterns.
 
 ### `/src/services`
 
-This is where our services exist which are used throughout the application, such as connecting to Planetside 2's Census websocket stream, Mongo and Redis connectivity.
+This is where our services exist which are used throughout the application, such as connecting to Planetside 2's Census Streaming Service, Mongo and Redis connectivity.
 
 ### `/utils`
 

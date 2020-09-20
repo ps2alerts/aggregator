@@ -5,12 +5,12 @@ export default class Census {
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
 
     /**
-     * @type {EventStreamSubscription[]} Subscriptions that are made when starting the websocket
+     * @type {EventStreamSubscription[]} Subscriptions that are made when starting the aggregator
      */
     public readonly subscriptions: EventStreamSubscription[];
 
     /**
-     * @type {ClientConfig} Configuration for PS2 Census websocket client
+     * @type {ClientConfig} Configuration for PS2 Census aggregator client
      */
     public readonly clientConfig: ClientConfig;
 

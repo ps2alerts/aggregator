@@ -1,9 +1,8 @@
-module "websocket_staging" {
-  source             = "./modules/websocket"
+module "aggregator_staging" {
+  source             = "./modules/aggregator"
   namespace          = "ps2alerts"
   environment        = "staging"
-  identifier         = "ps2alerts-websocket-staging"
-  url                = "staging.wss.ps2alerts.com"
+  identifier         = "ps2alerts-aggregator-staging"
   checksum_version   = var.checksum_version
   database_user      = var.db_user
   database_pass      = var.db_pass

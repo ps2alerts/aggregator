@@ -1,9 +1,9 @@
 ---
-# This playbook handles publishing a AdminWebsocket control message.
+# This playbook handles publishing a AdminAggregator control message.
 
 - hosts: localhost
   vars:
-    queue_name: "adminWebsocket-development"
+    queue_name: "adminAggregator-development"
     environment: ""
     hostname: "localhost"
     password: "bitnami"
@@ -102,7 +102,7 @@
       set_fact:
         hostname: "localhost"
         password: "rabbit_admin_password"
-        queue_name: "adminWebsocket-{{ environment }}"
+        queue_name: "adminAggregator-{{ environment }}"
       when: environment == "staging" or environment == "production"
 
     - debug:

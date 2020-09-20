@@ -43,7 +43,7 @@ export default class EventId {
     );
 
     // Don't have a clue if any of these are right...
-    // TODO: VERIFY FACTION TRIGGERS https://github.com/ps2alerts/websocket/issues/138
+    // TODO: VERIFY FACTION TRIGGERS https://github.com/ps2alerts/aggregator/issues/138
     private static readonly unstableMeltdownZoneFactionMap: Map<Zone, Map<Faction, MetagameEventType>> = new Map<Zone, Map<Faction, MetagameEventType>>(
         [
             [Zone.INDAR, new Map(

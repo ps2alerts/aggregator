@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           path: provisioning/base
           repository: maelstromeous/applications
-          tags: ps2alerts-websocket-base
+          tags: ps2alerts-aggregator-base
 
       - name: Build staging image
         uses: docker/build-push-action@v1
@@ -31,7 +31,7 @@ jobs:
           repository: maelstromeous/applications
           dockerfile: provisioning/staging/Dockerfile
           always_pull: true
-          tags: ps2alerts-websocket-staging-${{ steps.sha.outputs.sha_short }}
+          tags: ps2alerts-aggregator-staging-${{ steps.sha.outputs.sha_short }}
 
   deploy-terraform:
     needs:
@@ -78,7 +78,7 @@ jobs:
             -var='census_service_id=${{ secrets.CENSUS_SERVICE_ID }}' \
             -var='redis_pass=${{ secrets.REDIS_PASS }}' \
             -var='rabbitmq_pass=${{ secrets.RABBITMQ_PS2ALERTS_PASS }}' \
-            -target=module.websocket_staging -out='.tfout'
+            -target=module.aggregator_staging -out='.tfout'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -92,24 +92,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-
-  # Unfortunately we need to do this step in order to provision the LE cert manager.
-  # Terraform currently doesn't support it :'(
-  deploy-cert-manager:
-    needs:
-      - deploy-terraform
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
-
-      - name: Save DO kubeconfig
-        run: doctl kubernetes cluster kubeconfig save my-cluster
-
-      - name: Apply Lets Encrypt cluster issuer manifest
-        run: kubectl apply -f provisioning/staging/k8s/manifests/cluster-issuer.yml

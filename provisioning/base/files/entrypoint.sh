@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "=============== STARTING WEBSOCKET (DEV) ==================="
+echo "=============== STARTING AGGREGATOR (DEV) ==================="
 cd /app && npm run start:dev

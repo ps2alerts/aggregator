@@ -1,7 +1,7 @@
 {
-  "name": "ps2alerts-websocket",
+  "name": "ps2alerts-aggregator",
   "version": "0.1.2",
-  "description": "The websocket collection script that powers PS2Alerts.com.",
+  "description": "The aggregator collection script that powers PS2Alerts.com.",
   "main": "./dist",
   "scripts": {
     "start": "node dist/index.js",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://Maelstromeous@github.com/PS2Alerts/websocket.git"
+    "url": "git+https://Maelstromeous@github.com/PS2Alerts/aggregator.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ps2alerts/websocket/issues"
+    "url": "https://github.com/ps2alerts/aggregator/issues"
   },
-  "homepage": "https://github.com/ps2alerts/websocket#readme",
+  "homepage": "https://github.com/ps2alerts/aggregator#readme",
   "dependencies": {
     "amqp-connection-manager": "^3.2.0",
     "amqplib": "^0.6.0",

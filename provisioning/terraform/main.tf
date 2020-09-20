@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "ps2alerts"
-    key    = "terraform/states/ps2alerts-websocket"
+    key    = "terraform/states/ps2alerts-aggregator"
     region = "eu-west-2"
   }
 }
