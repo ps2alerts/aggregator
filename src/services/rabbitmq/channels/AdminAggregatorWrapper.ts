@@ -12,8 +12,8 @@ import RabbitMQ from '../../../config/rabbitmq';
 import {get} from '../../../utils/env';
 
 @injectable()
-export default class AdminWebsocketWrapper extends BaseChannelWrapper implements MessageQueueChannelWrapperInterface {
-    private static readonly logger = getLogger('AdminWebsocketWrapper');
+export default class AdminAggregatorWrapper extends BaseChannelWrapper implements MessageQueueChannelWrapperInterface {
+    private static readonly logger = getLogger('AdminAggregatorWrapper');
 
     private static channelWrapper: ChannelWrapper;
 
@@ -26,14 +26,14 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
         @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,
     ) {
         super(rabbitMQConfig);
-        AdminWebsocketWrapper.queueName = `adminWebsocket-${get('NODE_ENV', 'development')}`;
-        AdminWebsocketWrapper.mqAdminMessageSubscribers = mqAdminMessageSubscribers;
+        AdminAggregatorWrapper.queueName = `adminAggregator-${get('NODE_ENV', 'development')}`;
+        AdminAggregatorWrapper.mqAdminMessageSubscribers = mqAdminMessageSubscribers;
     }
 
     public async subscribe(): Promise<boolean> {
-        AdminWebsocketWrapper.logger.info('Subscribing...');
-        AdminWebsocketWrapper.channelWrapper = await this.setupConnection(AdminWebsocketWrapper.queueName, this.handleMessage);
-        AdminWebsocketWrapper.logger.info('Subscribed!');
+        AdminAggregatorWrapper.logger.info('Subscribing...');
+        AdminAggregatorWrapper.channelWrapper = await this.setupConnection(AdminAggregatorWrapper.queueName, this.handleMessage);
+        AdminAggregatorWrapper.logger.info('Subscribed!');
 
         return true;
     }
@@ -42,31 +42,31 @@ export default class AdminWebsocketWrapper extends BaseChannelWrapper implements
         let message: ParsedQueueMessage;
 
         if (!msg) {
-            AdminWebsocketWrapper.logger.error(`[${AdminWebsocketWrapper.queueName}] Got empty message!`);
+            AdminAggregatorWrapper.logger.error(`[${AdminAggregatorWrapper.queueName}] Got empty message!`);
             return false;
         }
 
         try {
-            message = super.parseMessage(msg, AdminWebsocketWrapper.queueName);
+            message = super.parseMessage(msg, AdminAggregatorWrapper.queueName);
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminWebsocketWrapper.logger.error(`[${AdminWebsocketWrapper.queueName}] Unable to handle message! Probably invalid format. E: ${e.message}`);
-            AdminWebsocketWrapper.channelWrapper.ack(msg);
+            AdminAggregatorWrapper.logger.error(`[${AdminAggregatorWrapper.queueName}] Unable to handle message! Probably invalid format. E: ${e.message}`);
+            AdminAggregatorWrapper.channelWrapper.ack(msg);
             return false;
         }
 
-        AdminWebsocketWrapper.mqAdminMessageSubscribers.map(
+        AdminAggregatorWrapper.mqAdminMessageSubscribers.map(
             (handler: MessageQueueHandlerInterface<ParsedQueueMessage>) => void handler.handle(message)
                 .catch((e) => {
                     if (e instanceof Error) {
-                        AdminWebsocketWrapper.logger.error(`[${AdminWebsocketWrapper.queueName}] Error processing message! E: ${e.message}\r\n${jsonLogOutput(e)}`);
+                        AdminAggregatorWrapper.logger.error(`[${AdminAggregatorWrapper.queueName}] Error processing message! E: ${e.message}\r\n${jsonLogOutput(e)}`);
                     } else {
-                        AdminWebsocketWrapper.logger.error('UNEXPECTED ERROR processing message!');
+                        AdminAggregatorWrapper.logger.error('UNEXPECTED ERROR processing message!');
                     }
                 }),
         );
-        AdminWebsocketWrapper.channelWrapper.ack(msg);
-        AdminWebsocketWrapper.logger.debug(`Acked message for ${AdminWebsocketWrapper.queueName}`);
+        AdminAggregatorWrapper.channelWrapper.ack(msg);
+        AdminAggregatorWrapper.logger.debug(`Acked message for ${AdminAggregatorWrapper.queueName}`);
 
         return true;
     };

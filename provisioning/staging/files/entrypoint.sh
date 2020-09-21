@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "=============== STARTING WEBSOCKET (STAGING) ==================="
+echo "=============== STARTING AGGREGATOR (STAGING) ==================="
 pwd && cd app && npm run start

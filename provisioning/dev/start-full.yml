@@ -20,9 +20,9 @@
         name: ps2alerts
         state: present
 
-    - name: Build Websocket Base image (grab a snickers)
+    - name: Build Aggregator Base image (grab a snickers)
       docker_image:
-        name: ps2alerts/websocket
+        name: ps2alerts/aggregator
         state: present
         source: build
         tag: base
@@ -31,9 +31,9 @@
           pull: no
           path: "{{ root_dir | realpath }}/provisioning/base"
 
-    - name: Build Websocket Dev image
+    - name: Build Aggregator Dev image
       docker_image:
-        name: ps2alerts/websocket
+        name: ps2alerts/aggregator
         state: present
         source: build
         tag: dev
@@ -49,9 +49,9 @@
 
       # This step has issues on OSX, not quite sure how to fix it. Gets permission denied within the container.
       # Workaround is to just install npm via brew and npm install, meh.
-    - name: Run npm install for Websocket deps
+    - name: Run npm install for Aggregator deps
       docker_container:
-        name: ps2alerts-websocket-npm
+        name: ps2alerts-aggregator-npm
         image: node:12
         volumes:
           - "{{ root_dir | realpath }}:/app:rw"
@@ -60,10 +60,10 @@
         labels:
           traefik.enable: "false"
 
-    - name: Start Websocket Dev Image
+    - name: Start Aggregator Dev Image
       docker_container:
-        name: ps2alerts-websocket
-        image: ps2alerts/websocket:dev
+        name: ps2alerts-aggregator
+        image: ps2alerts/aggregator:dev
         state: started
         restart: no
         recreate: yes
@@ -87,9 +87,8 @@
           DB_POOL_SIZE: "20"
           REDIS_HOST: "ps2alerts-redis"
           REDIS_DB: "1"
-          API_BASE_URL: "http://api.dev.ps2alerts.com"
+          API_BASE_URL: "http://dev.api.ps2alerts.com"
           CENSUS_SERVICE_ID: "{{ census_service_id }}"
           LOGGER_TRANSPORTS: "console"
         labels:
-          traefik.enable: "true"
-          traefik.http.routers.ps2alerts-websocket.rule: "Host(`wss.dev.ps2alerts.com`)"
+          traefik.enable: "false"

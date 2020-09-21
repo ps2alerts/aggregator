@@ -207,7 +207,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         return facilityLatticeLinks;
     }
 
-    // Oh boi, it's graph time! https://github.com/ps2alerts/websocket/issues/125#issuecomment-689070901
+    // Oh boi, it's graph time! https://github.com/ps2alerts/aggregator/issues/125#issuecomment-689070901
     // This function traverses the lattice links for each base, starting at the warpgate. It traverses each link until no other
     // bases can be found that are owned by the same faction. It then adds each facility to a map, which we collate later to get the raw number of bases.
     private async traverse(facilityId: number, linkingFaction: Faction, depth: number, latticeLinks: FacilityLatticeLinkInterface[]): Promise<boolean> {

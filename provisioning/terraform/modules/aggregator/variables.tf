@@ -2,7 +2,6 @@ variable "checksum_version" {}
 variable "namespace" {}
 variable "identifier" {}
 variable "environment" {}
-variable "url" {}
 variable "database_user" {}
 variable "database_pass" {}
 variable "database_host" {}

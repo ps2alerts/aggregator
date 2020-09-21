@@ -8,14 +8,14 @@ import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import EventId from '../../utils/eventId';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
-import AdminWebsocketInstanceStartMessage from '../../data/AdminWebsocket/AdminWebsocketInstanceStartMessage';
+import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/AdminAggregatorInstanceStartMessage';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
-import AdminWebsocketInstanceEndMessage from '../../data/AdminWebsocket/AdminWebsocketInstanceEndMessage';
+import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
 
 @injectable()
-export default class AdminWebsocketMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
-    private static readonly logger = getLogger('AdminWebsocketMessageHandler');
+export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
+    private static readonly logger = getLogger('AdminAggregatorMessageHandler');
 
     private readonly instanceHandler: InstanceHandlerInterface;
 
@@ -34,33 +34,33 @@ export default class AdminWebsocketMessageHandler implements MessageQueueHandler
                 return true;
         }
 
-        throw new ApplicationException(`Unknown AdminWebsocket message received: ${jsonLogOutput(message)}`, 'AdminWebsocketMessageHandler');
+        throw new ApplicationException(`Unknown AdminAggregator message received: ${jsonLogOutput(message)}`, 'AdminAggregatorMessageHandler');
     }
 
     // Collect the required information from the message in order to generate an PS2AlertsMetagameInstance, then trigger it.
     private async startInstance(message: ParsedQueueMessage): Promise<boolean> {
-        const adminWebsocketInstanceStart = new AdminWebsocketInstanceStartMessage(message.body);
+        const adminAggregatorInstanceStart = new AdminAggregatorInstanceStartMessage(message.body);
 
         const censusEventId = EventId.zoneFactionMeltdownToEventId(
-            adminWebsocketInstanceStart.zone,
-            adminWebsocketInstanceStart.faction,
-            adminWebsocketInstanceStart.meltdown,
+            adminAggregatorInstanceStart.zone,
+            adminAggregatorInstanceStart.faction,
+            adminAggregatorInstanceStart.meltdown,
         );
 
         const metagameDetails = metagameEventTypeDetailsMap.get(censusEventId);
 
         if (!metagameDetails) {
-            throw new ApplicationException(`Unknown metagame event id ${censusEventId}`, 'AdminWebsocketMessageHandler');
+            throw new ApplicationException(`Unknown metagame event id ${censusEventId}`, 'AdminAggregatorMessageHandler');
         }
 
         const instance = new PS2AlertsMetagameInstance(
-            adminWebsocketInstanceStart.world,
+            adminAggregatorInstanceStart.world,
             new Date(),
             null,
-            adminWebsocketInstanceStart.zone,
-            adminWebsocketInstanceStart.instanceId,
+            adminAggregatorInstanceStart.zone,
+            adminAggregatorInstanceStart.instanceId,
             censusEventId,
-            adminWebsocketInstanceStart.duration,
+            adminAggregatorInstanceStart.duration,
             Ps2alertsEventState.STARTED,
         );
 
@@ -68,25 +68,25 @@ export default class AdminWebsocketMessageHandler implements MessageQueueHandler
             return this.instanceHandler.startInstance(instance);
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminWebsocketMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminWebsocket message! Error: ${e.message}`);
+            AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${e.message}`);
         }
 
         return false;
     }
 
     private async endInstance(message: ParsedQueueMessage): Promise<boolean> {
-        const websocketMessage = new AdminWebsocketInstanceEndMessage(message.body);
-        const instance = this.instanceHandler.getInstance(websocketMessage.instanceId);
+        const aggregatorMessage = new AdminAggregatorInstanceEndMessage(message.body);
+        const instance = this.instanceHandler.getInstance(aggregatorMessage.instanceId);
 
         if (!instance) {
-            AdminWebsocketMessageHandler.logger.error(`Failed ending instance #${websocketMessage.instanceId} via adminWebsocket message! No instance found!`);
+            AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
         }
 
         try {
             return await this.instanceHandler.endInstance(instance);
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminWebsocketMessageHandler.logger.error(`Failed ending instance #${websocketMessage.instanceId} via adminWebsocket message! Error: ${e.message}`);
+            AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! Error: ${e.message}`);
         }
 
         return false;
