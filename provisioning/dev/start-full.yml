@@ -56,7 +56,7 @@
         volumes:
           - "{{ root_dir | realpath }}:/app:rw"
         user: "{{ id.stdout }}:{{ id.stdout }}"
-        command: "npm install"
+        command: "npm install --prefix /app"
         labels:
           traefik.enable: "false"
 
