@@ -60,9 +60,5 @@
     "eslint": "^7.4.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.0.1",
-    "utf-8-validate": "^5.0.2"
   }
 }
