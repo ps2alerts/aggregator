@@ -2,26 +2,19 @@ import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {inject, injectable} from 'inversify';
 import {Client} from 'ps2census';
-import DeathEventHandler from '../../handlers/census/DeathEventHandler';
-import MetagameEventEventHandler from '../../handlers/census/MetagameEventEventHandler';
-import PlayerLoginEventHandler from '../../handlers/census/PlayerLoginEventHandler';
-import PlayerLogoutEventHandler from '../../handlers/census/PlayerLogoutEventHandler';
-import ContinentLockEventHandler from '../../handlers/census/ContinentLockEventHandler';
-import FacilityControlEventHandler from '../../handlers/census/FacilityControlEventHandler';
-import GainExperienceEventHandler from '../../handlers/census/GainExperienceEventHandler';
-import AchievementEarnedHandler from '../../handlers/census/AchievementEarnedHandler';
-import BattleRankUpHandler from '../../handlers/census/BattleRankUpHandler';
-import PlayerFacilityCaptureHandler from '../../handlers/census/PlayerFacilityCaptureHandler';
-import PlayerFacilityDefendHandler from '../../handlers/census/PlayerFacilityDefendHandler';
-import ContinentUnlockHandler from '../../handlers/census/ContinentUnlockHandler';
 import {TYPES} from '../../constants/types';
+// Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
 import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
-import PlayerLoginEvent from '../../handlers/census/events/PlayerLoginEvent';
-import PlayerLogoutEvent from '../../handlers/census/events/PlayerLogoutEvent';
+// Handlers
+import DeathEventHandler from '../../handlers/census/DeathEventHandler';
+import MetagameEventEventHandler from '../../handlers/census/MetagameEventEventHandler';
+import FacilityControlEventHandler from '../../handlers/census/FacilityControlEventHandler';
+import GainExperienceEventHandler from '../../handlers/census/GainExperienceEventHandler';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
+// Other
 import {CharacterBrokerInterface} from '../../interfaces/CharacterBrokerInterface';
 import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance';
 
@@ -34,16 +27,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly wsClient: Client;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
-    private readonly playerLoginEventHandler: PlayerLoginEventHandler;
-    private readonly playerLogoutEventHandler: PlayerLogoutEventHandler;
-    private readonly continentLockHandler: ContinentLockEventHandler;
     private readonly facilityControlEventHandler: FacilityControlEventHandler;
     private readonly gainExperienceEventHandler: GainExperienceEventHandler;
-    private readonly achievementEarnedHandler: AchievementEarnedHandler;
-    private readonly battleRankUpHandler: BattleRankUpHandler;
-    private readonly playerFacilityCapture: PlayerFacilityCaptureHandler;
-    private readonly playerFacilityDefend: PlayerFacilityDefendHandler;
-    private readonly continentUnlockHandler: ContinentUnlockHandler;
     private readonly instanceHandler: InstanceHandlerInterface;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
     private readonly characterBroker: CharacterBrokerInterface;
@@ -52,16 +37,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         wsClient: Client,
         deathEventHandler: DeathEventHandler,
         metagameEventEventHandler: MetagameEventEventHandler,
-        playerLoginEventHandler: PlayerLoginEventHandler,
-        playerLogoutEventHandler: PlayerLogoutEventHandler,
-        continentLockHandler: ContinentLockEventHandler,
         facilityControlEventHandler: FacilityControlEventHandler,
         gainExperienceEventHandler: GainExperienceEventHandler,
-        achievementEarnedHandler: AchievementEarnedHandler,
-        battleRankUpHandler: BattleRankUpHandler,
-        playerFacilityCapture: PlayerFacilityCaptureHandler,
-        playerFacilityDefend: PlayerFacilityDefendHandler,
-        continentUnlockHandler: ContinentUnlockHandler,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
         @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.characterBrokerInterface) characterBroker: CharacterBrokerInterface,
@@ -69,16 +46,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient = wsClient;
         this.deathEventHandler = deathEventHandler;
         this.metagameEventEventHandler = metagameEventEventHandler;
-        this.playerLoginEventHandler = playerLoginEventHandler;
-        this.playerLogoutEventHandler = playerLogoutEventHandler;
-        this.continentLockHandler = continentLockHandler;
         this.facilityControlEventHandler = facilityControlEventHandler;
         this.gainExperienceEventHandler = gainExperienceEventHandler;
-        this.achievementEarnedHandler = achievementEarnedHandler;
-        this.battleRankUpHandler = battleRankUpHandler;
-        this.playerFacilityCapture = playerFacilityCapture;
-        this.playerFacilityDefend = playerFacilityDefend;
-        this.continentUnlockHandler = continentUnlockHandler;
         this.instanceHandler = instanceHandler;
         this.characterPresenceHandler = characterPresenceHandler;
         this.characterBroker = characterBroker;
@@ -99,6 +68,18 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     // eslint-disable-next-line @typescript-eslint/require-await
     public async terminate(): Promise<void> {
         CensusEventSubscriberService.logger.debug('Terminating Census Stream Service!');
+    }
+
+    private static handleCharacterException(service: string, message: string): void {
+        if (
+            message.includes('No data found') ||
+            message.includes('api returned no matches for') ||
+            message.includes('No character ID was supplied!')
+        ) {
+            CensusEventSubscriberService.logger.warn(`Unable to process ${service} event! W: ${message}`);
+        } else {
+            CensusEventSubscriberService.logger.error(`Unable to process ${service} event! E: ${message}`);
+        }
     }
 
     // Here we pass all the events
@@ -135,7 +116,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 });
             }).catch((e) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                this.handleCharacterException('Death', e.message);
+                CensusEventSubscriberService.handleCharacterException('Death', e.message);
             });
         });
 
@@ -168,7 +149,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             const character = await this.characterBroker.get(event.character_id)
                 .catch((e) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    this.handleCharacterException('GainExperience', e.message);
+                    CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
                 });
 
             if (!character) {
@@ -191,53 +172,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 CensusEventSubscriberService.logger.error(e.message);
             }
-
         });
-
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.wsClient.on('playerLogin', async (event) => {
-            CensusEventSubscriberService.logger.silly('Passing PlayerLogin to listener');
-            const character = await this.characterBroker.get(event.character_id)
-                .catch((e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    this.handleCharacterException('PlayerLogin', e.message);
-                });
-
-            if (!character) {
-                return;
-            }
-
-            const playerLoginEvent = new PlayerLoginEvent(event, character);
-            await this.playerLoginEventHandler.handle(playerLoginEvent);
-        });
-
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.wsClient.on('playerLogout', async (event) => {
-            CensusEventSubscriberService.logger.silly('Passing PlayerLogout to listener');
-            const character = await this.characterBroker.get(event.character_id)
-                .catch((e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    this.handleCharacterException('PlayerLogout', e.message);
-                });
-
-            if (!character) {
-                return;
-            }
-
-            const playerLogoutEvent = new PlayerLogoutEvent(event, character);
-            await this.playerLogoutEventHandler.handle(playerLogoutEvent);
-        });
-    }
-
-    private handleCharacterException(service: string, message: string): void {
-        if (
-            message.includes('No data found') ||
-            message.includes('api returned no matches for') ||
-            message.includes('No character ID was supplied!')
-        ) {
-            CensusEventSubscriberService.logger.warn(`Unable to process ${service} event! W: ${message}`);
-        } else {
-            CensusEventSubscriberService.logger.error(`Unable to process ${service} event! E: ${message}`);
-        }
     }
 }
