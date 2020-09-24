@@ -69,7 +69,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     private async storeEvent(event: FacilityControlEvent): Promise<boolean> {
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                'facilityControlEvent',
+                'instanceFacilityControlEvent',
                 ApiMQOperations.CREATE,
                 [{
                     instance: event.instance.instanceId,
