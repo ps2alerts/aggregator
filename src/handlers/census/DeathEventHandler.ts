@@ -86,7 +86,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
             if (!error.message.includes('E11000')) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert Instance into DB! ${err}`, 'DeathEventHandler');
+                throw new ApplicationException(`Unable to pass Death to API! E: ${err}`, 'DeathEventHandler');
             }
         }
 
