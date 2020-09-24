@@ -10,6 +10,7 @@ import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenc
 import FactionUtils from '../../utils/FactionUtils';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage, {ApiMQOperations} from '../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
@@ -69,7 +70,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     private async storeEvent(event: FacilityControlEvent): Promise<boolean> {
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                'instanceFacilityControlEvent',
+                Ps2alertsApiMQEndpoints.INSTANCE_FACILITY_CONTROL,
                 ApiMQOperations.CREATE,
                 [{
                     instance: event.instance.instanceId,

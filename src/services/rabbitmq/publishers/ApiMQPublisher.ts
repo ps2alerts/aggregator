@@ -35,9 +35,9 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
         try {
             await this.channelWrapper.sendToQueue(this.config.apiQueueName, msg, {persistent: true});
             return true;
-        } catch (e) {
+        } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Could not publish message to API! E: ${e.message}`);
+            throw new ApplicationException(`Could not publish message to API! E: ${err.message}`);
         }
     }
 }
