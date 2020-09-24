@@ -25,7 +25,7 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
 
     public async connect(): Promise<boolean> {
         ApiMQPublisher.logger.info('Connecting to queue...');
-        this.channelWrapper = await this.connectionHandlerFactory.setupConnection(this.config.apiqueuename, null);
+        this.channelWrapper = await this.connectionHandlerFactory.setupConnection(this.config.apiQueueName, null);
         ApiMQPublisher.logger.info('Connected!');
 
         return true;
@@ -33,7 +33,7 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
 
     public async send(msg: ApiMQMessage): Promise<boolean> {
         try {
-            await this.channelWrapper.sendToQueue(this.config.apiqueuename, msg, {persistent: true});
+            await this.channelWrapper.sendToQueue(this.config.apiQueueName, msg, {persistent: true});
             return true;
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
