@@ -33,11 +33,11 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
     }
 
     public async send(msg: ApiMQMessage): Promise<boolean> {
-        ApiMQPublisher.logger.debug('Sending message to API MQ');
+        ApiMQPublisher.logger.debug('Sending message to API MQ...');
         ApiMQPublisher.logger.debug(jsonLogOutput(msg));
 
         try {
-            await this.channelWrapper.publish(this.config.exchange, 'create', msg);
+            await this.channelWrapper.sendToQueue(this.config.apiqueuename, msg);
             return true;
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions

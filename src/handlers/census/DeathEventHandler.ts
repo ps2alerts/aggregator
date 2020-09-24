@@ -6,26 +6,24 @@ import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {InstanceDeathSchemaInterface} from '../../models/instance/InstanceDeathModel';
-import MongooseModelFactory from '../../factories/MongooseModelFactory';
+import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQMessage, {ApiMQOperations} from '../../data/ApiMQMessage';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('DeathEventHandler');
-
-    private readonly factory: MongooseModelFactory<InstanceDeathSchemaInterface>;
-
     private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
     /* eslint-disable */
     constructor(
         @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.instanceDeathModelFactory) instanceDeathModelFactory: MongooseModelFactory<InstanceDeathSchemaInterface>,
-        @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[]
+        @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[],
+        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher
     ) {
         /* eslint-enable */
-        this.factory = instanceDeathModelFactory;
         this.aggregateHandlers = aggregateHandlers;
+        this.apiMQPublisher = apiMQPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -65,20 +63,23 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     private async storeEvent(event: DeathEvent): Promise<boolean> {
         try {
-            await this.factory.model.create({
-                instance: event.instance.instanceId,
-                attacker: event.attackerCharacter ? event.attackerCharacter.id : '0',
-                character: event.character.id,
-                timestamp: event.timestamp,
-                attackerFiremode: event.attackerFiremodeId,
-                attackerLoadout: event.attackerLoadoutId,
-                weapon: event.attackerWeaponId,
-                characterLoadout: event.characterLoadoutId,
-                isHeadshot: event.isHeadshot,
-                killType: event.killType,
-                vehicle: event.attackerVehicleId,
-            });
-            return true;
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                'instanceDeath',
+                ApiMQOperations.CREATE,
+                {
+                    instance: event.instance.instanceId,
+                    attacker: event.attackerCharacter ? event.attackerCharacter.id : '0',
+                    character: event.character.id,
+                    timestamp: event.timestamp,
+                    attackerFiremode: event.attackerFiremodeId,
+                    attackerLoadout: event.attackerLoadoutId,
+                    weapon: event.attackerWeaponId,
+                    characterLoadout: event.characterLoadoutId,
+                    isHeadshot: event.isHeadshot,
+                    killType: event.killType,
+                    vehicle: event.attackerVehicleId,
+                },
+            ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const error: Error = err;

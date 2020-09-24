@@ -21,7 +21,8 @@ export default new ContainerModule((bind) => {
     bind<AdminAggregatorSubscriber>(TYPES.rabbitMQSubscribers).to(AdminAggregatorSubscriber).inSingletonScope();
 
     // RabbitMQ Publishers
-    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher).inSingletonScope();
+    bind<ApiMQPublisher>(TYPES.apiMQPublisher).to(ApiMQPublisher).inSingletonScope();
+    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).toService(TYPES.apiMQPublisher);
 
     // Message Handlers (which actually do the things with data)
     bind<AdminAggregatorMessageHandler>(TYPES.adminMessageHandlers).to(AdminAggregatorMessageHandler).inSingletonScope();
