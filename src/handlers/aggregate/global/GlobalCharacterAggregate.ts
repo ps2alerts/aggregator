@@ -10,7 +10,6 @@ import {Kill} from 'ps2census/dist/client/events/Death';
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalCharacterAggregate');
-
     private readonly factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>;
 
     constructor(@inject(TYPES.globalCharacterAggregateFactory) factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>) {

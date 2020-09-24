@@ -25,21 +25,13 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 @injectable()
 export default class MetagameEventEvent {
     public readonly world: World;
-
     public readonly eventState: MetagameEventState;
-
     public readonly eventType: MetagameEventType;
-
     public readonly factionNc: number;
-
     public readonly factionTr: number;
-
     public readonly factionVs: number;
-
     public readonly timestamp: Date;
-
     public readonly instanceId: number;
-
     public readonly zone: Zone;
 
     constructor(event: MetagameEvent) {

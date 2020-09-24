@@ -10,7 +10,6 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class InstanceFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('InstanceFacilityControlAggregate');
-
     private readonly factory: MongooseModelFactory<InstanceFacilityControlAggregateInterface>;
 
     constructor(@inject(TYPES.instanceFacilityControlAggregateFactory) factory: MongooseModelFactory<InstanceFacilityControlAggregateInterface>) {

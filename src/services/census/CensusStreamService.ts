@@ -16,23 +16,14 @@ import {jsonLogOutput} from '../../utils/json';
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
     public readonly bootPriority = 11;
-
     private static readonly logger = getLogger('ps2census');
-
     private readonly wsClient: Client;
-
     private readonly config: Census;
-
     private readonly lastMessagesMap: Map<World, number> = new Map<World, number>();
-
     private messageTimer?: NodeJS.Timeout;
-
     private readonly overdueInstanceAuthority: OverdueInstanceAuthority;
-
     private readonly instanceHandler: InstanceHandlerInterface;
-
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
-
     private readonly populationAuthority: PopulationAuthority;
 
     constructor(

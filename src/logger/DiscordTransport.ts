@@ -25,9 +25,7 @@ export default class DiscordTransport extends Transport {
     private readonly levelColors: Record<string, number>;
     private readonly username?: string;
     private readonly avatarUrl?: string;
-
     private readonly axios: AxiosInstance;
-
     private readonly queue: Set<Set<Embed>> = new Set();
     private working = false;
     private ratelimited = false;

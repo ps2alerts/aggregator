@@ -18,13 +18,9 @@ export interface TransportConfig<K extends keyof TransportsIndex = keyof Transpo
 
 export default class Logger {
     public readonly levels = config.npm.levels;
-
     public readonly level = get('LOG_LEVEL', get('NODE_ENV', 'development') === 'development' ? 'debug' : 'info');
-
     public readonly globalFilter: LogFilter = [];
-
     public readonly transport: string | string[] = get('LOGGER_TRANSPORTS', 'consoleDev').split(',');
-
     public readonly transports: Record<string, TransportConfig> = {
         consoleColour: {
             name: 'console',

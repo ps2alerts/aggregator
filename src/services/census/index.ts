@@ -9,9 +9,9 @@ import {TYPES} from '../../constants/types';
 import {RedisConnection} from '../redis/RedisConnection';
 
 export default new ContainerModule((bind) => {
-    bind<ServiceInterface>(SERVICE).to(CensusStreamService);
-
     const streamManagerConfig: EventStreamManagerConfig = config.census.streamManagerConfig;
+
+    bind<ServiceInterface>(SERVICE).to(CensusStreamService);
 
     bind<Census>('censusConfig').toConstantValue(config.census);
 
