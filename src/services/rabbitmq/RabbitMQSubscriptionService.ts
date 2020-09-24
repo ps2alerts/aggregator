@@ -2,7 +2,7 @@ import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {injectable, multiInject} from 'inversify';
 import {TYPES} from '../../constants/types';
-import {MessageQueueChannelWrapperInterface} from '../../interfaces/MessageQueueChannelWrapperInterface';
+import {RabbitMQSubscriberInterface} from '../../interfaces/RabbitMQSubscriberInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
 
 @injectable()
@@ -11,9 +11,9 @@ export default class RabbitMQSubscriptionService implements ServiceInterface {
 
     private static readonly logger = getLogger('RabbitMQSubscriptionService');
 
-    private readonly messageQueueSubscribers: MessageQueueChannelWrapperInterface[];
+    private readonly messageQueueSubscribers: RabbitMQSubscriberInterface[];
 
-    constructor(@multiInject(TYPES.messageQueueSubscribers) messageQueueSubscribers: MessageQueueChannelWrapperInterface[],
+    constructor(@multiInject(TYPES.messageQueueSubscribers) messageQueueSubscribers: RabbitMQSubscriberInterface[],
     ) {
         this.messageQueueSubscribers = messageQueueSubscribers;
     }
@@ -22,7 +22,7 @@ export default class RabbitMQSubscriptionService implements ServiceInterface {
     public async boot(): Promise<void> {
         RabbitMQSubscriptionService.logger.debug('Booting RabbitMQSubscriptionService...');
         await Promise.all(this.messageQueueSubscribers.map(
-            (subscriber: MessageQueueChannelWrapperInterface) => subscriber.subscribe()
+            (subscriber: RabbitMQSubscriberInterface) => subscriber.subscribe()
                 .catch((e) => {
                     if (e instanceof Error) {
                         throw new ApplicationException(`Error subscribing to RabbitMQ! E: ${e.message}`, 'RabbitMQSubscriptionService', 1);

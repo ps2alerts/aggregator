@@ -56,6 +56,9 @@ const TYPES = {
 
     // Factories
     instanceActionFactory: Symbol.for('InstanceActionFactory'),
+
+    // RabbitMQ
+    rabbitMqConnectionHandlerFactory: Symbol.for('RabbitMQConnectionHandlerFactory'),
 };
 
 export {TYPES};
