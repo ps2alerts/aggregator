@@ -4,7 +4,6 @@ import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFact
 import {TYPES} from '../../../constants/types';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
-import {jsonLogOutput} from '../../../utils/json';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
@@ -33,11 +32,8 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
     }
 
     public async send(msg: ApiMQMessage): Promise<boolean> {
-        ApiMQPublisher.logger.debug('Sending message to API MQ...');
-        ApiMQPublisher.logger.debug(jsonLogOutput(msg));
-
         try {
-            await this.channelWrapper.sendToQueue(this.config.apiqueuename, msg);
+            await this.channelWrapper.sendToQueue(this.config.apiqueuename, msg, {persistent: true});
             return true;
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions

@@ -66,7 +66,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
             await this.apiMQPublisher.send(new ApiMQMessage(
                 'instanceDeath',
                 ApiMQOperations.CREATE,
-                {
+                [{
                     instance: event.instance.instanceId,
                     attacker: event.attackerCharacter ? event.attackerCharacter.id : '0',
                     character: event.character.id,
@@ -78,7 +78,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                     isHeadshot: event.isHeadshot,
                     killType: event.killType,
                     vehicle: event.attackerVehicleId,
-                },
+                }],
             ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

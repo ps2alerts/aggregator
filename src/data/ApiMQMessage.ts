@@ -7,13 +7,10 @@ export enum ApiMQOperations {
 
 export default class ApiMQMessage {
     public readonly pattern: string;
-    public readonly operation: ApiMQOperations;
-    public readonly body: any;
+    public readonly data: any[];
 
-    constructor(pattern: string, operation: ApiMQOperations, body: any) {
-        this.pattern = pattern;
-        this.operation = operation;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.body = body;
+    constructor(endpoint: string, operation: ApiMQOperations, docs: any[]) {
+        this.pattern = `${endpoint}.${operation}`;
+        this.data = docs;
     }
 }
