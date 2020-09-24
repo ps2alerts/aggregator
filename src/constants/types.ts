@@ -50,15 +50,19 @@ const TYPES = {
     // Metric Models
     characterPresenceFactory: Symbol.for('CharacterPresenceFactory'),
 
-    // Message Queues
-    messageQueueSubscribers: Symbol.for('MessageQueueSubscribers'),
-    mqAdminMessage: Symbol.for('MQAdminMessage'),
-
-    // Factories
-    instanceActionFactory: Symbol.for('InstanceActionFactory'),
-
-    // RabbitMQ
+    // Message Queue
     rabbitMqConnectionHandlerFactory: Symbol.for('RabbitMQConnectionHandlerFactory'),
+    // Subscribers
+    rabbitMQSubscribers: Symbol.for('RabbitMQSubscribers'),
+    adminAggregatorSubscriber: Symbol.for('AdminAggregatorSubscriber'),
+    // Publishers
+    rabbitMQPublishers: Symbol.for('RabbitMQPublishers'),
+    apiMQPublisher: Symbol.for('ApiMQPublisher'),
+    // Handlers
+    adminMessageHandlers: Symbol.for('adminMessageHandlers'),
+
+    // Other Factories
+    instanceActionFactory: Symbol.for('InstanceActionFactory'),
 };
 
 export {TYPES};

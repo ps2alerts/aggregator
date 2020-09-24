@@ -4,7 +4,7 @@ import {ConsumeMessage} from 'amqplib';
 import {jsonLogOutput} from '../../../utils/json';
 import {getLogger} from '../../../logger';
 import {ChannelWrapper} from 'amqp-connection-manager';
-import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
+import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
 import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
 import {TYPES} from '../../../constants/types';
 import {MessageQueueHandlerInterface} from '../../../interfaces/MessageQueueHandlerInterface';
@@ -13,25 +13,25 @@ import {get} from '../../../utils/env';
 import ApplicationException from '../../../exceptions/ApplicationException';
 
 @injectable()
-export default class AdminAggregatorSubscriber implements RabbitMQSubscriberInterface {
+export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwareInterface {
     private static readonly logger = getLogger('AdminAggregatorSubscriber');
     private static channelWrapper: ChannelWrapper;
     private static queueName = '';
-    private static mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
+    private static adminMessageHandlers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
     private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
     constructor(
-    @multiInject(TYPES.mqAdminMessage) mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>,
+    @multiInject(TYPES.adminMessageHandlers) mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>,
         @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,
         @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
     ) {
         AdminAggregatorSubscriber.queueName = `adminAggregator-${get('NODE_ENV', 'development')}`;
-        AdminAggregatorSubscriber.mqAdminMessageSubscribers = mqAdminMessageSubscribers;
+        AdminAggregatorSubscriber.adminMessageHandlers = mqAdminMessageSubscribers;
         this.connectionHandlerFactory = connectionHandlerFactory;
     }
 
     // We call subscribe now rather than in the constructor so we don't have multiple connections open, and it's called as and when it's required
     // from the subscriber itself.
-    public async subscribe(): Promise<boolean> {
+    public async connect(): Promise<boolean> {
         AdminAggregatorSubscriber.logger.info('Subscribing...');
         AdminAggregatorSubscriber.channelWrapper = await this.connectionHandlerFactory.setupConnection(AdminAggregatorSubscriber.queueName, this.handleMessage);
         AdminAggregatorSubscriber.logger.info('Subscribed!');
@@ -88,7 +88,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQSubscriberInte
             return false;
         }
 
-        AdminAggregatorSubscriber.mqAdminMessageSubscribers.map(
+        AdminAggregatorSubscriber.adminMessageHandlers.map(
             (handler: MessageQueueHandlerInterface<ParsedQueueMessage>) => void handler.handle(message)
                 .catch((e) => {
                     if (e instanceof Error) {
