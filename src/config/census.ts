@@ -18,7 +18,6 @@ export default class Census {
      * @type {EventStreamManagerConfig} Configuration for event stream subscriptions
      */
     public readonly streamManagerConfig: EventStreamManagerConfig;
-
     public readonly enableInjections: boolean;
 
     constructor() {

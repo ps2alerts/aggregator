@@ -11,7 +11,6 @@ import {Kill} from 'ps2census/dist/client/events/Death';
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalFactionCombatAggregate');
-
     private readonly factory: MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>;
 
     constructor(@inject(TYPES.globalFactionCombatAggregateFactory) factory: MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>) {

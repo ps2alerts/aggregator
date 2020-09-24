@@ -7,9 +7,7 @@ import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
 @injectable()
 export default class OverdueInstanceAuthority {
     private static readonly logger = getLogger('OverdueInstanceAuthority');
-
     private readonly instanceHandler: InstanceHandlerInterface;
-
     private timer?: NodeJS.Timeout;
 
     constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {

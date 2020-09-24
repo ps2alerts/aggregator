@@ -30,29 +30,17 @@ import Character from '../../../data/Character';
 @injectable()
 export default class DeathEvent {
     public readonly instance: PS2AlertsInstanceInterface;
-
     public readonly world: World;
-
     public readonly zone: Zone;
-
     public readonly timestamp: Date;
-
     public readonly character: Character;
-
     public readonly characterLoadoutId: number;
-
     public readonly attackerCharacter: Character;
-
     public readonly attackerFiremodeId: number;
-
     public readonly attackerLoadoutId: number;
-
     public readonly attackerVehicleId: number;
-
     public readonly attackerWeaponId: number;
-
     public readonly isHeadshot: boolean;
-
     public readonly killType: Kill;
 
     constructor(

@@ -1,8 +1,6 @@
 export default class ApplicationException extends Error {
     private _message: string;
-
     private _origin: string|null;
-
     private _code: number|null;
 
     get message(): string {

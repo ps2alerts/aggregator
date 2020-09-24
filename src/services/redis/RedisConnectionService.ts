@@ -6,9 +6,7 @@ import {RedisConnection} from './RedisConnection';
 @injectable()
 export default class RedisConnectionService implements ServiceInterface {
     public readonly bootPriority = 10;
-
     private static readonly logger = getLogger('RedisConnectionService');
-
     private readonly redisConnection: RedisConnection;
 
     constructor(redisConnection: RedisConnection) {

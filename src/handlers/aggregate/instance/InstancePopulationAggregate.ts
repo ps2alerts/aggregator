@@ -12,11 +12,8 @@ import InstanceHandlerInterface from '../../../interfaces/InstanceHandlerInterfa
 @injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
     private static readonly logger = getLogger('InstancePopulationAggregate');
-
     private readonly playerHandler: CharacterPresenceHandlerInterface;
-
     private readonly factory: MongooseModelFactory<InstancePopulationAggregateSchemaInterface>;
-
     private readonly instanceHandler: InstanceHandlerInterface;
 
     constructor(

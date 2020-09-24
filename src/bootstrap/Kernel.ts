@@ -22,9 +22,7 @@ enum RunningStates {
 @injectable()
 export default class Kernel implements KernelInterface {
     private static readonly logger = getLogger('kernel');
-
     private readonly container: Container;
-
     private readonly services: ServiceInterface[];
 
     /**
