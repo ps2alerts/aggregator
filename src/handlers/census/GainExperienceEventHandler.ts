@@ -27,7 +27,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
         try {
             await Promise.all([
                 this.characterPresenceHandler.update(event.character, event.zone),
-                this.storeEvent(event),
+                // We will never store this event. We're not lunatics. We *might* aggregate it later.
             ]);
         } catch (e) {
             if (e instanceof Error) {
@@ -40,12 +40,5 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
         }
 
         return true;
-    }
-
-    // WIP
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/require-await
-    private async storeEvent(gainExperienceEvent: GainExperienceEvent): Promise<boolean> {
-        return true;
-        // TODO Save to database
     }
 }

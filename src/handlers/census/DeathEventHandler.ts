@@ -64,7 +64,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
     private async storeEvent(event: DeathEvent): Promise<boolean> {
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                'instanceDeath',
+                'deathEvent',
                 ApiMQOperations.CREATE,
                 [{
                     instance: event.instance.instanceId,
@@ -80,16 +80,10 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                     vehicle: event.attackerVehicleId,
                 }],
             ));
+            return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to pass Death to API! E: ${err}`, 'DeathEventHandler');
-            }
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            throw new ApplicationException(`Unable to pass Death to API! E: ${err}`, 'DeathEventHandler');
         }
-
-        return false;
     }
 }
