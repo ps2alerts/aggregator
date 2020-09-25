@@ -39,7 +39,7 @@
     "logform": "^2.2.0",
     "mongoose": "^5.9.24",
     "mysql2": "^2.1.0",
-    "ps2census": "^0.4.3",
+    "ps2census": "^0.5.6",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^4.2.0",
     "usage": "^0.7.1",

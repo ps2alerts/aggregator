@@ -2,7 +2,7 @@ import {Faction} from '../constants/faction';
 import {World} from '../constants/world';
 import Outfit from './Outfit';
 import {CharacterInterface} from '../interfaces/CharacterInterface';
-import outfitMemberExtended from 'ps2census/dist/rest/types/outfitMemberExtended';
+import {rest} from 'ps2census';
 import ApplicationException from '../exceptions/ApplicationException';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
 
@@ -26,7 +26,7 @@ class Character implements CharacterInterface {
         this.outfit = null;
 
         if (characterData.outfit_member) {
-            const outfitData: outfitMemberExtended = characterData.outfit_member;
+            const outfitData: rest.collectionTypes.outfitMemberExtended = characterData.outfit_member;
 
             // Build outfit object and inject
             this.outfit = new Outfit(outfitData, characterData);
