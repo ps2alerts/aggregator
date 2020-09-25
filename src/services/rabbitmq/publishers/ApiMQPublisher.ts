@@ -32,6 +32,11 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
     }
 
     public async send(msg: ApiMQMessage): Promise<boolean> {
+        // Throw if we're attempting to send empty documents
+        if (msg.data.docs.length === 0) {
+            throw new ApplicationException(`Attempted to send 0 documents to the API, pointless! Pattern: ${msg.pattern}`);
+        }
+
         try {
             await this.channelWrapper.sendToQueue(this.config.apiQueueName, msg, {persistent: true});
             return true;

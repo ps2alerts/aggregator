@@ -2,18 +2,19 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
-import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {InstanceOutfitAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceOutfitAggregateModel';
 import {Kill} from 'ps2census/dist/client/events/Death';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQMessage from '../../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceOutfitAggregate');
-    private readonly factory: MongooseModelFactory<InstanceOutfitAggregateSchemaInterface>;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.instanceOutfitAggregateFactory) factory: MongooseModelFactory<InstanceOutfitAggregateSchemaInterface>) {
-        this.factory = factory;
+    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+        this.apiMQPublisher = apiMQPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -46,39 +47,35 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
         const attackerOutfitId = event.attackerCharacter.outfit ? event.attackerCharacter.outfit.id : `-${event.attackerCharacter.faction}`;
         const victimOutfitId = event.character.outfit ? event.character.outfit.id : `-${event.character.faction}`;
 
-        // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
-        attackerDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
-                    outfit: attackerOutfitId,
-                    instance: event.instance.instanceId,
-                },
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                InstanceOutfitAggregate.logger.error(`Updating InstanceOutfitAggregate Attacker Error! ${err}`);
-            });
-        });
+        if (attackerDocs.length > 0) {
+            try {
+                await this.apiMQPublisher.send(new ApiMQMessage(
+                    Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
+                    attackerDocs,
+                    [{
+                        outfit: attackerOutfitId,
+                        instance: event.instance.instanceId,
+                    }],
+                ));
+            } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
+        }
 
-        victimDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
+        try {
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
+                victimDocs,
+                [{
                     outfit: victimOutfitId,
                     instance: event.instance.instanceId,
-                },
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err: Error) => {
-                if (!err.message.includes('E11000')) {
-                    InstanceOutfitAggregate.logger.error(`Updating InstanceOutfitAggregate Victim Error! ${err.message}`);
-                }
-            });
-        });
+                }],
+            ));
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+        }
 
         return true;
     }

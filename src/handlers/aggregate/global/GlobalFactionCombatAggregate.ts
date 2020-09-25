@@ -2,19 +2,20 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
-import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFactionCombatAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census/dist/client/events/Death';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQMessage from '../../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalFactionCombatAggregate');
-    private readonly factory: MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.globalFactionCombatAggregateFactory) factory: MongooseModelFactory<GlobalFactionCombatAggregateSchemaInterface>) {
-        this.factory = factory;
+    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+        this.apiMQPublisher = apiMQPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -66,20 +67,16 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             );
         }
 
-        // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
-        documents.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {world: event.instance.world},
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err: Error) => {
-                if (!err.message.includes('E11000')) {
-                    GlobalFactionCombatAggregate.logger.error(`Updating GlobalFactionCombatAggregate Error! ${err.message}`);
-                }
-            });
-        });
+        try {
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                Ps2alertsApiMQEndpoints.GLOBAL_FACTION_COMBAT_AGGREGATE,
+                documents,
+                [{world: event.instance.world}],
+            ));
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            GlobalFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+        }
 
         return true;
     }

@@ -9,8 +9,8 @@ export default class ApiMQMessage {
     public readonly pattern: string;
     public readonly data: { docs: any[], conditionals?: any[]};
 
-    constructor(endpoint: string, operation: ApiMQOperations, docs: any[], conditionals: any[] = []) {
-        this.pattern = `${endpoint}.${operation}`;
+    constructor(endpoint: string, docs: any[], conditionals: any[] = []) {
+        this.pattern = endpoint;
         this.data = {
             docs,
             conditionals,

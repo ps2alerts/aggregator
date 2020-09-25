@@ -2,18 +2,19 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
-import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalOutfitAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalOutfitAggregateModel';
 import {Kill} from 'ps2census/dist/client/events/Death';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQMessage from '../../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
 export default class GlobalOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalOutfitAggregate');
-    private readonly factory: MongooseModelFactory<GlobalOutfitAggregateSchemaInterface>;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.globalOutfitAggregateFactory) factory: MongooseModelFactory<GlobalOutfitAggregateSchemaInterface>) {
-        this.factory = factory;
+    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+        this.apiMQPublisher = apiMQPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -46,38 +47,29 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
         const attackerOutfitId = event.attackerCharacter.outfit ? event.attackerCharacter.outfit.id : `-${event.attackerCharacter.faction}`;
         const victimOutfitId = event.character.outfit ? event.character.outfit.id : `-${event.character.faction}`;
 
-        // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
-        attackerDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
-                    outfit: attackerOutfitId,
-                },
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err: Error) => {
-                if (!err.message.includes('E11000')) {
-                    GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Attacker Error! ${err.message}`);
-                }
-            });
-        });
+        if (attackerDocs.length > 0) {
+            try {
+                await this.apiMQPublisher.send(new ApiMQMessage(
+                    Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
+                    attackerDocs,
+                    [{outfit: attackerOutfitId}],
+                ));
+            } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
+        }
 
-        victimDocs.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
-                    outfit: victimOutfitId,
-                },
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err: Error) => {
-                if (!err.message.includes('E11000')) {
-                    GlobalOutfitAggregate.logger.error(`Updating GlobalOutfitAggregate Victim Error! ${err.message}`);
-                }
-            });
-        });
+        try {
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
+                victimDocs,
+                [{outfit: victimOutfitId}],
+            ));
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+        }
 
         return true;
     }

@@ -5,7 +5,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census/dist/client/events/Death';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import ApiMQMessage, {ApiMQOperations} from '../../../data/ApiMQMessage';
+import ApiMQMessage from '../../../data/ApiMQMessage';
 import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
@@ -50,11 +50,10 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
             attackerDocs.push({$inc: {headshots: 1}});
         }
 
-        if (event.attackerCharacter) {
+        if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
                     Ps2alertsApiMQEndpoints.GLOBAL_CHARACTER_AGGREGATE,
-                    ApiMQOperations.CREATE,
                     attackerDocs,
                     [{character: event.attackerCharacter.id}],
                 ));
@@ -67,7 +66,6 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
                 Ps2alertsApiMQEndpoints.GLOBAL_CHARACTER_AGGREGATE,
-                ApiMQOperations.CREATE,
                 victimDocs,
                 [{character: event.character.id}],
             ));

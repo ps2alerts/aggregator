@@ -2,18 +2,19 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
-import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
-import {GlobalWeaponAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalWeaponAggregateModel';
 import {Kill} from 'ps2census/dist/client/events/Death';
+import ApiMQMessage from '../../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 
 @injectable()
 export default class GlobalWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalWeaponAggregate');
-    private readonly factory: MongooseModelFactory<GlobalWeaponAggregateSchemaInterface>;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.globalWeaponAggregateFactory) factory: MongooseModelFactory<GlobalWeaponAggregateSchemaInterface>) {
-        this.factory = factory;
+    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+        this.apiMQPublisher = apiMQPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -37,23 +38,19 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
             documents.push({$inc: {headshots: 1}});
         }
 
-        // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
-        documents.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
+        try {
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                Ps2alertsApiMQEndpoints.GLOBAL_WEAPON_AGGREGATE,
+                documents,
+                [{
                     weapon: event.attackerWeaponId,
                     world: event.instance.world,
-                },
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err: Error) => {
-                if (!err.message.includes('E11000')) {
-                    GlobalWeaponAggregate.logger.error(`Updating GlobalWeaponAggregate Error! ${err.message}`);
-                }
-            });
-        });
+                }],
+            ));
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            GlobalWeaponAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+        }
 
         return true;
     }

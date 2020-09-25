@@ -9,7 +9,7 @@ import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import FactionUtils from '../../utils/FactionUtils';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
-import ApiMQMessage, {ApiMQOperations} from '../../data/ApiMQMessage';
+import ApiMQMessage from '../../data/ApiMQMessage';
 import {Ps2alertsApiMQEndpoints} from '../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
@@ -71,7 +71,6 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
                 Ps2alertsApiMQEndpoints.INSTANCE_FACILITY_CONTROL,
-                ApiMQOperations.CREATE,
                 [{
                     instance: event.instance.instanceId,
                     facility: event.facility,
