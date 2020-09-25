@@ -22,7 +22,7 @@ export default new ContainerModule((bind) => {
 
     bind(Client)
         .toDynamicValue(({container}) => {
-            const clientConfig = config.census.clientConfig;
+            const clientConfig = {...config.census.clientConfig};
 
             clientConfig.characterManager = {
                 ...clientConfig.characterManager,
