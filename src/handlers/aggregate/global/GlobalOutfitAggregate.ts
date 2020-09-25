@@ -5,7 +5,7 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import {GlobalOutfitAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalOutfitAggregateModel';
-import {Kill} from 'ps2census/dist/client/events/Death';
+import {Kill} from 'ps2census';
 
 @injectable()
 export default class GlobalOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {

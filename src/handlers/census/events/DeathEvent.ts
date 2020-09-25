@@ -24,7 +24,7 @@ import {World} from '../../../constants/world';
 import {Zone} from '../../../constants/zone';
 import {Death} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
-import {Kill} from 'ps2census/dist/client/events/Death';
+import {Kill} from 'ps2census';
 import Character from '../../../data/Character';
 
 @injectable()
