@@ -2,7 +2,7 @@ import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import config from '../../config';
 import CensusStreamService from './CensusStreamService';
-import {Client, EventStreamManagerConfig, rest} from 'ps2census';
+import {Client} from 'ps2census';
 import Census from '../../config/census';
 import CensusCacheDriver from '../../drivers/CensusCacheDriver';
 import {TYPES} from '../../constants/types';
@@ -10,8 +10,6 @@ import {RedisConnection} from '../redis/RedisConnection';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(CensusStreamService);
-
-    const streamManagerConfig: EventStreamManagerConfig = config.census.streamManagerConfig;
 
     bind<Census>('censusConfig').toConstantValue(config.census);
 
@@ -23,30 +21,15 @@ export default new ContainerModule((bind) => {
         ));
 
     bind(Client)
-        .toDynamicValue(({container}) => new Client({
-            serviceId: config.census.serviceID,
-            streamManagerConfig,
-            characterManager: {
+        .toDynamicValue(({container}) => {
+            const clientConfig = {...config.census.clientConfig};
+
+            clientConfig.characterManager = {
+                ...clientConfig.characterManager,
                 cache: container.get(TYPES.censusCharacterCacheDriver),
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                request: rest.resolve(
-                    rest.hide(
-                        rest.character,
-                        [
-                            'head_id',
-                            'times',
-                            'certs',
-                            'profile_id',
-                            'title_id',
-                            'daily_ribbon',
-                        ],
-                    ),
-                    [
-                        'world',
-                        ['outfit_member_extended', ['outfit_id', 'name', 'alias', 'leader_character_id']],
-                    ],
-                ),
-            },
-        }))
+            };
+
+            return new Client(config.census.serviceID, clientConfig);
+        })
         .inSingletonScope();
 });

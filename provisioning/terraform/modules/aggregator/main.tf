@@ -1,4 +1,4 @@
-resource "kubernetes_service" "ps2alerts_websocket_service" {
+resource "kubernetes_service" "ps2alerts_aggregator_service" {
   metadata {
     name = var.identifier
     namespace = var.namespace
@@ -20,7 +20,7 @@ resource "kubernetes_service" "ps2alerts_websocket_service" {
   }
 }
 
-resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
+resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
   metadata {
     name = var.identifier
     namespace = var.namespace
@@ -140,43 +140,6 @@ resource "kubernetes_deployment" "ps2alerts_websocket_deployment" {
           env {
             name = "LOGGER_TRANSPORTS"
             value = var.logger_transports
-          }
-        }
-      }
-    }
-  }
-}
-
-resource "kubernetes_ingress" "ps2alerts_websocket_ingress" {
-  metadata {
-    name = var.identifier
-    namespace = var.namespace
-    labels = {
-      app = var.identifier
-      environment = var.environment
-    }
-    annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-      "cert-manager.io/cluster-issuer" = var.identifier
-      "nginx.ingress.kubernetes.io/proxy-body-size" = "10m"
-    }
-  }
-  spec {
-    backend {
-      service_name = kubernetes_service.ps2alerts_websocket_service.metadata[0].name
-      service_port = kubernetes_service.ps2alerts_websocket_service.spec[0].port[0].port
-    }
-    tls {
-      hosts = [var.url]
-      secret_name = var.identifier
-    }
-    rule {
-      host = var.url
-      http {
-        path {
-          backend {
-            service_name = var.identifier
-            service_port = 443
           }
         }
       }

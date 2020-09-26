@@ -10,7 +10,6 @@ import GainExperienceEvent from './events/GainExperienceEvent';
 @injectable()
 export default class GainExperienceEventHandler implements EventHandlerInterface<GainExperienceEvent> {
     private static readonly logger = getLogger('GainExperienceHandler');
-
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
     constructor(@inject(TYPES.characterPresenceHandlerInterface) characterHandler: CharacterPresenceHandlerInterface) {

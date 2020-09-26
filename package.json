@@ -1,7 +1,7 @@
 {
-  "name": "ps2alerts-websocket",
+  "name": "ps2alerts-aggregator",
   "version": "0.1.2",
-  "description": "The websocket collection script that powers PS2Alerts.com.",
+  "description": "The aggregator collection script that powers PS2Alerts.com.",
   "main": "./dist",
   "scripts": {
     "start": "node dist/index.js",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://Maelstromeous@github.com/PS2Alerts/websocket.git"
+    "url": "git+https://Maelstromeous@github.com/PS2Alerts/aggregator.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ps2alerts/websocket/issues"
+    "url": "https://github.com/ps2alerts/aggregator/issues"
   },
-  "homepage": "https://github.com/ps2alerts/websocket#readme",
+  "homepage": "https://github.com/ps2alerts/aggregator#readme",
   "dependencies": {
     "amqp-connection-manager": "^3.2.0",
     "amqplib": "^0.6.0",
@@ -39,7 +39,7 @@
     "logform": "^2.2.0",
     "mongoose": "^5.9.24",
     "mysql2": "^2.1.0",
-    "ps2census": "^0.4.3",
+    "ps2census": "^0.5.6",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^4.2.0",
     "usage": "^0.7.1",
@@ -60,9 +60,5 @@
     "eslint": "^7.4.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.0.1",
-    "utf-8-validate": "^5.0.2"
   }
 }

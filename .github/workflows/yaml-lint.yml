@@ -1,8 +1,6 @@
 ---
 name: Yaml Linter
 on:
-  push:
-    branches: [master, staging, revive]
   pull_request:
 jobs:
   yaml-lint:

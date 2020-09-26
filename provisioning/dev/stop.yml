@@ -1,8 +1,8 @@
 ---
 - hosts: localhost
   tasks:
-    - name: Stop Websocket container
+    - name: Stop Aggregator container
       docker_container:
-        name: ps2alerts-websocket
+        name: ps2alerts-aggregator
         state: stopped
       ignore_errors: yes

@@ -7,8 +7,6 @@ import {rest} from 'ps2census';
 import Census from '../config/census';
 import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
 import ApplicationException from '../exceptions/ApplicationException';
-import mapRegion from 'ps2census/dist/rest/types/mapRegion';
-import facilityLink from 'ps2census/dist/rest/types/facilityLink';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
 
@@ -142,26 +140,21 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
 
     private async getMapFacilities(): Promise<void> {
         const get = rest.getFactory('ps2', this.censusConfig.serviceID);
-        /* eslint-disable */
         await get(
-            // @ts-ignore
             rest.limit(
-                // @ts-ignore https://github.com/microwavekonijn/ps2census/issues/32
                 rest.mapRegion,
                 1000,
             ),
             {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 zone_id: String(this.instance.zone),
             },
-        /* eslint-enable */
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore https://github.com/microwavekonijn/ps2census/issues/32
-        ).then((result: mapRegion[]) => {
+        ).then((result) => {
             if (result.length === 0) {
                 throw new ApplicationException(`Unable to get Facility map for I: ${this.instance.instanceId} - Z: ${this.instance.zone}`, 'TerritoryVictoryCondition');
             }
 
-            result.forEach((region: mapRegion) => {
+            result.forEach((region: rest.collectionTypes.mapRegion) => {
                 const id = parseInt(region.facility_id, 10);
                 const facility: FacilityInterface = {
                     facilityId: id,
@@ -177,22 +170,17 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         const facilityLatticeLinks: FacilityLatticeLinkInterface[] = [];
         const get = rest.getFactory('ps2', this.censusConfig.serviceID);
 
-        /* eslint-disable */
         await get(
-            // @ts-ignore
             rest.limit(
-                // @ts-ignore https://github.com/microwavekonijn/ps2census/issues/32
                 rest.facilityLink,
                 1000,
             ),
             {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 zone_id: String(this.instance.zone),
             },
-        /* eslint-enable */
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore https://github.com/microwavekonijn/ps2census/issues/32
-        ).then((result: facilityLink[]) => {
-            result.forEach((link: facilityLink) => {
+        ).then((result) => {
+            result.forEach((link: rest.collectionTypes.facilityLink) => {
                 facilityLatticeLinks.push({
                     facilityA: parseInt(link.facility_id_a, 10),
                     facilityB: parseInt(link.facility_id_b, 10),
@@ -207,7 +195,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         return facilityLatticeLinks;
     }
 
-    // Oh boi, it's graph time! https://github.com/ps2alerts/websocket/issues/125#issuecomment-689070901
+    // Oh boi, it's graph time! https://github.com/ps2alerts/aggregator/issues/125#issuecomment-689070901
     // This function traverses the lattice links for each base, starting at the warpgate. It traverses each link until no other
     // bases can be found that are owned by the same faction. It then adds each facility to a map, which we collate later to get the raw number of bases.
     private async traverse(facilityId: number, linkingFaction: Faction, depth: number, latticeLinks: FacilityLatticeLinkInterface[]): Promise<boolean> {

@@ -15,7 +15,6 @@ import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
-
     private readonly instanceHandler: InstanceHandlerInterface;
 
     constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {
@@ -81,6 +80,6 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
             }
         }
 
-        throw new ApplicationException('Unhandled execition path', 'MetagameEventEventHandler');
+        throw new ApplicationException('Unhandled execution path', 'MetagameEventEventHandler');
     }
 }

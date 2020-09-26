@@ -9,7 +9,6 @@ import ApplicationException from '../exceptions/ApplicationException';
 @injectable()
 export default class CharacterBroker implements CharacterBrokerInterface {
     private static readonly logger = getLogger('CharacterBroker');
-
     private readonly wsClient: Client;
 
     constructor(

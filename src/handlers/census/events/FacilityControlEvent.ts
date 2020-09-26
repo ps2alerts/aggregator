@@ -22,19 +22,12 @@ import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInt
 @injectable()
 export default class FacilityControlEvent {
     public readonly instance: PS2AlertsInstanceInterface;
-
     public readonly facility: number;
-
     public readonly timestamp: Date;
-
     public readonly oldFaction: Faction;
-
     public readonly newFaction: Faction;
-
     public readonly durationHeld: number;
-
     public readonly isDefence: boolean;
-
     public readonly outfitCaptured: string | null;
 
     constructor(event: FacilityControl, instance: PS2AlertsInstanceInterface) {

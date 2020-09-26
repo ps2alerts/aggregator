@@ -10,7 +10,6 @@ import {GlobalFacilityControlAggregateSchemaInterface} from '../../../models/agg
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
-
     private readonly factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>;
 
     constructor(@inject(TYPES.globalFacilityControlAggregateFactory) factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>) {

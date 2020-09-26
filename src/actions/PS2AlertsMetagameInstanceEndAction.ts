@@ -55,6 +55,8 @@ export default class PS2AlertsMetagameInstanceEndAction implements ActionInterfa
             this.censusConfig,
         ).calculate();
 
+        PS2AlertsMetagameInstanceEndAction.logger.info(victoryData);
+
         if (victoryData.draw) {
             PS2AlertsMetagameInstanceEndAction.logger.info(`Instance ${this.instance.instanceId} resulted in a DRAW!`);
         } else {

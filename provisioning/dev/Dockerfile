@@ -1,4 +1,4 @@
-FROM ps2alerts/websocket:base
+FROM ps2alerts/aggregator:base
 
 USER root
 

@@ -8,11 +8,8 @@ import PopulationData from '../data/PopulationData';
 @injectable()
 export default class PopulationAuthority {
     private static readonly logger = getLogger('PopulationAuthority');
-
     private timer?: NodeJS.Timeout;
-
     private readonly populationHandler: PopulationHandlerInterface<PopulationData>;
-
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
     constructor(

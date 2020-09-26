@@ -46,19 +46,16 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 zone_ids: String(this.instance.zone),
             },
-        ).then((mapData: any) => {
+        ).then((mapData) => {
             const date = new Date();
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            mapData[0].Regions.Row.forEach((row: any) => {
+            mapData[0].Regions.Row.forEach((row) => {
                 docs.push({
                     instance: this.instance.instanceId,
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     facility: parseInt(row.RowData.map_region.facility_id, 10),
                     timestamp: date,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     oldFaction: parseInt(row.RowData.FactionId, 10),
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     newFaction: parseInt(row.RowData.FactionId, 10),
                     durationHeld: 0,
                     isDefence: 0,

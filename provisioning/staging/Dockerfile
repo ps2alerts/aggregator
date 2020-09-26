@@ -1,4 +1,4 @@
-FROM maelstromeous/applications:ps2alerts-websocket-base
+FROM maelstromeous/applications:ps2alerts-aggregator-base
 
 USER root
 

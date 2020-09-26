@@ -7,9 +7,7 @@ import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
 @injectable()
 export default class OverdueInstanceAuthority {
     private static readonly logger = getLogger('OverdueInstanceAuthority');
-
     private readonly instanceHandler: InstanceHandlerInterface;
-
     private timer?: NodeJS.Timeout;
 
     constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {
@@ -34,7 +32,8 @@ export default class OverdueInstanceAuthority {
                     OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
                     void this.instanceHandler.endInstance(instance);
                 } catch (err) {
-                    OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended!`);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! E: ${err.message}`);
                 }
             });
         }, 120000);

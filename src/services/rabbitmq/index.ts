@@ -3,16 +3,16 @@ import {ContainerModule} from 'inversify';
 import config from '../../config';
 import RabbitMQ from '../../config/rabbitmq';
 import RabbitMQSubscriptionService from './RabbitMQSubscriptionService';
-import AdminWebsocketWrapper from './channels/AdminWebsocketWrapper';
+import AdminAggregatorWrapper from './channels/AdminAggregatorWrapper';
 import {TYPES} from '../../constants/types';
-import AdminWebsocketMessageHandler from '../../handlers/messages/AdminWebsocketMessageHandler';
+import AdminAggregatorMessageHandler from '../../handlers/messages/AdminAggregatorMessageHandler';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(RabbitMQSubscriptionService);
 
     bind<RabbitMQ>('rabbitMQConfig').toConstantValue(config.rabbitmq);
 
-    bind<AdminWebsocketWrapper>(TYPES.messageQueueSubscribers).to(AdminWebsocketWrapper).inSingletonScope();
+    bind<AdminAggregatorWrapper>(TYPES.messageQueueSubscribers).to(AdminAggregatorWrapper).inSingletonScope();
 
-    bind<AdminWebsocketMessageHandler>(TYPES.mqAdminMessage).to(AdminWebsocketMessageHandler).inSingletonScope();
+    bind<AdminAggregatorMessageHandler>(TYPES.mqAdminMessage).to(AdminAggregatorMessageHandler).inSingletonScope();
 });
