@@ -8,7 +8,7 @@ export default class CensusStaleConnectionWatcherAuthority {
     private static readonly logger = getLogger('CensusStaleConnectionWatcherAuthority');
     private deathMessageTimer?: NodeJS.Timeout;
     private experienceMessageTimer?: NodeJS.Timeout;
-    private readonly checkInterval = 15000;
+    private readonly checkInterval = 60000;
     private readonly lastMessagesDeathMap: Map<World, number> = new Map<World, number>();
     private readonly lastMessagesExperienceMap: Map<World, number> = new Map<World, number>();
     private wsClient: Client;
