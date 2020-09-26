@@ -14,8 +14,8 @@ export default class CensusStaleConnectionWatcherAuthority {
     private wsClient: Client;
 
     public run(client: Client): void {
-        if (this.deathMessageTimer) {
-            CensusStaleConnectionWatcherAuthority.logger.warn('Attempted to run CensusStaleConnectionWatcherAuthority timer when already defined!');
+        if (this.deathMessageTimer || this.experienceMessageTimer) {
+            CensusStaleConnectionWatcherAuthority.logger.warn('Attempted to run CensusStaleConnectionWatcherAuthority timers when already defined!');
             this.stop();
         }
 
