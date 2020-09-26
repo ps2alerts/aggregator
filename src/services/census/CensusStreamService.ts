@@ -123,7 +123,7 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('ps2Event', (event: PS2Event) => {
-            if (parseInt(event.world_id, 10) !== World.JAEGER) {
+            if (parseInt(event.world_id, 10) === World.JAEGER) {
                 return true;
             }
 
