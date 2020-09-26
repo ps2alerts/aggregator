@@ -116,12 +116,12 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                         parseInt(event.zone_id, 10),
                     );
                 });
-                //
-                // const instances = this.instanceHandler.getInstances(
-                //     parseInt(event.world_id, 10),
-                //     parseInt(event.zone_id, 10),
-                // );
-                //
+
+                const instances = this.instanceHandler.getInstances(
+                    parseInt(event.world_id, 10),
+                    parseInt(event.zone_id, 10),
+                );
+
                 // instances.forEach((instance) => {
                 //     const deathEvent = new DeathEvent(
                 //         event,
