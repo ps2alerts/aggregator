@@ -122,15 +122,15 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                     parseInt(event.zone_id, 10),
                 );
 
-                // instances.forEach((instance) => {
-                //     const deathEvent = new DeathEvent(
-                //         event,
-                //         instance,
-                //         attacker,
-                //         character,
-                //     );
-                //     void this.deathEventHandler.handle(deathEvent);
-                // });
+                instances.forEach((instance) => {
+                    const deathEvent = new DeathEvent(
+                        event,
+                        instance,
+                        attacker,
+                        character,
+                    );
+                    void this.deathEventHandler.handle(deathEvent);
+                });
             }).catch((e) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 this.handleCharacterException('Death', e.message);
