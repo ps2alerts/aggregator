@@ -25,16 +25,21 @@ export default class OverdueInstanceAuthority {
         this.timer = setInterval(() => {
             OverdueInstanceAuthority.logger.silly('Running OverdueInstanceAuthority overdue alert check');
 
-            this.instanceHandler.getAllInstances().filter((instance) => {
+            let instances = this.instanceHandler.getAllInstances().filter((instance) => {
                 return instance.overdue();
-            }).forEach((instance: PS2AlertsInstanceInterface) => {
+            });
+
+            instances.forEach((instance: PS2AlertsInstanceInterface) => {
                 try {
                     OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
                     void this.instanceHandler.endInstance(instance);
                 } catch (err) {
-                    OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended!`);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! E: ${err.message}`);
                 }
             });
+
+            instances = []; // Memory leak fix
         }, 15000);
     }
 
