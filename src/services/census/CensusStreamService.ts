@@ -83,6 +83,7 @@ export default class CensusStreamService implements ServiceInterface {
 
         this.wsClient.on('reconnecting', () => {
             this.censusStaleConnectionWatcherAuthority.stop();
+            this.populationAuthority.stop();
             CensusStreamService.logger.warn('Census stream connection lost... reconnecting...');
         });
 
