@@ -8,11 +8,8 @@ import {Redis} from 'ioredis';
 @injectable()
 export default class CensusCacheDriver implements CacheContract {
     private readonly namespace: string = 'census';
-
     private readonly expiry: number = 86400; // 1 day
-
     private readonly cacheClient: Redis;
-
     private readonly retrieving = new Map<string, Promise<any>>();
 
     constructor(

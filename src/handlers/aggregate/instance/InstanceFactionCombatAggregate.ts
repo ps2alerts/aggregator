@@ -6,12 +6,11 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import {InstanceFactionCombatAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceFactionCombatAggregateModel';
 import FactionUtils from '../../../utils/FactionUtils';
-import {Kill} from 'ps2census/dist/client/events/Death';
+import {Kill} from 'ps2census';
 
 @injectable()
 export default class InstanceFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceFactionCombatAggregate');
-
     private readonly factory: MongooseModelFactory<InstanceFactionCombatAggregateSchemaInterface>;
 
     constructor(@inject(TYPES.instanceFactionCombatAggregateFactory) factory: MongooseModelFactory<InstanceFactionCombatAggregateSchemaInterface>) {

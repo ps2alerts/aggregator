@@ -6,9 +6,7 @@ import MongoDBConnection from './MongoDBConnection';
 @injectable()
 export default class MongoDatabaseConnectionService implements ServiceInterface {
     public readonly bootPriority = 10;
-
     private static readonly logger = getLogger('MongoDatabaseConnectionService');
-
     private readonly dbClient: MongoDBConnection;
 
     constructor(dbClient: MongoDBConnection) {

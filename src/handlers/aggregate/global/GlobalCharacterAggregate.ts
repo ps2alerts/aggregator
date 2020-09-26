@@ -5,12 +5,11 @@ import {inject, injectable} from 'inversify';
 import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import {GlobalCharacterAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalCharacterAggregateModel';
-import {Kill} from 'ps2census/dist/client/events/Death';
+import {Kill} from 'ps2census';
 
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalCharacterAggregate');
-
     private readonly factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>;
 
     constructor(@inject(TYPES.globalCharacterAggregateFactory) factory: MongooseModelFactory<GlobalCharacterAggregateSchemaInterface>) {

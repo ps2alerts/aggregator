@@ -5,12 +5,11 @@ import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {InstanceClassAggregateSchemaInterface} from '../../../models/aggregate/instance/InstanceClassAggregateModel';
-import {Kill} from 'ps2census/dist/client/events/Death';
+import {Kill} from 'ps2census';
 
 @injectable()
 export default class InstanceClassAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceClassAggregate');
-
     private readonly factory: MongooseModelFactory<InstanceClassAggregateSchemaInterface>;
 
     constructor(@inject(TYPES.instanceClassAggregateFactory) factory: MongooseModelFactory<InstanceClassAggregateSchemaInterface>) {

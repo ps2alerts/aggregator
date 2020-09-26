@@ -2,7 +2,7 @@ import {Document, Schema} from 'mongoose';
 import {Loadout, loadoutArray} from '../../constants/loadout';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import Character from '../../data/Character';
-import {Kill} from 'ps2census/dist/client/events/Death';
+import {Kill} from 'ps2census';
 
 export interface InstanceDeathSchemaInterface extends Document {
     instance: PS2AlertsInstanceInterface['instanceId'];

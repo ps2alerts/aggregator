@@ -28,9 +28,7 @@ import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
     public readonly bootPriority = 10;
-
     private static readonly logger = getLogger('EventListenerService');
-
     private readonly wsClient: Client;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;

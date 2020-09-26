@@ -8,7 +8,6 @@ import PopulationData from '../data/PopulationData';
 @injectable()
 export default class PopulationHandler implements PopulationHandlerInterface<PopulationData> {
     private static readonly logger = getLogger('PopulationHandler');
-
     private readonly aggregateHandlers: Array<PopulationHandlerInterface<PopulationData>>;
 
     constructor(

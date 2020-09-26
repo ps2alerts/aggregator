@@ -1,9 +1,8 @@
-import character from 'ps2census/dist/rest/types/character';
-import outfitMemberExtended from 'ps2census/dist/rest/types/outfitMemberExtended';
+import {rest} from 'ps2census';
 
-export type CharacterWorldOutfitLeader = character & {
+export type CharacterWorldOutfitLeader = rest.collectionTypes.character & {
     /* eslint-disable */
     world_id: string;
-    outfit_member: outfitMemberExtended;
+    outfit_member: rest.collectionTypes.outfitMemberExtended;
     /* eslint-enable */
 };
