@@ -108,7 +108,7 @@ export default class CensusStreamService implements ServiceInterface {
                 !message.includes('Heartbeat acknowledged') &&
                 !message.includes('CharacterManager')
             ) {
-                CensusStreamService.logger.debug(`Census stream debug: ${message}`);
+                CensusStreamService.logger.silly(`Census stream debug: ${message}`);
             }
         });
 
