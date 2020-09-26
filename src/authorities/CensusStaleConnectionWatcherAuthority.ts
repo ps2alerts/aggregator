@@ -61,6 +61,11 @@ export default class CensusStaleConnectionWatcherAuthority {
     }
 
     private checkMap(map: Map<World, number>, thresholdLimit: number, type: string): void {
+        if (map.size === 0) {
+            CensusStaleConnectionWatcherAuthority.logger.error(`ZERO census messages have come through for type ${type}! Killing connection!`);
+            void this.wsClient.resubscribe();
+        }
+
         map.forEach((lastTime: number, world: World) => {
             const threshold: number = Date.now() - thresholdLimit;
 
