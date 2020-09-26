@@ -52,7 +52,10 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                 await this.apiMQPublisher.send(new ApiMQMessage(
                     Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
                     attackerDocs,
-                    [{outfit: attackerOutfitId}],
+                    [{
+                        outfit: attackerOutfitId,
+                        world: event.world,
+                    }],
                 ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
@@ -64,7 +67,10 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
             await this.apiMQPublisher.send(new ApiMQMessage(
                 Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
                 victimDocs,
-                [{outfit: victimOutfitId}],
+                [{
+                    outfit: victimOutfitId,
+                    world: event.world,
+                }],
             ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
