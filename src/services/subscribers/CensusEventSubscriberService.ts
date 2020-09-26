@@ -106,35 +106,35 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on('death', (event) => {
             CensusEventSubscriberService.logger.silly('Passing Death to listener');
 
-            void Promise.all([
-                this.characterBroker.get(event.attacker_character_id),
-                this.characterBroker.get(event.character_id),
-            ]).then(([attacker, character]) => {
-                [attacker, character].forEach((char) => {
-                    void this.characterPresenceHandler.update(
-                        char,
-                        parseInt(event.zone_id, 10),
-                    );
-                });
-
-                const instances = this.instanceHandler.getInstances(
-                    parseInt(event.world_id, 10),
-                    parseInt(event.zone_id, 10),
-                );
-
-                instances.forEach((instance) => {
-                    const deathEvent = new DeathEvent(
-                        event,
-                        instance,
-                        attacker,
-                        character,
-                    );
-                    void this.deathEventHandler.handle(deathEvent);
-                });
-            }).catch((e) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                this.handleCharacterException('Death', e.message);
-            });
+            // void Promise.all([
+            //     this.characterBroker.get(event.attacker_character_id),
+            //     this.characterBroker.get(event.character_id),
+            // ]).then(([attacker, character]) => {
+            //     [attacker, character].forEach((char) => {
+            //         void this.characterPresenceHandler.update(
+            //             char,
+            //             parseInt(event.zone_id, 10),
+            //         );
+            //     });
+            //
+            //     const instances = this.instanceHandler.getInstances(
+            //         parseInt(event.world_id, 10),
+            //         parseInt(event.zone_id, 10),
+            //     );
+            //
+            //     instances.forEach((instance) => {
+            //         const deathEvent = new DeathEvent(
+            //             event,
+            //             instance,
+            //             attacker,
+            //             character,
+            //         );
+            //         void this.deathEventHandler.handle(deathEvent);
+            //     });
+            // }).catch((e) => {
+            //     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            //     this.handleCharacterException('Death', e.message);
+            // });
         });
 
         this.wsClient.on('facilityControl', (event) => {
