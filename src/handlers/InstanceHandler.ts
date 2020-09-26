@@ -145,7 +145,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to end instance "${instance.instanceId}" correctly! ${err}`, 'InstanceHandler');
+            throw new ApplicationException(`Unable to end instance "${instance.instanceId}" correctly! E: ${err}`, 'InstanceHandler');
         }
     }
 
