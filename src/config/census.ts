@@ -12,7 +12,7 @@ export default class Census {
         streamManagerConfig: {
             subscription: {
                 // eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience'],
-                eventNames: ['FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout'],
+                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout'],
                 worlds: ['all'],
                 characters: ['all'],
                 logicalAndCharactersWithWorlds: true,
