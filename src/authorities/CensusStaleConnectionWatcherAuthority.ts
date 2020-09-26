@@ -74,8 +74,5 @@ export default class CensusStaleConnectionWatcherAuthority {
                 void this.wsClient.resubscribe();
             }
         });
-
-        // Empty the map so we don't memory leak the living daylights out of the app
-        map.clear();
     }
 }
