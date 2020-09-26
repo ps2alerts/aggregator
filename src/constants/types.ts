@@ -2,6 +2,7 @@ const TYPES = {
     // Authorities
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),
+    censusStaleConnectionWatcherAuthority: Symbol.for('CensusStaleConnectionWatcherAuthority'),
 
     // Brokers
     characterBrokerInterface: Symbol.for('CharacterBrokerInterface'),
