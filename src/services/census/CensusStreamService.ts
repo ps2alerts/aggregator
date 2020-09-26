@@ -91,7 +91,6 @@ export default class CensusStreamService implements ServiceInterface {
             this.censusStaleConnectionWatcherAuthority.stop();
             this.overdueInstanceAuthority.stop();
             this.populationAuthority.stop();
-
             CensusStreamService.logger.error('Census stream connection disconnected!');
         });
 
