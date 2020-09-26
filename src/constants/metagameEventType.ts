@@ -71,8 +71,6 @@ export const metagameEventTypeArray = [
 const longAlert = 90 * 60 * 1000;
 const shortAlert = 45 * 60 * 1000;
 
-// TODO: Generate this from the API
-// TODO: VERIFY FACTION TRIGGERS https://github.com/ps2alerts/aggregator/issues/138
 export const metagameEventTypeDetailsMap: Map<number, MetagameDetailsInterface> = new Map<number, MetagameDetailsInterface>(
     [
         [147, {title: 'Indar Superiority', zone: Zone.INDAR, duration: longAlert, triggeringFaction: Faction.TERRAN_REPUBLIC, unstable: false}],
@@ -84,12 +82,12 @@ export const metagameEventTypeDetailsMap: Map<number, MetagameDetailsInterface> 
         [152, {title: 'Esamir Liberation', zone: Zone.ESAMIR, duration: longAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: false}],
 
         [153, {title: 'Hossin Superiority', zone: Zone.HOSSIN, duration: longAlert, triggeringFaction: Faction.TERRAN_REPUBLIC, unstable: false}],
-        [154, {title: 'Hossin Superiority', zone: Zone.HOSSIN, duration: longAlert, triggeringFaction: Faction.VANU_SOVEREIGNTY, unstable: false}],
-        [155, {title: 'Hossin Superiority', zone: Zone.HOSSIN, duration: longAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: false}],
+        [154, {title: 'Hossin Enlightenment', zone: Zone.HOSSIN, duration: longAlert, triggeringFaction: Faction.VANU_SOVEREIGNTY, unstable: false}],
+        [155, {title: 'Hossin Liberation', zone: Zone.HOSSIN, duration: longAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: false}],
 
         [156, {title: 'Amerish Superiority', zone: Zone.AMERISH, duration: longAlert, triggeringFaction: Faction.TERRAN_REPUBLIC, unstable: false}],
-        [157, {title: 'Amerish Superiority', zone: Zone.AMERISH, duration: longAlert, triggeringFaction: Faction.VANU_SOVEREIGNTY, unstable: false}],
-        [158, {title: 'Amerish Superiority', zone: Zone.AMERISH, duration: longAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: false}],
+        [157, {title: 'Amerish Enlightenment', zone: Zone.AMERISH, duration: longAlert, triggeringFaction: Faction.VANU_SOVEREIGNTY, unstable: false}],
+        [158, {title: 'Amerish Liberation', zone: Zone.AMERISH, duration: longAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: false}],
 
         // Unstable Meltdowns
         [176, {title: 'Esamir Unstable Meltdown', zone: Zone.ESAMIR, duration: shortAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: true}],
