@@ -19,6 +19,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
     private static queueName = '';
     private static adminMessageHandlers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
     private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
+
     constructor(
     @multiInject(TYPES.adminMessageHandlers) mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>,
         @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,

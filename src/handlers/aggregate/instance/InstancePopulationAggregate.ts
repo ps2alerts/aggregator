@@ -34,6 +34,11 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
             return instance.match(event.world, event.zone);
         });
 
+        // If no instances running, bail.
+        if (activeInstances.length === 0) {
+            return true;
+        }
+
         // Whatever keeps you happy ESLint
         const documents: Array<{ instance: string, timestamp: Date, vs: number, nc: number, tr: number, nso: number, total: number }> = [];
 

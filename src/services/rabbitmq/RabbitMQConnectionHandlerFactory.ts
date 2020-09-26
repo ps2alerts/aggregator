@@ -8,7 +8,6 @@ import {injectable} from 'inversify';
 @injectable()
 export class RabbitMQConnectionHandlerFactory {
     private static readonly logger = getLogger('RabbitMQConnectionHandler');
-
     private readonly config: RabbitMQ;
 
     constructor(rabbitMQConfig: RabbitMQ) {
