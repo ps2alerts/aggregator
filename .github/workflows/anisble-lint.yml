@@ -15,4 +15,4 @@ jobs:
         with:
           targets: |
             provisioning/**/*.yml
-          args: ""
+          args: "-x provisioning/rabbit-secrets.yml"
