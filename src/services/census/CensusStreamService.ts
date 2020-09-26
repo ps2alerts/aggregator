@@ -12,6 +12,7 @@ import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface'
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import {jsonLogOutput} from '../../utils/json';
+import CensusStaleConnectionWatcherAuthority from '../../authorities/CensusStaleConnectionWatcherAuthority';
 
 @injectable()
 export default class CensusStreamService implements ServiceInterface {
@@ -19,12 +20,11 @@ export default class CensusStreamService implements ServiceInterface {
     private static readonly logger = getLogger('ps2census');
     private readonly wsClient: Client;
     private readonly config: Census;
-    private readonly lastMessagesMap: Map<World, number> = new Map<World, number>();
-    private messageTimer?: NodeJS.Timeout;
     private readonly overdueInstanceAuthority: OverdueInstanceAuthority;
     private readonly instanceHandler: InstanceHandlerInterface;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
     private readonly populationAuthority: PopulationAuthority;
+    private readonly censusStaleConnectionWatcherAuthority: CensusStaleConnectionWatcherAuthority;
 
     constructor(
         wsClient: Client,
@@ -33,6 +33,7 @@ export default class CensusStreamService implements ServiceInterface {
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
         @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.populationAuthority) populationAuthority: PopulationAuthority,
+        @inject(TYPES.censusStaleConnectionWatcherAuthority) censusStaleConnectionWatcherAuthority: CensusStaleConnectionWatcherAuthority,
     ) {
         this.wsClient = wsClient;
         this.config = censusConfig;
@@ -40,6 +41,7 @@ export default class CensusStreamService implements ServiceInterface {
         this.instanceHandler = instanceHandler;
         this.characterPresenceHandler = characterPresenceHandler;
         this.populationAuthority = populationAuthority;
+        this.censusStaleConnectionWatcherAuthority = censusStaleConnectionWatcherAuthority;
         this.prepareClient();
     }
 
@@ -63,11 +65,15 @@ export default class CensusStreamService implements ServiceInterface {
         CensusStreamService.logger.debug('Terminating Census Stream Service!');
 
         try {
-            this.stopMessageTimer();
+            this.censusStaleConnectionWatcherAuthority.stop();
             this.wsClient.destroy();
         } catch {
             // Fucked
         }
+    }
+
+    public getClient(): Client {
+        return this.wsClient;
     }
 
     private prepareClient(): void {
@@ -76,13 +82,12 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('reconnecting', () => {
-            this.stopMessageTimer();
-
+            this.censusStaleConnectionWatcherAuthority.stop();
             CensusStreamService.logger.warn('Census stream connection lost... reconnecting...');
         });
 
         this.wsClient.on('disconnected', () => {
-            this.stopMessageTimer();
+            this.censusStaleConnectionWatcherAuthority.stop();
             this.overdueInstanceAuthority.stop();
             this.populationAuthority.stop();
 
@@ -118,48 +123,19 @@ export default class CensusStreamService implements ServiceInterface {
         });
 
         this.wsClient.on('ps2Event', (event: PS2Event) => {
-            // If the event name is a monitored event type, add the current Date to the array.
-            if (event.event_name === 'Death' && parseInt(event.world_id, 10) !== World.JAEGER) {
-                this.lastMessagesMap.set(parseInt(event.world_id, 10), Date.now());
+            if (parseInt(event.world_id, 10) !== World.JAEGER) {
+                return true;
             }
+
+            this.censusStaleConnectionWatcherAuthority.updateLastMessage(event);
         });
 
         this.wsClient.on('subscribed', (subscriptions) => {
             CensusStreamService.logger.info('Census stream subscribed! Subscriptions:');
             CensusStreamService.logger.info(jsonLogOutput(subscriptions));
-            this.startMessageTimer();
+            this.censusStaleConnectionWatcherAuthority.run(this.wsClient);
             this.overdueInstanceAuthority.run();
             this.populationAuthority.run();
         });
-    }
-
-    private startMessageTimer(): void {
-        CensusStreamService.logger.info('Census message timer started');
-
-        if (this.messageTimer) {
-            CensusStreamService.logger.warn('Census message timeout check already defined!');
-            this.stopMessageTimer();
-        }
-
-        this.messageTimer = setInterval(() => {
-            CensusStreamService.logger.silly('Census message timeout check running...');
-
-            this.lastMessagesMap.forEach((lastTime: number, world: World) => {
-                const thresholdLimit = 120000;
-                const threshold: number = Date.now() - thresholdLimit; // We expect to get at least one death event on every world, regardless of time within 120 seconds
-
-                if (lastTime < threshold) {
-                    CensusStreamService.logger.error(`No Census Death messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Rebooting Connection.`);
-                    void this.wsClient.resubscribe();
-                }
-            });
-        }, 15000);
-    }
-
-    private stopMessageTimer(): void {
-        if (this.messageTimer) {
-            CensusStreamService.logger.info('Census message timer cleared!');
-            clearInterval(this.messageTimer);
-        }
     }
 }
