@@ -8,7 +8,7 @@ export default class CensusStaleConnectionWatcherAuthority {
     private static readonly logger = getLogger('CensusStaleConnectionWatcherAuthority');
     private deathMessageTimer?: NodeJS.Timeout;
     private experienceMessageTimer?: NodeJS.Timeout;
-    private readonly checkInterval = 60000;
+    private readonly checkInterval = 15000;
     private readonly lastMessagesDeathMap: Map<World, number> = new Map<World, number>();
     private readonly lastMessagesExperienceMap: Map<World, number> = new Map<World, number>();
     private wsClient: Client;
@@ -30,7 +30,7 @@ export default class CensusStaleConnectionWatcherAuthority {
 
         this.experienceMessageTimer = setInterval(() => {
             CensusStaleConnectionWatcherAuthority.logger.silly('Census Experience message timeout check running...');
-            this.checkMap(this.lastMessagesExperienceMap, 15000, 'Experience');
+            this.checkMap(this.lastMessagesExperienceMap, 30000, 'Experience');
         }, this.checkInterval);
     }
 
