@@ -65,17 +65,20 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // Get the lattice links for the zone
         const latticeLinks = await this.getLatticeLinks();
 
+        console.log('warpgates', warpgates);
+
         // For each warpgate returned, execute the lattice traversal
         for (const facilityId of warpgates) {
             const faction = await this.getFacilityFaction(facilityId);
 
-            TerritoryVictoryCondition.logger.debug(`======= STARTING FACTION WARPGATE ${faction} =======`);
+            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] FACTION WARPGATE ${faction} =======`);
             await this.traverse(
                 facilityId,
                 faction,
                 0,
                 latticeLinks,
             );
+            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] FACTION WARPGATE ${faction} FINISHED =======`);
         }
 
         // Collate the statistics here
