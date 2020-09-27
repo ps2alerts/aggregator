@@ -192,7 +192,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         });
 
         if (facilityLatticeLinks.length === 0) {
-            throw new ApplicationException(`No facility links detected for Z: ${this.instance.zone}!`, 'TerritoryVictoryCalculation');
+            throw new ApplicationException(`[${this.instance.instanceId}] No facility links detected for Z: ${this.instance.zone}!`, 'TerritoryVictoryCalculation');
         }
 
         return facilityLatticeLinks;
@@ -221,7 +221,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore bruh
         if (this.factionParsedFacilitiesMap.get(faction).has(facilityId)) {
-            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
+            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
             return true;
         }
 
@@ -270,7 +270,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
 
     // Gets the current status of the facility from the database
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
-        TerritoryVictoryCondition.logger.debug(`Getting faction for facility ${facilityId}...`);
+        TerritoryVictoryCondition.logger.debug(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
 
         try {
             const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlFactory.model.findOne({
@@ -286,7 +286,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
                 throw new ApplicationException('Empty result set!');
             }
 
-            TerritoryVictoryCondition.logger.debug(`Facility ${facilityId} faction is ${result.newFaction}`);
+            TerritoryVictoryCondition.logger.debug(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
 
             return result.newFaction;
         } catch (err) {
