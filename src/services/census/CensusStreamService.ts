@@ -127,7 +127,7 @@ export default class CensusStreamService implements ServiceInterface {
                 return true;
             }
 
-            // this.censusStaleConnectionWatcherAuthority.updateLastMessage(event);
+            this.censusStaleConnectionWatcherAuthority.updateLastMessage(event);
         });
 
         this.wsClient.on('subscribed', (subscriptions) => {
