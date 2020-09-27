@@ -1,10 +1,20 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import {Module} from '@nestjs/common';
+import {MockInstanceController} from './controllers/mockinstance.controller';
+import {DeathProcessor} from './processors/death.processor';
+import {CensusModule} from 'ps2census-nestjs';
+import {ClientModule} from './services/client.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ClientModule,
+        CensusModule,
+    ],
+    controllers: [
+        MockInstanceController,
+    ],
+    providers: [
+        DeathProcessor,
+    ],
 })
-export class AppModule {}
+export class AppModule {
+}
