@@ -23,7 +23,7 @@ export default class OverdueInstanceAuthority {
         OverdueInstanceAuthority.logger.debug('Creating OverdueInstanceAuthority timer');
 
         this.timer = setInterval(() => {
-            OverdueInstanceAuthority.logger.silly('Running OverdueInstanceAuthority overdue alert check');
+            OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
 
             this.instanceHandler.getAllInstances().filter((instance) => {
                 return instance.overdue();
