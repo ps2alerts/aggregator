@@ -8,7 +8,7 @@ variable "database_host" {}
 variable "database_port" {}
 variable "database_name" {}
 variable "database_pool_size" {
-  default = 10
+  default = 50
 }
 variable "database_debug" {
   default = false
