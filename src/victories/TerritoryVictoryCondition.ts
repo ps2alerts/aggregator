@@ -221,13 +221,13 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore bruh
         if (this.factionParsedFacilitiesMap.get(faction).has(facilityId)) {
-            TerritoryVictoryCondition.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
+            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
             return true;
         }
 
         // Perform a check here to see if the faction of the base belongs to the previous base's faction, if it does not, stop!
         if (faction !== linkingFaction) {
-            TerritoryVictoryCondition.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${linkingFaction} - ${faction}`);
+            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${linkingFaction} - ${faction}`);
             return true;
         }
 
@@ -252,7 +252,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             }
         });
 
-        TerritoryVictoryCondition.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
+        TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
 
         // RE RE RECURSION
         // Promise of a promise of a promise until we're happy!
