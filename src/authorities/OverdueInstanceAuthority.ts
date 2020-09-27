@@ -36,7 +36,7 @@ export default class OverdueInstanceAuthority {
                     OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! E: ${err.message}`);
                 }
             });
-        }, 120000);
+        }, 15000);
     }
 
     public stop(): void {
