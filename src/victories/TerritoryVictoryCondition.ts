@@ -270,6 +270,8 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
 
     // Gets the current status of the facility from the database
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
+        TerritoryVictoryCondition.logger.debug(`Getting faction for facility ${facilityId}...`);
+
         try {
             const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlFactory.model.findOne({
                 instance: this.instance.instanceId,
@@ -283,6 +285,8 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             if (!result) {
                 throw new ApplicationException('Empty result set!');
             }
+
+            TerritoryVictoryCondition.logger.debug(`Facility ${facilityId} faction is ${result.newFaction}`);
 
             return result.newFaction;
         } catch (err) {
