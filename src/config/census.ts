@@ -18,7 +18,7 @@ export default class Census {
             },
         },
         characterManager: {
-            request: rest.retry(rest.resolve(
+            request: rest.resolve(
                 rest.hide(
                     rest.character,
                     [
@@ -34,7 +34,7 @@ export default class Census {
                     'world',
                     ['outfit_member_extended', ['outfit_id', 'name', 'alias', 'leader_character_id']],
                 ],
-            )),
+            ),
         },
     };
 
