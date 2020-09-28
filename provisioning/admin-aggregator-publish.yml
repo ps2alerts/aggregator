@@ -6,6 +6,7 @@
     queue_name: "adminAggregator-development"
     environment: ""
     hostname: "localhost"
+    user: "user"
     password: "bitnami"
     world: ""
     zone: ""
@@ -100,8 +101,9 @@
 
     - name: Set hostname if staging or production, set correct hostname and password
       set_fact:
-        hostname: "localhost"
-        password: "rabbit_admin_password"
+        hostname: "rabbit.ps2alerts.com"
+        user: "{{ rabbit.user }}"
+        password: "{{ rabbit.password }}"
         queue_name: "adminAggregator-{{ environment }}"
       when: environment == "staging" or environment == "production"
 
@@ -115,7 +117,7 @@
         proto: amqp
         host: "{{ hostname }}"
         port: 5672
-        username: user
+        username: "{{ user }}"
         password: "{{ password }}"
         vhost: "%2F"
         durable: true
