@@ -54,7 +54,9 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     }
 
     public getAllInstances(): PS2AlertsInstanceInterface[] {
-        return this.currentInstances;
+        return this.currentInstances.filter((instance) => {
+            return instance.state === Ps2alertsEventState.STARTED;
+        });
     }
 
     public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
