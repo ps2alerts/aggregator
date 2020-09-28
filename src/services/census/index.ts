@@ -29,8 +29,6 @@ export default new ContainerModule((bind) => {
                 cache: container.get(TYPES.censusCharacterCacheDriver),
             };
 
-            console.log(clientConfig);
-
             return new Client(config.census.serviceID, clientConfig);
         })
         .inSingletonScope();

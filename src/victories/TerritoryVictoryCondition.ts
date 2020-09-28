@@ -65,8 +65,6 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // Get the lattice links for the zone
         const latticeLinks = await this.getLatticeLinks();
 
-        console.log('warpgates', warpgates);
-
         // For each warpgate returned, execute the lattice traversal
         for (const facilityId of warpgates) {
             const faction = await this.getFacilityFaction(facilityId);
