@@ -14,5 +14,6 @@ vars.local.yml
 .DS_STORE
 .vscode
 
-#If we have been running locally with sqlite
-database.sqlite
+# NodeJS Debugging
+Aggregator*
+isolate*
