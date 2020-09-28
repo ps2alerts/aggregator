@@ -49,7 +49,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
         return this.currentInstances.filter((instance) => {
-            return instance.match(world, zone);
+            return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
         });
     }
 
@@ -99,6 +99,10 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         InstanceHandler.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
+
+        // Set instance state immediately to ended so no further stats will process
+        instance.state = Ps2alertsEventState.ENDED;
+        InstanceHandler.logger.debug(`Instance ${instance.instanceId} marked as ended, no other stats should now process.`);
 
         const done = false;
 
