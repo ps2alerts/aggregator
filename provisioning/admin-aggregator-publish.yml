@@ -8,6 +8,7 @@
     hostname: "localhost"
     user: "user"
     password: "bitnami"
+    vhost: "%2F"
     world: ""
     zone: ""
     valid_worlds: ["1", "10", "13", "17", "19", "40", "1000", "2000"]
@@ -48,7 +49,7 @@
       prompt: "[instanceEnd] Specify PS2Alerts Instance ID to end"
       private: no
 
-    - name: environment
+    - name: env
       prompt: "Select environment to send message to [dev, staging, production]"
       private: no
       default: "dev"
@@ -104,8 +105,12 @@
         hostname: "rabbit.ps2alerts.com"
         user: "{{ rabbit.user }}"
         password: "{{ rabbit.password }}"
-        queue_name: "adminAggregator-{{ environment }}"
-      when: environment == "staging" or environment == "production"
+        queue_name: "adminAggregator-{{ env }}"
+        vhost: "ps2alerts"
+      when: env == "staging" or env == "production"
+
+    - debug:
+        msg: "Sending message to: {{ user }}:{{ password }}@{{ hostname }}{{ vhost }} - {{ queue_name }}"
 
     - debug:
         msg: "{{ message }}"
@@ -119,5 +124,5 @@
         port: 5672
         username: "{{ user }}"
         password: "{{ password }}"
-        vhost: "%2F"
+        vhost: "{{ vhost }}"
         durable: true
