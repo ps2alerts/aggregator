@@ -18,10 +18,10 @@ module "aggregator_staging" {
   rabbitmq_user      = "ps2alerts"
   rabbitmq_pass      = var.rabbitmq_pass
   census_service_id  = var.census_service_id
-  cpu_limit          = "1000m"
-  mem_limit          = "512Mi"
-  cpu_request        = "500m"
-  mem_request        = "512Mi"
+  cpu_limit          = "750m"
+  mem_limit          = "256Mi"
+  cpu_request        = "750m"
+  mem_request        = "256Mi"
   discord_webhook    = "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
   logger_transports  = "console,discord"
 }
