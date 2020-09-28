@@ -69,7 +69,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         for (const facilityId of warpgates) {
             const faction = await this.getFacilityFaction(facilityId);
 
-            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] FACTION WARPGATE ${faction} =======`);
+            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] STARTING FACTION WARPGATE ${faction} =======`);
             await this.traverse(
                 facilityId,
                 faction,
