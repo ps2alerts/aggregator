@@ -48,30 +48,30 @@ export default class EventId {
         [
             [Zone.INDAR, new Map(
                 [
-                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.INDAR_UNSTABLE_MELTDOWN_2],
-                    [Faction.NEW_CONGLOMERATE, MetagameEventType.INDAR_UNSTABLE_MELTDOWN],
-                    [Faction.TERRAN_REPUBLIC, MetagameEventType.INDAR_UNSTABLE_MELTDOWN_3],
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.VS_INDAR_UNSTABLE_MELTDOWN],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.NC_INDAR_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_INDAR_UNSTABLE_MELTDOWN],
                 ],
             )],
             [Zone.HOSSIN, new Map(
                 [
-                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.HOSSIN_UNSTABLE_MELTDOWN_2],
-                    [Faction.NEW_CONGLOMERATE, MetagameEventType.HOSSIN_UNSTABLE_MELTDOWN],
-                    [Faction.TERRAN_REPUBLIC, MetagameEventType.HOSSIN_UNSTABLE_MELTDOWN_3],
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.VS_HOSSIN_UNSTABLE_MELTDOWN],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.NC_HOSSIN_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_HOSSIN_UNSTABLE_MELTDOWN],
                 ],
             )],
             [Zone.AMERISH, new Map(
                 [
-                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.AMERISH_UNSTABLE_MELTDOWN_2],
-                    [Faction.NEW_CONGLOMERATE, MetagameEventType.AMERISH_UNSTABLE_MELTDOWN],
-                    [Faction.TERRAN_REPUBLIC, MetagameEventType.AMERISH_UNSTABLE_MELTDOWN_3],
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.VS_AMERISH_UNSTABLE_MELTDOWN],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.NC_AMERISH_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_AMERISH_UNSTABLE_MELTDOWN],
                 ],
             )],
             [Zone.ESAMIR, new Map(
                 [
-                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.ESAMIR_UNSTABLE_MELTDOWN_2],
-                    [Faction.NEW_CONGLOMERATE, MetagameEventType.ESAMIR_UNSTABLE_MELTDOWN],
-                    [Faction.TERRAN_REPUBLIC, MetagameEventType.ESAMIR_UNSTABLE_MELTDOWN_3],
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.VS_ESAMIR_UNSTABLE_MELTDOWN],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.NC_ESAMIR_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_ESAMIR_UNSTABLE_MELTDOWN],
                 ],
             )],
         ],

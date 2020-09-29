@@ -37,7 +37,7 @@ export default class Database {
             useFindAndModify: false,
             autoIndex: true,
             autoCreate: true,
-            poolSize: getInt('DB_POOL_SIZE', 10),
+            poolSize: getInt('DB_POOL_SIZE', 50),
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
             family: 4,

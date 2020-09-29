@@ -1,5 +1,6 @@
 import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
+import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 
 export default interface PS2AlertsInstanceInterface {
     instanceId: string;
@@ -7,6 +8,7 @@ export default interface PS2AlertsInstanceInterface {
     timeStarted: Date;
     timeEnded: Date | null;
     duration: number;
+    state: Ps2alertsEventState;
 
     overdue(): boolean;
 

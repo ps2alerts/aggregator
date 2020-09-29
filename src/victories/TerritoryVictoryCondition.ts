@@ -69,13 +69,14 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         for (const facilityId of warpgates) {
             const faction = await this.getFacilityFaction(facilityId);
 
-            TerritoryVictoryCondition.logger.debug(`======= STARTING FACTION WARPGATE ${faction} =======`);
+            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] STARTING FACTION WARPGATE ${faction} =======`);
             await this.traverse(
                 facilityId,
                 faction,
                 0,
                 latticeLinks,
             );
+            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] FACTION WARPGATE ${faction} FINISHED =======`);
         }
 
         // Collate the statistics here
@@ -189,7 +190,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         });
 
         if (facilityLatticeLinks.length === 0) {
-            throw new ApplicationException(`No facility links detected for Z: ${this.instance.zone}!`, 'TerritoryVictoryCalculation');
+            throw new ApplicationException(`[${this.instance.instanceId}] No facility links detected for Z: ${this.instance.zone}!`, 'TerritoryVictoryCalculation');
         }
 
         return facilityLatticeLinks;
@@ -218,13 +219,13 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore bruh
         if (this.factionParsedFacilitiesMap.get(faction).has(facilityId)) {
-            TerritoryVictoryCondition.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
+            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
             return true;
         }
 
         // Perform a check here to see if the faction of the base belongs to the previous base's faction, if it does not, stop!
         if (faction !== linkingFaction) {
-            TerritoryVictoryCondition.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${linkingFaction} - ${faction}`);
+            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${linkingFaction} - ${faction}`);
             return true;
         }
 
@@ -249,7 +250,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             }
         });
 
-        TerritoryVictoryCondition.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
+        TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
 
         // RE RE RECURSION
         // Promise of a promise of a promise until we're happy!
@@ -267,6 +268,8 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
 
     // Gets the current status of the facility from the database
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
+        TerritoryVictoryCondition.logger.debug(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
+
         try {
             const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlFactory.model.findOne({
                 instance: this.instance.instanceId,
@@ -280,6 +283,8 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             if (!result) {
                 throw new ApplicationException('Empty result set!');
             }
+
+            TerritoryVictoryCondition.logger.debug(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
 
             return result.newFaction;
         } catch (err) {

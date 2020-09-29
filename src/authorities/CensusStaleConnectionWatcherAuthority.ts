@@ -30,7 +30,7 @@ export default class CensusStaleConnectionWatcherAuthority {
 
         this.experienceMessageTimer = setInterval(() => {
             CensusStaleConnectionWatcherAuthority.logger.silly('Census Experience message timeout check running...');
-            this.checkMap(this.lastMessagesExperienceMap, 15000, 'Experience');
+            this.checkMap(this.lastMessagesExperienceMap, 30000, 'Experience');
         }, this.checkInterval);
     }
 
@@ -44,6 +44,9 @@ export default class CensusStaleConnectionWatcherAuthority {
         if (this.experienceMessageTimer) {
             clearInterval(this.experienceMessageTimer);
         }
+
+        this.lastMessagesDeathMap.clear();
+        this.lastMessagesExperienceMap.clear();
     }
 
     public updateLastMessage(event: PS2Event): void {

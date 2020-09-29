@@ -9,6 +9,7 @@ import {Faction} from '../constants/faction';
 import ApplicationException from '../exceptions/ApplicationException';
 import FactionUtils from '../utils/FactionUtils';
 import TerritoryVictoryCondition, {TerritoryVictoryConditionResultInterface} from '../victories/TerritoryVictoryCondition';
+import {jsonLogOutput} from '../utils/json';
 
 export default class PS2AlertsMetagameInstanceEndAction implements ActionInterface {
     private static readonly logger = getLogger('PS2AlertsMetagameInstanceEndAction');
@@ -54,6 +55,8 @@ export default class PS2AlertsMetagameInstanceEndAction implements ActionInterfa
             this.instanceFacilityControlFactory,
             this.censusConfig,
         ).calculate();
+
+        PS2AlertsMetagameInstanceEndAction.logger.info(jsonLogOutput(victoryData));
 
         if (victoryData.draw) {
             PS2AlertsMetagameInstanceEndAction.logger.info(`Instance ${this.instance.instanceId} resulted in a DRAW!`);

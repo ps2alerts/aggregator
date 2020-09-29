@@ -121,7 +121,6 @@ export default class Kernel implements KernelInterface {
         Kernel.logger.error(`TERMINATING! CODE: ${code}`);
 
         // Give the services a chance to terminate safely
-        // TODO: Maybe add a timeout? Though that can also be part of the service itself(e.g. throwing an error)
         await Promise.all(
             this.services.map(
                 (service) => service.terminate?.apply(this.services)
@@ -134,6 +133,7 @@ export default class Kernel implements KernelInterface {
         process.exit(code);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
     public terminateWithUnhandledRejection(error: any): void {
         Kernel.logger.error('unhandledRejection detected!');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

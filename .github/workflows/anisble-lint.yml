@@ -1,8 +1,6 @@
 ---
 name: Ansible Linter
 on:
-  push:
-    branches: [master, staging, revive]
   pull_request:
 jobs:
   ansible-lint:
@@ -14,5 +12,7 @@ jobs:
         uses: ansible/ansible-lint-action@master
         with:
           targets: |
-            provisioning/**/*.yml
-          args: ""
+            provisioning/admin-aggregator-publish.yml
+            provisioning/dev/**/*.yml
+            provisioning/staging/**/*.yml
+            provisioning/production/**/*.yml

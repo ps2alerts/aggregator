@@ -20,6 +20,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
     private readonly instanceActionFactory: InstanceActionFactory;
+    private activeTimer?: NodeJS.Timeout;
     private initialized = false;
 
     constructor(
@@ -49,12 +50,14 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
         return this.currentInstances.filter((instance) => {
-            return instance.match(world, zone);
+            return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
         });
     }
 
     public getAllInstances(): PS2AlertsInstanceInterface[] {
-        return this.currentInstances;
+        return this.currentInstances.filter((instance) => {
+            return instance.state === Ps2alertsEventState.STARTED;
+        });
     }
 
     public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
@@ -99,6 +102,10 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         InstanceHandler.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
+
+        // Set instance state immediately to ended so no further stats will process
+        instance.state = Ps2alertsEventState.ENDED;
+        InstanceHandler.logger.debug(`Instance ${instance.instanceId} marked as ended, no other stats should now process.`);
 
         const done = false;
 
@@ -145,7 +152,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to end instance "${instance.instanceId}" correctly! ${err}`, 'InstanceHandler');
+            throw new ApplicationException(`Unable to end instance "${instance.instanceId}" correctly! E: ${err}`, 'InstanceHandler');
         }
     }
 
@@ -184,6 +191,11 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             });
         }
 
+        // Set timer for instances display
+        this.activeTimer = setInterval(() => {
+            this.printActives();
+        }, 60000);
+
         this.printActives();
         InstanceHandler.logger.debug('Initializing ActiveInstances FINISHED');
         this.initialized = true;
@@ -192,13 +204,22 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     public printActives(): void {
         InstanceHandler.logger.info('==== Current actives =====');
+        const date = new Date();
         this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
+            let output = `I: ${instance.instanceId} | W: ${instance.world}`;
+
             if (instance instanceof PS2AlertsMetagameInstance) {
-                InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world} | Z: ${instance.zone}`);
-            } else {
-                InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world}`);
+                output = `${output} | Z: ${instance.zone}`;
             }
 
+            // Display expected time left
+            const endTime = instance.timeStarted.getTime() + instance.duration;
+            const remaining = (endTime - date.getTime()) / 1000;
+            const displayDate = new Date(0);
+            displayDate.setSeconds(remaining);
+            output = `${output} | ${displayDate.toISOString().substr(11, 8)} remaining`;
+
+            InstanceHandler.logger.info(output);
         });
 
         InstanceHandler.logger.info('==== Current actives end =====');
