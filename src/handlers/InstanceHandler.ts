@@ -20,6 +20,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
     private readonly instanceActionFactory: InstanceActionFactory;
+    private activeTimer?: NodeJS.Timeout;
     private initialized = false;
 
     constructor(
@@ -190,6 +191,11 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             });
         }
 
+        // Set timer for instances display
+        this.activeTimer = setInterval(() => {
+            this.printActives();
+        }, 60000);
+
         this.printActives();
         InstanceHandler.logger.debug('Initializing ActiveInstances FINISHED');
         this.initialized = true;
@@ -198,13 +204,22 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
     public printActives(): void {
         InstanceHandler.logger.info('==== Current actives =====');
+        const date = new Date();
         this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
+            let output = `I: ${instance.instanceId} | W: ${instance.world}`;
+
             if (instance instanceof PS2AlertsMetagameInstance) {
-                InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world} | Z: ${instance.zone}`);
-            } else {
-                InstanceHandler.logger.info(`I: ${instance.instanceId} | W: ${instance.world}`);
+                output = `${output} | Z: ${instance.zone}`;
             }
 
+            // Display expected time left
+            const endTime = instance.timeStarted.getTime() + instance.duration;
+            const remaining = (endTime - date.getTime()) / 1000;
+            const displayDate = new Date(0);
+            displayDate.setSeconds(remaining);
+            output = `${output} | ${displayDate.toISOString().substr(11, 8)} remaining`;
+
+            InstanceHandler.logger.info(output);
         });
 
         InstanceHandler.logger.info('==== Current actives end =====');
