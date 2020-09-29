@@ -44,6 +44,9 @@ export default class CensusStaleConnectionWatcherAuthority {
         if (this.experienceMessageTimer) {
             clearInterval(this.experienceMessageTimer);
         }
+
+        this.lastMessagesDeathMap.clear();
+        this.lastMessagesExperienceMap.clear();
     }
 
     public updateLastMessage(event: PS2Event): void {
