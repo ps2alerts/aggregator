@@ -281,7 +281,8 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             // This should always have a result, whether it be from the initial map capture (which will be the case for the warpgate)
             // or from a capture during the course of monitoring the instance.
             if (!result) {
-                throw new ApplicationException('Empty result set!');
+                TerritoryVictoryCondition.logger.error(`[${this.instance.instanceId}] Facility ${facilityId} is missing capture information!`);
+                return Faction.NONE;
             }
 
             TerritoryVictoryCondition.logger.debug(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
