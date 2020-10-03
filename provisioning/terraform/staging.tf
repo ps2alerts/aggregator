@@ -24,6 +24,4 @@ module "aggregator_staging" {
   mem_request        = "409.6Mi" # 0.4GB
   discord_webhook    = "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
   logger_transports  = "console,discord"
-  dd_api_key         = var.dd_api_key
-  dd_app_key         = var.dd_app_key
 }
