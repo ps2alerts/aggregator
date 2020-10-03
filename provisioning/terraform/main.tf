@@ -10,11 +10,6 @@ data "digitalocean_kubernetes_cluster" "cluster" {
   name = "my-cluster"
 }
 
-provider "datadog" {
-  api_key = var.dd_api_key
-  app_key = var.dd_app_key
-}
-
 provider "kubernetes" {
   load_config_file = false
   host             = data.digitalocean_kubernetes_cluster.cluster.endpoint
