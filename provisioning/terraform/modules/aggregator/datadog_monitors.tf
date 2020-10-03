@@ -76,8 +76,7 @@ resource datadog_monitor "aggregator_high_restarts_long" {
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, description: "Aggregator high restarts (long)"})
 
   thresholds = {
-    critical = 200
-    warning = 150
+    critical = 1
   }
 
   notify_no_data = true
@@ -94,8 +93,7 @@ resource datadog_monitor "aggregator_high_restarts_short" {
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, description: "Aggregator high restarts (long)"})
 
   thresholds = {
-    critical = 200
-    warning = 150
+    critical = 1
   }
 
   notify_no_data = true
