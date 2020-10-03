@@ -34,3 +34,5 @@ variable "discord_webhook" {
 variable "logger_transports" {
   default = "console"
 }
+variable "dd_api_key" {}
+variable "dd_app_key" {}
