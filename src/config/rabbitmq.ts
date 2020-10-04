@@ -13,4 +13,5 @@ export default class RabbitMQ {
     public readonly vhost = get('RABBITMQ_VHOST', '');
     public readonly heartbeat = 10;
     public readonly timeout = 10000;
+    public readonly apiQueueName = get('RABBITMQ_API_QUEUE', 'api-queue');
 }

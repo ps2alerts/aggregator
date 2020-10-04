@@ -22,8 +22,8 @@ resource datadog_monitor "aggregator_high_mem" {
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high memory"})
 
   thresholds = {
-    critical = 262144000
-    warning = 209715000
+    critical = 471859000 #450MB
+    warning = 419430000 #400MB
   }
 
   notify_no_data = true
