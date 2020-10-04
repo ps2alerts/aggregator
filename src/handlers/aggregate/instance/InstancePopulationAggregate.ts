@@ -1,28 +1,29 @@
 import CharacterPresenceHandlerInterface from '../../../interfaces/CharacterPresenceHandlerInterface';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
-import {InstancePopulationAggregateSchemaInterface} from '../../../models/aggregate/instance/InstancePopulationAggregateModel';
-import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {getLogger} from '../../../logger';
-import ApplicationException from '../../../exceptions/ApplicationException';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import PopulationData from '../../../data/PopulationData';
 import InstanceHandlerInterface from '../../../interfaces/InstanceHandlerInterface';
+import ApiMQMessage from '../../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 
 @injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
     private static readonly logger = getLogger('InstancePopulationAggregate');
     private readonly playerHandler: CharacterPresenceHandlerInterface;
-    private readonly factory: MongooseModelFactory<InstancePopulationAggregateSchemaInterface>;
     private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(
     @inject(TYPES.characterPresenceHandlerInterface) playerHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
-        @inject(TYPES.instancePopulationAggregateFactory) factory: MongooseModelFactory<InstancePopulationAggregateSchemaInterface>) {
+        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+    ) {
         this.playerHandler = playerHandler;
         this.instanceHandler = instanceHandler;
-        this.factory = factory;
+        this.apiMQPublisher = apiMQPublisher;
     }
 
     public async handle(event: PopulationData): Promise<boolean> {
@@ -32,6 +33,11 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
         const activeInstances = this.instanceHandler.getAllInstances().filter((instance) => {
             return instance.match(event.world, event.zone);
         });
+
+        // If no instances running, bail.
+        if (activeInstances.length === 0) {
+            return true;
+        }
 
         // Whatever keeps you happy ESLint
         const documents: Array<{ instance: string, timestamp: Date, vs: number, nc: number, tr: number, nso: number, total: number }> = [];
@@ -49,24 +55,15 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
             });
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const promises: Array<Promise<any>> = [];
-
-        documents.forEach((doc) => {
-            const promise = this.factory.model.create(doc)
-                .catch((err) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    const error: Error = err;
-
-                    if (!error.message.includes('E11000')) {
-                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                        throw new ApplicationException(`Unable to insert initial InstancePopulationAggregate record into DB! ${err}`, 'InstancePopulationAggregate');
-                    }
-                });
-            promises.push(promise);
-        });
-
-        await Promise.all(promises);
+        try {
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                Ps2alertsApiMQEndpoints.INSTANCE_POPULATION_AGGREGATE,
+                documents,
+            ));
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            InstancePopulationAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+        }
 
         return true;
     }

@@ -1,19 +1,20 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
-import MongooseModelFactory from '../../../factories/MongooseModelFactory';
 import {TYPES} from '../../../constants/types';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import {GlobalFacilityControlAggregateSchemaInterface} from '../../../models/aggregate/global/GlobalFacilityControlAggregateModel';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQMessage from '../../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
-    private readonly factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.globalFacilityControlAggregateFactory) factory: MongooseModelFactory<GlobalFacilityControlAggregateSchemaInterface>) {
-        this.factory = factory;
+    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+        this.apiMQPublisher = apiMQPublisher;
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
@@ -37,23 +38,19 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
             );
         }
 
-        // It's an old promise sir, but it checks out (tried Async, doesn't work with forEach)
-        documents.forEach((doc) => {
-            void this.factory.model.updateOne(
-                {
+        try {
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                Ps2alertsApiMQEndpoints.GLOBAL_FACILITY_CONTROL_AGGREGATE,
+                documents,
+                [{
                     facility: event.facility,
                     world: event.instance.world,
-                },
-                doc,
-                {
-                    upsert: true,
-                },
-            ).catch((err: Error) => {
-                if (!err.message.includes('E11000')) {
-                    GlobalFacilityControlAggregate.logger.error(`Updating GlobalFacilityControlAggregate Error! ${err.message}`);
-                }
-            });
-        });
+                }],
+            ));
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+        }
 
         return true;
     }
