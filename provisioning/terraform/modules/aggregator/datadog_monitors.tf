@@ -40,8 +40,8 @@ resource datadog_monitor "aggregator_high_cpu" {
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high CPU"})
 
   thresholds = {
-    critical = 450000000
-    warning = 400000000
+    critical = 471859000 #450MB
+    warning = 419430000 #400MB
   }
 
   notify_no_data = true
