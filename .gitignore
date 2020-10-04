@@ -15,5 +15,5 @@ vars.local.yml
 .vscode
 
 # NodeJS Debugging
-Aggregator*
-isolate*
+/Aggregator*
+/isolate*

@@ -1,13 +1,10 @@
 terraform {
   required_providers {
-    digitalocean = {
-      source = "terraform-providers/digitalocean"
+    datadog = {
+      source = "datadog/datadog"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
-    }
-    datadog = {
-      source = "datadog/datadog"
     }
   }
   required_version = ">= 0.13"

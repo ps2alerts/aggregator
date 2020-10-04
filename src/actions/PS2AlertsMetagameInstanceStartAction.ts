@@ -50,18 +50,25 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
             const date = new Date();
 
             mapData[0].Regions.Row.forEach((row) => {
-                docs.push({
-                    instance: this.instance.instanceId,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    facility: parseInt(row.RowData.map_region.facility_id, 10),
-                    timestamp: date,
-                    oldFaction: parseInt(row.RowData.FactionId, 10),
-                    newFaction: parseInt(row.RowData.FactionId, 10),
-                    durationHeld: 0,
-                    isDefence: 0,
-                    isInitial: true,
-                    outfitCaptured: null,
-                });
+                // Check if we have a facility type, if we don't chuck it as it's an old facility
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (row.RowData.map_region.facility_type_id) {
+                    docs.push({
+                        instance: this.instance.instanceId,
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                        facility: parseInt(row.RowData.map_region.facility_id, 10),
+                        timestamp: date,
+                        oldFaction: parseInt(row.RowData.FactionId, 10),
+                        newFaction: parseInt(row.RowData.FactionId, 10),
+                        durationHeld: 0,
+                        isDefence: 0,
+                        isInitial: true,
+                        outfitCaptured: null,
+                    });
+                } else {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    PS2AlertsMetagameInstanceStartAction.logger.warn(`Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
+                }
             });
 
             // Insert the map data into the instance facility control collection
