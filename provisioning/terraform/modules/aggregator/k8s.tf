@@ -134,6 +134,10 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
             value = "ps2alerts"
           }
           env {
+            name = "RABBITMQ_API_QUEUE"
+            value = var.rabbitmq_api_queue
+          }
+          env {
             name = "LOGGER_DISCORD_WEBHOOK"
             value = var.discord_webhook
           }

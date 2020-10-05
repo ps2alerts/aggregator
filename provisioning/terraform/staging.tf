@@ -17,6 +17,7 @@ module "aggregator_staging" {
   rabbitmq_host      = "ps2alerts-rabbitmq"
   rabbitmq_user      = "ps2alerts"
   rabbitmq_pass      = var.rabbitmq_pass
+  rabbitmq_api_queue = "api-queue-staging"
   census_service_id  = var.census_service_id
   cpu_limit          = "750m"
   mem_limit          = "512Mi"
