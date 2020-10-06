@@ -7,6 +7,7 @@ import {getLogger} from '../../../logger';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
+import {jsonLogOutput} from '../../../utils/json';
 
 @injectable()
 export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface {
@@ -38,6 +39,7 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
         }
 
         try {
+            ApiMQPublisher.logger.silly(`Sending message to queue: ${jsonLogOutput(msg)}`);
             await this.channelWrapper.sendToQueue(this.config.apiQueueName, msg, {persistent: true});
             return true;
         } catch (err) {
