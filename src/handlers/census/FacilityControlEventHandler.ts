@@ -8,27 +8,26 @@ import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import FactionUtils from '../../utils/FactionUtils';
-import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
-import ApiMQMessage from '../../data/ApiMQMessage';
-import {Ps2alertsApiMQEndpoints} from '../../constants/ps2alertsApiMQEndpoints';
+import {InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
+import MongooseModelFactory from '../../factories/MongooseModelFactory';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
     private readonly playerHandler: CharacterPresenceHandlerInterface;
-    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly factory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
 
     /* eslint-disable */
     private aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[];
 
     constructor(
         @inject(TYPES.characterPresenceHandlerInterface) playerHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[]
     ) {
         /* eslint-enable */
         this.playerHandler = playerHandler;
-        this.apiMQPublisher = apiMQPublisher;
+        this.factory = instanceFacilityControlModelFactory;
         this.aggregateHandlers = aggregateHandlers;
     }
 
@@ -69,23 +68,27 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     private async storeEvent(event: FacilityControlEvent): Promise<boolean> {
         try {
-            await this.apiMQPublisher.send(new ApiMQMessage(
-                Ps2alertsApiMQEndpoints.INSTANCE_FACILITY_CONTROL,
-                [{
-                    instance: event.instance.instanceId,
-                    facility: event.facility,
-                    timestamp: event.timestamp,
-                    oldFaction: event.oldFaction,
-                    newFaction: event.newFaction,
-                    durationHeld: event.durationHeld,
-                    isDefence: event.isDefence,
-                    outfitCaptured: event.outfitCaptured,
-                }],
-            ));
+            await this.factory.model.create({
+                instance: event.instance.instanceId,
+                facility: event.facility,
+                timestamp: event.timestamp,
+                oldFaction: event.oldFaction,
+                newFaction: event.newFaction,
+                durationHeld: event.durationHeld,
+                isDefence: event.isDefence,
+                outfitCaptured: event.outfitCaptured,
+            });
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to pass FacilityControlEvent to API! E: ${err}`, 'FacilityControlEventHandler');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const error: Error = err;
+
+            if (!error.message.includes('E11000')) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+            }
         }
+
+        return false;
     }
 }
