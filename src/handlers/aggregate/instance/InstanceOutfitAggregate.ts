@@ -50,7 +50,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
         if (attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
+                    Ps2alertsApiMQEndpoints.INSTANCE_OUTFIT_AGGREGATE,
                     attackerDocs,
                     [{
                         outfit: attackerOutfitId,
@@ -65,7 +65,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                Ps2alertsApiMQEndpoints.GLOBAL_OUTFIT_AGGREGATE,
+                Ps2alertsApiMQEndpoints.INSTANCE_OUTFIT_AGGREGATE,
                 victimDocs,
                 [{
                     outfit: victimOutfitId,

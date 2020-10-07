@@ -55,7 +55,10 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 await this.apiMQPublisher.send(new ApiMQMessage(
                     Ps2alertsApiMQEndpoints.GLOBAL_CHARACTER_AGGREGATE,
                     attackerDocs,
-                    [{character: event.attackerCharacter.id}],
+                    [{
+                        character: event.attackerCharacter.id,
+                        world: event.world,
+                    }],
                 ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
@@ -67,7 +70,10 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
             await this.apiMQPublisher.send(new ApiMQMessage(
                 Ps2alertsApiMQEndpoints.GLOBAL_CHARACTER_AGGREGATE,
                 victimDocs,
-                [{character: event.character.id}],
+                [{
+                    character: event.character.id,
+                    world: event.world,
+                }],
             ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
