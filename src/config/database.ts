@@ -33,14 +33,12 @@ export default class Database {
         this.connectionOptions = {
             useNewUrlParser: true,
             useUnifiedTopology: false,
-            useCreateIndex: true,
-            useFindAndModify: false,
-            autoIndex: true,
+            autoIndex: false,
             autoCreate: true,
             poolSize: getInt('DB_POOL_SIZE', 50),
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
-            family: 4,
+            family: 4, // ipv4
             keepAlive: true,
             keepAliveInitialDelay: 30000, // 30 sec
             reconnectTries: 30,
