@@ -1,7 +1,7 @@
 resource datadog_monitor "aggregator_not_running" {
   name = "PS2Alerts Aggregator not running [${var.environment}]"
   type = "metric alert"
-  query = "sum(last_1m):avg:kubernetes.pods.running{kube_deployment:ps2alerts-aggregator-${var.environment}} <= 0"
+  query = "max(last_1m):avg:kubernetes.pods.running{kube_deployment:ps2alerts-aggregator-${var.environment}} <= 0"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "not running"})
 
   thresholds = {
@@ -10,7 +10,7 @@ resource datadog_monitor "aggregator_not_running" {
 
   notify_no_data = true
   require_full_window = false
-  no_data_timeframe = 10
+  no_data_timeframe = 3
 
   tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
 }
