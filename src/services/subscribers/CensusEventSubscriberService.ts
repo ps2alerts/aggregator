@@ -1,7 +1,7 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {inject, injectable} from 'inversify';
-import {Client} from 'ps2census';
+import {Client, Death, GainExperience} from 'ps2census';
 import {TYPES} from '../../constants/types';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
@@ -74,9 +74,9 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             message.includes('api returned no matches for') ||
             message.includes('No character ID was supplied!')
         ) {
-            CensusEventSubscriberService.logger.warn(`Unable to process ${service} event! W: ${message}`);
+            CensusEventSubscriberService.logger.warn(`Unable to process ${service} event after 3 tries! W: ${message}`);
         } else {
-            CensusEventSubscriberService.logger.error(`Unable to process ${service} event! E: ${message}`);
+            CensusEventSubscriberService.logger.error(`Unable to process ${service} event after 3 tries! E: ${message}`);
         }
     }
 
@@ -84,38 +84,10 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private constructListeners(): void {
 
         // Set up event handlers
-        this.wsClient.on('death', (event) => {
+        this.wsClient.on('death', (event: Death) => {
             CensusEventSubscriberService.logger.silly('Passing Death to listener');
 
-            void Promise.all([
-                this.characterBroker.get(event.attacker_character_id),
-                this.characterBroker.get(event.character_id),
-            ]).then(([attacker, character]) => {
-                [attacker, character].forEach((char) => {
-                    void this.characterPresenceHandler.update(
-                        char,
-                        parseInt(event.zone_id, 10),
-                    );
-                });
-
-                const instances = this.instanceHandler.getInstances(
-                    parseInt(event.world_id, 10),
-                    parseInt(event.zone_id, 10),
-                );
-
-                instances.forEach((instance) => {
-                    const deathEvent = new DeathEvent(
-                        event,
-                        instance,
-                        attacker,
-                        character,
-                    );
-                    void this.deathEventHandler.handle(deathEvent);
-                });
-            }).catch((e) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                CensusEventSubscriberService.handleCharacterException('Death', e.message);
-            });
+            void this.processDeath(event, 0);
         });
 
         this.wsClient.on('facilityControl', (event) => {
@@ -143,21 +115,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.wsClient.on('gainExperience', async (event) => {
-            const character = await this.characterBroker.get(event.character_id)
-                .catch((e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
-                });
-
-            if (!character) {
-                return;
-            }
-
-            await this.characterPresenceHandler.update(
-                character,
-                parseInt(event.zone_id, 10),
-            );
+        this.wsClient.on('gainExperience', (event) => {
+            void this.processGainExperience(event, 0);
         });
 
         this.wsClient.on('metagameEvent', (event) => {
@@ -171,5 +130,79 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 CensusEventSubscriberService.logger.error(e.message);
             }
         });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    private async processDeath(event: Death, tries = 0): Promise<void> {
+        const retryLimit = 3;
+        tries++;
+
+        void Promise.all([
+            this.characterBroker.get(event.attacker_character_id),
+            this.characterBroker.get(event.character_id),
+        ]).then(([attacker, character]) => {
+            [attacker, character].forEach((char) => {
+                void this.characterPresenceHandler.update(
+                    char,
+                    parseInt(event.zone_id, 10),
+                );
+            });
+
+            const instances = this.instanceHandler.getInstances(
+                parseInt(event.world_id, 10),
+                parseInt(event.zone_id, 10),
+            );
+
+            instances.forEach((instance) => {
+                const deathEvent = new DeathEvent(
+                    event,
+                    instance,
+                    attacker,
+                    character,
+                );
+
+                if (tries > 1) {
+                    CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for Death event for character ${event.character_id}`);
+                }
+
+                void this.deathEventHandler.handle(deathEvent);
+            });
+        }).catch((e) => {
+            if (tries >= retryLimit) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                CensusEventSubscriberService.handleCharacterException('Death', e.message);
+            } else {
+                // Retry
+                CensusEventSubscriberService.logger.debug(`Retrying Death event #${tries} - ${event.character_id}`);
+                void this.processDeath(event, tries);
+            }
+        });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    private async processGainExperience(event: GainExperience, tries = 0): Promise<void> {
+        const retryLimit = 3;
+        tries++;
+
+        await this.characterBroker.get(event.character_id)
+            .then((character) => {
+                if (tries > 1) {
+                    CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for GainExperience event for character ${event.character_id}`);
+                }
+
+                void this.characterPresenceHandler.update(
+                    character,
+                    parseInt(event.zone_id, 10),
+                );
+            })
+            .catch((e) => {
+                if (tries >= retryLimit) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
+                } else {
+                    CensusEventSubscriberService.logger.debug(`Retrying GainExperience event #${tries} - ${event.character_id}`);
+                    void this.processGainExperience(event, tries);
+                }
+            });
     }
 }
