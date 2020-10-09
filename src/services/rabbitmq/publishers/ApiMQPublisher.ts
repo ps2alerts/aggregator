@@ -26,7 +26,7 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
 
     public async connect(): Promise<boolean> {
         ApiMQPublisher.logger.info('Connecting to queue...');
-        this.channelWrapper = await this.connectionHandlerFactory.setupConnection(this.config.apiQueueName, null);
+        this.channelWrapper = await this.connectionHandlerFactory.setupConnection(this.config.apiQueueName, null, {messageTtl: 7200000});
         ApiMQPublisher.logger.info('Connected!');
 
         return true;

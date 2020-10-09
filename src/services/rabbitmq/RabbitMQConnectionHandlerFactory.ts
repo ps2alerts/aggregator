@@ -15,7 +15,7 @@ export class RabbitMQConnectionHandlerFactory {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-    public async setupConnection(queueName: string, callback: any | null): Promise<ChannelWrapper> {
+    public async setupConnection(queueName: string, callback: any | null, overrideOptions = {}): Promise<ChannelWrapper> {
         let connected = false;
         const vhost = this.config.vhost ? `/${this.config.vhost}` : '';
         const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}${vhost}?heartbeat=${this.config.heartbeat}&connection_timeout=${this.config.timeout}`;
@@ -24,11 +24,13 @@ export class RabbitMQConnectionHandlerFactory {
         RabbitMQConnectionHandlerFactory.logger.debug(connectionString);
 
         const connection = connect([connectionString]);
+        const options = {durable: true, ...overrideOptions};
+
         const channelWrapper = connection.createChannel({
             json: true,
             setup: (channel: ConfirmChannel) => {
                 return Promise.all([
-                    channel.assertQueue(queueName, {durable: true}),
+                    channel.assertQueue(queueName, options),
                     channel.bindQueue(queueName, this.config.exchange, 'create'),
                     callback ? channel.consume(queueName, callback) : null,
                 ]);
