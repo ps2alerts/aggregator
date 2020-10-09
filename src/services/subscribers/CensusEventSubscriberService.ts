@@ -115,7 +115,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.wsClient.on('gainExperience', async (event) => {
+        this.wsClient.on('gainExperience', (event) => {
             void this.processGainExperience(event, 0);
         });
 
@@ -160,6 +160,11 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                     attacker,
                     character,
                 );
+
+                if (tries > 1) {
+                    CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for Death event for character ${event.character_id}`);
+                }
+
                 void this.deathEventHandler.handle(deathEvent);
             });
         }).catch((e) => {
@@ -168,6 +173,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 CensusEventSubscriberService.handleCharacterException('Death', e.message);
             } else {
                 // Retry
+                CensusEventSubscriberService.logger.debug(`Retrying Death event #${tries} - ${event.character_id}`);
                 void this.processDeath(event, tries);
             }
         });
@@ -180,6 +186,10 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         await this.characterBroker.get(event.character_id)
             .then((character) => {
+                if (tries > 1) {
+                    CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for GainExperience event for character ${event.character_id}`);
+                }
+
                 void this.characterPresenceHandler.update(
                     character,
                     parseInt(event.zone_id, 10),
@@ -190,6 +200,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
                 } else {
+                    CensusEventSubscriberService.logger.debug(`Retrying GainExperience event #${tries} - ${event.character_id}`);
                     void this.processGainExperience(event, tries);
                 }
             });
