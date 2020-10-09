@@ -22,7 +22,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         const documents = [];
 
-        if (event.killType === Kill.Normal) {
+        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
             documents.push({$inc: {kills: 1}});
         }
 
