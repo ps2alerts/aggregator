@@ -26,7 +26,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
-        if (event.killType === Kill.Normal) {
+        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
             attackerDocs.push({$inc: {kills: 1}});
         }
 
