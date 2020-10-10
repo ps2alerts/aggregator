@@ -1,4 +1,4 @@
-import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
@@ -8,14 +8,14 @@ import {InstanceFacilityControlSchemaInterface} from '../models/instance/Instanc
 import ApplicationException from '../exceptions/ApplicationException';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
 
-export default class PS2AlertsMetagameInstanceStartAction implements ActionInterface {
-    private static readonly logger = getLogger('PS2AlertsMetagameInstanceStartAction');
-    private readonly instance: PS2AlertsMetagameInstance;
+export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
+    private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
+    private readonly instance: MetagameTerritoryInstance;
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
 
     constructor(
-        instance: PS2AlertsMetagameInstance,
+        instance: MetagameTerritoryInstance,
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
     ) {
@@ -25,7 +25,7 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
     }
 
     public async execute(): Promise<boolean> {
-        PS2AlertsMetagameInstanceStartAction.logger.info(`Running startActions() for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
+        MetagameInstanceTerritoryStartAction.logger.info(`Running startActions() for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
         // Take a snapshot of the map for use with territory calculations for the end
 
         const get = rest.getFactory('ps2', this.censusConfig.serviceID);
@@ -72,7 +72,7 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
                     });
                 } else {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    PS2AlertsMetagameInstanceStartAction.logger.warn(`Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
+                    MetagameInstanceTerritoryStartAction.logger.warn(`Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
                 }
             });
 
@@ -84,7 +84,7 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
                     }
                 });
 
-            PS2AlertsMetagameInstanceStartAction.logger.info(`Inserted initial map state for instance ${this.instance.instanceId}`);
+            MetagameInstanceTerritoryStartAction.logger.info(`Inserted initial map state for instance ${this.instance.instanceId}`);
         });
 
         return true;

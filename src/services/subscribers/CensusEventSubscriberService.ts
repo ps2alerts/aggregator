@@ -16,7 +16,7 @@ import GainExperienceEventHandler from '../../handlers/census/GainExperienceEven
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 // Other
 import {CharacterBrokerInterface} from '../../interfaces/CharacterBrokerInterface';
-import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -99,7 +99,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             instances.forEach((instance) => {
                 let delay = 1;
 
-                if (instance instanceof PS2AlertsMetagameInstance) {
+                if (instance instanceof MetagameTerritoryInstance) {
                     delay = 2000;
                 }
 

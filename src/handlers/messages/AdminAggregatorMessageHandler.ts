@@ -4,7 +4,7 @@ import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
 import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 import {inject, injectable} from 'inversify';
-import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import EventId from '../../utils/eventId';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
@@ -53,7 +53,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             throw new ApplicationException(`Unknown metagame event id ${censusEventId}`, 'AdminAggregatorMessageHandler');
         }
 
-        const instance = new PS2AlertsMetagameInstance(
+        const instance = new MetagameTerritoryInstance(
             adminAggregatorInstanceStart.world,
             new Date(),
             null,
@@ -62,6 +62,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             censusEventId,
             adminAggregatorInstanceStart.duration,
             Ps2alertsEventState.STARTED,
+            null,
         );
 
         try {

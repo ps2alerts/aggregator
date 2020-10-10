@@ -4,9 +4,9 @@ import {Zone, zoneArray} from '../../constants/zone';
 import {MetagameEventType, metagameEventTypeArray} from '../../constants/metagameEventType';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import {Ps2alertsEventState, ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
-import {Faction, factionArray} from '../../constants/faction';
+import {MetagameTerritoryResult} from '../../victories/TerritoryVictoryCondition';
 
-export interface InstanceMetagameSchemaInterface extends Document {
+export interface InstanceMetagameTerritorySchemaInterface extends Document {
     instanceId: PS2AlertsInstanceInterface['instanceId'];
     world: World;
     timeStarted: Date;
@@ -16,10 +16,10 @@ export interface InstanceMetagameSchemaInterface extends Document {
     censusMetagameEventType: MetagameEventType;
     duration: number;
     state: Ps2alertsEventState;
-    winner: Faction | null;
+    result: MetagameTerritoryResult | null;
 }
 
-export const instanceMetagameSchema: Schema = new Schema({
+export const instanceMetagameTerritorySchema: Schema = new Schema({
     instanceId: {
         type: String,
         required: true,
@@ -59,9 +59,8 @@ export const instanceMetagameSchema: Schema = new Schema({
         enum: ps2alertsEventStateArray,
         required: true,
     },
-    winner: {
-        type: Number,
-        enum: factionArray,
+    result: {
+        type: Object,
         default: null,
     },
 }).index(

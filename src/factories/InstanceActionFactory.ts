@@ -1,25 +1,25 @@
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
-import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
 import MongooseModelFactory from './MongooseModelFactory';
-import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetagame';
+import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import Census from '../config/census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
-import PS2AlertsMetagameInstanceStartAction from '../actions/PS2AlertsMetagameInstanceStartAction';
-import PS2AlertsMetagameInstanceEndAction from '../actions/PS2AlertsMetagameInstanceEndAction';
+import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTerritoryStartAction';
+import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
 
 @injectable()
 export default class InstanceActionFactory {
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
+    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly censusConfig: Census;
 
     constructor(
     @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>,
+        @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         @inject('censusConfig') censusConfig: Census,
     ) {
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
@@ -28,8 +28,8 @@ export default class InstanceActionFactory {
     }
 
     public buildStart(instance: PS2AlertsInstanceInterface): ActionInterface {
-        if (instance instanceof PS2AlertsMetagameInstance) {
-            return new PS2AlertsMetagameInstanceStartAction(
+        if (instance instanceof MetagameTerritoryInstance) {
+            return new MetagameInstanceTerritoryStartAction(
                 instance,
                 this.instanceFacilityControlModelFactory,
                 this.censusConfig,
@@ -40,8 +40,8 @@ export default class InstanceActionFactory {
     }
 
     public buildEnd(instance: PS2AlertsInstanceInterface): ActionInterface {
-        if (instance instanceof PS2AlertsMetagameInstance) {
-            return new PS2AlertsMetagameInstanceEndAction(
+        if (instance instanceof MetagameTerritoryInstance) {
+            return new MetagameTerritoryInstanceEndAction(
                 instance,
                 this.instanceFacilityControlModelFactory,
                 this.instanceMetagameModelFactory,

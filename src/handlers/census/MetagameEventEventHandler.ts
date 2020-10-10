@@ -9,7 +9,7 @@ import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface'
 import ApplicationException from '../../exceptions/ApplicationException';
 import {MetagameEventState} from '../../constants/metagameEventState';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
-import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 
 @injectable()
@@ -47,7 +47,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
                 throw new ApplicationException(`Unknown metagame event id ${event.eventType}`);
             }
 
-            const instance = new PS2AlertsMetagameInstance(
+            const instance = new MetagameTerritoryInstance(
                 event.world,
                 event.timestamp,
                 null,
@@ -56,6 +56,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
                 event.eventType,
                 metagameDetails.duration,
                 Ps2alertsEventState.STARTED,
+                null,
             );
 
             try {

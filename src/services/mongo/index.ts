@@ -11,7 +11,7 @@ import {TYPES} from '../../constants/types';
 // Census Event models
 import {instanceFacilityControlSchema, InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
 // Instance Type Models
-import {instanceMetagameSchema, InstanceMetagameSchemaInterface} from '../../models/instance/InstanceMetagame';
+import {instanceMetagameTerritorySchema, InstanceMetagameTerritorySchemaInterface} from '../../models/instance/InstanceMetagameTerritory';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(MongoDatabaseConnectionService);
@@ -36,11 +36,11 @@ export default new ContainerModule((bind) => {
         .inSingletonScope();
 
     // Instance Type Models
-    bind<MongooseModelFactory<InstanceMetagameSchemaInterface>>(TYPES.instanceMetagameModelFactory)
+    bind<MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>>(TYPES.instanceMetagameModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
             'instance_metagame',
-            instanceMetagameSchema,
+            instanceMetagameTerritorySchema,
         ))
         .inSingletonScope();
 });

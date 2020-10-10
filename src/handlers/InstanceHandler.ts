@@ -6,9 +6,9 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
 import {World} from '../constants/world';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
-import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
-import {InstanceMetagameSchemaInterface} from '../models/instance/InstanceMetagame';
+import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
@@ -18,13 +18,13 @@ import InstanceActionFactory from '../factories/InstanceActionFactory';
 export default class InstanceHandler implements InstanceHandlerInterface {
     private static readonly logger = getLogger('InstanceHandler');
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
-    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>;
+    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly instanceActionFactory: InstanceActionFactory;
     private activeTimer?: NodeJS.Timeout;
     private initialized = false;
 
     constructor(
-    @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameSchemaInterface>,
+    @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
     ) {
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
@@ -63,7 +63,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         InstanceHandler.logger.info('================== STARTING INSTANCE! ==================');
 
-        if (instance instanceof PS2AlertsMetagameInstance) {
+        if (instance instanceof MetagameTerritoryInstance) {
             try {
                 const row = await this.instanceMetagameModelFactory.model.create({
                     instanceId: instance.instanceId,
@@ -75,7 +75,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     censusMetagameEventType: instance.censusMetagameEventType,
                     duration: instance.duration,
                     state: instance.state,
-                    winner: null,
+                    result: null,
                 });
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
 
@@ -84,6 +84,8 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     await this.instanceActionFactory.buildStart(instance).execute();
                 } catch (e) {
                     // End early if instance failed to insert so we don't add a instance to the list of actives.
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    InstanceHandler.logger.error(`Failed to build starts for Instance #${instance.instanceId}. E: ${e.message}`);
                     return false;
                 }
 
@@ -168,7 +170,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             throw new ApplicationException('InstanceHandler was called to be initialized more than once!', 'InstanceHandler');
         }
 
-        let rows: InstanceMetagameSchemaInterface[] = [];
+        let rows: InstanceMetagameTerritorySchemaInterface[] = [];
 
         try {
             rows = await this.instanceMetagameModelFactory.model.find({
@@ -182,7 +184,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             InstanceHandler.logger.warn('No active instances were detected in the database! This could be entirely normal however.');
         } else {
             rows.forEach((i) => {
-                const instance = new PS2AlertsMetagameInstance(
+                const instance = new MetagameTerritoryInstance(
                     i.world,
                     i.timeStarted,
                     null,
@@ -191,6 +193,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     i.censusMetagameEventType,
                     i.duration,
                     i.state,
+                    null,
                 );
                 this.currentInstances.push(instance);
             });
@@ -213,7 +216,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
             let output = `I: ${instance.instanceId} | W: ${instance.world}`;
 
-            if (instance instanceof PS2AlertsMetagameInstance) {
+            if (instance instanceof MetagameTerritoryInstance) {
                 output = `${output} | Z: ${instance.zone}`;
             }
 

@@ -5,12 +5,13 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import {rest} from 'ps2census';
 import Census from '../config/census';
-import PS2AlertsMetagameInstance from '../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
+import {censusOldFacilities} from '../constants/censusOldFacilities';
 
-export interface TerritoryVictoryConditionResultInterface {
+export interface MetagameTerritoryResult {
     vs: number;
     nc: number;
     tr: number;
@@ -34,12 +35,12 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
     private static readonly logger = getLogger('TerritoryVictoryCondition');
     private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
-    private readonly instance: PS2AlertsMetagameInstance;
+    private readonly instance: MetagameTerritoryInstance;
     private readonly factionParsedFacilitiesMap: Map<Faction, Set<number>> = new Map<Faction, Set<number>>();
     private readonly mapFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
 
     constructor(
-        instance: PS2AlertsMetagameInstance,
+        instance: MetagameTerritoryInstance,
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
 
@@ -49,7 +50,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         this.censusConfig = censusConfig;
     }
 
-    public async calculate(): Promise<TerritoryVictoryConditionResultInterface> {
+    public async calculate(): Promise<MetagameTerritoryResult> {
         let winner = 0;
         let draw = false;
 
@@ -134,6 +135,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             vs: vsPer,
             nc: ncPer,
             tr: trPer,
+            cutoff: cutoffPer,
             winner,
             draw,
         };
@@ -233,6 +235,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore bruh
         this.factionParsedFacilitiesMap.get(faction).add(facilityId);
+        this.cutoffFacilityList.delete(facilityId);
 
         // First, get a list of links associated with the facility
         const connectedLinks = latticeLinks.filter((latticeLink: FacilityLatticeLinkInterface) => {

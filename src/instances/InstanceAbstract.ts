@@ -1,6 +1,6 @@
 import {World} from '../constants/world';
 
-export default abstract class PS2AlertsInstanceAbstract {
+export default abstract class InstanceAbstract {
     public readonly instanceId: string;
     public readonly world: World;
     public readonly timeStarted: Date;

@@ -1,8 +1,8 @@
 import ApplicationException from '../../exceptions/ApplicationException';
-import PS2AlertsMetagameInstance from '../../instances/PS2AlertsMetagameInstance';
+import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 
 export default class AdminAggregatorInstanceEndMessage {
-    public readonly instanceId: PS2AlertsMetagameInstance['instanceId'];
+    public readonly instanceId: MetagameTerritoryInstance['instanceId'];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(body: Record<string, any>) {
