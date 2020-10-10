@@ -5,6 +5,8 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import Census from '../config/census';
 import {rest} from 'ps2census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
+import ApplicationException from '../exceptions/ApplicationException';
+import {censusOldFacilities} from '../constants/censusOldFacilities';
 
 export default class PS2AlertsMetagameInstanceStartAction implements ActionInterface {
     private static readonly logger = getLogger('PS2AlertsMetagameInstanceStartAction');
@@ -52,7 +54,10 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
             mapData[0].Regions.Row.forEach((row) => {
                 // Check if we have a facility type, if we don't chuck it as it's an old facility
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (row.RowData.map_region.facility_type_id) {
+                const facilityId = parseInt(row.RowData.map_region.facility_id, 10);
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (row.RowData.map_region.facility_type_id && facilityId && censusOldFacilities.includes(facilityId)) {
                     docs.push({
                         instance: this.instance.instanceId,
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -75,7 +80,7 @@ export default class PS2AlertsMetagameInstanceStartAction implements ActionInter
             void this.instanceFacilityControlModelFactory.model.insertMany(docs)
                 .catch((err: Error) => {
                     if (!err.message.includes('E11000')) {
-                        PS2AlertsMetagameInstanceStartAction.logger.error(`Error inserting Initial Map Capture! ${err.message}`);
+                        throw new ApplicationException(`Error inserting Initial Map Capture! ${err.message}`, 'MetagameInstanceTerritoryStartAction');
                     }
                 });
 
