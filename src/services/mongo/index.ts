@@ -39,7 +39,7 @@ export default new ContainerModule((bind) => {
     bind<MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>>(TYPES.instanceMetagameModelFactory)
         .toDynamicValue(({container}: Context) => new MongooseModelFactory(
             container.get(Mongoose),
-            'instance_metagame',
+            'instance_metagame_territories',
             instanceMetagameTerritorySchema,
         ))
         .inSingletonScope();
