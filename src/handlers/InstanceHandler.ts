@@ -80,7 +80,12 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
 
                 // Execute start actions
-                await this.instanceActionFactory.buildStart(instance).execute();
+                try {
+                    await this.instanceActionFactory.buildStart(instance).execute();
+                } catch (e) {
+                    // End early if instance failed to insert so we don't add a instance to the list of actives.
+                    return false;
+                }
 
                 // Add instance to the in-memory data so it can be called upon rapidly without polling DB
                 this.currentInstances.push(instance);
