@@ -15,6 +15,7 @@ export interface MetagameTerritoryResult {
     vs: number;
     nc: number;
     tr: number;
+    cutoff: number;
     winner: Faction;
     draw: boolean;
 }
@@ -38,6 +39,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
     private readonly instance: MetagameTerritoryInstance;
     private readonly factionParsedFacilitiesMap: Map<Faction, Set<number>> = new Map<Faction, Set<number>>();
     private readonly mapFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
+    private readonly cutoffFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
 
     constructor(
         instance: MetagameTerritoryInstance,
@@ -127,9 +129,17 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             winner = scores[0].faction;
         }
 
-        TerritoryVictoryCondition.logger.debug(scores);
-        TerritoryVictoryCondition.logger.debug(`Cutoff: ${baseCount - bases.vs - bases.nc - bases.tr}`);
+        const cutoff = baseCount - bases.vs - bases.nc - bases.tr;
+        const cutoffPer = cutoff * perBasePercent;
+
+        TerritoryVictoryCondition.logger.debug(`Cutoff: ${cutoff} (${cutoffPer}%)`);
         TerritoryVictoryCondition.logger.debug(`Winner: ${winner}`);
+
+        if (TerritoryVictoryCondition.logger.isDebugEnabled()) {
+            /* eslint-disable */
+            console.log('Cutoff bases', this.cutoffFacilityList);
+            console.log('Scores', scores);
+        }
 
         return {
             vs: vsPer,
@@ -159,12 +169,19 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
 
             result.forEach((region: rest.collectionTypes.mapRegion) => {
                 const id = parseInt(region.facility_id, 10);
+
+                // If facility is in blacklist, don't map it
+                if (censusOldFacilities.includes(id) || isNaN(id)) {
+                    return;
+                }
+
                 const facility: FacilityInterface = {
                     facilityId: id,
                     facilityName: region.facility_name,
                     facilityType: parseInt(region.facility_type_id, 10),
                 };
                 this.mapFacilityList.set(id, facility);
+                this.cutoffFacilityList.set(id, facility);
             });
         });
     }

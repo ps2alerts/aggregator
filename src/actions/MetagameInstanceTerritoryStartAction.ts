@@ -29,6 +29,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         // Take a snapshot of the map for use with territory calculations for the end
 
         const get = rest.getFactory('ps2', this.censusConfig.serviceID);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const docs: any[] = [];
 
         await get(
@@ -57,7 +58,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                 const facilityId = parseInt(row.RowData.map_region.facility_id, 10);
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (row.RowData.map_region.facility_type_id && facilityId && censusOldFacilities.includes(facilityId)) {
+                if (row.RowData.map_region.facility_type_id && facilityId && !censusOldFacilities.includes(facilityId)) {
                     docs.push({
                         instance: this.instance.instanceId,
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
