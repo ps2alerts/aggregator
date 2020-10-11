@@ -133,9 +133,9 @@ export default class CensusStreamService implements ServiceInterface {
         this.wsClient.on('subscribed', (subscriptions) => {
             CensusStreamService.logger.info('Census stream subscribed! Subscriptions:');
             CensusStreamService.logger.info(jsonLogOutput(subscriptions));
-            // this.censusStaleConnectionWatcherAuthority.run(this.wsClient);
-            // this.overdueInstanceAuthority.run();
-            // this.populationAuthority.run();
+            this.censusStaleConnectionWatcherAuthority.run(this.wsClient);
+            this.overdueInstanceAuthority.run();
+            this.populationAuthority.run();
         });
     }
 }
