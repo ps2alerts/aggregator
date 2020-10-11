@@ -18,6 +18,8 @@ import InstancePopulationAggregate from './instance/InstancePopulationAggregate'
 import PopulationData from '../../data/PopulationData';
 import InstanceOutfitAggregate from './instance/InstanceOutfitAggregate';
 import GlobalOutfitAggregate from './global/GlobalOutfitAggregate';
+import InstanceVehicleDestroyAggregate from './instance/InstanceVehicleDestroyAggregate';
+import VehicleDestroyEvent from '../census/events/VehicleDestroyEvent';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers are registered here
@@ -39,4 +41,6 @@ export default new ContainerModule((bind) => {
 
     // Population Event
     bind<PopulationHandlerInterface<PopulationData>>(TYPES.populationAggregates).to(InstancePopulationAggregate).inSingletonScope();
+
+    bind<EventHandlerInterface<VehicleDestroyEvent>>(TYPES.vehicleDestroyAggregates).to(InstanceVehicleDestroyAggregate).inSingletonScope();
 });
