@@ -5,6 +5,8 @@ import {TYPES} from '../../../constants/types';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import VehicleDestroyEvent from '../../census/events/VehicleDestroyEvent';
 import {Destroy} from 'ps2census';
+import ApiMQMessage from '../../../data/ApiMQMessage';
+import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
 
 @injectable()
 export default class InstanceVehicleDestroyAggregate implements AggregateHandlerInterface<VehicleDestroyEvent> {
@@ -17,84 +19,85 @@ export default class InstanceVehicleDestroyAggregate implements AggregateHandler
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
         InstanceVehicleDestroyAggregate.logger.debug('InstanceVehicleDestroyAggregate.handle');
-        console.log(event);
 
-        const attackerDocuments = [];
-        const victimDocuments = [];
+        const attackerDocs = [];
+        const victimDocs = [];
 
-        // Totals are always processed
-        attackerDocuments.push({$inc: {totalKills: 1}});
-        victimDocuments.push({$inc: {totalDeaths: 1}});
-
-        // Non TKs
-        if (event.killType === Destroy.Normal) {
-            InstanceVehicleDestroyAggregate.logger.debug('Kill - VvV');
-
-            // Kill - VvV
-            if (event.vehicleId) {
-                InstanceVehicleDestroyAggregate.logger.debug('Kill - VvV');
-                attackerDocuments.push({$inc: {killsVsVehicles: 1}});
-                victimDocuments.push({$inc: {deathsVsVehicles: 1}});
-            }
-
-            // Kill - VvI - BROKEN
-            if (!event.vehicleId) {
-                InstanceVehicleDestroyAggregate.logger.debug('Kill - VvI');
-                attackerDocuments.push({$inc: {killsVsInfantry: 1}});
-                victimDocuments.push({$inc: {deathsVsInfantry: 1}});
+        // IvV
+        if (!event.attackerVehicleId) {
+            if (event.killType === Destroy.Normal) {
+                victimDocs.push({$inc: {['infantry.deaths']: 1}});
+            } else {
+                victimDocs.push({$inc: {['infantry.teamkilled']: 1}});
             }
         }
 
-        if (event.killType === Destroy.Friendly && event.character.id !== event.attackerCharacter.id) {
-            // Kill - TK Vehicles
-            if (event.vehicleId) {
-                InstanceVehicleDestroyAggregate.logger.debug('VvV TK');
-                attackerDocuments.push({$inc: {killsVsVehiclesTk: 1}});
-                victimDocuments.push({$inc: {deathsVsVehiclesTk: 1}});
+        // VvV
+        if (event.attackerVehicleId) {
+            // Non TKs
+            if (event.killType === Destroy.Normal) {
+                // Kill - VvV
+                InstanceVehicleDestroyAggregate.logger.debug('VvV');
+                attackerDocs.push({$inc: {['vehicles.kills']: 1}});
+                victimDocs.push({$inc: {['vehicles.deaths']: 1}});
+
+                // Matrix
+                attackerDocs.push({$inc: {[`vehicleKillMatrix.${event.vehicleId}`]: 1}});
+                victimDocs.push({$inc: {[`vehicleDeathMatrix.${event.attackerVehicleId}`]: 1}});
             }
 
-            // Kill - TK Infantry - BROKEN
-            if (!event.vehicleId) {
-                InstanceVehicleDestroyAggregate.logger.debug('VvI TK');
-                attackerDocuments.push({$inc: {killsVsInfantryTk: 1}});
-                victimDocuments.push({$inc: {deathsVsInfantryTk: 1}});
+            // TKs / Suicide
+            if (event.killType === Destroy.Friendly) {
+                if (event.character.id !== event.attackerCharacter.id) {
+                    InstanceVehicleDestroyAggregate.logger.debug('VvV TK');
+                    attackerDocs.push({$inc: {['vehicles.teamkills']: 1}});
+                    victimDocs.push({$inc: {['vehicles.teamkilled']: 1}});
+
+                    // Matrix
+                    attackerDocs.push({$inc: {[`vehicleTeamkillMatrix.${event.vehicleId}`]: 1}});
+                    victimDocs.push({$inc: {[`vehicleTeamkilledMatrix.${event.attackerVehicleId}`]: 1}});
+                } else {
+                    InstanceVehicleDestroyAggregate.logger.debug('Vehicle self destruct');
+                    victimDocs.push({$inc: {['suicides']: 1}});
+                }
+            }
+
+            // Death - World
+            if (event.attackerCharacter.id === '0') {
+                InstanceVehicleDestroyAggregate.logger.debug('Vehicle world kill (suicide)');
+                victimDocs.push({$inc: {['suicides']: 1}});
             }
         }
 
-        // Death - Suicide
-        if (event.killType === Destroy.Friendly && event.character.id === event.attackerCharacter.id) {
-            InstanceVehicleDestroyAggregate.logger.debug('VvV Suicide');
-            victimDocuments.push({$inc: {deathsSelfDestruct: 1}});
+        if (attackerDocs.length > 0) {
+            try {
+                await this.apiMQPublisher.send(new ApiMQMessage(
+                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                    attackerDocs,
+                    [{
+                        instance: event.instance.instanceId,
+                        vehicle: event.attackerVehicleId,
+                    }],
+                ));
+            } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                InstanceVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
-        // Death - World
-        if (event.killType === Destroy.Game) {
-            InstanceVehicleDestroyAggregate.logger.debug('VvV Restricted Area');
-            victimDocuments.push({$inc: {deathsRestrictedArea: 1}});
+        try {
+            await this.apiMQPublisher.send(new ApiMQMessage(
+                Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                victimDocs,
+                [{
+                    instance: event.instance.instanceId,
+                    vehicle: event.vehicleId,
+                }],
+            ));
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            InstanceVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
         }
-
-        // Death - TK
-
-        // Total Deaths
-
-        //
-
-        console.log(attackerDocuments);
-        console.log(victimDocuments);
-
-        // try {
-        //     await this.apiMQPublisher.send(new ApiMQMessage(
-        //         Ps2alertsApiMQEndpoints.INSTANCE_WEAPON_AGGREGATE,
-        //         documents,
-        //         [{
-        //             instance: event.instance.instanceId,
-        //             weapon: event.attackerWeaponId,
-        //         }],
-        //     ));
-        // } catch (err) {
-        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-        //     InstanceVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-        // }
 
         return true;
     }

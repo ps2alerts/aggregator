@@ -25,6 +25,8 @@ import {Zone} from '../../../constants/zone';
 import {Death, Kill} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import Character from '../../../data/Character';
+import {Vehicle} from '../../../constants/vehicle';
+import {Loadout} from '../../../constants/loadout';
 
 @injectable()
 export default class DeathEvent {
@@ -36,8 +38,8 @@ export default class DeathEvent {
     public readonly characterLoadoutId: number;
     public readonly attackerCharacter: Character;
     public readonly attackerFiremodeId: number;
-    public readonly attackerLoadoutId: number;
-    public readonly attackerVehicleId: number;
+    public readonly attackerLoadoutId: Loadout;
+    public readonly attackerVehicleId: Vehicle;
     public readonly attackerWeaponId: number;
     public readonly isHeadshot: boolean;
     public readonly killType: Kill;
@@ -107,5 +109,7 @@ export default class DeathEvent {
         this.isHeadshot = event.is_headshot;
 
         this.killType = event.kill_type;
+
+        this.attackerVehicleId = Parser.parseNumericalArgument(event.attacker_vehicle_id);
     }
 }

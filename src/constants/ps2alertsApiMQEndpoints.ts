@@ -16,7 +16,7 @@ export enum Ps2alertsApiMQEndpoints {
     INSTANCE_FACTION_COMBAT_AGGREGATE = 'instanceFactionCombatAggregate',
     INSTANCE_OUTFIT_AGGREGATE = 'instanceOutfitAggregate',
     INSTANCE_POPULATION_AGGREGATE = 'instancePopulationAggregate',
-    INSTANCE_VEHICLE_DESTROY_AGGREGATE = 'instanceVehicleDestroyAggregate',
+    INSTANCE_VEHICLE_AGGREGATE = 'instanceVehicleAggregate',
     INSTANCE_WEAPON_AGGREGATE = 'instanceWeaponAggregate',
     // Event handles
     INSTANCE_DEATH = 'instanceDeathEvent',
