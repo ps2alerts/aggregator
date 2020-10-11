@@ -71,8 +71,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private static handleCharacterException(service: string, message: string): void {
         if (
             message.includes('No data found') ||
-            message.includes('api returned no matches for') ||
-            message.includes('No character ID was supplied!')
+            message.includes('api returned no matches for')
         ) {
             CensusEventSubscriberService.logger.warn(`Unable to process ${service} event after 3 tries! W: ${message}`);
         } else {
@@ -138,8 +137,8 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         tries++;
 
         void Promise.all([
-            this.characterBroker.get(event.attacker_character_id),
-            this.characterBroker.get(event.character_id),
+            this.characterBroker.get(event.attacker_character_id, parseInt(event.world_id, 10)),
+            this.characterBroker.get(event.character_id, parseInt(event.world_id, 10)),
         ]).then(([attacker, character]) => {
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
@@ -184,7 +183,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         const retryLimit = 3;
         tries++;
 
-        await this.characterBroker.get(event.character_id)
+        await this.characterBroker.get(event.character_id, parseInt(event.world_id, 10))
             .then((character) => {
                 if (tries > 1) {
                     CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for GainExperience event for character ${event.character_id}`);
