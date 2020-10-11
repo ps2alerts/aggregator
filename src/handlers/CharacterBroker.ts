@@ -21,7 +21,7 @@ export default class CharacterBroker implements CharacterBrokerInterface {
 
     public async get(characterId: string, world: World): Promise<Character> {
         if (characterId === '0' || !characterId) {
-            CharacterBroker.logger.debug('Missing character ID, serving Fake character');
+            CharacterBroker.logger.silly('Missing character ID, serving Fake character');
             // Return a blank character called "World" which has a faction of none
             return new FakeCharacterFactory(world).build();
         }
