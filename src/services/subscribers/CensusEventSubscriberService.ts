@@ -137,7 +137,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
 
         this.wsClient.on(Events.PS2_VEHICLE_DESTROYED, (event) => {
-            CensusEventSubscriberService.logger.debug('Passing VehicleDestroy event to listener');
+            CensusEventSubscriberService.logger.silly('Passing VehicleDestroy event to listener');
 
             try {
                 void this.processVehicleDestroy(event, 0);
