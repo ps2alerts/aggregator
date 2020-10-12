@@ -21,11 +21,11 @@ export default class VehicleCharacterDeathLogic implements LogicInterface {
             // If TK
             if (this.event.attackerCharacter.faction === this.event.character.faction) {
                 if (this.event.attackerCharacter.id !== this.event.character.id) {
-                    VehicleCharacterDeathLogic.logger.debug(`[${this.mode}] VvI TK`);
+                    VehicleCharacterDeathLogic.logger.silly(`[${this.mode}] VvI TK`);
                     attackerDocs.push({$inc: {['infantry.teamkills']: 1}});
                 }
             } else {
-                VehicleCharacterDeathLogic.logger.debug(`[${this.mode}] VvI Kill`);
+                VehicleCharacterDeathLogic.logger.silly(`[${this.mode}] VvI Kill`);
                 attackerDocs.push({$inc: {['infantry.kills']: 1}});
             }
         }
