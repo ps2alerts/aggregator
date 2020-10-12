@@ -22,5 +22,4 @@ export enum Ps2alertsApiMQEndpoints {
     INSTANCE_DEATH = 'instanceDeathEvent',
     INSTANCE_FACILITY_CONTROL = 'instanceFacilityControlEvent',
     INSTANCE_METAGAME = 'instanceMetagame',
-    INSTANCE_VEHICLE_DESTROY = 'instanceVehicleDestroyEvent'
 }
