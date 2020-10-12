@@ -22,7 +22,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
      * @param event
      */
     public async handle(event: DeathEvent): Promise<boolean> {
-        VehicleDeathEventHandler.logger.debug('VehicleDeathEventHandler.handle');
+        VehicleDeathEventHandler.logger.silly('VehicleDeathEventHandler.handle');
 
         const documents = new VehicleCharacterDeathLogic(event, 'VehicleAggregateHandler').calculate();
 
@@ -54,7 +54,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         instance: event.instance.instanceId,
                         vehicle: event.attackerVehicleId,
-                        character: event.attackerCharacter,
+                        character: event.attackerCharacter.id,
                     }],
                 ));
             } catch (err) {
@@ -86,7 +86,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         vehicle: event.attackerVehicleId,
                         world: event.instance.world,
-                        character: event.attackerCharacter,
+                        character: event.character.id,
                     }],
                 ));
             } catch (err) {
