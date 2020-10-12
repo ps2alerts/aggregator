@@ -6,7 +6,7 @@ import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
+import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -40,7 +40,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                Ps2alertsApiMQEndpoints.GLOBAL_FACILITY_CONTROL_AGGREGATE,
+                MQAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
                 documents,
                 [{
                     facility: event.facility,

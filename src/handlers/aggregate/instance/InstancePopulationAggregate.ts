@@ -6,7 +6,7 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import PopulationData from '../../../data/PopulationData';
 import InstanceHandlerInterface from '../../../interfaces/InstanceHandlerInterface';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
+import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 
 @injectable()
@@ -57,7 +57,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                Ps2alertsApiMQEndpoints.INSTANCE_POPULATION_AGGREGATE,
+                MQAcceptedPatterns.INSTANCE_POPULATION_AGGREGATE,
                 documents,
             ));
         } catch (err) {

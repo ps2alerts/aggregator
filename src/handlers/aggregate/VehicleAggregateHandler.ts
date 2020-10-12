@@ -5,7 +5,7 @@ import {getLogger} from '../../logger';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import {TYPES} from '../../constants/types';
 import VehicleDestroyLogic from '../../logics/VehicleDestroyLogic';
-import {Ps2alertsApiMQEndpoints} from '../../constants/ps2alertsApiMQEndpoints';
+import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
 import ApiMQMessage from '../../data/ApiMQMessage';
 
 @injectable()
@@ -18,7 +18,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
     }
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
-        VehicleAggregateHandler.logger.debug('VehicleAggregateHandler.handle');
+        VehicleAggregateHandler.logger.silly('VehicleAggregateHandler.handle');
 
         const documents = new VehicleDestroyLogic(event, 'VehicleAggregateHandler').calculate();
 
@@ -36,7 +36,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                    MQAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -44,7 +44,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
+                    MQAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -61,7 +61,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.victimDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                    MQAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
                     documents.victimDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -70,7 +70,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                 ));
 
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
+                    MQAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
                     documents.victimDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -93,7 +93,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         vehicle: event.attackerVehicleId,
@@ -101,12 +101,12 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         vehicle: event.attackerVehicleId,
                         world: event.instance.world,
-                        character: event.character,
+                        character: event.attackerCharacter.id,
                     }],
                 ));
             } catch (err) {
@@ -118,7 +118,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.victimDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     documents.victimDocs,
                     [{
                         vehicle: event.vehicleId,
@@ -126,12 +126,12 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     documents.victimDocs,
                     [{
                         vehicle: event.attackerVehicleId,
                         world: event.instance.world,
-                        character: event.character,
+                        character: event.character.id,
                     }],
                 ));
             } catch (err) {

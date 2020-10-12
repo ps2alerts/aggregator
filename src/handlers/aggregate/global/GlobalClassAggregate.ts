@@ -5,7 +5,7 @@ import {TYPES} from '../../../constants/types';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
+import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 
 @injectable()
@@ -46,7 +46,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         if (attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_CLASS_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_CLASS_AGGREGATE,
                     attackerDocs,
                     [{
                         class: event.attackerLoadoutId,
@@ -62,7 +62,7 @@ export default class GlobalClassAggregate implements AggregateHandlerInterface<D
         if (victimDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_CLASS_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_CLASS_AGGREGATE,
                     victimDocs,
                     [{
                         class: event.characterLoadoutId,

@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import ApiMQMessage from '../../data/ApiMQMessage';
-import {Ps2alertsApiMQEndpoints} from '../../constants/ps2alertsApiMQEndpoints';
+import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import {TYPES} from '../../constants/types';
 import DeathEvent from '../census/events/DeathEvent';
@@ -40,7 +40,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                    MQAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -49,7 +49,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                 ));
 
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
+                    MQAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -72,7 +72,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         vehicle: event.attackerVehicleId,
@@ -81,7 +81,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                 ));
 
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         vehicle: event.attackerVehicleId,

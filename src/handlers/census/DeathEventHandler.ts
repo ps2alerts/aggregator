@@ -8,7 +8,7 @@ import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenc
 import ApplicationException from '../../exceptions/ApplicationException';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../data/ApiMQMessage';
-import {Ps2alertsApiMQEndpoints} from '../../constants/ps2alertsApiMQEndpoints';
+import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
@@ -65,7 +65,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
     private async storeEvent(event: DeathEvent): Promise<boolean> {
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                Ps2alertsApiMQEndpoints.INSTANCE_DEATH,
+                MQAcceptedPatterns.INSTANCE_DEATH,
                 [{
                     instance: event.instance.instanceId,
                     attacker: event.attackerCharacter ? event.attackerCharacter.id : '0',

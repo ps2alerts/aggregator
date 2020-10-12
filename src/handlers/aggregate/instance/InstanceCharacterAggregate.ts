@@ -5,7 +5,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoints';
+import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 
 @injectable()
@@ -46,7 +46,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
         if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_CHARACTER_AGGREGATE,
+                    MQAcceptedPatterns.INSTANCE_CHARACTER_AGGREGATE,
                     attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -62,7 +62,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                Ps2alertsApiMQEndpoints.INSTANCE_CHARACTER_AGGREGATE,
+                MQAcceptedPatterns.INSTANCE_CHARACTER_AGGREGATE,
                 victimDocs,
                 [{
                     instance: event.instance.instanceId,
