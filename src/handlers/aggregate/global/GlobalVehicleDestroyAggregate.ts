@@ -9,8 +9,8 @@ import {Ps2alertsApiMQEndpoints} from '../../../constants/ps2alertsApiMQEndpoint
 import VehicleDestroyLogic from '../../../logics/VehicleDestroyLogic';
 
 @injectable()
-export default class InstanceVehicleDestroyAggregate implements AggregateHandlerInterface<VehicleDestroyEvent> {
-    private static readonly logger = getLogger('InstanceVehicleDestroyAggregate');
+export default class GlobalVehicleDestroyAggregate implements AggregateHandlerInterface<VehicleDestroyEvent> {
+    private static readonly logger = getLogger('GlobalVehicleDestroyAggregate');
     private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
@@ -18,39 +18,39 @@ export default class InstanceVehicleDestroyAggregate implements AggregateHandler
     }
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
-        InstanceVehicleDestroyAggregate.logger.debug('InstanceVehicleDestroyAggregate.handle');
+        GlobalVehicleDestroyAggregate.logger.debug('GlobalVehicleDestroyAggregate.handle');
 
-        const documents = new VehicleDestroyLogic(event, 'InstanceVehicleDestroyAggregate').calculate();
+        const documents = new VehicleDestroyLogic(event, 'GlobalVehicleDestroyAggregate').calculate();
 
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
-                        instance: event.instance.instanceId,
                         vehicle: event.attackerVehicleId,
+                        world: event.instance.world,
                     }],
                 ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                GlobalVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
             }
         }
 
         if (documents.victimDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_AGGREGATE,
                     documents.victimDocs,
                     [{
-                        instance: event.instance.instanceId,
                         vehicle: event.vehicleId,
+                        world: event.instance.world,
                     }],
                 ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                GlobalVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
             }
         }
 

@@ -9,8 +9,8 @@ import ApiMQMessage from '../../../data/ApiMQMessage';
 import VehicleCharacterDeathLogic from '../../../logics/VehicleCharacterDeathLogic';
 
 @injectable()
-export default class InstanceVehicleCharacterDeathAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('InstanceVehicleCharacterDeathAggregate');
+export default class GlobalVehicleDestroyAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('GlobalVehicleDestroyAggregate');
     private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
@@ -22,27 +22,27 @@ export default class InstanceVehicleCharacterDeathAggregate implements Aggregate
      * @param event
      */
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceVehicleCharacterDeathAggregate.logger.debug('InstanceVehicleCharacterDeathAggregate.handle');
+        GlobalVehicleDestroyAggregate.logger.debug('GlobalVehicleDestroyAggregate.handle');
 
-        const documents = new VehicleCharacterDeathLogic(event, 'InstanceVehicleCharacterDeathAggregate').calculate();
+        const documents = new VehicleCharacterDeathLogic(event, 'GlobalVehicleDestroyAggregate').calculate();
 
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    Ps2alertsApiMQEndpoints.INSTANCE_VEHICLE_AGGREGATE,
+                    Ps2alertsApiMQEndpoints.GLOBAL_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
-                        instance: event.instance.instanceId,
                         vehicle: event.attackerVehicleId,
+                        world: event.instance.world,
                     }],
                 ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceVehicleCharacterDeathAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                GlobalVehicleDestroyAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
             }
         }
 
-        // Victim documents don't apply here
+        // Victim docs don't apply here
 
         return true;
     }

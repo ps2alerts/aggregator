@@ -21,6 +21,7 @@ import GlobalOutfitAggregate from './global/GlobalOutfitAggregate';
 import InstanceVehicleDestroyAggregate from './instance/InstanceVehicleDestroyAggregate';
 import VehicleDestroyEvent from '../census/events/VehicleDestroyEvent';
 import InstanceVehicleCharacterDeathAggregate from './instance/InstanceVehicleCharacterDeathAggregate';
+import GlobalVehicleDestroyAggregate from './global/GlobalVehicleDestroyAggregate';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers are registered here
@@ -45,5 +46,7 @@ export default new ContainerModule((bind) => {
 
     // Vehicle Destroy Event
     bind<EventHandlerInterface<VehicleDestroyEvent>>(TYPES.vehicleDestroyAggregates).to(InstanceVehicleDestroyAggregate).inSingletonScope();
+    bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstanceVehicleCharacterDeathAggregate).inSingletonScope();
+    bind<EventHandlerInterface<VehicleDestroyEvent>>(TYPES.vehicleDestroyAggregates).to(GlobalVehicleDestroyAggregate).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(InstanceVehicleCharacterDeathAggregate).inSingletonScope();
 });

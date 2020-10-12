@@ -26,7 +26,7 @@ export enum Vehicle {
     XIPHOS_AP_TOWER = 162, // Player Base AI Turret
     GLAIVE_IPC = 163, // Player Base Artillery
     RECON_DRONE = 1013, // Never implemented
-    SPEAR_AV_PHALANX_TURRET_2 = 2006, // Fuck knows
+    SPEAR_AV_PHALANX_TURRET_2 = 2006, // Player Base towerless AV turret
     COLOSSUS = 2007,
     TRANSPORT_POD_2 = 2008, // Transport Pod Mrk 2? o.O
     XIPHOS_AP_TURRET = 2009, // Wat?

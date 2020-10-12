@@ -7,7 +7,7 @@ export enum Ps2alertsApiMQEndpoints {
     GLOBAL_FACILITY_CONTROL_AGGREGATE = 'globalFacilityControlAggregate',
     GLOBAL_FACTION_COMBAT_AGGREGATE = 'globalFactionCombatAggregate',
     GLOBAL_OUTFIT_AGGREGATE = 'globalOutfitAggregate',
-    GLOBAL_VEHICLE_DESTROY_AGGREGATE = 'globalVehicleDestroyAggregate',
+    GLOBAL_VEHICLE_AGGREGATE = 'globalVehicleAggregate',
     GLOBAL_WEAPON_AGGREGATE = 'globalWeaponAggregate',
     // Instance aggregates
     INSTANCE_CHARACTER_AGGREGATE = 'instanceCharacterAggregate',
