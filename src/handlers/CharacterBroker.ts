@@ -5,6 +5,8 @@ import Character from '../data/Character';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
 import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
 import ApplicationException from '../exceptions/ApplicationException';
+import {World} from '../constants/world';
+import FakeCharacterFactory from '../constants/fakeCharacter';
 
 @injectable()
 export default class CharacterBroker implements CharacterBrokerInterface {
@@ -17,9 +19,11 @@ export default class CharacterBroker implements CharacterBrokerInterface {
         this.wsClient = wsClient;
     }
 
-    public async get(characterId: string): Promise<Character> {
+    public async get(characterId: string, world: World): Promise<Character> {
         if (characterId === '0' || !characterId) {
-            throw new ApplicationException('No character ID was supplied!', 'CharacterBroker');
+            CharacterBroker.logger.silly('Missing character ID, serving Fake character');
+            // Return a fake character with has a faction of none
+            return new FakeCharacterFactory(world).build();
         }
 
         // Grab the character data from Census / Cache

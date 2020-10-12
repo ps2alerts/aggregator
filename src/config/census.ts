@@ -11,7 +11,7 @@ export default class Census {
         environment: 'ps2',
         streamManagerConfig: {
             subscription: {
-                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience'],
+                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
                 worlds: ['all'],
                 characters: ['all'],
                 logicalAndCharactersWithWorlds: true,

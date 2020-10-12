@@ -30,6 +30,7 @@ const TYPES = {
     deathAggregates: Symbol.for('DeathAggregates'),
     facilityControlAggregates: Symbol.for('FacilityControlAggregates'),
     populationAggregates: Symbol.for('PopulationAggregates'),
+    vehicleDestroyAggregates: Symbol.for('VehicleDestroyAggregates'),
 
     // Instance Aggregates Models
     instanceClassAggregateFactory: Symbol.for('InstanceClassAggregateFactory'),

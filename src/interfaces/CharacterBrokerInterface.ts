@@ -1,5 +1,6 @@
 import Character from '../data/Character';
+import {World} from '../constants/world';
 
 export interface CharacterBrokerInterface {
-    get(characterId: string): Promise<Character>;
+    get(characterId: string, world: World): Promise<Character>;
 }
