@@ -8,6 +8,7 @@ export enum Ps2alertsApiMQEndpoints {
     GLOBAL_FACTION_COMBAT_AGGREGATE = 'globalFactionCombatAggregate',
     GLOBAL_OUTFIT_AGGREGATE = 'globalOutfitAggregate',
     GLOBAL_VEHICLE_AGGREGATE = 'globalVehicleAggregate',
+    GLOBAL_VEHICLE_CHARACTER_AGGREGATE = 'globalVehicleCharacterAggregate',
     GLOBAL_WEAPON_AGGREGATE = 'globalWeaponAggregate',
     // Instance aggregates
     INSTANCE_CHARACTER_AGGREGATE = 'instanceCharacterAggregate',
@@ -17,6 +18,7 @@ export enum Ps2alertsApiMQEndpoints {
     INSTANCE_OUTFIT_AGGREGATE = 'instanceOutfitAggregate',
     INSTANCE_POPULATION_AGGREGATE = 'instancePopulationAggregate',
     INSTANCE_VEHICLE_AGGREGATE = 'instanceVehicleAggregate',
+    INSTANCE_VEHICLE_CHARACTER_AGGREGATE = 'instanceVehicleCharacterAggregate',
     INSTANCE_WEAPON_AGGREGATE = 'instanceWeaponAggregate',
     // Event handles
     INSTANCE_DEATH = 'instanceDeathEvent',
