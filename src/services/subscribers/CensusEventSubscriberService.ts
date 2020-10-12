@@ -139,7 +139,12 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on(Events.PS2_VEHICLE_DESTROYED, (event) => {
             CensusEventSubscriberService.logger.debug('Passing VehicleDestroy event to listener');
 
-            void this.processVehicleDestroy(event, 0);
+            try {
+                void this.processVehicleDestroy(event, 0);
+            } catch (e) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                CensusEventSubscriberService.logger.error(e.message);
+            }
         });
     }
 
@@ -214,6 +219,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             });
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     private async processVehicleDestroy(event: VehicleDestroy, tries = 0): Promise<void> {
         tries++;
 
@@ -249,10 +255,10 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             });
         }).catch((e: Error) => {
             if (tries >= this.censusRetryLimit) {
-                CensusEventSubscriberService.handleCharacterException('Death', e.message);
+                CensusEventSubscriberService.handleCharacterException('VehicleDestroy', e.message);
             } else {
                 // Retry
-                CensusEventSubscriberService.logger.debug(`Retrying Death event #${tries} - ${event.character_id}`);
+                CensusEventSubscriberService.logger.debug(`Retrying VehicleDestroy event #${tries} - ${event.character_id}`);
                 void this.processVehicleDestroy(event, tries);
             }
         });
