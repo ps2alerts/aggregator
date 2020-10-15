@@ -9,6 +9,7 @@
       file:
         path: "{{ root_dir }}/dist"
         state: absent
+
     - name: Start Aggregator Dev Image
       docker_container:
         name: ps2alerts-aggregator
