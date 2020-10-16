@@ -130,7 +130,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         }
 
         const cutoff = baseCount - bases.vs - bases.nc - bases.tr;
-        const cutoffPer = cutoff * perBasePercent;
+        const cutoffPer = Math.floor(cutoff * perBasePercent);
 
         TerritoryVictoryCondition.logger.debug(`Cutoff: ${cutoff} (${cutoffPer}%)`);
         TerritoryVictoryCondition.logger.debug(`Winner: ${winner}`);
