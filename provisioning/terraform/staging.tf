@@ -20,9 +20,9 @@ module "aggregator_staging" {
   rabbitmq_api_queue = "api-queue-staging"
   census_service_id  = var.census_service_id
   cpu_limit          = "150m"
-  mem_limit          = "512Mi"
+  mem_limit          = "1Gi"
   cpu_request        = "100m"
-  mem_request        = "512Mi"
+  mem_request        = "1Gi"
   discord_webhook    = "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
   logger_transports  = "console,discord"
   dd_api_key         = var.dd_api_key
