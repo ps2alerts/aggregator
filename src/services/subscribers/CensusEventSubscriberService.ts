@@ -80,8 +80,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             message.includes('api returned no matches for')
         ) {
             CensusEventSubscriberService.logger.warn(`Unable to process ${service} event after 3 tries! W: ${message}`);
-        } else {
-            CensusEventSubscriberService.logger.error(`Unable to process ${service} event after 3 tries! E: ${message}`);
         }
     }
 
