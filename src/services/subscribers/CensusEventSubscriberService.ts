@@ -1,7 +1,7 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {inject, injectable} from 'inversify';
-import {Client, Death, Events, GainExperience, VehicleDestroy} from 'ps2census';
+import {Client, Death, Events, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
 import {TYPES} from '../../constants/types';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
@@ -19,6 +19,7 @@ import {CharacterBrokerInterface} from '../../interfaces/CharacterBrokerInterfac
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import VehicleDestroyEvent from '../../handlers/census/events/VehicleDestroyEvent';
 import VehicleDestroyEventHandler from '../../handlers/census/VehicleDestroyEventHandler';
+import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -33,7 +34,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly instanceHandler: InstanceHandlerInterface;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
     private readonly characterBroker: CharacterBrokerInterface;
-    private readonly censusRetryLimit = 3;
 
     constructor(
         wsClient: Client,
@@ -87,58 +87,28 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private constructListeners(): void {
 
         // Set up event handlers
-        this.wsClient.on(Events.PS2_DEATH, (event: Death) => {
-            CensusEventSubscriberService.logger.silly('Passing Death to listener');
-
-            void this.processDeath(event, 0);
+        this.wsClient.on(Events.PS2_DEATH, (censusEvent: Death) => {
+            void this.processDeath(censusEvent);
         });
 
-        this.wsClient.on(Events.PS2_CONTROL, (event) => {
-            const instances = this.instanceHandler.getInstances(
-                parseInt(event.world_id, 10),
-                parseInt(event.zone_id, 10),
-            );
-
-            instances.forEach((instance) => {
-                let delay = 1;
-
-                if (instance instanceof MetagameTerritoryInstance) {
-                    delay = 2000;
-                }
-
-                setTimeout(() => {
-                    CensusEventSubscriberService.logger.silly('Passing FacilityControl to listener');
-                    const facilityControl = new FacilityControlEvent(
-                        event,
-                        instance,
-                    );
-                    void this.facilityControlEventHandler.handle(facilityControl);
-                }, delay);
-            });
+        this.wsClient.on(Events.PS2_CONTROL, (censusEvent: FacilityControl) => {
+            void this.processFacilityControl(censusEvent);
         });
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.wsClient.on(Events.PS2_EXPERIENCE, (event) => {
-            void this.processGainExperience(event, 0);
+        this.wsClient.on(Events.PS2_EXPERIENCE, (censusEvent: GainExperience) => {
+            void this.processGainExperience(censusEvent);
         });
 
-        this.wsClient.on('metagameEvent', (event) => {
-            CensusEventSubscriberService.logger.debug('Passing MetagameEvent to listener');
-
-            try {
-                const metagameEvent = new MetagameEventEvent(event);
-                void this.metagameEventEventHandler.handle(metagameEvent);
-            } catch (e) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                CensusEventSubscriberService.logger.error(e.message);
-            }
+        this.wsClient.on(Events.PS2_META_EVENT, (censusEvent: MetagameEvent) => {
+            void this.processMetagameEvent(censusEvent);
         });
 
-        this.wsClient.on(Events.PS2_VEHICLE_DESTROYED, (event) => {
+        this.wsClient.on(Events.PS2_VEHICLE_DESTROYED, (censusEvent) => {
             CensusEventSubscriberService.logger.silly('Passing VehicleDestroy event to listener');
 
             try {
-                void this.processVehicleDestroy(event, 0);
+                void this.processVehicleDestroy(censusEvent);
             } catch (e) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 CensusEventSubscriberService.logger.error(e.message);
@@ -146,119 +116,111 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    private async processDeath(event: Death, tries = 0): Promise<void> {
-        tries++;
+    private async processDeath(censusEvent: Death): Promise<void> {
+        CensusEventSubscriberService.logger.silly('Processing Death Event');
 
-        void Promise.all([
-            this.characterBroker.get(event.attacker_character_id, parseInt(event.world_id, 10)),
-            this.characterBroker.get(event.character_id, parseInt(event.world_id, 10)),
+        await Promise.all([
+            this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
+            this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(([attacker, character]) => {
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
                     char,
-                    parseInt(event.zone_id, 10),
+                    parseInt(censusEvent.zone_id, 10),
                 );
             });
 
-            const instances = this.instanceHandler.getInstances(
-                parseInt(event.world_id, 10),
-                parseInt(event.zone_id, 10),
-            );
-
-            instances.forEach((instance) => {
-                const deathEvent = new DeathEvent(
-                    event,
-                    instance,
-                    attacker,
-                    character,
+            this.getInstances(censusEvent).forEach((instance) => {
+                void this.deathEventHandler.handle(
+                    new DeathEvent(
+                        censusEvent,
+                        instance,
+                        attacker,
+                        character,
+                    ),
                 );
-
-                if (tries > 1) {
-                    CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for Death event for character ${event.character_id}`);
-                }
-
-                void this.deathEventHandler.handle(deathEvent);
             });
-        }).catch((e) => {
-            if (tries >= this.censusRetryLimit) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                CensusEventSubscriberService.handleCharacterException('Death', e.message);
-            } else {
-                // Retry
-                CensusEventSubscriberService.logger.debug(`Retrying Death event #${tries} - ${event.character_id}`);
-                void this.processDeath(event, tries);
-            }
+        }).catch((e: Error) => {
+            CensusEventSubscriberService.handleCharacterException('Death', e.message);
         });
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    private async processGainExperience(event: GainExperience, tries = 0): Promise<void> {
-        tries++;
+    private async processFacilityControl(censusEvent: FacilityControl): Promise<void> {
+        CensusEventSubscriberService.logger.silly('Processing FacilityControl censusEvent');
 
-        await this.characterBroker.get(event.character_id, parseInt(event.world_id, 10))
+        this.getInstances(censusEvent).forEach((instance) => {
+            setTimeout(() => {
+                void this.facilityControlEventHandler.handle(
+                    new FacilityControlEvent(
+                        censusEvent,
+                        instance,
+                    ),
+                );
+            }, instance instanceof MetagameTerritoryInstance ? 2000 : 1);
+        });
+    }
+
+    private async processGainExperience(censusEvent: GainExperience): Promise<void> {
+        CensusEventSubscriberService.logger.silly('Processing GainExperience censusEvent');
+
+        await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
             .then((character) => {
-                if (tries > 1) {
-                    CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for GainExperience event for character ${event.character_id}`);
-                }
-
                 void this.characterPresenceHandler.update(
                     character,
-                    parseInt(event.zone_id, 10),
+                    parseInt(censusEvent.zone_id, 10),
                 );
             })
             .catch((e: Error) => {
-                if (tries >= this.censusRetryLimit) {
-                    CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
-                } else {
-                    CensusEventSubscriberService.logger.debug(`Retrying GainExperience event #${tries} - ${event.character_id}`);
-                    void this.processGainExperience(event, tries);
-                }
+                CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
             });
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    private async processVehicleDestroy(event: VehicleDestroy, tries = 0): Promise<void> {
-        tries++;
+    private async processMetagameEvent(censusEvent: MetagameEvent): Promise<void> {
+        CensusEventSubscriberService.logger.debug('Processing MetagameEvent censusEvent');
 
-        void Promise.all([
-            this.characterBroker.get(event.attacker_character_id, parseInt(event.world_id, 10)),
-            this.characterBroker.get(event.character_id, parseInt(event.world_id, 10)),
+        try {
+            const metagameEvent = new MetagameEventEvent(censusEvent);
+            await this.metagameEventEventHandler.handle(metagameEvent);
+        } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            CensusEventSubscriberService.logger.error(e.message);
+        }
+    }
+
+    private async processVehicleDestroy(censusEvent: VehicleDestroy): Promise<void> {
+        CensusEventSubscriberService.logger.silly('Processing VehicleDestroy censusEvent');
+
+        await Promise.all([
+            this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
+            this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(([attacker, character]) => {
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
                     char,
-                    parseInt(event.zone_id, 10),
+                    parseInt(censusEvent.zone_id, 10),
                 );
             });
 
-            const instances = this.instanceHandler.getInstances(
-                parseInt(event.world_id, 10),
-                parseInt(event.zone_id, 10),
-            );
-
-            instances.forEach((instance) => {
-                const vehicleEvent = new VehicleDestroyEvent(
-                    event,
-                    instance,
-                    attacker,
-                    character,
+            this.getInstances(censusEvent).forEach((instance) => {
+                void this.vehicleDestroyEventHandler.handle(
+                    new VehicleDestroyEvent(
+                        censusEvent,
+                        instance,
+                        attacker,
+                        character,
+                    ),
                 );
-
-                if (tries > 1) {
-                    CensusEventSubscriberService.logger.debug(`Retry #${tries} successful for VehicleDestroy event for character ${event.character_id}`);
-                }
-
-                void this.vehicleDestroyEventHandler.handle(vehicleEvent);
             });
         }).catch((e: Error) => {
-            if (tries >= this.censusRetryLimit) {
-                CensusEventSubscriberService.handleCharacterException('VehicleDestroy', e.message);
-            } else {
-                // Retry
-                CensusEventSubscriberService.logger.debug(`Retrying VehicleDestroy event #${tries} - ${event.character_id}`);
-                void this.processVehicleDestroy(event, tries);
-            }
+            CensusEventSubscriberService.handleCharacterException('VehicleDestroy', e.message);
         });
+    }
+
+    private getInstances(censusEvent: Death | FacilityControl | VehicleDestroy): PS2AlertsInstanceInterface[] {
+        return this.instanceHandler.getInstances(
+            parseInt(censusEvent.world_id, 10),
+            parseInt(censusEvent.zone_id, 10),
+        );
     }
 }
