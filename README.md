@@ -18,6 +18,13 @@ For first time runs, you must run `ps2alerts-aggregator-start-full`, which goes 
 
 To start the aggregator for development, run `ps2alerts-aggregator-dev`. This will bootstrap the container with ENV vars etc and tail the docker logs, as you would if you ran it manually via NPM.
 
+#### Workarounds
+
+On Mac OS X, [gyp has a hard dependency on XCode](https://medium.com/@Harry_1408/node-gyp-error-gyp-failed-with-exit-code-1-macos-npm-5aeaf75996d4). If you encounter the below error, you will need to install XCode :-/ 
+```
+ Error: `gyp` failed with exit code: 1
+```
+
 ### Local dependencies
 
 For local development, you're recommended to have the following installed:
