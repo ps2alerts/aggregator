@@ -2,6 +2,7 @@
 - hosts: localhost
   vars:
     root_dir: "{{ playbook_dir }}/../../"
+    debug: "false"
   vars_files:
     - ../../vars.local.yml
   tasks:
@@ -22,6 +23,7 @@
           - "{{ root_dir | realpath }}:/app:rw"
         ports:
           - "1337"
+          - "9229:9229"
         networks:
           - name: "ps2alerts"
         tty: true
@@ -39,5 +41,6 @@
           API_BASE_URL: "http://dev.api.ps2alerts.com"
           CENSUS_SERVICE_ID: "{{ census_service_id }}"
           LOGGER_TRANSPORTS: "console"
+          NODE_DEBUG: "{{ debug }}"
         labels:
           traefik.enable: "false"
