@@ -10,21 +10,26 @@ import Census from '../config/census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTerritoryStartAction';
 import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
+import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
+import MetagameInstanceTerritoryFacilityControlAction from '../actions/ MetagameInstanceTerritoryFacilityControlAction';
 
 @injectable()
 export default class InstanceActionFactory {
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly censusConfig: Census;
+    private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
     constructor(
     @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        @inject('censusConfig') censusConfig: Census,
+        @inject(TYPES.censusConfig) censusConfig: Census,
+        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
     ) {
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
         this.censusConfig = censusConfig;
+        this.territoryCalculatorFactory = territoryCalculatorFactory;
     }
 
     public buildStart(instance: PS2AlertsInstanceInterface): ActionInterface {
@@ -33,6 +38,7 @@ export default class InstanceActionFactory {
                 instance,
                 this.instanceFacilityControlModelFactory,
                 this.censusConfig,
+                this.buildFacilityControlEvent(instance, false),
             );
         }
 
@@ -43,12 +49,24 @@ export default class InstanceActionFactory {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameTerritoryInstanceEndAction(
                 instance,
-                this.instanceFacilityControlModelFactory,
                 this.instanceMetagameModelFactory,
-                this.censusConfig,
+                this.territoryCalculatorFactory,
             );
         }
 
-        throw new ApplicationException('Unable to determine end action!', 'InstanceActionFactory');
+        throw new ApplicationException('Unable to determine endAction!', 'InstanceActionFactory');
+    }
+
+    public buildFacilityControlEvent(instance: PS2AlertsInstanceInterface, isDefence: boolean): ActionInterface {
+        if (instance instanceof MetagameTerritoryInstance) {
+            return new MetagameInstanceTerritoryFacilityControlAction(
+                instance,
+                this.instanceMetagameModelFactory,
+                this.territoryCalculatorFactory,
+                isDefence,
+            );
+        }
+
+        throw new ApplicationException('Unable to determine facilityControlEventAction!', 'InstanceActionFactory');
     }
 }

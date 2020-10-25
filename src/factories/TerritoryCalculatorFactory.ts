@@ -13,7 +13,7 @@ export default class TerritoryCalculatorFactory {
 
     constructor(
     @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @inject('censusConfig') censusConfig: Census,
+        @inject(TYPES.censusConfig) censusConfig: Census,
 
     ) {
         this.instanceFacilityControlFactory = instanceFacilityControlModelFactory;

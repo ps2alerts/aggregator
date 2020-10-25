@@ -1,4 +1,7 @@
 const TYPES = {
+    // Configs
+    censusConfig: Symbol.for('CensusConfig'),
+
     // Authorities
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),

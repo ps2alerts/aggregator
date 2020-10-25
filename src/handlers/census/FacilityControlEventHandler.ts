@@ -9,22 +9,25 @@ import {TYPES} from '../../constants/types';
 import FactionUtils from '../../utils/FactionUtils';
 import {InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
+import InstanceActionFactory from '../../factories/InstanceActionFactory';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
     private readonly factory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
+    private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>;
+    private readonly instanceActionFactory: InstanceActionFactory;
 
     /* eslint-disable */
-    private aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[];
-
     constructor(
         @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[]
+        @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[],
+        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory
     ) {
         /* eslint-enable */
         this.factory = instanceFacilityControlModelFactory;
         this.aggregateHandlers = aggregateHandlers;
+        this.instanceActionFactory = instanceActionFactory;
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean>{
@@ -58,6 +61,17 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
                     }
                 }),
         );
+
+        // Handle Instance Events
+        try {
+            await this.instanceActionFactory.buildFacilityControlEvent(event.instance, event.isDefence).execute();
+        } catch (e) {
+            if (e instanceof Error) {
+                FacilityControlEventHandler.logger.error(`Error parsing Instance Action "facilityControlEvent" for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+            } else {
+                FacilityControlEventHandler.logger.error('UNEXPECTED ERROR running Instance Action "facilityControlEvent"!');
+            }
+        }
 
         return true;
     }

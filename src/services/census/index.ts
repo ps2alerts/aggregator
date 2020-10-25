@@ -11,7 +11,7 @@ import {RedisConnection} from '../redis/RedisConnection';
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(CensusStreamService);
 
-    bind<Census>('censusConfig').toConstantValue(config.census);
+    bind<Census>(TYPES.censusConfig).toConstantValue(config.census);
 
     bind<CensusCacheDriver>(TYPES.censusCharacterCacheDriver)
         .toDynamicValue(({container}) => new CensusCacheDriver(
