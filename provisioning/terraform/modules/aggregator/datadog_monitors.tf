@@ -18,11 +18,11 @@ resource datadog_monitor "aggregator_not_running" {
 resource datadog_monitor "aggregator_high_mem" {
   name = "PS2Alerts Aggregator high memory [${var.environment}]"
   type = "metric alert"
-  query = "avg(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 838861000"
+  query = "avg(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 235930000"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high memory"})
 
   thresholds = {
-    critical = 838861000 #800MB
+    critical = 235930000 #225 MB
   }
 
   notify_no_data = true
@@ -35,11 +35,11 @@ resource datadog_monitor "aggregator_high_mem" {
 resource datadog_monitor "aggregator_high_cpu" {
   name = "PS2Alerts Aggregator high CPU [${var.environment}]"
   type = "metric alert"
-  query = "avg(last_10m):avg:kubernetes.cpu.usage.total{kube_container_name:ps2alerts-aggregator-${var.environment}} > 150000000"
+  query = "avg(last_10m):avg:kubernetes.cpu.usage.total{kube_container_name:ps2alerts-aggregator-${var.environment}} > 225000000"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high CPU"})
 
   thresholds = {
-    critical = 150000000 # 0.150 CPU
+    critical = 225000000 # 0.225 CPU
   }
 
   notify_no_data = true
