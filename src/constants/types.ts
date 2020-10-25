@@ -65,6 +65,7 @@ const TYPES = {
 
     // Other Factories
     instanceActionFactory: Symbol.for('InstanceActionFactory'),
+    territoryCalculatorFactory: Symbol.for('TerritoryCalculatorFactory'),
 };
 
 export {TYPES};
