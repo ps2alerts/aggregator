@@ -12,19 +12,14 @@ import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {InstanceResultInterface} from '../interfaces/InstanceResultInterface';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
+import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 
 export interface TerritoryResultInterface extends InstanceResultInterface {
     cutoff: number;
     draw: boolean;
 }
 
-interface FactionsInterface {
-    vs: number;
-    nc: number;
-    tr: number;
-}
-
-interface PercentagesInterface extends FactionsInterface {
+interface PercentagesInterface extends FactionNumbersInterface {
     perBase: number;
 }
 
@@ -88,7 +83,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
 
         // Collate the statistics here
         /* eslint-disable */
-        const bases = {
+        const bases: FactionNumbersInterface = {
             // @ts-ignore Bollocks to doing multiple ifs here...
             vs: this.factionParsedFacilitiesMap.get(Faction.VANU_SOVEREIGNTY).size - 1,
             // @ts-ignore
@@ -118,7 +113,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
         };
     }
 
-    private static calculatePercentages(baseCount: number, bases: FactionsInterface): PercentagesInterface {
+    private static calculatePercentages(baseCount: number, bases: FactionNumbersInterface): PercentagesInterface {
         const perBasePercent = 100 / baseCount;
         const percentages = {
             vs: Math.floor(bases.vs * perBasePercent),
@@ -135,7 +130,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
         return percentages;
     }
 
-    private calculateCutoffPercentage(bases: FactionsInterface, baseCount: number, percentages: PercentagesInterface): number {
+    private calculateCutoffPercentage(bases: FactionNumbersInterface, baseCount: number, percentages: PercentagesInterface): number {
         const cutoffCount = baseCount - bases.vs - bases.nc - bases.tr;
         const cutoffPercent = Math.floor(cutoffCount * percentages.perBase);
 
