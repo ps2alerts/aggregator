@@ -66,31 +66,14 @@ resource datadog_monitor "aggregator_high_errors" {
   tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
 }
 
-resource datadog_monitor "aggregator_high_restarts_long" {
-  name = "PS2Alerts Aggregator high restarts (long) [${var.environment}]"
+resource datadog_monitor "aggregator_high_restarts" {
+  name = "PS2Alerts Aggregator restarts [${var.environment}]"
   type = "query alert"
-  query = "avg(last_1d):anomalies(avg:kubernetes.containers.restarts{kube_deployment:ps2alerts-aggregator-${var.environment}}, 'agile', 2, direction='above', alert_window='last_1h', interval=300, count_default_zero='true', seasonality='hourly') >= 1"
-  message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high restarts (long)"})
+  query = "change(sum(last_5m),last_5m):avg:kubernetes.containers.restarts{kube_deployment:ps2alerts-aggregator-${var.environment} > 0.5}, 'agile', 2, direction='above', alert_window='last_5m', interval=20, count_default_zero='true', seasonality='hourly') >= 1"
+  message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "restarts"})
 
   thresholds = {
-    critical = 1
-  }
-
-  notify_no_data = true
-  require_full_window = false
-  no_data_timeframe = 10
-
-  tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
-}
-
-resource datadog_monitor "aggregator_high_restarts_short" {
-  name = "PS2Alerts Aggregator high restarts (short) [${var.environment}]"
-  type = "query alert"
-  query = "avg(last_1h):anomalies(avg:kubernetes.containers.restarts{kube_deployment:ps2alerts-aggregator-${var.environment}}, 'agile', 2, direction='above', alert_window='last_5m', interval=20, count_default_zero='true', seasonality='hourly') >= 1"
-  message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high restarts (long)"})
-
-  thresholds = {
-    critical = 1
+    critical = 0.5
   }
 
   notify_no_data = true
