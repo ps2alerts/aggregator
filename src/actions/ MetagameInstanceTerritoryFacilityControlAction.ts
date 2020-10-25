@@ -4,59 +4,51 @@ import {ActionInterface} from '../interfaces/ActionInterface';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import ApplicationException from '../exceptions/ApplicationException';
-import FactionUtils from '../utils/FactionUtils';
-import TerritoryCalculator, {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
-import {jsonLogOutput} from '../utils/json';
+import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import {inject} from 'inversify';
 import {TYPES} from '../constants/types';
 
-export default class MetagameTerritoryInstanceEndAction implements ActionInterface {
-    private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
+export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface {
+    private static readonly logger = getLogger('MetagameInstanceTerritoryFacilityControlAction');
     private readonly instance: MetagameTerritoryInstance;
     private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly territoryCalculator: TerritoryCalculator;
+    private readonly isDefence: boolean;
 
     constructor(
         instance: MetagameTerritoryInstance,
         instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
+        isDefence: boolean,
     ) {
         this.instance = instance;
         this.instanceMetagameFactory = instanceMetagameFactory;
         this.territoryCalculator = territoryCalculatorFactory.build(instance);
+        this.isDefence = isDefence;
     }
 
     public async execute(): Promise<boolean> {
-        MetagameTerritoryInstanceEndAction.logger.info(`Running endAction for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
+        // If a defence, we don't care, no need to recalculate everything.
+        if (this.isDefence) {
+            return false;
+        }
+
+        MetagameInstanceTerritoryFacilityControlAction.logger.info(`Running FacilityControlAction for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
 
         try {
             // Update database record with the winner of the Metagame (currently territory)
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
-                {result: await this.calculateWinner()},
+                {result: await this.territoryCalculator.calculate()},
             ).catch((err: Error) => {
-                throw new ApplicationException(`Unable to set winner for instance ${this.instance.instanceId}! Err: ${err.message}`);
+                throw new ApplicationException(`Unable to update result data for instance ${this.instance.instanceId}! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
             });
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            MetagameTerritoryInstanceEndAction.logger.error(`Unable to process endAction for instance ${this.instance.instanceId}! Err: ${err.message}`);
+            MetagameInstanceTerritoryFacilityControlAction.logger.error(`Unable to process FacilityControlActions for instance ${this.instance.instanceId}! Err: ${err.message}`);
         }
 
         return true;
-    }
-
-    public async calculateWinner(): Promise<TerritoryResultInterface> {
-        const result = await this.territoryCalculator.calculate();
-
-        MetagameTerritoryInstanceEndAction.logger.info(jsonLogOutput(result));
-
-        if (result.draw) {
-            MetagameTerritoryInstanceEndAction.logger.info(`Instance ${this.instance.instanceId} resulted in a DRAW!`);
-        } else {
-            MetagameTerritoryInstanceEndAction.logger.info(`Instance ${this.instance.instanceId} winner is: ${FactionUtils.parseFactionIdToShortName(result.winner).toUpperCase()}!`);
-        }
-
-        return result;
     }
 }

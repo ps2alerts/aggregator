@@ -11,14 +11,20 @@ import {MetagameEventState} from '../../constants/metagameEventState';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
+import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
     private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
-    constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {
+    constructor(
+    @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
+    ) {
         this.instanceHandler = instanceHandler;
+        this.territoryCalculatorFactory = territoryCalculatorFactory;
     }
 
     public async handle(event: MetagameEventEvent): Promise<boolean> {
@@ -51,13 +57,16 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
                 event.world,
                 event.timestamp,
                 null,
+                null,
                 metagameDetails.zone,
                 event.instanceId,
                 event.eventType,
                 metagameDetails.duration,
                 Ps2alertsEventState.STARTED,
-                null,
             );
+
+            // Chicken and egg scenario, can't use the instance if it doesn't exist yet!
+            instance.result = await this.territoryCalculatorFactory.build(instance).calculate();
 
             try {
                 return await this.instanceHandler.startInstance(instance);

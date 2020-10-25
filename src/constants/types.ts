@@ -1,4 +1,7 @@
 const TYPES = {
+    // Configs
+    censusConfig: Symbol.for('CensusConfig'),
+
     // Authorities
     overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
     populationAuthority: Symbol.for('PopulationAuthority'),
@@ -65,6 +68,7 @@ const TYPES = {
 
     // Other Factories
     instanceActionFactory: Symbol.for('InstanceActionFactory'),
+    territoryCalculatorFactory: Symbol.for('TerritoryCalculatorFactory'),
 };
 
 export {TYPES};

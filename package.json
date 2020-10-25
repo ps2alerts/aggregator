@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "start:dev": "ts-node src",
+    "start:dev:debug": "tsc && node --inspect=0.0.0.0:9229 dist/index.js",
     "build": "tsc",
     "build:watch": "tsc -w",
     "wipe": "rm -rf dist",
