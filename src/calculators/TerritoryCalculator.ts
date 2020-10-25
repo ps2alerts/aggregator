@@ -27,6 +27,7 @@ interface FacilityInterface {
     facilityId: number;
     facilityName: string;
     facilityType: number;
+    facilityFaction: Faction;
 }
 
 interface FacilityLatticeLinkInterface {
@@ -183,27 +184,28 @@ export default class TerritoryCalculator implements CalculatorInterface {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 zone_id: String(this.instance.zone),
             },
-        ).then((result) => {
+        ).then(async (result) => {
             if (result.length === 0) {
                 throw new ApplicationException(`Unable to get Facility map for I: ${this.instance.instanceId} - Z: ${this.instance.zone}`, 'TerritoryVictoryCondition');
             }
 
-            result.forEach((region: rest.collectionTypes.mapRegion) => {
+            for (const region of result) {
                 const id = parseInt(region.facility_id, 10);
 
                 // If facility is in blacklist, don't map it
                 if (censusOldFacilities.includes(id) || isNaN(id)) {
-                    return;
+                    continue;
                 }
 
                 const facility: FacilityInterface = {
                     facilityId: id,
                     facilityName: region.facility_name,
                     facilityType: parseInt(region.facility_type_id, 10),
+                    facilityFaction: await this.getFacilityFaction(id),
                 };
                 this.mapFacilityList.set(id, facility);
                 this.cutoffFacilityList.set(id, facility);
-            });
+            }
         });
     }
 
@@ -248,7 +250,8 @@ export default class TerritoryCalculator implements CalculatorInterface {
         const formatDepth = '|'.repeat(depth);
 
         // Get the owner of the facility so we know which faction this is
-        const faction = await this.getFacilityFaction(facilityId);
+        // @ts-ignore this is already defined
+        const faction = this.mapFacilityList.get(facilityId).facilityFaction;
 
         // Check if the faction facility set is initialized, if not do so and add the value (sets don't allow duplicates so the one below will be ignored)
         if (!this.factionParsedFacilitiesMap.has(faction)) {
