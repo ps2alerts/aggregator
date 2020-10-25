@@ -28,7 +28,7 @@ export default class CensusStreamService implements ServiceInterface {
 
     constructor(
         wsClient: Client,
-        @inject('censusConfig') censusConfig: Census,
+        @inject(TYPES.censusConfig) censusConfig: Census,
         @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
         @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,

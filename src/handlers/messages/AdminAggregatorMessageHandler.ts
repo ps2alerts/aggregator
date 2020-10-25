@@ -12,17 +12,22 @@ import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/Admi
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
+import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
     private static readonly logger = getLogger('AdminAggregatorMessageHandler');
-
     private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
-    constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {
+    constructor(
+    @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
+    ) {
         this.instanceHandler = instanceHandler;
-
+        this.territoryCalculatorFactory = territoryCalculatorFactory;
     }
+
     public async handle(message: ParsedQueueMessage): Promise<boolean> {
         switch (message.type) {
             case 'instanceStart':
@@ -57,12 +62,12 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             adminAggregatorInstanceStart.world,
             new Date(),
             null,
+            null,
             adminAggregatorInstanceStart.zone,
             adminAggregatorInstanceStart.instanceId,
             censusEventId,
             adminAggregatorInstanceStart.duration,
             Ps2alertsEventState.STARTED,
-            null,
         );
 
         try {

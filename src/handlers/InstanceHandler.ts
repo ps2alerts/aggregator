@@ -70,12 +70,12 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     world: instance.world,
                     timeStarted: instance.timeStarted,
                     timeEnded: null,
+                    result: null,
                     zone: instance.zone,
                     censusInstanceId: instance.censusInstanceId,
                     censusMetagameEventType: instance.censusMetagameEventType,
                     duration: instance.duration,
                     state: instance.state,
-                    result: null,
                 });
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
 
@@ -89,11 +89,8 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     return false;
                 }
 
-                // Add instance to the in-memory data so it can be called upon rapidly without polling DB
-                this.currentInstances.push(instance);
-
-                // Show currently running alerts in console / log
-                this.printActives();
+                this.currentInstances.push(instance); // Add instance to the in-memory data so it can be called upon rapidly without polling DB
+                this.printActives(); // Show currently running alerts in console / log
 
                 return true;
             } catch (err) {
@@ -188,12 +185,12 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     i.world,
                     i.timeStarted,
                     null,
+                    i.result,
                     i.zone,
                     i.censusInstanceId,
                     i.censusMetagameEventType,
                     i.duration,
                     i.state,
-                    null,
                 );
                 this.currentInstances.push(instance);
             });

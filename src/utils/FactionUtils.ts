@@ -19,7 +19,11 @@ export default class FactionUtils {
         throw new IllegalArgumentException(`Unknown faction: ${value}`, 'FactionUtils.parse');
     }
 
-    public static parseFactionIdToShortName(value: Faction): string {
+    public static parseFactionIdToShortName(value: Faction | null): string {
+        if (value === null) {
+            return 'none';
+        }
+
         switch (value) {
             case Faction.VANU_SOVEREIGNTY:
                 return 'vs';

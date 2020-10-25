@@ -1,4 +1,4 @@
-import {VictoryConditionInterface} from './VictoryConditionInterface';
+import {CalculatorInterface} from './CalculatorInterface';
 import {Faction} from '../constants/faction';
 import {injectable} from 'inversify';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
@@ -10,20 +10,24 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
+import {InstanceResultInterface} from '../interfaces/InstanceResultInterface';
+import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
+import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 
-export interface MetagameTerritoryResult {
-    vs: number;
-    nc: number;
-    tr: number;
+export interface TerritoryResultInterface extends InstanceResultInterface {
     cutoff: number;
-    winner: Faction;
     draw: boolean;
+}
+
+interface PercentagesInterface extends FactionNumbersInterface {
+    perBase: number;
 }
 
 interface FacilityInterface {
     facilityId: number;
     facilityName: string;
     facilityType: number;
+    facilityFaction: Faction;
 }
 
 interface FacilityLatticeLinkInterface {
@@ -32,8 +36,8 @@ interface FacilityLatticeLinkInterface {
 }
 
 @injectable()
-export default class TerritoryVictoryCondition implements VictoryConditionInterface {
-    private static readonly logger = getLogger('TerritoryVictoryCondition');
+export default class TerritoryCalculator implements CalculatorInterface {
+    private static readonly logger = getLogger('TerritoryCalculator');
     private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
     private readonly instance: MetagameTerritoryInstance;
@@ -45,17 +49,13 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         instance: MetagameTerritoryInstance,
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
-
     ) {
         this.instance = instance;
         this.instanceFacilityControlFactory = instanceFacilityControlModelFactory;
         this.censusConfig = censusConfig;
     }
 
-    public async calculate(): Promise<MetagameTerritoryResult> {
-        let winner = 0;
-        let draw = false;
-
+    public async calculate(): Promise<TerritoryResultInterface> {
         // Get the map's facilities, allowing us to grab warpgates for starting the traversal and facility names for debug
         await this.getMapFacilities();
         const warpgates: number[] = [];
@@ -72,20 +72,20 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         for (const facilityId of warpgates) {
             const faction = await this.getFacilityFaction(facilityId);
 
-            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] STARTING FACTION WARPGATE ${faction} =======`);
+            TerritoryCalculator.logger.debug(`******** [${this.instance.instanceId}] STARTING FACTION WARPGATE ${faction} ********`);
             await this.traverse(
                 facilityId,
                 faction,
                 0,
                 latticeLinks,
             );
-            TerritoryVictoryCondition.logger.debug(`======= [${this.instance.instanceId}] FACTION WARPGATE ${faction} FINISHED =======`);
+            TerritoryCalculator.logger.debug(`******** [${this.instance.instanceId}] FACTION WARPGATE ${faction} FINISHED  ********`);
         }
 
         // Collate the statistics here
         /* eslint-disable */
-        const bases = {
-            // @ts-ignore
+        const bases: FactionNumbersInterface = {
+            // @ts-ignore Bollocks to doing multiple ifs here...
             vs: this.factionParsedFacilitiesMap.get(Faction.VANU_SOVEREIGNTY).size - 1,
             // @ts-ignore
             nc: this.factionParsedFacilitiesMap.get(Faction.NEW_CONGLOMERATE).size - 1,
@@ -94,19 +94,62 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         };
         /* eslint-enable */
 
-        // Get total base count (to figure out percentages)
         const baseCount = this.mapFacilityList.size - warpgates.length; // Initial map includes warpgates, so we just take them off here (also safe if less than 3 WGs)
+        const percentages = TerritoryCalculator.calculatePercentages(baseCount, bases);
+        const winner = TerritoryCalculator.calculateWinner(percentages);
+        const cutoffPercent = this.calculateCutoffPercentage(bases, baseCount, percentages);
+
+        // Forcibly clean the data arrays so we don't have any chance of naughty memory leaks
+        this.factionParsedFacilitiesMap.clear();
+        this.mapFacilityList.clear();
+        this.cutoffFacilityList.clear();
+
+        return {
+            vs: percentages.vs,
+            nc: percentages.nc,
+            tr: percentages.tr,
+            cutoff: cutoffPercent,
+            winner: this.instance.state === Ps2alertsEventState.ENDED ? winner.winner : null,
+            draw: this.instance.state === Ps2alertsEventState.ENDED ? winner.draw : false,
+        };
+    }
+
+    private static calculatePercentages(baseCount: number, bases: FactionNumbersInterface): PercentagesInterface {
         const perBasePercent = 100 / baseCount;
+        const percentages = {
+            vs: Math.floor(bases.vs * perBasePercent),
+            nc: Math.floor(bases.nc * perBasePercent),
+            tr: Math.floor(bases.tr * perBasePercent),
+            perBase: perBasePercent,
+        };
 
-        const vsPer = Math.floor(bases.vs * perBasePercent);
-        const ncPer = Math.floor(bases.nc * perBasePercent);
-        const trPer = Math.floor(bases.tr * perBasePercent);
+        if (TerritoryCalculator.logger.isDebugEnabled()) {
+            /* eslint-disable */
+            console.log('Percentages', percentages);
+        }
 
-        // Format scores into sortable object (where we store the score and the faction ID for easier picking out)
+        return percentages;
+    }
+
+    private calculateCutoffPercentage(bases: FactionNumbersInterface, baseCount: number, percentages: PercentagesInterface): number {
+        const cutoffCount = baseCount - bases.vs - bases.nc - bases.tr;
+        const cutoffPercent = Math.floor(cutoffCount * percentages.perBase);
+
+        TerritoryCalculator.logger.debug(`Cutoff: ${cutoffCount} (${cutoffPercent}%)`);
+
+        if (TerritoryCalculator.logger.isDebugEnabled()) {
+            /* eslint-disable */
+            console.log('Cutoff bases', this.cutoffFacilityList);
+        }
+
+        return cutoffPercent
+    }
+
+    private static calculateWinner(percentages: PercentagesInterface): {winner: Faction, draw: boolean} {
         const scores = [
-            {faction: Faction.VANU_SOVEREIGNTY, score: vsPer},
-            {faction: Faction.NEW_CONGLOMERATE, score: ncPer},
-            {faction: Faction.TERRAN_REPUBLIC, score: trPer},
+            {faction: Faction.VANU_SOVEREIGNTY, score: percentages.vs},
+            {faction: Faction.NEW_CONGLOMERATE, score: percentages.nc},
+            {faction: Faction.TERRAN_REPUBLIC, score: percentages.tr},
         ];
 
         // Calculate winner via sorting the scores
@@ -124,31 +167,10 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
 
         // Determine winner via the score
         if (scores[0].score === scores[1].score) {
-            draw = true; // 3-ways are possible, but not recorded in any special way
+            return {winner: Faction.NONE, draw: true};
         } else {
-            winner = scores[0].faction;
+            return {winner: scores[0].faction, draw: false};
         }
-
-        const cutoff = baseCount - bases.vs - bases.nc - bases.tr;
-        const cutoffPer = Math.floor(cutoff * perBasePercent);
-
-        TerritoryVictoryCondition.logger.debug(`Cutoff: ${cutoff} (${cutoffPer}%)`);
-        TerritoryVictoryCondition.logger.debug(`Winner: ${winner}`);
-
-        if (TerritoryVictoryCondition.logger.isDebugEnabled()) {
-            /* eslint-disable */
-            console.log('Cutoff bases', this.cutoffFacilityList);
-            console.log('Scores', scores);
-        }
-
-        return {
-            vs: vsPer,
-            nc: ncPer,
-            tr: trPer,
-            cutoff: cutoffPer,
-            winner,
-            draw,
-        };
     }
 
     private async getMapFacilities(): Promise<void> {
@@ -162,27 +184,28 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 zone_id: String(this.instance.zone),
             },
-        ).then((result) => {
+        ).then(async (result) => {
             if (result.length === 0) {
                 throw new ApplicationException(`Unable to get Facility map for I: ${this.instance.instanceId} - Z: ${this.instance.zone}`, 'TerritoryVictoryCondition');
             }
 
-            result.forEach((region: rest.collectionTypes.mapRegion) => {
+            for (const region of result) {
                 const id = parseInt(region.facility_id, 10);
 
                 // If facility is in blacklist, don't map it
                 if (censusOldFacilities.includes(id) || isNaN(id)) {
-                    return;
+                    continue;
                 }
 
                 const facility: FacilityInterface = {
                     facilityId: id,
                     facilityName: region.facility_name,
                     facilityType: parseInt(region.facility_type_id, 10),
+                    facilityFaction: await this.getFacilityFaction(id),
                 };
                 this.mapFacilityList.set(id, facility);
                 this.cutoffFacilityList.set(id, facility);
-            });
+            }
         });
     }
 
@@ -227,7 +250,8 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         const formatDepth = '|'.repeat(depth);
 
         // Get the owner of the facility so we know which faction this is
-        const faction = await this.getFacilityFaction(facilityId);
+        // @ts-ignore this is already defined
+        const faction = this.mapFacilityList.get(facilityId).facilityFaction;
 
         // Check if the faction facility set is initialized, if not do so and add the value (sets don't allow duplicates so the one below will be ignored)
         if (!this.factionParsedFacilitiesMap.has(faction)) {
@@ -238,13 +262,13 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore bruh
         if (this.factionParsedFacilitiesMap.get(faction).has(facilityId)) {
-            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
+            TerritoryCalculator.logger.debug(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
             return true;
         }
 
         // Perform a check here to see if the faction of the base belongs to the previous base's faction, if it does not, stop!
         if (faction !== linkingFaction) {
-            TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${linkingFaction} - ${faction}`);
+            TerritoryCalculator.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${linkingFaction} - ${faction}`);
             return true;
         }
 
@@ -252,7 +276,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore bruh
         this.factionParsedFacilitiesMap.get(faction).add(facilityId);
-        this.cutoffFacilityList.delete(facilityId);
+        this.cutoffFacilityList.delete(facilityId); // Remove the facility from the list of cutoffs as it is linked
 
         // First, get a list of links associated with the facility
         const connectedLinks = latticeLinks.filter((latticeLink: FacilityLatticeLinkInterface) => {
@@ -270,7 +294,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             }
         });
 
-        TerritoryVictoryCondition.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
+        TerritoryCalculator.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
 
         // RE RE RECURSION
         // Promise of a promise of a promise until we're happy!
@@ -288,7 +312,7 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
 
     // Gets the current status of the facility from the database
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
-        TerritoryVictoryCondition.logger.debug(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
+        TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
 
         try {
             const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlFactory.model.findOne({
@@ -301,11 +325,11 @@ export default class TerritoryVictoryCondition implements VictoryConditionInterf
             // This should always have a result, whether it be from the initial map capture (which will be the case for the warpgate)
             // or from a capture during the course of monitoring the instance.
             if (!result) {
-                TerritoryVictoryCondition.logger.error(`[${this.instance.instanceId}] Facility ${facilityId} is missing capture information!`);
+                TerritoryCalculator.logger.error(`[${this.instance.instanceId}] Facility ${facilityId} is missing capture information!`);
                 return Faction.NONE;
             }
 
-            TerritoryVictoryCondition.logger.debug(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
+            TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
 
             return result.newFaction;
         } catch (err) {

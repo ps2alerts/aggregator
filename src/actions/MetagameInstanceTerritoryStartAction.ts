@@ -13,15 +13,18 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     private readonly instance: MetagameTerritoryInstance;
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
+    private readonly facilityControlAction: ActionInterface;
 
     constructor(
         instance: MetagameTerritoryInstance,
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
+        facilityControlAction: ActionInterface,
     ) {
         this.instance = instance;
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.censusConfig = censusConfig;
+        this.facilityControlAction = facilityControlAction;
     }
 
     public async execute(): Promise<boolean> {
@@ -86,6 +89,9 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                 });
 
             MetagameInstanceTerritoryStartAction.logger.info(`Inserted initial map state for instance ${this.instance.instanceId}`);
+
+            // Also update the result of the instance now we have hydrated the territory info
+            void this.facilityControlAction.execute();
         });
 
         return true;
