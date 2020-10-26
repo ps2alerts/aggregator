@@ -65,9 +65,6 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
                 Ps2alertsEventState.STARTED,
             );
 
-            // Chicken and egg scenario, can't use the instance if it doesn't exist yet!
-            instance.result = await this.territoryCalculatorFactory.build(instance).calculate();
-
             try {
                 return await this.instanceHandler.startInstance(instance);
             } catch (e) {
