@@ -197,7 +197,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
 
     private calculateOutOfPlayBases(): number {
         this.mapFacilityList.forEach((facility) => {
-            if (facility.facilityFaction === Faction.NS_OPERATIVES) {
+            if (facility.facilityFaction === Faction.NONE || facility.facilityFaction === Faction.NS_OPERATIVES) {
                 this.disabledFacilityList.set(facility.facilityId, facility);
 
                 // Now we know it's powered down, remove it from the cutoff list
