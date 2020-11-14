@@ -10,7 +10,7 @@ resource datadog_monitor "aggregator_not_running" {
 
   notify_no_data = true
   require_full_window = false
-  no_data_timeframe = 3
+  no_data_timeframe = 10
 
   tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
 }
