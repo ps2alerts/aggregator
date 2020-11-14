@@ -85,12 +85,20 @@ export default class TerritoryCalculator implements CalculatorInterface {
         // Collate the statistics here
         /* eslint-disable */
         const bases: FactionNumbersInterface = {
-            // @ts-ignore Bollocks to doing multiple ifs here...
-            vs: this.factionParsedFacilitiesMap.get(Faction.VANU_SOVEREIGNTY).size - 1,
+            vs: this.factionParsedFacilitiesMap.has(Faction.VANU_SOVEREIGNTY)
+                // @ts-ignore Bollocks to doing multiple ifs here...
+                ? this.factionParsedFacilitiesMap.get(Faction.VANU_SOVEREIGNTY).size - 1 // -1 for Warpgate,
+                : 0,
             // @ts-ignore
-            nc: this.factionParsedFacilitiesMap.get(Faction.NEW_CONGLOMERATE).size - 1,
+            nc: this.factionParsedFacilitiesMap.has(Faction.NEW_CONGLOMERATE)
+                // @ts-ignore Bollocks to doing multiple ifs here...
+                ? this.factionParsedFacilitiesMap.get(Faction.NEW_CONGLOMERATE).size - 1
+                : 0,
             // @ts-ignore
-            tr: this.factionParsedFacilitiesMap.get(Faction.TERRAN_REPUBLIC).size - 1,
+            tr: this.factionParsedFacilitiesMap.has(Faction.TERRAN_REPUBLIC)
+                // @ts-ignore Bollocks to doing multiple ifs here...
+                ? this.factionParsedFacilitiesMap.get(Faction.TERRAN_REPUBLIC).size - 1
+                : 0,
         };
         /* eslint-enable */
 
