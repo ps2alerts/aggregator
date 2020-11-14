@@ -52,11 +52,11 @@ resource datadog_monitor "aggregator_high_cpu" {
 resource datadog_monitor "aggregator_high_errors" {
   name = "PS2Alerts Aggregator high errors [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*aggregator\\-${var.environment}* status:error\").index(\"*\").rollup(\"count\").last(\"10m\") > 300"
+  query = "logs(\"container_name:*aggregator\\-${var.environment}* status:error\").index(\"*\").rollup(\"count\").last(\"10m\") > 50"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high errors"})
 
   thresholds = {
-    critical = 300
+    critical = 50
   }
 
   notify_no_data = true
