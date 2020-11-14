@@ -95,7 +95,6 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             void this.processFacilityControl(censusEvent);
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.wsClient.on(Events.PS2_EXPERIENCE, (censusEvent: GainExperience) => {
             void this.processGainExperience(censusEvent);
         });
@@ -157,16 +156,18 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private async processGainExperience(censusEvent: GainExperience): Promise<void> {
         CensusEventSubscriberService.logger.silly('Processing GainExperience censusEvent');
 
-        await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
-            .then((character) => {
-                void this.characterPresenceHandler.update(
-                    character,
-                    parseInt(censusEvent.zone_id, 10),
-                );
-            })
-            .catch((e: Error) => {
-                CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
-            });
+        if (this.getInstances(censusEvent).length > 0) {
+            await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
+                .then((character) => {
+                    void this.characterPresenceHandler.update(
+                        character,
+                        parseInt(censusEvent.zone_id, 10),
+                    );
+                })
+                .catch((e: Error) => {
+                    CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
+                });
+        }
     }
 
     private async processMetagameEvent(censusEvent: MetagameEvent): Promise<void> {
@@ -210,7 +211,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         });
     }
 
-    private getInstances(censusEvent: Death | FacilityControl | VehicleDestroy): PS2AlertsInstanceInterface[] {
+    private getInstances(censusEvent: Death | FacilityControl |GainExperience | VehicleDestroy): PS2AlertsInstanceInterface[] {
         return this.instanceHandler.getInstances(
             parseInt(censusEvent.world_id, 10),
             parseInt(censusEvent.zone_id, 10),
