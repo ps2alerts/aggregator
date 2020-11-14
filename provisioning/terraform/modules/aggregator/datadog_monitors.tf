@@ -82,3 +82,33 @@ resource datadog_monitor "aggregator_high_restarts" {
 
   tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
 }
+
+resource datadog_monitor "aggregator_high_census_reconnects" {
+  name = "PS2Alerts Aggregator high Census reconnections [${var.environment}]"
+  type = "log alert"
+  query = "logs(\"container_name:*ps2alerts-aggregator-staging* Census stream connection lost\").index(\"*\").rollup(\"count\").last(\"1h\") > 5"
+  message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high census reconnections"})
+
+  thresholds = {
+    critical = 5
+  }
+
+  require_full_window = false
+
+  tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
+}
+
+resource datadog_monitor "aggregator_high_census_stale_connection" {
+  name = "PS2Alerts Aggregator high Census stale connections [${var.environment}]"
+  type = "log alert"
+  query = "logs(\"container_name:*ps2alerts-aggregator-staging* service:CensusStaleConnectionWatcherAuthority Census\").index(\"*\").rollup(\"count\").last(\"1h\") > 5"
+  message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high census stale connections"})
+
+  thresholds = {
+    critical = 5
+  }
+
+  require_full_window = false
+
+  tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
+}
