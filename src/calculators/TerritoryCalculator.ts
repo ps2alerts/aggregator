@@ -69,9 +69,19 @@ export default class TerritoryCalculator implements CalculatorInterface {
         await this.getMapFacilities();
 
         // Filter out Warpgates from the list as that's a constant plus the game doesn't calculate them in the territory %s.
+        // Additionally, check their ownership so we can mark bases not capturable as out of play.
         this.mapFacilityList.forEach((facility) => {
             if (facility.facilityType === 7) {
                 warpgates.push(facility.facilityId);
+            }
+
+            if (facility.facilityFaction === Faction.NONE || facility.facilityFaction === Faction.NS_OPERATIVES) {
+                this.disabledFacilityList.set(facility.facilityId, facility);
+
+                // Now we know it's powered down, remove it from the cutoff list
+                if (this.cutoffFacilityList.has(facility.facilityId)) {
+                    this.cutoffFacilityList.delete(facility.facilityId);
+                }
             }
         });
 
@@ -108,7 +118,14 @@ export default class TerritoryCalculator implements CalculatorInterface {
         /* eslint-enable */
 
         const baseCount = this.mapFacilityList.size - warpgates.length; // Initial map includes warpgates, so we just take them off here (also safe if less than 3 WGs)
-        const outOfPlayCount = this.calculateOutOfPlayBases();
+
+        const outOfPlayCount = this.disabledFacilityList.size;
+
+        if (TerritoryCalculator.logger.isDebugEnabled()) {
+            // eslint-disable-next-line no-console
+            console.log('outOfPlay bases', this.disabledFacilityList.size);
+        }
+
         const percentages = this.calculatePercentages(baseCount, bases, outOfPlayCount);
         const winner = this.calculateWinner(percentages);
 
@@ -193,26 +210,6 @@ export default class TerritoryCalculator implements CalculatorInterface {
         }
 
         return cutoffPercent;
-    }
-
-    private calculateOutOfPlayBases(): number {
-        this.mapFacilityList.forEach((facility) => {
-            if (facility.facilityFaction === Faction.NONE || facility.facilityFaction === Faction.NS_OPERATIVES) {
-                this.disabledFacilityList.set(facility.facilityId, facility);
-
-                // Now we know it's powered down, remove it from the cutoff list
-                if (this.cutoffFacilityList.has(facility.facilityId)) {
-                    this.cutoffFacilityList.delete(facility.facilityId);
-                }
-            }
-        });
-
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
-            // eslint-disable-next-line no-console
-            console.log('outOfPlay bases', this.disabledFacilityList.size);
-        }
-
-        return this.disabledFacilityList.size;
     }
 
     private async getMapFacilities(): Promise<void> {
