@@ -56,17 +56,20 @@ export default class TerritoryCalculator implements CalculatorInterface {
     }
 
     public async calculate(): Promise<TerritoryResultInterface> {
+        const warpgates: number[] = [];
+
+        // Get the lattice links for the zone
+        const latticeLinks = await this.getLatticeLinks();
+
         // Get the map's facilities, allowing us to grab warpgates for starting the traversal and facility names for debug
         await this.getMapFacilities();
-        const warpgates: number[] = [];
+
+        // Filter out Warpgates from the list as that's a constant plus the game doesn't calculate them in the territory %s.
         this.mapFacilityList.forEach((facility) => {
             if (facility.facilityType === 7) {
                 warpgates.push(facility.facilityId);
             }
         });
-
-        // Get the lattice links for the zone
-        const latticeLinks = await this.getLatticeLinks();
 
         // For each warpgate returned, execute the lattice traversal
         for (const facilityId of warpgates) {
@@ -132,25 +135,11 @@ export default class TerritoryCalculator implements CalculatorInterface {
         };
 
         if (TerritoryCalculator.logger.isDebugEnabled()) {
-            /* eslint-disable */
+            // eslint-disable-next-line no-console
             console.log('Percentages', percentages);
         }
 
         return percentages;
-    }
-
-    private calculateCutoffPercentage(bases: FactionNumbersInterface, baseCount: number, percentages: PercentagesInterface): number {
-        const cutoffCount = baseCount - bases.vs - bases.nc - bases.tr;
-        const cutoffPercent = Math.floor(cutoffCount * percentages.perBase);
-
-        TerritoryCalculator.logger.debug(`Cutoff: ${cutoffCount} (${cutoffPercent}%)`);
-
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
-            /* eslint-disable */
-            console.log('Cutoff bases', this.cutoffFacilityList);
-        }
-
-        return cutoffPercent
     }
 
     private static calculateWinner(percentages: PercentagesInterface): {winner: Faction, draw: boolean} {
@@ -179,6 +168,20 @@ export default class TerritoryCalculator implements CalculatorInterface {
         } else {
             return {winner: scores[0].faction, draw: false};
         }
+    }
+
+    private calculateCutoffPercentage(bases: FactionNumbersInterface, baseCount: number, percentages: PercentagesInterface): number {
+        const cutoffCount = baseCount - bases.vs - bases.nc - bases.tr;
+        const cutoffPercent = Math.floor(cutoffCount * percentages.perBase);
+
+        TerritoryCalculator.logger.debug(`Cutoff: ${cutoffCount} (${cutoffCount * percentages.perBase}%)`);
+
+        if (TerritoryCalculator.logger.isDebugEnabled()) {
+            // eslint-disable-next-line no-console
+            console.log('Cutoff bases', this.cutoffFacilityList);
+        }
+
+        return cutoffPercent;
     }
 
     private async getMapFacilities(): Promise<void> {
@@ -258,6 +261,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
         const formatDepth = '|'.repeat(depth);
 
         // Get the owner of the facility so we know which faction this is
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore this is already defined
         const faction = this.mapFacilityList.get(facilityId).facilityFaction;
 
