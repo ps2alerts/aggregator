@@ -111,6 +111,13 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private async processDeath(censusEvent: Death): Promise<void> {
         CensusEventSubscriberService.logger.silly('Processing Death Event');
 
+        const instances = this.getInstances(censusEvent);
+
+        // If not related to any instances, chuck it.
+        if (instances.length === 0) {
+            return;
+        }
+
         await Promise.all([
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
