@@ -16,10 +16,13 @@ import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 
 export interface TerritoryResultInterface extends InstanceResultInterface {
     cutoff: number;
+    outOfPlay: number;
     draw: boolean;
 }
 
 interface PercentagesInterface extends FactionNumbersInterface {
+    cutoff: number;
+    outOfPlay: number;
     perBase: number;
 }
 
@@ -44,6 +47,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
     private readonly factionParsedFacilitiesMap: Map<Faction, Set<number>> = new Map<Faction, Set<number>>();
     private readonly mapFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     private readonly cutoffFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
+    private readonly disabledFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
 
     constructor(
         instance: MetagameTerritoryInstance,
@@ -89,48 +93,50 @@ export default class TerritoryCalculator implements CalculatorInterface {
         /* eslint-disable */
         const bases: FactionNumbersInterface = {
             vs: this.factionParsedFacilitiesMap.has(Faction.VANU_SOVEREIGNTY)
-                // @ts-ignore Bollocks to doing multiple ifs here...
+                // @ts-ignore Bollocks
                 ? this.factionParsedFacilitiesMap.get(Faction.VANU_SOVEREIGNTY).size - 1 // -1 for Warpgate,
                 : 0,
-            // @ts-ignore
             nc: this.factionParsedFacilitiesMap.has(Faction.NEW_CONGLOMERATE)
-                // @ts-ignore Bollocks to doing multiple ifs here...
+                // @ts-ignore Bollocks
                 ? this.factionParsedFacilitiesMap.get(Faction.NEW_CONGLOMERATE).size - 1
                 : 0,
-            // @ts-ignore
             tr: this.factionParsedFacilitiesMap.has(Faction.TERRAN_REPUBLIC)
-                // @ts-ignore Bollocks to doing multiple ifs here...
+                // @ts-ignore Bollocks
                 ? this.factionParsedFacilitiesMap.get(Faction.TERRAN_REPUBLIC).size - 1
                 : 0,
         };
         /* eslint-enable */
 
         const baseCount = this.mapFacilityList.size - warpgates.length; // Initial map includes warpgates, so we just take them off here (also safe if less than 3 WGs)
-        const percentages = TerritoryCalculator.calculatePercentages(baseCount, bases);
-        const winner = TerritoryCalculator.calculateWinner(percentages);
-        const cutoffPercent = this.calculateCutoffPercentage(bases, baseCount, percentages);
+        const outOfPlayCount = this.calculateOutOfPlayBases();
+        const percentages = this.calculatePercentages(baseCount, bases, outOfPlayCount);
+        const winner = this.calculateWinner(percentages);
 
         // Forcibly clean the data arrays so we don't have any chance of naughty memory leaks
         this.factionParsedFacilitiesMap.clear();
         this.mapFacilityList.clear();
         this.cutoffFacilityList.clear();
+        this.disabledFacilityList.clear();
 
         return {
             vs: percentages.vs,
             nc: percentages.nc,
             tr: percentages.tr,
-            cutoff: cutoffPercent,
+            cutoff: percentages.cutoff,
+            outOfPlay: percentages.outOfPlay,
             winner: this.instance.state === Ps2alertsEventState.ENDED ? winner.winner : null,
             draw: this.instance.state === Ps2alertsEventState.ENDED ? winner.draw : false,
         };
     }
 
-    private static calculatePercentages(baseCount: number, bases: FactionNumbersInterface): PercentagesInterface {
+    private calculatePercentages(baseCount: number, bases: FactionNumbersInterface, outOfPlayCount: number): PercentagesInterface {
         const perBasePercent = 100 / baseCount;
         const percentages = {
             vs: Math.floor(bases.vs * perBasePercent),
             nc: Math.floor(bases.nc * perBasePercent),
             tr: Math.floor(bases.tr * perBasePercent),
+            cutoff: this.calculateCutoffPercentage(bases, baseCount, perBasePercent, outOfPlayCount),
+            outOfPlay: Math.floor(outOfPlayCount * perBasePercent),
             perBase: perBasePercent,
         };
 
@@ -142,7 +148,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
         return percentages;
     }
 
-    private static calculateWinner(percentages: PercentagesInterface): {winner: Faction, draw: boolean} {
+    private calculateWinner(percentages: PercentagesInterface): {winner: Faction, draw: boolean} {
         const scores = [
             {faction: Faction.VANU_SOVEREIGNTY, score: percentages.vs},
             {faction: Faction.NEW_CONGLOMERATE, score: percentages.nc},
@@ -170,11 +176,16 @@ export default class TerritoryCalculator implements CalculatorInterface {
         }
     }
 
-    private calculateCutoffPercentage(bases: FactionNumbersInterface, baseCount: number, percentages: PercentagesInterface): number {
-        const cutoffCount = baseCount - bases.vs - bases.nc - bases.tr;
-        const cutoffPercent = Math.floor(cutoffCount * percentages.perBase);
+    private calculateCutoffPercentage(
+        bases: FactionNumbersInterface,
+        baseCount: number,
+        perBase: number,
+        outOfPlayCount: number,
+    ): number {
+        const cutoffCount = (baseCount - bases.vs - bases.nc - bases.tr) - outOfPlayCount;
+        const cutoffPercent = Math.floor(cutoffCount * perBase);
 
-        TerritoryCalculator.logger.debug(`Cutoff: ${cutoffCount} (${cutoffCount * percentages.perBase}%)`);
+        TerritoryCalculator.logger.debug(`Cutoff: ${cutoffCount} (${cutoffCount * perBase}%)`);
 
         if (TerritoryCalculator.logger.isDebugEnabled()) {
             // eslint-disable-next-line no-console
@@ -182,6 +193,26 @@ export default class TerritoryCalculator implements CalculatorInterface {
         }
 
         return cutoffPercent;
+    }
+
+    private calculateOutOfPlayBases(): number {
+        this.mapFacilityList.forEach((facility) => {
+            if (facility.facilityFaction === Faction.NS_OPERATIVES) {
+                this.disabledFacilityList.set(facility.facilityId, facility);
+
+                // Now we know it's powered down, remove it from the cutoff list
+                if (this.cutoffFacilityList.has(facility.facilityId)) {
+                    this.cutoffFacilityList.delete(facility.facilityId);
+                }
+            }
+        });
+
+        if (TerritoryCalculator.logger.isDebugEnabled()) {
+            // eslint-disable-next-line no-console
+            console.log('outOfPlay bases', this.disabledFacilityList.size);
+        }
+
+        return this.disabledFacilityList.size;
     }
 
     private async getMapFacilities(): Promise<void> {

@@ -7,4 +7,5 @@ export interface MetagameDetailsInterface {
     duration: number;
     triggeringFaction: Faction;
     unstable: boolean; // Whether the zone has links disabled, known as Underpowered Warpgate mode.
+    maxPercent: number;
 }
