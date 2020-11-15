@@ -19,7 +19,7 @@ module "aggregator_staging" {
   rabbitmq_pass      = var.rabbitmq_pass
   rabbitmq_api_queue = "api-queue-staging"
   census_service_id  = var.census_service_id
-  cpu_limit          = "350m"
+  cpu_limit          = "500m"
   mem_limit          = "0.25Gi"
   cpu_request        = "250m"
   mem_request        = "0.25Gi"
