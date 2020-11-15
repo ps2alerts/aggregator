@@ -11,7 +11,7 @@ import {InstanceFacilityControlSchemaInterface} from '../models/instance/Instanc
 import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTerritoryStartAction';
 import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
-import MetagameInstanceTerritoryFacilityControlAction from '../actions/ MetagameInstanceTerritoryFacilityControlAction';
+import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameInstanceTerritoryFacilityControlAction';
 
 @injectable()
 export default class InstanceActionFactory {
