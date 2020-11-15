@@ -21,7 +21,7 @@ export default class BracketCalculator implements CalculatorInterface<Bracket> {
         BracketCalculator.logger.debug('Running Bracket calculator');
 
         const world = this.instance.world;
-        const utcDate = new Date('2020-06-16T00:00:00.000Z');
+        const utcDate = new Date(this.instance.timeStarted.toISOString());
 
         let time: Moment;
 
