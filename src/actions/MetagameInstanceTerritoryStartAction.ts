@@ -40,7 +40,6 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
 
         // Calculate bracket
         try {
-            // Update database record with the winner of the Metagame (currently territory)
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
                 {bracket: await this.bracketCalculator.calculate()},
