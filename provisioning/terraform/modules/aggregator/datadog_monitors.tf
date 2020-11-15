@@ -146,11 +146,11 @@ resource datadog_monitor "aggregator_unhandled_rejections" {
 resource datadog_monitor "aggregator_high_killed" {
   name = "PS2Alerts Aggregator high killed [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Killed\").index(\"*\").rollup(\"count\").last(\"1h\") > 5"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Killed\").index(\"*\").rollup(\"count\").last(\"30m\") > 2"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high killed"})
 
   thresholds = {
-    critical = 5
+    critical = 2
   }
 
   require_full_window = false
