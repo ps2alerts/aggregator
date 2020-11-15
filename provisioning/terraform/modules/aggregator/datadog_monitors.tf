@@ -142,3 +142,18 @@ resource datadog_monitor "aggregator_unhandled_rejections" {
 
   tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
 }
+
+resource datadog_monitor "aggregator_high_killed" {
+  name = "PS2Alerts Aggregator high killed [${var.environment}]"
+  type = "log alert"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Killed\").index(\"*\").rollup(\"count\").last(\"1h\") > 5"
+  message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high killed"})
+
+  thresholds = {
+    critical = 5
+  }
+
+  require_full_window = false
+
+  tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
+}
