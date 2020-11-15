@@ -39,7 +39,7 @@ interface FacilityLatticeLinkInterface {
 }
 
 @injectable()
-export default class TerritoryCalculator implements CalculatorInterface {
+export default class TerritoryCalculator implements CalculatorInterface<TerritoryResultInterface> {
     private static readonly logger = getLogger('TerritoryCalculator');
     private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
@@ -60,6 +60,7 @@ export default class TerritoryCalculator implements CalculatorInterface {
     }
 
     public async calculate(): Promise<TerritoryResultInterface> {
+        TerritoryCalculator.logger.debug('Running Territory calculator');
         const warpgates: number[] = [];
 
         // Get the lattice links for the zone

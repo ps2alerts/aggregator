@@ -69,6 +69,7 @@ const TYPES = {
     // Other Factories
     instanceActionFactory: Symbol.for('InstanceActionFactory'),
     territoryCalculatorFactory: Symbol.for('TerritoryCalculatorFactory'),
+    bracketCalculatorFactory: Symbol.for('BracketCalculatorFactory'),
 };
 
 export {TYPES};

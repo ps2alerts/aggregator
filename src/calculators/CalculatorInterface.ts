@@ -1,5 +1,3 @@
-import {TerritoryResultInterface} from './TerritoryCalculator';
-
-export interface CalculatorInterface {
-    calculate(): Promise<TerritoryResultInterface>;
+export interface CalculatorInterface<T> {
+    calculate(): Promise<T>;
 }
