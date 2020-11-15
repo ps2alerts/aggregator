@@ -7,30 +7,51 @@ import {rest} from 'ps2census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import ApplicationException from '../exceptions/ApplicationException';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
+import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
+import BracketCalculator from '../calculators/BracketCalculator';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
     private readonly instance: MetagameTerritoryInstance;
+    private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
     private readonly facilityControlAction: ActionInterface;
+    private readonly bracketCalculator: BracketCalculator;
 
     constructor(
         instance: MetagameTerritoryInstance,
+        instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
         facilityControlAction: ActionInterface,
+        bracketCalculator: BracketCalculator,
     ) {
         this.instance = instance;
+        this.instanceMetagameFactory = instanceMetagameFactory;
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.censusConfig = censusConfig;
         this.facilityControlAction = facilityControlAction;
+        this.bracketCalculator = bracketCalculator;
     }
 
     public async execute(): Promise<boolean> {
         MetagameInstanceTerritoryStartAction.logger.info(`Running startActions() for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
-        // Take a snapshot of the map for use with territory calculations for the end
 
+        // Calculate bracket
+        try {
+            await this.instanceMetagameFactory.model.updateOne(
+                {instanceId: this.instance.instanceId},
+                {bracket: await this.bracketCalculator.calculate()},
+            ).catch((err: Error) => {
+                throw new ApplicationException(`Unable to update bracket for instance ${this.instance.instanceId}! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
+            });
+        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            MetagameInstanceTerritoryStartAction.logger.error(`Unable to process Bracket for instance ${this.instance.instanceId}! Err: ${err.message}`);
+        }
+
+        // Take a snapshot of the map for use with territory calculations for the end
         const get = rest.getFactory('ps2', this.censusConfig.serviceID);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const docs: any[] = [];

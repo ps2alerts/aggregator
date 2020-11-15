@@ -76,6 +76,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     censusMetagameEventType: instance.censusMetagameEventType,
                     duration: instance.duration,
                     state: instance.state,
+                    bracket: null,
                 });
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
 
