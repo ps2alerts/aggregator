@@ -5,6 +5,7 @@ import {MetagameEventType, metagameEventTypeArray} from '../../constants/metagam
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import {Ps2alertsEventState, ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
 import {TerritoryResultInterface} from '../../calculators/TerritoryCalculator';
+import {Bracket, ps2alertsBracketArray} from '../../constants/bracket';
 
 export interface InstanceMetagameTerritorySchemaInterface extends Document {
     instanceId: PS2AlertsInstanceInterface['instanceId'];
@@ -17,6 +18,7 @@ export interface InstanceMetagameTerritorySchemaInterface extends Document {
     censusMetagameEventType: MetagameEventType;
     duration: number;
     state: Ps2alertsEventState;
+    bracket: Bracket | null;
 }
 
 export const instanceMetagameTerritorySchema: Schema = new Schema({
@@ -61,6 +63,10 @@ export const instanceMetagameTerritorySchema: Schema = new Schema({
         type: Number,
         enum: ps2alertsEventStateArray,
         required: true,
+    },
+    bracket: {
+        type: Number,
+        enum: ps2alertsBracketArray,
     },
 }).index(
     {world: 1, censusInstanceId: 1},
