@@ -18,7 +18,7 @@ resource datadog_monitor "aggregator_not_running" {
 resource datadog_monitor "aggregator_high_mem" {
   name = "PS2Alerts Aggregator high memory [${var.environment}]"
   type = "metric alert"
-  query = "avg(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 235930000"
+  query = "max(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 235930000"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high memory"})
 
   thresholds = {
