@@ -18,7 +18,7 @@ export default class BracketCalculator implements CalculatorInterface<Bracket> {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async calculate(): Promise<Bracket> {
-        BracketCalculator.logger.debug('Running Bracket calculator');
+        BracketCalculator.logger.debug(`[${this.instance.instanceId}] Running BracketCalculator`);
 
         const world = this.instance.world;
         const utcDate = new Date(this.instance.timeStarted.toISOString());

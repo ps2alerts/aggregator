@@ -63,15 +63,13 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         );
 
         // Handle Instance Events
-        try {
-            await this.instanceActionFactory.buildFacilityControlEvent(event.instance, event.isDefence).execute();
-        } catch (e) {
+        await this.instanceActionFactory.buildFacilityControlEvent(event.instance, event.isDefence).execute().catch((e) => {
             if (e instanceof Error) {
                 FacilityControlEventHandler.logger.error(`Error parsing Instance Action "facilityControlEvent" for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
                 FacilityControlEventHandler.logger.error('UNEXPECTED ERROR running Instance Action "facilityControlEvent"!');
             }
-        }
+        });
 
         return true;
     }

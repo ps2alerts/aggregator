@@ -28,7 +28,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
     }
 
     public async execute(): Promise<boolean> {
-        MetagameTerritoryInstanceEndAction.logger.info(`Running endAction for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
+        MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
 
         try {
             // Update database record with the winner of the Metagame (currently territory)
@@ -36,11 +36,11 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
                 {instanceId: this.instance.instanceId},
                 {result: await this.calculateWinner()},
             ).catch((err: Error) => {
-                throw new ApplicationException(`Unable to set winner for instance ${this.instance.instanceId}! Err: ${err.message}`);
+                throw new ApplicationException(`[${this.instance.instanceId}] Unable to set winner! Err: ${err.message}`);
             });
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            MetagameTerritoryInstanceEndAction.logger.error(`Unable to process endAction for instance ${this.instance.instanceId}! Err: ${err.message}`);
+            MetagameTerritoryInstanceEndAction.logger.error(`[${this.instance.instanceId}] Unable to process endAction! Err: ${err.message}`);
         }
 
         return true;
@@ -52,9 +52,9 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         MetagameTerritoryInstanceEndAction.logger.info(jsonLogOutput(result));
 
         if (result.draw) {
-            MetagameTerritoryInstanceEndAction.logger.info(`Instance ${this.instance.instanceId} resulted in a DRAW!`);
+            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] resulted in a DRAW!`);
         } else {
-            MetagameTerritoryInstanceEndAction.logger.info(`Instance ${this.instance.instanceId} winner is: ${FactionUtils.parseFactionIdToShortName(result.winner).toUpperCase()}!`);
+            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] winner is: ${FactionUtils.parseFactionIdToShortName(result.winner).toUpperCase()}!`);
         }
 
         return result;

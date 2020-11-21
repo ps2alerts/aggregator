@@ -99,7 +99,7 @@ export default class Kernel implements KernelInterface {
                 default: {
                     Kernel.logger.error(`====== UNKNOWN EXCEPTION HAS OCCURRED! "${name}" STACK AS FOLLOWS:`);
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-                    Kernel.logger.error(`${e.trace ? e.trace : e.toString()}`);
+                    Kernel.logger.error(`${e.trace ? e.trace : e.stack ? e.stack : e.toString()}`);
                     void this.terminate(1);
                 }
             }

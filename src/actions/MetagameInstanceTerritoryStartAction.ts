@@ -36,20 +36,14 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     }
 
     public async execute(): Promise<boolean> {
-        MetagameInstanceTerritoryStartAction.logger.info(`Running startActions() for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
+        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()"`);
 
-        // Calculate bracket
-        try {
-            await this.instanceMetagameFactory.model.updateOne(
-                {instanceId: this.instance.instanceId},
-                {bracket: await this.bracketCalculator.calculate()},
-            ).catch((err: Error) => {
-                throw new ApplicationException(`Unable to update bracket for instance ${this.instance.instanceId}! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
-            });
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            MetagameInstanceTerritoryStartAction.logger.error(`Unable to process Bracket for instance ${this.instance.instanceId}! Err: ${err.message}`);
-        }
+        await this.instanceMetagameFactory.model.updateOne(
+            {instanceId: this.instance.instanceId},
+            {bracket: await this.bracketCalculator.calculate()},
+        ).catch((err: Error) => {
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
+        });
 
         // Take a snapshot of the map for use with territory calculations for the end
         const get = rest.getFactory('ps2', this.censusConfig.serviceID);
@@ -76,6 +70,10 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         ).then((mapData) => {
             const date = new Date();
 
+            if (mapData[0].Regions.Row.length === 0) {
+                throw new ApplicationException(`[${this.instance.instanceId}] No map data was returned from Census! Cannot start alert properly!`);
+            }
+
             mapData[0].Regions.Row.forEach((row) => {
                 // Check if we have a facility type, if we don't chuck it as it's an old facility
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -97,7 +95,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                     });
                 } else {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    MetagameInstanceTerritoryStartAction.logger.warn(`Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
+                    MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
                 }
             });
 
@@ -105,11 +103,11 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             void this.instanceFacilityControlModelFactory.model.insertMany(docs)
                 .catch((err: Error) => {
                     if (!err.message.includes('E11000')) {
-                        throw new ApplicationException(`Error inserting Initial Map Capture! ${err.message}`, 'MetagameInstanceTerritoryStartAction');
+                        throw new ApplicationException(`[${this.instance.instanceId}] Error inserting Initial Map Capture! ${err.message}`, 'MetagameInstanceTerritoryStartAction');
                     }
                 });
 
-            MetagameInstanceTerritoryStartAction.logger.info(`Inserted initial map state for instance ${this.instance.instanceId}`);
+            MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
 
             // Also update the result of the instance now we have hydrated the territory info
             void this.facilityControlAction.execute();

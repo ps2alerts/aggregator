@@ -61,7 +61,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     }
 
     public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
-        InstanceHandler.logger.info('================== STARTING INSTANCE! ==================');
+        InstanceHandler.logger.info(`================== STARTING INSTANCE ON WORLD ${instance.world}! ==================`);
 
         if (instance instanceof MetagameTerritoryInstance) {
             try {
@@ -81,14 +81,14 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 InstanceHandler.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
 
                 // Execute start actions
-                try {
-                    await this.instanceActionFactory.buildStart(instance).execute();
-                } catch (e) {
+                await this.instanceActionFactory.buildStart(instance).execute().catch(async (e) => {
                     // End early if instance failed to insert so we don't add a instance to the list of actives.
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    InstanceHandler.logger.error(`Failed to build starts for Instance #${instance.instanceId}. E: ${e.message}`);
+                    InstanceHandler.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${e.message}`);
+
+                    await this.trashInstance(instance);
                     return false;
-                }
+                });
 
                 this.currentInstances.push(instance); // Add instance to the in-memory data so it can be called upon rapidly without polling DB
                 this.printActives(); // Show currently running alerts in console / log
@@ -96,13 +96,13 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                 return true;
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert instance into DB! ${err}`, 'InstanceHandler');
+                throw new ApplicationException(`[${instance.instanceId}] Unable to insert instance into DB! ${err}`, 'InstanceHandler');
             }
         }
 
         // Other types to add eventually
 
-        throw new ApplicationException('Start instance ended unexpectedly!', 'InstanceHandler');
+        throw new ApplicationException(`[${instance.instanceId}] Start instance ended unexpectedly!`, 'InstanceHandler');
     }
 
     public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
@@ -110,7 +110,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
 
         // Set instance state immediately to ended so no further stats will process
         instance.state = Ps2alertsEventState.ENDED;
-        InstanceHandler.logger.debug(`Instance ${instance.instanceId} marked as ended, no other stats should now process.`);
+        InstanceHandler.logger.debug(`[${instance.instanceId}] marked as ended`);
 
         const done = false;
 
@@ -124,7 +124,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     clearTimeout(id);
 
                     if (!done) {
-                        reject(new Error('Instance end timeout!'));
+                        reject(new Error(`[${instance.instanceId}] Instance end timeout!`));
                     } else {
                         resolve();
                     }
@@ -157,7 +157,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to end instance "${instance.instanceId}" correctly! E: ${err}`, 'InstanceHandler');
+            throw new ApplicationException(`[${instance.instanceId}] Unable to end instance correctly! E: ${err}`, 'InstanceHandler');
         }
     }
 
@@ -229,5 +229,16 @@ export default class InstanceHandler implements InstanceHandlerInterface {
         });
 
         InstanceHandler.logger.info('==== Current actives end =====');
+    }
+
+    private async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
+        await this.instanceMetagameModelFactory.model.deleteOne({
+            instanceId: instance.instanceId,
+        }).catch((e) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            throw new ApplicationException(`[${instance.instanceId}] UNABLE TO DELETE INSTANCE! E: ${e.message}`, 'InstanceHandler');
+        });
+
+        InstanceHandler.logger.error(`================ [${instance.instanceId}] INSTANCE DELETED! ================`);
     }
 }

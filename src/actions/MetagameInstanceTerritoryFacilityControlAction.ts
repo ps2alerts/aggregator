@@ -34,19 +34,38 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
             return false;
         }
 
-        MetagameInstanceTerritoryFacilityControlAction.logger.info(`Running FacilityControlAction for instance "${this.instance.world}-${this.instance.censusInstanceId}"`);
+        MetagameInstanceTerritoryFacilityControlAction.logger.info(`[${this.instance.instanceId}] Running FacilityControlAction`);
+
+        let result;
 
         try {
-            // Update database record with the winner of the Metagame (currently territory)
+            result = await this.territoryCalculator.calculate();
+        } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #1. E: ${e.message}`);
+
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            setTimeout(async () => {
+                try {
+                    result = await this.territoryCalculator.calculate();
+                } catch (err) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    throw new ApplicationException(`[${this.instance.instanceId}] TerritoryCalculator failed retry! E: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
+                }
+            }, 1000);
+        }
+
+        try {
+            // Update database record with the result of the territory / winner
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
-                {result: await this.territoryCalculator.calculate()},
+                {result},
             ).catch((err: Error) => {
-                throw new ApplicationException(`Unable to update result data for instance ${this.instance.instanceId}! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
+                throw new ApplicationException(`[${this.instance.instanceId}] Unable to update result data! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
             });
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            MetagameInstanceTerritoryFacilityControlAction.logger.error(`Unable to process FacilityControlActions for instance ${this.instance.instanceId}! Err: ${err.message}`);
+            throw new ApplicationException(`Unable to process FacilityControlActions for instance ${this.instance.instanceId}! Err: ${err.message}`);
         }
 
         return true;

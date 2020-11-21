@@ -24,8 +24,9 @@ export default class MongoDatabaseConnectionService implements ServiceInterface 
         MongoDatabaseConnectionService.logger.debug('Starting Mongo Database Connection Service... (NOT IMPLEMENTED)');
     }
 
+    // This isn't implemented as it appears to do it automatically
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async terminate(): Promise<void> {
-        MongoDatabaseConnectionService.logger.warn('Terminating Mongo Database Connection...');
-        await this.dbClient.terminateConnection();
+        MongoDatabaseConnectionService.logger.warn('Terminating Mongo Database Connection... (NOT IMPLEMENTED');
     }
 }
