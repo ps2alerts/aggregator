@@ -143,7 +143,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         }
 
         const percentages = this.calculatePercentages(baseCount, bases, outOfPlayCount);
-        const winner = this.calculateWinner(percentages);
+        const victor = this.calculateVictor(percentages);
 
         // Forcibly clean the data arrays so we don't have any chance of naughty memory leaks
         this.factionParsedFacilitiesMap.clear();
@@ -157,8 +157,8 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             tr: percentages.tr,
             cutoff: percentages.cutoff,
             outOfPlay: percentages.outOfPlay,
-            winner: this.instance.state === Ps2alertsEventState.ENDED ? winner.winner : null,
-            draw: this.instance.state === Ps2alertsEventState.ENDED ? winner.draw : false,
+            victor: this.instance.state === Ps2alertsEventState.ENDED ? victor.victor : null,
+            draw: this.instance.state === Ps2alertsEventState.ENDED ? victor.draw : false,
         };
     }
 
@@ -181,14 +181,14 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         return percentages;
     }
 
-    private calculateWinner(percentages: PercentagesInterface): {winner: Faction, draw: boolean} {
+    private calculateVictor(percentages: PercentagesInterface): {victor: Faction, draw: boolean} {
         const scores = [
             {faction: Faction.VANU_SOVEREIGNTY, score: percentages.vs},
             {faction: Faction.NEW_CONGLOMERATE, score: percentages.nc},
             {faction: Faction.TERRAN_REPUBLIC, score: percentages.tr},
         ];
 
-        // Calculate winner via sorting the scores
+        // Calculate victor via sorting the scores
         scores.sort((a, b) => {
             if (a.score < b.score) {
                 return 1;
@@ -201,11 +201,11 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             return 0;
         });
 
-        // Determine winner via the score
+        // Determine victor via the score
         if (scores[0].score === scores[1].score) {
-            return {winner: Faction.NONE, draw: true};
+            return {victor: Faction.NONE, draw: true};
         } else {
-            return {winner: scores[0].faction, draw: false};
+            return {victor: scores[0].faction, draw: false};
         }
     }
 

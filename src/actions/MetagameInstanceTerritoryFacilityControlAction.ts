@@ -56,7 +56,7 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
         }
 
         try {
-            // Update database record with the result of the territory / winner
+            // Update database record with the result of the territory / victor
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
                 {result},

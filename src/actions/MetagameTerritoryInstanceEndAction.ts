@@ -31,12 +31,12 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
 
         try {
-            // Update database record with the winner of the Metagame (currently territory)
+            // Update database record with the victor of the Metagame (currently territory)
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
-                {result: await this.calculateWinner()},
+                {result: await this.calculateVictor()},
             ).catch((err: Error) => {
-                throw new ApplicationException(`[${this.instance.instanceId}] Unable to set winner! Err: ${err.message}`);
+                throw new ApplicationException(`[${this.instance.instanceId}] Unable to set victor! Err: ${err.message}`);
             });
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
@@ -46,7 +46,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         return true;
     }
 
-    public async calculateWinner(): Promise<TerritoryResultInterface> {
+    public async calculateVictor(): Promise<TerritoryResultInterface> {
         const result = await this.territoryCalculator.calculate();
 
         MetagameTerritoryInstanceEndAction.logger.info(jsonLogOutput(result));
@@ -54,7 +54,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         if (result.draw) {
             MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] resulted in a DRAW!`);
         } else {
-            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] winner is: ${FactionUtils.parseFactionIdToShortName(result.winner).toUpperCase()}!`);
+            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] victor is: ${FactionUtils.parseFactionIdToShortName(result.victor).toUpperCase()}!`);
         }
 
         return result;
