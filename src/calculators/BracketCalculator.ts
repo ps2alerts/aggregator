@@ -61,12 +61,12 @@ export default class BracketCalculator implements CalculatorInterface<Bracket> {
     private calculateBracket(hour: number): Bracket {
         let bracket = Bracket.NONE;
 
-        if (hour >= 0 && hour < 12) {
-            bracket = Bracket.MORNING;
-        } else if (hour >= 12 && hour < 17) {
-            bracket = Bracket.AFTERNOON;
-        } else if (hour >= 17 && hour < 24) {
-            bracket = Bracket.PRIME;
+        if (hour === 23 || (hour >= 0 && hour < 12)) {
+            bracket = Bracket.MORNING; // 23:00 - 11:59
+        } else if (hour >= 12 && hour < 16) {
+            bracket = Bracket.AFTERNOON; // 12:00 - 15:59
+        } else if (hour >= 16 && hour < 23) {
+            bracket = Bracket.PRIME; // 16:00 - 22:59
         }
 
         return bracket;
