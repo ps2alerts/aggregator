@@ -9,8 +9,8 @@ import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 
 @injectable()
-export default class InstanceClassAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('InstanceClassAggregate');
+export default class GlobalLoadoutAggregate implements AggregateHandlerInterface<DeathEvent> {
+    private static readonly logger = getLogger('GlobalLoadoutAggregate');
     private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
@@ -18,7 +18,7 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceClassAggregate.logger.silly('InstanceClassAggregate.handle');
+        GlobalLoadoutAggregate.logger.silly('GlobalLoadoutAggregate.handle');
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -43,34 +43,36 @@ export default class InstanceClassAggregate implements AggregateHandlerInterface
             attackerDocs.push({$inc: {headshots: 1}});
         }
 
-        if (event.attackerCharacter && attackerDocs.length > 0) {
+        if (attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_CLASS_AGGREGATE,
+                    MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
                     attackerDocs,
                     [{
-                        instance: event.instance.instanceId,
                         class: event.attackerLoadoutId,
+                        world: event.instance.world,
                     }],
                 ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceClassAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
             }
         }
 
-        try {
-            await this.apiMQPublisher.send(new ApiMQMessage(
-                MQAcceptedPatterns.INSTANCE_CLASS_AGGREGATE,
-                victimDocs,
-                [{
-                    instance: event.instance.instanceId,
-                    class: event.characterLoadoutId,
-                }],
-            ));
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            InstanceClassAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+        if (victimDocs.length > 0) {
+            try {
+                await this.apiMQPublisher.send(new ApiMQMessage(
+                    MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
+                    victimDocs,
+                    [{
+                        class: event.characterLoadoutId,
+                        world: event.instance.world,
+                    }],
+                ));
+            } catch (err) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;
