@@ -68,8 +68,8 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                 MQAcceptedPatterns.INSTANCE_DEATH,
                 [{
                     instance: event.instance.instanceId,
-                    attacker: event.attackerCharacter ? event.attackerCharacter.id : '0',
-                    character: event.character.id,
+                    attacker: event.attackerCharacter ? event.attackerCharacter : undefined,
+                    character: event.character,
                     timestamp: event.timestamp,
                     attackerFiremode: event.attackerFiremodeId,
                     attackerLoadout: event.attackerLoadoutId,
