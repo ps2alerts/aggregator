@@ -23,6 +23,13 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
         const attackerDocs = [];
         const victimDocs = [];
 
+        attackerDocs.push({$setOnInsert: {
+            character: event.attackerCharacter,
+        }});
+        victimDocs.push({$setOnInsert: {
+            character: event.character,
+        }});
+
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
