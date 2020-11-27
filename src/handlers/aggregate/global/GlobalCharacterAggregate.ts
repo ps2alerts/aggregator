@@ -24,9 +24,11 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         const victimDocs = [];
 
         attackerDocs.push({$setOnInsert: {
+            character: event.character,
             world: event.character.world,
         }});
         victimDocs.push({$setOnInsert: {
+            character: event.character,
             world: event.character.world,
         }});
 
@@ -56,7 +58,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                     attackerDocs,
                     [{
-                        character: event.attackerCharacter.id,
+                        'character.id': event.attackerCharacter.id,
                         world: event.world,
                     }],
                 ));
@@ -71,7 +73,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                 victimDocs,
                 [{
-                    character: event.character.id,
+                    'character.id': event.character.id,
                     world: event.world,
                 }],
             ));

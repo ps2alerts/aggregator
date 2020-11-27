@@ -11,7 +11,9 @@ class Character implements CharacterInterface {
     public name: string;
     public faction: Faction;
     public world: World;
-    public outfit: Outfit|null;
+    public battleRank: number;
+    public asp: boolean;
+    public outfit: Outfit | null;
 
     constructor(characterData: CharacterWorldOutfitLeader) {
         this.id = characterData.character_id;
@@ -22,6 +24,9 @@ class Character implements CharacterInterface {
         if (!this.world || isNaN(this.world)) {
             throw new ApplicationException(`World is missing for character ${characterData.character_id} - world given: ${characterData.world_id}`);
         }
+
+        this.battleRank = parseInt(characterData.battle_rank.value, 10);
+        this.asp = characterData.prestige_level === '1';
 
         this.outfit = null;
 

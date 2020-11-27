@@ -50,8 +50,8 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                     attackerDocs,
                     [{
                         instance: event.instance.instanceId,
-                        character: event.attackerCharacter.id,
-                        outfit: event.attackerCharacter.outfit?.id,
+                        'character.id': event.attackerCharacter.id,
+                        'outfit.id': event.attackerCharacter.outfit?.id,
                     }],
                 ));
             } catch (err) {
@@ -66,8 +66,8 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                 victimDocs,
                 [{
                     instance: event.instance.instanceId,
-                    character: event.character.id,
-                    outfit: event.character.outfit?.id,
+                    'character.id': event.character.id,
+                    'outfit.id': event.character.outfit?.id,
                 }],
             ));
         } catch (err) {

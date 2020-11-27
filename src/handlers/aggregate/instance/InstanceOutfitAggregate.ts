@@ -23,6 +23,18 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
         const attackerDocs = [];
         const victimDocs = [];
 
+        if (event.attackerCharacter.outfit) {
+            attackerDocs.push({$setOnInsert: {
+                outfit: event.attackerCharacter.outfit,
+            }});
+        }
+
+        if (event.character.outfit) {
+            victimDocs.push({$setOnInsert: {
+                outfit: event.character.outfit,
+            }});
+        }
+
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
@@ -53,7 +65,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                     MQAcceptedPatterns.INSTANCE_OUTFIT_AGGREGATE,
                     attackerDocs,
                     [{
-                        outfit: attackerOutfitId,
+                        'outfit.id': attackerOutfitId,
                         instance: event.instance.instanceId,
                     }],
                 ));
@@ -68,7 +80,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 MQAcceptedPatterns.INSTANCE_OUTFIT_AGGREGATE,
                 victimDocs,
                 [{
-                    outfit: victimOutfitId,
+                    'outfit.id': victimOutfitId,
                     instance: event.instance.instanceId,
                 }],
             ));
