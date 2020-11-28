@@ -44,7 +44,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
                 documents,
                 [{
                     instance: event.instance.instanceId,
-                    weapon: event.attackerWeaponId,
+                    'weapon.id': event.attackerWeapon.id,
                 }],
             ));
         } catch (err) {

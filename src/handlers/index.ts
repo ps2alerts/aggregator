@@ -12,6 +12,8 @@ import PopulationHandlerInterface from '../interfaces/PopulationHandlerInterface
 import PopulationData from '../data/PopulationData';
 import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
 import CharacterBroker from './CharacterBroker';
+import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
+import ItemBroker from './ItemBroker';
 
 export default new ContainerModule((bind) => {
     bind<CharacterPresenceHandlerInterface>(TYPES.characterPresenceHandlerInterface).to(CharacterPresenceHandler).inSingletonScope();
@@ -19,4 +21,5 @@ export default new ContainerModule((bind) => {
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathEventHandler).to(DeathEventHandler).inSingletonScope();
     bind<PopulationHandlerInterface<PopulationData>>(TYPES.populationHandlerInterface).to(PopulationHandler).inSingletonScope();
     bind<CharacterBrokerInterface>(TYPES.characterBrokerInterface).to(CharacterBroker).inSingletonScope();
+    bind<ItemBrokerInterface>(TYPES.itemBrokerInterface).to(ItemBroker).inSingletonScope();
 });

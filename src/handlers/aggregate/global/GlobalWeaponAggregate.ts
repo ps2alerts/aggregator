@@ -43,7 +43,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
                 MQAcceptedPatterns.GLOBAL_WEAPON_AGGREGATE,
                 documents,
                 [{
-                    weapon: event.attackerWeaponId,
+                    weapon: event.attackerWeapon,
                     world: event.instance.world,
                 }],
             ));

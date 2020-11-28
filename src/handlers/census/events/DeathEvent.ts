@@ -27,6 +27,7 @@ import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInt
 import Character from '../../../data/Character';
 import {Vehicle} from '../../../constants/vehicle';
 import {Loadout} from '../../../constants/loadout';
+import {ItemInterface} from '../../../interfaces/ItemInterface';
 
 @injectable()
 export default class DeathEvent {
@@ -35,12 +36,12 @@ export default class DeathEvent {
     public readonly zone: Zone;
     public readonly timestamp: Date;
     public readonly character: Character;
-    public readonly characterLoadoutId: number;
+    public readonly characterLoadoutId: Loadout;
     public readonly attackerCharacter: Character;
     public readonly attackerFiremodeId: number;
     public readonly attackerLoadoutId: Loadout;
     public readonly attackerVehicleId: Vehicle;
-    public readonly attackerWeaponId: number;
+    public readonly attackerWeapon: ItemInterface;
     public readonly isHeadshot: boolean;
     public readonly killType: Kill;
 
@@ -49,6 +50,7 @@ export default class DeathEvent {
         instance: PS2AlertsInstanceInterface,
         attackerCharacter: Character,
         character: Character,
+        attackerWeapon: ItemInterface,
     ) {
         this.instance = instance;
 
@@ -100,10 +102,11 @@ export default class DeathEvent {
             throw new IllegalArgumentException('attacker_vehicle_id', 'DeathEvent');
         }
 
-        this.attackerWeaponId = Parser.parseNumericalArgument(event.attacker_weapon_id);
+        this.attackerWeapon = attackerWeapon;
 
-        if (isNaN(this.attackerWeaponId)) {
-            throw new IllegalArgumentException('attacker_weapon_id', 'DeathEvent');
+        if (!this.attackerWeapon) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            throw new IllegalArgumentException('attackerWeapon', 'DeathEvent');
         }
 
         this.isHeadshot = event.is_headshot;

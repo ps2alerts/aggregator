@@ -73,7 +73,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
                     timestamp: event.timestamp,
                     attackerFiremode: event.attackerFiremodeId,
                     attackerLoadout: event.attackerLoadoutId,
-                    weapon: event.attackerWeaponId,
+                    weapon: event.attackerWeapon,
                     characterLoadout: event.characterLoadoutId,
                     isHeadshot: event.isHeadshot,
                     killType: event.killType,
