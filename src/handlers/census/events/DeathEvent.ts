@@ -104,7 +104,7 @@ export default class DeathEvent {
 
         this.attackerWeapon = attackerWeapon;
 
-        if (!this.attackerWeapon) {
+        if (!this.attackerWeapon.id) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new IllegalArgumentException('attackerWeapon', 'DeathEvent');
         }
