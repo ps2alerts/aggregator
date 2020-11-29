@@ -20,6 +20,8 @@ import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance
 import VehicleDestroyEvent from '../../handlers/census/events/VehicleDestroyEvent';
 import VehicleDestroyEventHandler from '../../handlers/census/VehicleDestroyEventHandler';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
+import {ItemBrokerInterface} from '../../interfaces/ItemBrokerInterface';
+import Parser from '../../utils/parser';
 
 @injectable()
 export default class CensusEventSubscriberService implements ServiceInterface {
@@ -34,6 +36,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
     private readonly instanceHandler: InstanceHandlerInterface;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
     private readonly characterBroker: CharacterBrokerInterface;
+    private readonly itemBroker: ItemBrokerInterface;
 
     constructor(
         wsClient: Client,
@@ -45,6 +48,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
         @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.characterBrokerInterface) characterBroker: CharacterBrokerInterface,
+        @inject(TYPES.itemBrokerInterface) itemBroker: ItemBrokerInterface,
     ) {
         this.wsClient = wsClient;
         this.deathEventHandler = deathEventHandler;
@@ -55,6 +59,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.instanceHandler = instanceHandler;
         this.characterPresenceHandler = characterPresenceHandler;
         this.characterBroker = characterBroker;
+        this.itemBroker = itemBroker;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -121,7 +126,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         await Promise.all([
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
-        ]).then(([attacker, character]) => {
+        ]).then(async ([attacker, character]) => {
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
                     char,
@@ -129,16 +134,17 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 );
             });
 
-            this.getInstances(censusEvent).forEach((instance) => {
-                void this.deathEventHandler.handle(
+            for (const instance of this.getInstances(censusEvent)) {
+                await this.deathEventHandler.handle(
                     new DeathEvent(
                         censusEvent,
                         instance,
                         attacker,
                         character,
+                        await this.itemBroker.get(Parser.parseNumericalArgument(censusEvent.attacker_weapon_id)),
                     ),
                 );
-            });
+            }
         }).catch((e: Error) => {
             CensusEventSubscriberService.handleCharacterException('Death', e.message);
         });

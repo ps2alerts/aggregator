@@ -24,9 +24,10 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         const victimDocs = [];
 
         attackerDocs.push({$setOnInsert: {
-            character: event.character,
+            character: event.attackerCharacter,
             world: event.character.world,
         }});
+
         victimDocs.push({$setOnInsert: {
             character: event.character,
             world: event.character.world,

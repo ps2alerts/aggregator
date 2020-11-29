@@ -22,6 +22,10 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         const documents = [];
 
+        documents.push({$setOnInsert: {
+            weapon: event.attackerWeapon,
+        }});
+
         if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
             documents.push({$inc: {kills: 1}});
         }
@@ -44,7 +48,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
                 documents,
                 [{
                     instance: event.instance.instanceId,
-                    weapon: event.attackerWeaponId,
+                    'weapon.id': event.attackerWeapon.id,
                 }],
             ));
         } catch (err) {

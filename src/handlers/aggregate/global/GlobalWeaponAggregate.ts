@@ -22,6 +22,10 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
 
         const documents = [];
 
+        documents.push({$setOnInsert: {
+            weapon: event.attackerWeapon,
+        }});
+
         if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
             documents.push({$inc: {kills: 1}});
         }
@@ -43,7 +47,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
                 MQAcceptedPatterns.GLOBAL_WEAPON_AGGREGATE,
                 documents,
                 [{
-                    weapon: event.attackerWeaponId,
+                    'weapon.id': event.attackerWeapon.id,
                     world: event.instance.world,
                 }],
             ));

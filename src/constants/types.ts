@@ -9,6 +9,7 @@ const TYPES = {
 
     // Brokers
     characterBrokerInterface: Symbol.for('CharacterBrokerInterface'),
+    itemBrokerInterface: Symbol.for('ItemBrokerInterface'),
 
     // Cache Drivers
     censusCharacterCacheDriver: Symbol.for('CensusCharacterCacheDriver'),
