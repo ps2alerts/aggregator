@@ -43,4 +43,11 @@ export enum Vehicle {
     SCYTHE_INTERCEPTOR = 2124, // Bastion Scythe
     JAVELIN_2 = 2125, // Wat
     SPITFIRE_AUTO_TURRET_2 = 2128, // Duplicate or reworked version?
+    JAVELIN_3 = 2129, // Wat x2
+    RECLAIMED_SUNDERER = 2130,
+    RECLAIMED_GALAXY = 2131,
+    RECLAIMED_VALKYRIE = 2132,
+    RECLAIMED_MAGRIDER = 2133,
+    RECLAIMED_VANGUARD = 2134,
+    RECLAIMED_PROWLER = 2135,
 }
