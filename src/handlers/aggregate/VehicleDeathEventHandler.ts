@@ -54,7 +54,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         instance: event.instance.instanceId,
                         vehicle: event.attackerVehicleId,
-                        'character.id': event.attackerCharacter.id,
+                        character: event.attackerCharacter.id,
                     }],
                 ));
             } catch (err) {
@@ -86,7 +86,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         vehicle: event.attackerVehicleId,
                         world: event.instance.world,
-                        'character.id': event.character.id,
+                        character: event.character.id,
                     }],
                 ));
             } catch (err) {
