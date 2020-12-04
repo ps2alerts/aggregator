@@ -50,7 +50,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
                     attackerDocs,
                     [{
                         instance: event.instance.instanceId,
-                        class: event.attackerLoadoutId,
+                        loadout: event.attackerLoadoutId,
                     }],
                 ));
             } catch (err) {
@@ -65,7 +65,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
                 victimDocs,
                 [{
                     instance: event.instance.instanceId,
-                    class: event.characterLoadoutId,
+                    loadout: event.characterLoadoutId,
                 }],
             ));
         } catch (err) {
