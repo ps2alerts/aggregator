@@ -65,8 +65,8 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                     MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
                     attackerDocs,
                     [{
-                        'outfit.id': attackerOutfitId,
                         world: event.world,
+                        'outfit.id': attackerOutfitId,
                     }],
                 ));
             } catch (err) {
@@ -80,8 +80,8 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                 MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
                 victimDocs,
                 [{
-                    'outfit.id': victimOutfitId,
                     world: event.world,
+                    'outfit.id': victimOutfitId,
                 }],
             ));
         } catch (err) {

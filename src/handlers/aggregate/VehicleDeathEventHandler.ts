@@ -75,8 +75,8 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
-                        vehicle: event.attackerVehicleId,
                         world: event.instance.world,
+                        vehicle: event.attackerVehicleId,
                     }],
                 ));
 
@@ -84,9 +84,9 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
                     [{
-                        vehicle: event.attackerVehicleId,
                         world: event.instance.world,
                         character: event.character.id,
+                        vehicle: event.attackerVehicleId,
                     }],
                 ));
             } catch (err) {

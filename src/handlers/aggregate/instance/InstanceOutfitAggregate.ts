@@ -65,8 +65,8 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                     MQAcceptedPatterns.INSTANCE_OUTFIT_AGGREGATE,
                     attackerDocs,
                     [{
-                        'outfit.id': attackerOutfitId,
                         instance: event.instance.instanceId,
+                        'outfit.id': attackerOutfitId,
                     }],
                 ));
             } catch (err) {
@@ -80,8 +80,8 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 MQAcceptedPatterns.INSTANCE_OUTFIT_AGGREGATE,
                 victimDocs,
                 [{
-                    'outfit.id': victimOutfitId,
                     instance: event.instance.instanceId,
+                    'outfit.id': victimOutfitId,
                 }],
             ));
         } catch (err) {

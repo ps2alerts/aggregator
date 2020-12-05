@@ -43,8 +43,8 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 MQAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
                 documents,
                 [{
-                    facility: event.facility,
                     world: event.instance.world,
+                    facility: event.facility,
                 }],
             ));
         } catch (err) {

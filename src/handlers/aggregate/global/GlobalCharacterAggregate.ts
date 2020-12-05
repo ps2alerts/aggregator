@@ -24,13 +24,13 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         const victimDocs = [];
 
         attackerDocs.push({$setOnInsert: {
-            character: event.attackerCharacter,
             world: event.character.world,
+            character: event.attackerCharacter,
         }});
 
         victimDocs.push({$setOnInsert: {
-            character: event.character,
             world: event.character.world,
+            character: event.character,
         }});
 
         // Victim deaths always counted in every case
@@ -59,8 +59,8 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                     attackerDocs,
                     [{
-                        'character.id': event.attackerCharacter.id,
                         world: event.world,
+                        'character.id': event.attackerCharacter.id,
                     }],
                 ));
             } catch (err) {
@@ -74,8 +74,8 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                 victimDocs,
                 [{
-                    'character.id': event.character.id,
                     world: event.world,
+                    'character.id': event.character.id,
                 }],
             ));
         } catch (err) {

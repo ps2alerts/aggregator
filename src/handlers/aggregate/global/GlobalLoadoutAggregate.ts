@@ -49,8 +49,8 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
                     MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
                     attackerDocs,
                     [{
-                        loadout: event.attackerLoadoutId,
                         world: event.instance.world,
+                        loadout: event.attackerLoadoutId,
                     }],
                 ));
             } catch (err) {
@@ -65,8 +65,8 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
                     MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
                     victimDocs,
                     [{
-                        loadout: event.characterLoadoutId,
                         world: event.instance.world,
+                        loadout: event.characterLoadoutId,
                     }],
                 ));
             } catch (err) {
