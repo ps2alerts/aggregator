@@ -85,8 +85,8 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     documents.attackerDocs,
                     [{
                         world: event.instance.world,
-                        character: event.character.id,
                         vehicle: event.attackerVehicleId,
+                        character: event.character.id,
                     }],
                 ));
             } catch (err) {
