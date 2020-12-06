@@ -15,7 +15,7 @@ jobs:
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
 #      - name: Build base image
-#        uses: docker/build-push-action@v1
+#        uses: docker/build-push-action@v2.2.1
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -24,7 +24,7 @@ jobs:
 #          tags: ps2alerts-aggregator-base
 
       - name: Build staging image
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2.2.1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
