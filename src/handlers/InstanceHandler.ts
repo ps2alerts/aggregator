@@ -232,9 +232,10 @@ export default class InstanceHandler implements InstanceHandlerInterface {
     }
 
     private async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         await this.instanceMetagameModelFactory.model.deleteOne({
             instanceId: instance.instanceId,
-        }).catch((e) => {
+        }).catch((e: Error) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`[${instance.instanceId}] UNABLE TO DELETE INSTANCE! E: ${e.message}`, 'InstanceHandler');
         });
