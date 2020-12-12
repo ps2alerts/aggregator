@@ -54,7 +54,7 @@ export default class VehicleDestroyLogic implements LogicInterface {
                     attackerDocs.push({$inc: {[`vehicleTeamkillMatrix.${this.event.vehicleId}`]: 1}});
                     victimDocs.push({$inc: {[`vehicleTeamkilledMatrix.${this.event.attackerVehicleId}`]: 1}});
                 } else {
-                    VehicleDestroyLogic.logger.silly(`[${this.mode}] Vehicle self destruct`);
+                    VehicleDestroyLogic.logger.silly(`[${this.mode}] Vehicle suicide`);
                     victimDocs.push({$inc: {['suicides']: 1}});
                 }
             }
