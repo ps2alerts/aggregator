@@ -40,7 +40,7 @@
     "logform": "^2.2.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.32",
-    "mongoose": "^5.11.5",
+    "mongoose": "^5.11.7",
     "mysql2": "^2.1.0",
     "ps2census": "^0.5.6",
     "reflect-metadata": "^0.1.13",
