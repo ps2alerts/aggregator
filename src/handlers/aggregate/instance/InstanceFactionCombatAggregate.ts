@@ -25,7 +25,25 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
 
         if (event.attackerCharacter) {
             // Increment attacker faction kills
-            if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
+
+            // NSO handling
+            if (event.killType === Kill.Undetermined) {
+                if (event.character.faction === event.attackerCharacter.faction) {
+                    const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.teamKills`;
+                    documents.push(
+                        {$inc: {[attackerKillKey]: 1}},
+                        {$inc: {['totals.teamKills']: 1}},
+                    );
+                } else {
+                    const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.kills`;
+                    documents.push(
+                        {$inc: {[attackerKillKey]: 1}},
+                        {$inc: {['totals.kills']: 1}},
+                    );
+                }
+            }
+
+            if (event.killType === Kill.Normal) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
                 const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.kills`;
                 documents.push(
