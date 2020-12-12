@@ -61,7 +61,7 @@ export class RabbitMQConnectionHandlerFactory {
                 if (!connected) {
                     reject(new Error('Timed out connecting to MQ!'));
                 } else {
-                    resolve();
+                    resolve(true);
                 }
             }, this.config.timeout);
         });

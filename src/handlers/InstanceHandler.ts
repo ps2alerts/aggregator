@@ -126,7 +126,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     if (!done) {
                         reject(new Error(`[${instance.instanceId}] Instance end timeout!`));
                     } else {
-                        resolve();
+                        resolve(true);
                     }
                 }, 5000);
             });
