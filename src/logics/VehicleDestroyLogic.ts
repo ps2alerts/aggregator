@@ -20,10 +20,10 @@ export default class VehicleDestroyLogic implements LogicInterface {
 
         // IvV
         if (!this.event.attackerVehicleId) {
-            if (this.event.killType === Destroy.Normal) {
+            if (this.event.killType === Destroy.Normal || this.event.killType === Destroy.Undetermined) {
                 VehicleDestroyLogic.logger.silly(`[${this.mode}] IvV death`);
                 victimDocs.push({$inc: {['infantry.deaths']: 1}});
-            } else {
+            } else if (this.event.attackerCharacter.faction === this.event.character.faction) {
                 VehicleDestroyLogic.logger.silly(`[${this.mode}] IvV TK`);
                 victimDocs.push({$inc: {['infantry.teamkilled']: 1}});
             }
@@ -32,7 +32,7 @@ export default class VehicleDestroyLogic implements LogicInterface {
         // VvV
         if (this.event.attackerVehicleId) {
             // Non TKs
-            if (this.event.killType === Destroy.Normal) {
+            if (this.event.killType === Destroy.Normal || this.event.killType === Destroy.Undetermined) {
                 // Kill - VvV
                 VehicleDestroyLogic.logger.silly(`[${this.mode}] VvV`);
                 attackerDocs.push({$inc: {['vehicles.kills']: 1}});
