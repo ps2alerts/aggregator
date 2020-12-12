@@ -19,9 +19,10 @@
     "strict": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
-    "target": "ES6"
+    "target": "ES6",
+    "sourceMap": true
   },
   "include": [
     "src/**/*"
-  ]
+  ],
 }
