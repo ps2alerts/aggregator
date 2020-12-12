@@ -37,6 +37,8 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
         if (event.killType === Kill.Undetermined) {
             if (event.attackerCharacter.faction === event.character.faction) {
                 attackerDocs.push({$inc: {teamKills: 1}});
+            } else {
+                attackerDocs.push({$inc: {kills: 1}});
             }
         }
 
