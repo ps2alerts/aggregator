@@ -14,15 +14,6 @@ jobs:
         id: sha
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-#      - name: Build base image
-#        uses: docker/build-push-action@v1
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
-#          path: provisioning/base
-#          repository: maelstromeous/applications
-#          tags: ps2alerts-aggregator-base
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -36,6 +27,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push base image
+        uses: docker/build-push-action@v2.2.1
+        with:
+          file: provisioning/base/Dockerfile
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+          tags: maelstromeous/applications:ps2alerts-aggregator-base
 
       - name: Build and push staging image
         uses: docker/build-push-action@v2.2.1
