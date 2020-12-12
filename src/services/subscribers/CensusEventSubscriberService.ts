@@ -120,6 +120,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
 
         // If not related to any instances, chuck it.
         if (instances.length === 0) {
+            CensusEventSubscriberService.logger.silly('No instances found!');
             return;
         }
 
@@ -127,6 +128,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(async ([attacker, character]) => {
+            CensusEventSubscriberService.logger.silly('[Death] Successfully found all characters');
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
                     char,
@@ -134,16 +136,17 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 );
             });
 
+            const item = await this.itemBroker.get(Parser.parseNumericalArgument(censusEvent.attacker_weapon_id));
+
             for (const instance of this.getInstances(censusEvent)) {
-                await this.deathEventHandler.handle(
-                    new DeathEvent(
-                        censusEvent,
-                        instance,
-                        attacker,
-                        character,
-                        await this.itemBroker.get(Parser.parseNumericalArgument(censusEvent.attacker_weapon_id)),
-                    ),
-                );
+                CensusEventSubscriberService.logger.silly(`[Death] Processing instance ${instance.instanceId}`);
+                await this.deathEventHandler.handle(new DeathEvent(
+                    censusEvent,
+                    instance,
+                    attacker,
+                    character,
+                    item,
+                ));
             }
         }).catch((e: Error) => {
             CensusEventSubscriberService.handleCharacterException('Death', e.message);
