@@ -61,7 +61,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
                 );
             }
 
-            if (event.isHeadshot) {
+            if (event.isHeadshot && event.killType !== Kill.TeamKill) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
                 const attackerHeadshotKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.headshots`;
                 documents.push(

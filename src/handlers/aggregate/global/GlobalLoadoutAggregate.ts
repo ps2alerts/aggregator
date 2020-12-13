@@ -39,7 +39,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
             victimDocs.push({$inc: {suicides: 1}});
         }
 
-        if (event.isHeadshot) {
+        if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             attackerDocs.push({$inc: {headshots: 1}});
         }
 

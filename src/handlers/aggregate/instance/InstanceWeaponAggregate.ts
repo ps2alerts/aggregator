@@ -38,7 +38,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
             documents.push({$inc: {suicides: 1}});
         }
 
-        if (event.isHeadshot) {
+        if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             documents.push({$inc: {headshots: 1}});
         }
 

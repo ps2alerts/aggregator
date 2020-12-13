@@ -58,7 +58,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
             victimDocs.push({$inc: {suicides: 1}});
         }
 
-        if (event.isHeadshot) {
+        if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             attackerDocs.push({$inc: {headshots: 1}});
         }
 
