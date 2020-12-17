@@ -8,33 +8,37 @@ import FactionUtils from '../utils/FactionUtils';
 import TerritoryCalculator, {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
 import {jsonLogOutput} from '../utils/json';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
-import {inject} from 'inversify';
-import {TYPES} from '../constants/types';
+import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
     private readonly instance: MetagameTerritoryInstance;
     private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly territoryCalculator: TerritoryCalculator;
+    private readonly globalVictoryAggregate: GlobalVictoryAggregate;
 
     constructor(
         instance: MetagameTerritoryInstance,
         instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
+        territoryCalculatorFactory: TerritoryCalculatorFactory,
+        globalVictoryAggregate: GlobalVictoryAggregate,
     ) {
         this.instance = instance;
         this.instanceMetagameFactory = instanceMetagameFactory;
         this.territoryCalculator = territoryCalculatorFactory.build(instance);
+        this.globalVictoryAggregate = globalVictoryAggregate;
     }
 
     public async execute(): Promise<boolean> {
         MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
 
+        this.instance.result = await this.calculateVictor();
+
         try {
             // Update database record with the victor of the Metagame (currently territory)
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
-                {result: await this.calculateVictor()},
+                {result: this.instance.result},
             ).catch((err: Error) => {
                 throw new ApplicationException(`[${this.instance.instanceId}] Unable to set victor! Err: ${err.message}`);
             });
@@ -43,6 +47,8 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
             MetagameTerritoryInstanceEndAction.logger.error(`[${this.instance.instanceId}] Unable to process endAction! Err: ${err.message}`);
         }
 
+        // Update the world, zone and bracket aggregators
+        await this.globalVictoryAggregate.handle(this.instance);
         return true;
     }
 

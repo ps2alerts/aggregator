@@ -49,6 +49,7 @@ const TYPES = {
     instanceActionFactory: Symbol.for('InstanceActionFactory'),
     territoryCalculatorFactory: Symbol.for('TerritoryCalculatorFactory'),
     bracketCalculatorFactory: Symbol.for('BracketCalculatorFactory'),
+    globalVictoryAggregateInterface: Symbol.for('GlobalVictoryAggregateInterface'),
 };
 
 export {TYPES};

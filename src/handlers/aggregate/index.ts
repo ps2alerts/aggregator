@@ -16,6 +16,7 @@ import GlobalFacilityControlAggregate from './global/GlobalFacilityControlAggreg
 import GlobalFactionCombatAggregate from './global/GlobalFactionCombatAggregate';
 import GlobalLoadoutAggregate from './global/GlobalLoadoutAggregate';
 import GlobalOutfitAggregate from './global/GlobalOutfitAggregate';
+import GlobalVictoryAggregate from './global/GlobalVictoryAggregate';
 import GlobalWeaponAggregate from './global/GlobalWeaponAggregate';
 // Instance Aggregates
 import InstanceCharacterAggregate from './instance/InstanceCharacterAggregate';
@@ -25,6 +26,7 @@ import InstanceLoadoutAggregate from './instance/InstanceLoadoutAggregate';
 import InstanceOutfitAggregate from './instance/InstanceOutfitAggregate';
 import InstancePopulationAggregate from './instance/InstancePopulationAggregate';
 import InstanceWeaponAggregate from './instance/InstanceWeaponAggregate';
+import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 
 export default new ContainerModule((bind) => {
     // Aggregate handlers are registered here
@@ -52,4 +54,7 @@ export default new ContainerModule((bind) => {
     // Vehicle Destroy Event
     bind<EventHandlerInterface<VehicleDestroyEvent>>(TYPES.vehicleDestroyAggregates).to(VehicleAggregateHandler).inSingletonScope();
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(VehicleDeathEventHandler).inSingletonScope();
+
+    // Victory Aggregator
+    bind<EventHandlerInterface<MetagameTerritoryInstance>>(TYPES.globalVictoryAggregateInterface).to(GlobalVictoryAggregate).inSingletonScope();
 });

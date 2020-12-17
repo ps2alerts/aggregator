@@ -9,6 +9,7 @@ export enum MQAcceptedPatterns {
     GLOBAL_OUTFIT_AGGREGATE = 'globalOutfitAggregate',
     GLOBAL_VEHICLE_AGGREGATE = 'globalVehicleAggregate',
     GLOBAL_VEHICLE_CHARACTER_AGGREGATE = 'globalVehicleCharacterAggregate',
+    GLOBAL_VICTORY_AGGREGATE = 'globalVictoryAggregate',
     GLOBAL_WEAPON_AGGREGATE = 'globalWeaponAggregate',
     // Instance aggregates
     INSTANCE_CHARACTER_AGGREGATE = 'instanceCharacterAggregate',

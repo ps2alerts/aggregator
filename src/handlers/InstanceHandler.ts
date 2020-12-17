@@ -192,6 +192,7 @@ export default class InstanceHandler implements InstanceHandlerInterface {
                     i.censusMetagameEventType,
                     i.duration,
                     i.state,
+                    i.bracket ?? undefined,
                 );
                 this.currentInstances.push(instance);
             });

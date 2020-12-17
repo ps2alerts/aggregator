@@ -38,9 +38,11 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     public async execute(): Promise<boolean> {
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()"`);
 
+        this.instance.bracket = await this.bracketCalculator.calculate();
+
         await this.instanceMetagameFactory.model.updateOne(
             {instanceId: this.instance.instanceId},
-            {bracket: await this.bracketCalculator.calculate()},
+            {bracket: this.instance.bracket},
         ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
         });

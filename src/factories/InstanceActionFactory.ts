@@ -13,12 +13,14 @@ import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInst
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
 import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameInstanceTerritoryFacilityControlAction';
 import BracketCalculatorFactory from './BracketCalculatorFactory';
+import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 
 @injectable()
 export default class InstanceActionFactory {
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly censusConfig: Census;
+    @inject(TYPES.globalVictoryAggregateInterface) private readonly globalVictoryAggregate: GlobalVictoryAggregate;
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
     private readonly bracketCalculatorFactory: BracketCalculatorFactory;
 
@@ -28,12 +30,14 @@ export default class InstanceActionFactory {
         @inject(TYPES.censusConfig) censusConfig: Census,
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.bracketCalculatorFactory) bracketCalculatorFactory: BracketCalculatorFactory,
+        @inject(TYPES.globalVictoryAggregateInterface) globalVictoryAggregate: GlobalVictoryAggregate,
     ) {
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
         this.censusConfig = censusConfig;
         this.territoryCalculatorFactory = territoryCalculatorFactory;
         this.bracketCalculatorFactory = bracketCalculatorFactory;
+        this.globalVictoryAggregate = globalVictoryAggregate;
     }
 
     public buildStart(instance: PS2AlertsInstanceInterface): ActionInterface {
@@ -57,6 +61,7 @@ export default class InstanceActionFactory {
                 instance,
                 this.instanceMetagameModelFactory,
                 this.territoryCalculatorFactory,
+                this.globalVictoryAggregate,
             );
         }
 
