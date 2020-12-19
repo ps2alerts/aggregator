@@ -1,5 +1,6 @@
 import {ItemInterface} from './ItemInterface';
+import {Vehicle} from '../constants/vehicle';
 
 export interface ItemBrokerInterface {
-    get(itemId: number): Promise<ItemInterface>;
+    get(itemId: number, vehicleId: Vehicle): Promise<ItemInterface>;
 }

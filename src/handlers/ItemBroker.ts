@@ -9,6 +9,7 @@ import {TYPES} from '../constants/types';
 import Census from '../config/census';
 import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis as RedisInterface} from 'ioredis';
+import {Vehicle} from '../constants/vehicle';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -27,13 +28,18 @@ export default class ItemBroker implements ItemBrokerInterface {
         this.cacheClient = cacheClient.getClient();
     }
 
-    public async get(itemId: number): Promise<ItemInterface> {
-        let returnItem = new FakeItemFactory().build();
-
+    public async get(itemId: number, vehicleId: Vehicle): Promise<ItemInterface> {
         if (itemId === 0 || isNaN(itemId) || !itemId) {
-            ItemBroker.logger.silly('Missing item ID, serving unknown item');
-            return returnItem;
+            if (!vehicleId) {
+                ItemBroker.logger.silly('Missing item and vehicle ID, serving unknown item weapon');
+                return new FakeItemFactory().build();
+            } else {
+                ItemBroker.logger.silly('Missing item ID, serving unknown item vehicle');
+                return new FakeItemFactory().build(true);
+            }
         }
+
+        let returnItem = new FakeItemFactory().build();
 
         const cacheKey = `item-${itemId}`;
 

@@ -136,7 +136,10 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                 );
             });
 
-            const item = await this.itemBroker.get(Parser.parseNumericalArgument(censusEvent.attacker_weapon_id));
+            const item = await this.itemBroker.get(
+                Parser.parseNumericalArgument(censusEvent.attacker_weapon_id),
+                Parser.parseNumericalArgument(censusEvent.attacker_vehicle_id),
+            );
 
             for (const instance of this.getInstances(censusEvent)) {
                 CensusEventSubscriberService.logger.silly(`[Death] Processing instance ${instance.instanceId}`);

@@ -21,8 +21,9 @@ export default class VehicleCharacterDeathLogic implements LogicInterface {
             // If suicide
             if (this.event.attackerCharacter.id === this.event.character.id) {
                 VehicleCharacterDeathLogic.logger.silly(`[${this.mode}] Suicide`);
-
                 return {attackerDocs: [], victimDocs: []};
+            } else if (this.event.attackerWeapon.id === -2) {
+                attackerDocs.push({$inc: {['roadkills']: 1}});
             }
 
             // If TK
