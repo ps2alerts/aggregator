@@ -23,14 +23,52 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
 
         const documents = [];
 
-        // Increment attacker faction kills
-        if (event.killType === Kill.Normal && event.attackerCharacter) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.kills`;
-            documents.push(
-                {$inc: {[attackerKillKey]: 1}},
-                {$inc: {['totals.kills']: 1}},
-            );
+        if (event.attackerCharacter) {
+            // Increment attacker faction kills
+
+            // NSO handling
+            if (event.killType === Kill.Undetermined) {
+                if (event.character.faction === event.attackerCharacter.faction) {
+                    const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.teamKills`;
+                    documents.push(
+                        {$inc: {[attackerKillKey]: 1}},
+                        {$inc: {['totals.teamKills']: 1}},
+                    );
+                } else {
+                    const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.kills`;
+                    documents.push(
+                        {$inc: {[attackerKillKey]: 1}},
+                        {$inc: {['totals.kills']: 1}},
+                    );
+                }
+            }
+
+            if (event.killType === Kill.Normal) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
+                const attackerKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.kills`;
+                documents.push(
+                    {$inc: {[attackerKillKey]: 1}},
+                    {$inc: {['totals.kills']: 1}},
+                );
+            }
+
+            if (event.killType === Kill.TeamKill) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
+                const teamKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.teamKills`;
+                documents.push(
+                    {$inc: {[teamKillKey]: 1}},
+                    {$inc: {['totals.teamKills']: 1}},
+                );
+            }
+
+            if (event.isHeadshot && event.killType !== Kill.TeamKill) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
+                const attackerHeadshotKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.headshots`;
+                documents.push(
+                    {$inc: {[attackerHeadshotKey]: 1}},
+                    {$inc: {['totals.headshots']: 1}},
+                );
+            }
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
@@ -40,30 +78,12 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
             {$inc: {['totals.deaths']: 1}},
         );
 
-        if (event.killType === Kill.TeamKill && event.attackerCharacter) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const teamKillKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.teamKills`;
-            documents.push(
-                {$inc: {[teamKillKey]: 1}},
-                {$inc: {['totals.teamKills']: 1}},
-            );
-        }
-
         if (event.killType === Kill.Suicide || event.killType === Kill.RestrictedArea) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const suicideKey = `${FactionUtils.parseFactionIdToShortName(event.character.faction)}.suicides`;
             documents.push(
                 {$inc: {[suicideKey]: 1}},
                 {$inc: {['totals.suicides']: 1}},
-            );
-        }
-
-        if (event.isHeadshot && event.attackerCharacter) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const attackerHeadshotKey = `${FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction)}.headshots`;
-            documents.push(
-                {$inc: {[attackerHeadshotKey]: 1}},
-                {$inc: {['totals.headshots']: 1}},
             );
         }
 
