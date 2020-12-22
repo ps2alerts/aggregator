@@ -2,29 +2,30 @@ import {MessageQueueHandlerInterface} from '../../interfaces/MessageQueueHandler
 import ParsedQueueMessage from '../../data/ParsedQueueMessage';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
-import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 import {inject, injectable} from 'inversify';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import EventId from '../../utils/eventId';
+import InstanceAuthority from '../../authorities/InstanceAuthority';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/AdminAggregatorInstanceStartMessage';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
 import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
+import {getCensusEnvironment} from '../../utils/CensusEnvironment';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
     private static readonly logger = getLogger('AdminAggregatorMessageHandler');
-    private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly instanceAuthority: InstanceAuthority;
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
     constructor(
-    @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+    @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
     ) {
-        this.instanceHandler = instanceHandler;
+        this.instanceAuthority = instanceAuthority;
         this.territoryCalculatorFactory = territoryCalculatorFactory;
     }
 
@@ -71,7 +72,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
         );
 
         try {
-            return this.instanceHandler.startInstance(instance);
+            return this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${e.message}`);
@@ -82,14 +83,14 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
 
     private async endInstance(message: ParsedQueueMessage): Promise<boolean> {
         const aggregatorMessage = new AdminAggregatorInstanceEndMessage(message.body);
-        const instance = this.instanceHandler.getInstance(aggregatorMessage.instanceId);
+        const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
 
         if (!instance) {
             AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
         }
 
         try {
-            return await this.instanceHandler.endInstance(instance);
+            return await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! Error: ${e.message}`);
@@ -99,6 +100,6 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
     }
 
     private activeInstances(): void {
-        return this.instanceHandler.printActives();
+        return this.instanceAuthority.printActives();
     }
 }

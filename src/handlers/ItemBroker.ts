@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {Client, rest} from 'ps2census';
+import {rest} from 'ps2census';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
@@ -10,28 +10,28 @@ import Census from '../config/census';
 import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis as RedisInterface} from 'ioredis';
 import {Vehicle} from '../constants/vehicle';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
     private static readonly logger = getLogger('ItemBroker');
-    private readonly wsClient: Client;
     private readonly censusConfig: Census;
     private readonly cacheClient: RedisInterface;
 
     constructor(
-    @inject(Client) wsClient: Client,
-        @inject(TYPES.censusConfig) censusConfig: Census,
+    @inject(TYPES.censusConfig) censusConfig: Census,
         @inject(RedisConnection) cacheClient: RedisConnection,
     ) {
-        this.wsClient = wsClient;
         this.censusConfig = censusConfig;
         this.cacheClient = cacheClient.getClient();
     }
 
-    public async get(itemId: number, vehicleId: Vehicle): Promise<ItemInterface> {
+    public async get(
+        environment: CensusEnvironment,
+        itemId: number, vehicleId: Vehicle): Promise<ItemInterface> {
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             if (!vehicleId) {
-                ItemBroker.logger.silly('Missing item and vehicle ID, serving unknown item weapon');
+                ItemBroker.logger.silly(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);
                 return new FakeItemFactory().build();
             } else {
                 ItemBroker.logger.silly('Missing item ID, serving unknown item vehicle');
@@ -41,17 +41,17 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         let returnItem = new FakeItemFactory().build();
 
-        const cacheKey = `item-${itemId}`;
+        const cacheKey = `item-${itemId}-${environment}`;
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            ItemBroker.logger.silly(`Item ID ${itemId} cache HIT`);
+            ItemBroker.logger.silly(`${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
             return new Item(JSON.parse(<string>data));
         }
 
-        ItemBroker.logger.silly(`Item ID ${itemId} cache MISS`);
-        const get = rest.getFactory('ps2', this.censusConfig.serviceID);
+        ItemBroker.logger.silly(`${cacheKey} cache MISS`);
+        const get = rest.getFactory(environment, this.censusConfig.serviceID);
 
         // Grab the character data from Census
         try {
@@ -64,21 +64,21 @@ export default class ItemBroker implements ItemBrokerInterface {
                 {item_id: itemId.toString()},
             ).then(async (item) => {
                 if (!item || !item[0] || !item[0].item_id) {
-                    ItemBroker.logger.error(`Could not find item ${itemId} in Census, or they returned garbage.`);
+                    ItemBroker.logger.error(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
                     return new FakeItemFactory().build();
                 }
 
-                ItemBroker.logger.debug(`Item ID ${itemId} successfully retrieved from Census`);
+                ItemBroker.logger.silly(`[${environment}] Item ID ${itemId} successfully retrieved from Census`);
 
                 // Cache the response for 24h then return
                 await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(item[0]));
 
-                ItemBroker.logger.debug(`Item ID ${itemId} successfully stored in cache`);
+                ItemBroker.logger.silly(`[${environment}] Item ID ${itemId} successfully stored in cache`);
                 returnItem = new Item(item[0]);
             });
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            ItemBroker.logger.error(`Unable to properly grab item ${itemId} from Census. Error: ${e.message}`);
+            ItemBroker.logger.error(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${e.message}`);
         }
 
         return returnItem;

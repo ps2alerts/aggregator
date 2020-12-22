@@ -6,6 +6,7 @@ import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import VehicleDestroyEvent from './events/VehicleDestroyEvent';
+import {CensusEnvironment} from '../../types/CensusEnvironment';
 
 @injectable()
 export default class VehicleDestroyEventHandler implements EventHandlerInterface<VehicleDestroyEvent> {
@@ -15,7 +16,7 @@ export default class VehicleDestroyEventHandler implements EventHandlerInterface
 
     /* eslint-disable */
     constructor(
-        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
+        @inject(TYPES.characterPresenceHandler) characterPresenceHandler: CharacterPresenceHandlerInterface,
         @multiInject(TYPES.vehicleDestroyAggregates) aggregateHandlers: EventHandlerInterface<VehicleDestroyEvent>[],
         @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher
     ) {
@@ -25,11 +26,11 @@ export default class VehicleDestroyEventHandler implements EventHandlerInterface
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    public async handle(event: VehicleDestroyEvent): Promise<boolean> {
+    public async handle(event: VehicleDestroyEvent, environment: CensusEnvironment): Promise<boolean> {
         VehicleDestroyEventHandler.logger.silly('=== Processing VehicleDestroy Handlers ===');
 
         this.aggregateHandlers.map(
-            (handler: EventHandlerInterface<VehicleDestroyEvent>) => void handler.handle(event)
+            (handler: EventHandlerInterface<VehicleDestroyEvent>) => void handler.handle(event, environment)
                 .catch((e) => {
                     if (e instanceof Error) {
                         VehicleDestroyEventHandler.logger.error(`Error parsing AggregateHandlers for VehicleDestroyEvent: ${e.message}\r\n${jsonLogOutput(event)}`);

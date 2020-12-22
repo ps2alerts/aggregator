@@ -5,44 +5,45 @@ import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import MetagameEventEvent from './events/MetagameEventEvent';
 import {TYPES} from '../../constants/types';
-import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {MetagameEventState} from '../../constants/metagameEventState';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
+import InstanceAuthority from '../../authorities/InstanceAuthority';
+import {CensusEnvironment} from '../../types/CensusEnvironment';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
-    private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly instanceAuthority: InstanceAuthority;
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
     constructor(
-    @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+    @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
     ) {
-        this.instanceHandler = instanceHandler;
+        this.instanceAuthority = instanceAuthority;
         this.territoryCalculatorFactory = territoryCalculatorFactory;
     }
 
-    public async handle(event: MetagameEventEvent): Promise<boolean> {
+    public async handle(event: MetagameEventEvent, environment: CensusEnvironment): Promise<boolean> {
         MetagameEventEventHandler.logger.debug('Parsing MetagameEventEvent message...');
 
         if (config.features.logging.censusEventContent.metagame) {
             MetagameEventEventHandler.logger.info(jsonLogOutput(event), {message: 'eventData'});
         }
 
-        const instances = this.instanceHandler.getInstances(event.world, event.zone);
+        const instances = this.instanceAuthority.getInstances(event.world, event.zone);
 
         if (event.eventState === MetagameEventState.STARTED) {
             if (instances.length > 1) {
-                throw new ApplicationException(`Multiple instances detected when there should only be one! \r\n${jsonLogOutput(event)}`, 'InstanceHandler');
+                throw new ApplicationException(`Multiple instances detected when there should only be one! \r\n${jsonLogOutput(event)}`, 'MetagameEventEventHandler');
             }
 
             if (instances.length > 0) {
-                this.instanceHandler.printActives();
+                this.instanceAuthority.printActives();
                 MetagameEventEventHandler.logger.error(`Instance already exists: ${jsonLogOutput(event)}`);
                 return false;
             }
@@ -66,7 +67,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
             );
 
             try {
-                return await this.instanceHandler.startInstance(instance);
+                return await this.instanceAuthority.startInstance(instance, environment);
             } catch (e) {
                 if (e instanceof Error) {
                     MetagameEventEventHandler.logger.error(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -80,7 +81,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
 
         if (event.eventState === MetagameEventState.FINISHED) {
             if (instances[0]) {
-                return await this.instanceHandler.endInstance(instances[0]);
+                return await this.instanceAuthority.endInstance(instances[0], environment);
             } else {
                 MetagameEventEventHandler.logger.error(`Instance not found: ${jsonLogOutput(event)}`);
                 return false;

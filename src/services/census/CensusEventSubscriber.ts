@@ -7,7 +7,7 @@ import {TYPES} from '../../constants/types';
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
 import FacilityControlEvent from '../../handlers/census/events/FacilityControlEvent';
-import InstanceHandlerInterface from '../../interfaces/InstanceHandlerInterface';
+import InstanceAuthority from '../../authorities/InstanceAuthority';
 // Handlers
 import DeathEventHandler from '../../handlers/census/DeathEventHandler';
 import MetagameEventEventHandler from '../../handlers/census/MetagameEventEventHandler';
@@ -22,74 +22,57 @@ import VehicleDestroyEventHandler from '../../handlers/census/VehicleDestroyEven
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import {ItemBrokerInterface} from '../../interfaces/ItemBrokerInterface';
 import Parser from '../../utils/parser';
+import {CensusEnvironment} from '../../types/CensusEnvironment';
 
 @injectable()
-export default class CensusEventSubscriberService implements ServiceInterface {
+export default class CensusEventSubscriber implements ServiceInterface {
     public readonly bootPriority = 10;
-    private static readonly logger = getLogger('EventListenerService');
+    private static readonly logger = getLogger('CenusEventSubscriber');
     private readonly wsClient: Client;
+    private readonly environment: CensusEnvironment;
     private readonly deathEventHandler: DeathEventHandler;
     private readonly metagameEventEventHandler: MetagameEventEventHandler;
     private readonly facilityControlEventHandler: FacilityControlEventHandler;
     private readonly gainExperienceEventHandler: GainExperienceEventHandler;
     private readonly vehicleDestroyEventHandler: VehicleDestroyEventHandler;
-    private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly instanceAuthority: InstanceAuthority;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
     private readonly characterBroker: CharacterBrokerInterface;
     private readonly itemBroker: ItemBrokerInterface;
+    private eventsReady = false;
 
     constructor(
         wsClient: Client,
+        environment: CensusEnvironment,
+        characterBroker: CharacterBrokerInterface,
         deathEventHandler: DeathEventHandler,
         metagameEventEventHandler: MetagameEventEventHandler,
         facilityControlEventHandler: FacilityControlEventHandler,
         gainExperienceEventHandler: GainExperienceEventHandler,
         vehicleDestroyEventHandler: VehicleDestroyEventHandler,
-        @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
-        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.characterBrokerInterface) characterBroker: CharacterBrokerInterface,
+        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
+        @inject(TYPES.characterPresenceHandler) characterPresenceHandler: CharacterPresenceHandlerInterface,
         @inject(TYPES.itemBrokerInterface) itemBroker: ItemBrokerInterface,
     ) {
         this.wsClient = wsClient;
+        this.environment = environment;
+        this.characterBroker = characterBroker;
         this.deathEventHandler = deathEventHandler;
         this.metagameEventEventHandler = metagameEventEventHandler;
         this.facilityControlEventHandler = facilityControlEventHandler;
         this.gainExperienceEventHandler = gainExperienceEventHandler;
         this.vehicleDestroyEventHandler = vehicleDestroyEventHandler;
-        this.instanceHandler = instanceHandler;
+        this.instanceAuthority = instanceAuthority;
         this.characterPresenceHandler = characterPresenceHandler;
-        this.characterBroker = characterBroker;
         this.itemBroker = itemBroker;
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async boot(): Promise<void> {
-        CensusEventSubscriberService.logger.debug('Booting EventListenerService...');
-
-        this.constructListeners();
-    }
-
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async start(): Promise<void> {
-        CensusEventSubscriberService.logger.debug('Starting EventListenerService... (NOT IMPLEMENTED)');
-    }
-
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async terminate(): Promise<void> {
-        CensusEventSubscriberService.logger.debug('Terminating Census Stream Service!');
-    }
-
-    private static handleCharacterException(service: string, message: string): void {
-        if (
-            message.includes('No data found') ||
-            message.includes('api returned no matches for')
-        ) {
-            CensusEventSubscriberService.logger.warn(`Unable to process ${service} event after 3 tries! W: ${message}`);
-        }
-    }
-
     // Here we pass all the events
-    private constructListeners(): void {
+    public constructListeners(): void {
+        if (this.eventsReady) {
+            CensusEventSubscriber.logger.warn(`[${this.environment}] Attempted to set up event handlers more than once!`);
+            return;
+        }
 
         // Set up event handlers
         this.wsClient.on(Events.PS2_DEATH, (censusEvent: Death) => {
@@ -111,16 +94,28 @@ export default class CensusEventSubscriberService implements ServiceInterface {
         this.wsClient.on(Events.PS2_VEHICLE_DESTROYED, (censusEvent) => {
             void this.processVehicleDestroy(censusEvent);
         });
+
+        CensusEventSubscriber.logger.info(`[${this.environment}] Events subscribed!`);
+        this.eventsReady = true;
+    }
+
+    private static handleCharacterException(service: string, message: string, environment: CensusEnvironment): void {
+        if (
+            message.includes('No data found') ||
+            message.includes('api returned no matches for')
+        ) {
+            CensusEventSubscriber.logger.warn(`[${environment}] Unable to process ${service} event after 3 tries! W: ${message}`);
+        }
     }
 
     private async processDeath(censusEvent: Death): Promise<void> {
-        CensusEventSubscriberService.logger.silly('Processing Death Event');
+        CensusEventSubscriber.logger.silly(`[${this.environment}] Processing Death Event`);
 
         const instances = this.getInstances(censusEvent);
 
         // If not related to any instances, chuck it.
         if (instances.length === 0) {
-            CensusEventSubscriberService.logger.silly('No instances found!');
+            CensusEventSubscriber.logger.silly(`[${this.environment}] No instances found!`);
             return;
         }
 
@@ -128,7 +123,7 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(async ([attacker, character]) => {
-            CensusEventSubscriberService.logger.silly('[Death] Successfully found all characters');
+            CensusEventSubscriber.logger.silly(`[${this.environment}] Death: Successfully found all characters`);
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
                     char,
@@ -137,28 +132,32 @@ export default class CensusEventSubscriberService implements ServiceInterface {
             });
 
             const item = await this.itemBroker.get(
+                this.environment,
                 Parser.parseNumericalArgument(censusEvent.attacker_weapon_id),
                 Parser.parseNumericalArgument(censusEvent.attacker_vehicle_id),
             );
 
             for (const instance of this.getInstances(censusEvent)) {
-                CensusEventSubscriberService.logger.silly(`[Death] Processing instance ${instance.instanceId}`);
-                await this.deathEventHandler.handle(new DeathEvent(
-                    censusEvent,
-                    instance,
-                    attacker,
-                    character,
-                    item,
-                ));
+                CensusEventSubscriber.logger.silly(`[${this.environment}] Death: Processing instance ${instance.instanceId}`);
+                await this.deathEventHandler.handle(
+                    new DeathEvent(
+                        censusEvent,
+                        instance,
+                        attacker,
+                        character,
+                        item,
+                    ),
+                    this.environment,
+                );
             }
         }).catch((e: Error) => {
-            CensusEventSubscriberService.handleCharacterException('Death', e.message);
+            CensusEventSubscriber.handleCharacterException('Death', e.message, this.environment);
         });
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     private async processFacilityControl(censusEvent: FacilityControl): Promise<void> {
-        CensusEventSubscriberService.logger.silly('Processing FacilityControl censusEvent');
+        CensusEventSubscriber.logger.silly(`[${this.environment}] Processing FacilityControl censusEvent`);
 
         this.getInstances(censusEvent).forEach((instance) => {
             setTimeout(() => {
@@ -167,13 +166,14 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                         censusEvent,
                         instance,
                     ),
+                    this.environment,
                 );
             }, instance instanceof MetagameTerritoryInstance ? 2000 : 1);
         });
     }
 
     private async processGainExperience(censusEvent: GainExperience): Promise<void> {
-        CensusEventSubscriberService.logger.silly('Processing GainExperience censusEvent');
+        CensusEventSubscriber.logger.silly(`[${this.environment}] Processing GainExperience censusEvent`);
 
         if (this.getInstances(censusEvent).length > 0) {
             await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
@@ -184,25 +184,25 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                     );
                 })
                 .catch((e: Error) => {
-                    CensusEventSubscriberService.handleCharacterException('GainExperience', e.message);
+                    CensusEventSubscriber.handleCharacterException('GainExperience', e.message, this.environment);
                 });
         }
     }
 
     private async processMetagameEvent(censusEvent: MetagameEvent): Promise<void> {
-        CensusEventSubscriberService.logger.debug('Processing MetagameEvent censusEvent');
+        CensusEventSubscriber.logger.debug(`[${this.environment}] Processing MetagameEvent censusEvent`);
 
         try {
             const metagameEvent = new MetagameEventEvent(censusEvent);
-            await this.metagameEventEventHandler.handle(metagameEvent);
+            await this.metagameEventEventHandler.handle(metagameEvent, this.environment);
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            CensusEventSubscriberService.logger.error(e.message);
+            CensusEventSubscriber.logger.error(e.message);
         }
     }
 
     private async processVehicleDestroy(censusEvent: VehicleDestroy): Promise<void> {
-        CensusEventSubscriberService.logger.silly('Processing VehicleDestroy censusEvent');
+        CensusEventSubscriber.logger.silly(`[${this.environment}] Processing VehicleDestroy censusEvent`);
 
         await Promise.all([
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
@@ -223,15 +223,16 @@ export default class CensusEventSubscriberService implements ServiceInterface {
                         attacker,
                         character,
                     ),
+                    this.environment,
                 );
             });
         }).catch((e: Error) => {
-            CensusEventSubscriberService.handleCharacterException('VehicleDestroy', e.message);
+            CensusEventSubscriber.handleCharacterException('VehicleDestroy', e.message, this.environment);
         });
     }
 
     private getInstances(censusEvent: Death | FacilityControl |GainExperience | VehicleDestroy): PS2AlertsInstanceInterface[] {
-        return this.instanceHandler.getInstances(
+        return this.instanceAuthority.getInstances(
             parseInt(censusEvent.world_id, 10),
             parseInt(censusEvent.zone_id, 10),
         );
