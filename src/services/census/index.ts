@@ -51,6 +51,18 @@ export default new ContainerModule((bind) => {
             return new Client(config.census.serviceID, clientConfig);
         }).inSingletonScope();
 
+    bind<Client>(TYPES.ps2ps4usWebsocketClient)
+        .toDynamicValue(({container}) => {
+            const clientConfig = {...config.census.ps2ps4usClientConfig};
+
+            clientConfig.characterManager = {
+                ...clientConfig.characterManager,
+                cache: container.get(TYPES.censusCharacterCacheDriver),
+            };
+
+            return new Client(config.census.serviceID, clientConfig);
+        }).inSingletonScope();
+
     bind<CensusStream>(TYPES.censusStreamServices)
         .toDynamicValue(({container}) => {
             const factory: CensusStreamServiceFactory = container.get(TYPES.censusStreamServiceFactory);
@@ -73,6 +85,17 @@ export default new ContainerModule((bind) => {
             );
         }).inSingletonScope();
 
+    bind<CensusStream>(TYPES.censusStreamServices)
+        .toDynamicValue(({container}) => {
+            const factory: CensusStreamServiceFactory = container.get(TYPES.censusStreamServiceFactory);
+            return factory.build(
+                container.get(TYPES.ps2ps4usWebsocketClient),
+                'ps2ps4us',
+                container.get(TYPES.ps2ps4usCensusEventSubscriberService),
+                container.get(TYPES.ps2ps4usCensusStaleConnectionWatcherAuthority),
+            );
+        }).inSingletonScope();
+
     bind<CensusEventSubscriber>(TYPES.pcCensusEventSubscriberService)
         .toDynamicValue(({container}) => {
             const factory: CensusEventSubscriberFactory = container.get(TYPES.censusEventSubscriberFactory);
@@ -90,6 +113,16 @@ export default new ContainerModule((bind) => {
                 container.get(TYPES.ps2ps4euWebsocketClient),
                 'ps2ps4eu',
                 container.get(TYPES.ps2ps4euCharacterBrokerInterface),
+            );
+        }).inSingletonScope();
+
+    bind<CensusEventSubscriber>(TYPES.ps2ps4usCensusEventSubscriberService)
+        .toDynamicValue(({container}) => {
+            const factory: CensusEventSubscriberFactory = container.get(TYPES.censusEventSubscriberFactory);
+            return factory.build(
+                container.get(TYPES.ps2ps4usWebsocketClient),
+                'ps2ps4us',
+                container.get(TYPES.ps2ps4usCharacterBrokerInterface),
             );
         }).inSingletonScope();
 });

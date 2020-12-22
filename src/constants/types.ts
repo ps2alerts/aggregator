@@ -24,9 +24,10 @@ const TYPES = {
     populationAuthority: Symbol.for('PopulationAuthority'),
     pcCensusStaleConnectionWatcherAuthority: Symbol.for('pcCensusStaleConnectionWatcherAuthority'),
     ps2ps4euCensusStaleConnectionWatcherAuthority: Symbol.for('ps2ps4euCensusStaleConnectionWatcherAuthority'),
+    ps2ps4usCensusStaleConnectionWatcherAuthority: Symbol.for('ps2ps4usCensusStaleConnectionWatcherAuthority'),
 
     // Brokers
-    pcCharacterBrokerInterface: Symbol.for('CharacterBrokerInterfacePc'),
+    pcCharacterBrokerInterface: Symbol.for('pcCharacterBrokerInterface'),
     ps2ps4euCharacterBrokerInterface: Symbol.for('ps2ps4euCharacterBrokerInterface'),
     ps2ps4usCharacterBrokerInterface: Symbol.for('ps2ps4usCharacterBrokerInterface'),
     itemBrokerInterface: Symbol.for('ItemBrokerInterface'),

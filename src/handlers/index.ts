@@ -24,5 +24,9 @@ export default new ContainerModule((bind) => {
         return new CharacterBroker(container.get(TYPES.ps2ps4euWebsocketClient));
     });
 
+    bind<CharacterBrokerInterface>(TYPES.ps2ps4usCharacterBrokerInterface).toDynamicValue(({container}: Context) => {
+        return new CharacterBroker(container.get(TYPES.ps2ps4usWebsocketClient));
+    });
+
     bind<ItemBrokerInterface>(TYPES.itemBrokerInterface).to(ItemBroker).inSingletonScope();
 });
