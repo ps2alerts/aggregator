@@ -13,8 +13,8 @@ export default class PopulationAuthority {
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
     constructor(
-    @inject(TYPES.populationHandlerInterface) populationHandler: PopulationHandlerInterface<PopulationData>,
-        @inject(TYPES.characterPresenceHandlerInterface) characterPresenceHandler: CharacterPresenceHandlerInterface,
+    @inject(TYPES.populationHandler) populationHandler: PopulationHandlerInterface<PopulationData>,
+        @inject(TYPES.characterPresenceHandler) characterPresenceHandler: CharacterPresenceHandlerInterface,
     ) {
         this.populationHandler = populationHandler;
         this.characterPresenceHandler = characterPresenceHandler;

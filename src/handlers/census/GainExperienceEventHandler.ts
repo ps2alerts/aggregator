@@ -12,7 +12,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
     private static readonly logger = getLogger('GainExperienceHandler');
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.characterPresenceHandlerInterface) characterHandler: CharacterPresenceHandlerInterface) {
+    constructor(@inject(TYPES.characterPresenceHandler) characterHandler: CharacterPresenceHandlerInterface) {
         this.characterPresenceHandler = characterHandler;
     }
 

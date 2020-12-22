@@ -14,13 +14,14 @@ import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
 import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameInstanceTerritoryFacilityControlAction';
 import BracketCalculatorFactory from './BracketCalculatorFactory';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 @injectable()
 export default class InstanceActionFactory {
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly censusConfig: Census;
-    @inject(TYPES.globalVictoryAggregateInterface) private readonly globalVictoryAggregate: GlobalVictoryAggregate;
+    private readonly globalVictoryAggregate: GlobalVictoryAggregate;
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
     private readonly bracketCalculatorFactory: BracketCalculatorFactory;
 
@@ -30,7 +31,7 @@ export default class InstanceActionFactory {
         @inject(TYPES.censusConfig) censusConfig: Census,
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.bracketCalculatorFactory) bracketCalculatorFactory: BracketCalculatorFactory,
-        @inject(TYPES.globalVictoryAggregateInterface) globalVictoryAggregate: GlobalVictoryAggregate,
+        @inject(TYPES.globalVictoryAggregate) globalVictoryAggregate: GlobalVictoryAggregate,
     ) {
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
@@ -40,14 +41,18 @@ export default class InstanceActionFactory {
         this.globalVictoryAggregate = globalVictoryAggregate;
     }
 
-    public buildStart(instance: PS2AlertsInstanceInterface): ActionInterface {
+    public buildStart(
+        instance: PS2AlertsInstanceInterface,
+        environment: CensusEnvironment,
+    ): ActionInterface {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameInstanceTerritoryStartAction(
                 instance,
+                environment,
                 this.instanceMetagameModelFactory,
                 this.instanceFacilityControlModelFactory,
                 this.censusConfig,
-                this.buildFacilityControlEvent(instance, false),
+                this.buildFacilityControlEvent(instance, environment, false),
                 this.bracketCalculatorFactory.build(instance),
             );
         }
@@ -55,10 +60,14 @@ export default class InstanceActionFactory {
         throw new ApplicationException('Unable to determine start action!', 'InstanceActionFactory');
     }
 
-    public buildEnd(instance: PS2AlertsInstanceInterface): ActionInterface {
+    public buildEnd(
+        instance: PS2AlertsInstanceInterface,
+        environment: CensusEnvironment,
+    ): ActionInterface {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameTerritoryInstanceEndAction(
                 instance,
+                environment,
                 this.instanceMetagameModelFactory,
                 this.territoryCalculatorFactory,
                 this.globalVictoryAggregate,
@@ -68,10 +77,15 @@ export default class InstanceActionFactory {
         throw new ApplicationException('Unable to determine endAction!', 'InstanceActionFactory');
     }
 
-    public buildFacilityControlEvent(instance: PS2AlertsInstanceInterface, isDefence: boolean): ActionInterface {
+    public buildFacilityControlEvent(
+        instance: PS2AlertsInstanceInterface,
+        environment: CensusEnvironment,
+        isDefence: boolean,
+    ): ActionInterface {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameInstanceTerritoryFacilityControlAction(
                 instance,
+                environment,
                 this.instanceMetagameModelFactory,
                 this.territoryCalculatorFactory,
                 isDefence,

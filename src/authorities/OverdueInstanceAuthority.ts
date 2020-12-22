@@ -2,16 +2,17 @@ import {inject, injectable} from 'inversify';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {getLogger} from '../logger';
 import {TYPES} from '../constants/types';
-import InstanceHandlerInterface from '../interfaces/InstanceHandlerInterface';
+import InstanceAuthority from './InstanceAuthority';
+import {getCensusEnvironment} from '../utils/CensusEnvironment';
 
 @injectable()
 export default class OverdueInstanceAuthority {
     private static readonly logger = getLogger('OverdueInstanceAuthority');
-    private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly instanceAuthority: InstanceAuthority;
     private timer?: NodeJS.Timeout;
 
-    constructor(@inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface) {
-        this.instanceHandler = instanceHandler;
+    constructor(@inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority) {
+        this.instanceAuthority = instanceAuthority;
     }
 
     public run(): void {
@@ -20,23 +21,23 @@ export default class OverdueInstanceAuthority {
             this.stop();
         }
 
-        OverdueInstanceAuthority.logger.debug('Creating OverdueInstanceAuthority timer');
-
         this.timer = setInterval(() => {
             OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
 
-            this.instanceHandler.getAllInstances().filter((instance) => {
+            this.instanceAuthority.getAllInstances().filter((instance) => {
                 return instance.overdue();
             }).forEach((instance: PS2AlertsInstanceInterface) => {
                 try {
                     OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
-                    void this.instanceHandler.endInstance(instance);
+                    void this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
                 } catch (err) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                     OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! E: ${err.message}`);
                 }
             });
         }, 15000);
+
+        OverdueInstanceAuthority.logger.debug('Created OverdueInstanceAuthority timer');
     }
 
     public stop(): void {
