@@ -56,5 +56,5 @@ export default new ContainerModule((bind) => {
     bind<EventHandlerInterface<DeathEvent>>(TYPES.deathAggregates).to(VehicleDeathEventHandler).inSingletonScope();
 
     // Victory Aggregator
-    bind<EventHandlerInterface<MetagameTerritoryInstance>>(TYPES.globalVictoryAggregateInterface).to(GlobalVictoryAggregate).inSingletonScope();
+    bind<EventHandlerInterface<MetagameTerritoryInstance>>(TYPES.globalVictoryAggregate).to(GlobalVictoryAggregate).inSingletonScope();
 });

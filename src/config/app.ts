@@ -15,9 +15,9 @@ export default class App {
             require('../handlers').default,
             require('../handlers/aggregate').default,
             require('../factories').default,
+            require('../services/authorities').default,
             require('../services/census').default,
             require('../services/mongo').default,
-            require('../services/subscribers').default,
             require('../services/rabbitmq').default,
             require('../services/redis').default,
         ];

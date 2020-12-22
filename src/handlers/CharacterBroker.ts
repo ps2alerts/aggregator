@@ -1,4 +1,4 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {Client} from 'ps2census';
 import Character from '../data/Character';
@@ -13,9 +13,7 @@ export default class CharacterBroker implements CharacterBrokerInterface {
     private static readonly logger = getLogger('CharacterBroker');
     private readonly wsClient: Client;
 
-    constructor(
-    @inject(Client) wsClient: Client,
-    ) {
+    constructor(wsClient: Client) {
         this.wsClient = wsClient;
     }
 

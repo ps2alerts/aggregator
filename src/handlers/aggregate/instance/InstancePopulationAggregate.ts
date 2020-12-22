@@ -4,7 +4,7 @@ import {TYPES} from '../../../constants/types';
 import {getLogger} from '../../../logger';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import PopulationData from '../../../data/PopulationData';
-import InstanceHandlerInterface from '../../../interfaces/InstanceHandlerInterface';
+import InstanceAuthority from '../../../authorities/InstanceAuthority';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
@@ -13,16 +13,16 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
     private static readonly logger = getLogger('InstancePopulationAggregate');
     private readonly playerHandler: CharacterPresenceHandlerInterface;
-    private readonly instanceHandler: InstanceHandlerInterface;
+    private readonly instanceAuthority: InstanceAuthority;
     private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(
-    @inject(TYPES.characterPresenceHandlerInterface) playerHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.instanceHandlerInterface) instanceHandler: InstanceHandlerInterface,
+    @inject(TYPES.characterPresenceHandler) playerHandler: CharacterPresenceHandlerInterface,
+        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
         @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
     ) {
         this.playerHandler = playerHandler;
-        this.instanceHandler = instanceHandler;
+        this.instanceAuthority = instanceAuthority;
         this.apiMQPublisher = apiMQPublisher;
     }
 
@@ -30,7 +30,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
         InstancePopulationAggregate.logger.silly('InstancePopulationAggregate.handle');
 
         // Figure out running instances and generate new InstancePopulationData object
-        const activeInstances = this.instanceHandler.getAllInstances().filter((instance) => {
+        const activeInstances = this.instanceAuthority.getAllInstances().filter((instance) => {
             return instance.match(event.world, event.zone);
         });
 

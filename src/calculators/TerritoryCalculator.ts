@@ -13,6 +13,7 @@ import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {InstanceResultInterface} from '../interfaces/InstanceResultInterface';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 export interface TerritoryResultInterface extends InstanceResultInterface {
     cutoff: number;
@@ -41,9 +42,10 @@ interface FacilityLatticeLinkInterface {
 @injectable()
 export default class TerritoryCalculator implements CalculatorInterface<TerritoryResultInterface> {
     private static readonly logger = getLogger('TerritoryCalculator');
+    private readonly instance: MetagameTerritoryInstance;
+    private readonly environment: CensusEnvironment;
     private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
-    private readonly instance: MetagameTerritoryInstance;
     private readonly factionParsedFacilitiesMap: Map<Faction, Set<number>> = new Map<Faction, Set<number>>();
     private readonly mapFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     private readonly cutoffFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
@@ -51,10 +53,12 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
 
     constructor(
         instance: MetagameTerritoryInstance,
+        environment: CensusEnvironment,
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
     ) {
         this.instance = instance;
+        this.environment = environment;
         this.instanceFacilityControlFactory = instanceFacilityControlModelFactory;
         this.censusConfig = censusConfig;
     }
@@ -227,7 +231,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     }
 
     private async getMapFacilities(): Promise<void> {
-        const get = rest.getFactory('ps2', this.censusConfig.serviceID);
+        const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
         await get(
             rest.limit(
                 rest.mapRegion,
@@ -264,7 +268,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
 
     private async getLatticeLinks(): Promise<FacilityLatticeLinkInterface[]> {
         const facilityLatticeLinks: FacilityLatticeLinkInterface[] = [];
-        const get = rest.getFactory('ps2', this.censusConfig.serviceID);
+        const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
 
         await get(
             rest.limit(

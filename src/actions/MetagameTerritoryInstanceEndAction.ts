@@ -9,23 +9,27 @@ import TerritoryCalculator, {TerritoryResultInterface} from '../calculators/Terr
 import {jsonLogOutput} from '../utils/json';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
     private readonly instance: MetagameTerritoryInstance;
+    private readonly environment: CensusEnvironment;
     private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly territoryCalculator: TerritoryCalculator;
     private readonly globalVictoryAggregate: GlobalVictoryAggregate;
 
     constructor(
         instance: MetagameTerritoryInstance,
+        environment: CensusEnvironment,
         instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         territoryCalculatorFactory: TerritoryCalculatorFactory,
         globalVictoryAggregate: GlobalVictoryAggregate,
     ) {
         this.instance = instance;
+        this.environment = environment;
         this.instanceMetagameFactory = instanceMetagameFactory;
-        this.territoryCalculator = territoryCalculatorFactory.build(instance);
+        this.territoryCalculator = territoryCalculatorFactory.build(instance, environment);
         this.globalVictoryAggregate = globalVictoryAggregate;
     }
 

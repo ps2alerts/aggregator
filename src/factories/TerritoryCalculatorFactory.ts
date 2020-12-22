@@ -5,6 +5,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
@@ -20,9 +21,13 @@ export default class TerritoryCalculatorFactory {
         this.censusConfig = censusConfig;
     }
 
-    public build(instance: MetagameTerritoryInstance): TerritoryCalculator {
+    public build(
+        instance: MetagameTerritoryInstance,
+        environment: CensusEnvironment,
+    ): TerritoryCalculator {
         return new TerritoryCalculator(
             instance,
+            environment,
             this.instanceFacilityControlFactory,
             this.censusConfig,
         );

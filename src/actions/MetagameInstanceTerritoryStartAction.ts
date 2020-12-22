@@ -9,10 +9,12 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import BracketCalculator from '../calculators/BracketCalculator';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
     private readonly instance: MetagameTerritoryInstance;
+    private readonly environment: CensusEnvironment;
     private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
@@ -21,6 +23,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
 
     constructor(
         instance: MetagameTerritoryInstance,
+        environment: CensusEnvironment,
         instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
@@ -28,6 +31,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         bracketCalculator: BracketCalculator,
     ) {
         this.instance = instance;
+        this.environment = environment;
         this.instanceMetagameFactory = instanceMetagameFactory;
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.censusConfig = censusConfig;
@@ -36,7 +40,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     }
 
     public async execute(): Promise<boolean> {
-        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()"`);
+        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()`);
 
         this.instance.bracket = await this.bracketCalculator.calculate();
 
@@ -48,7 +52,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         });
 
         // Take a snapshot of the map for use with territory calculations for the end
-        const get = rest.getFactory('ps2', this.censusConfig.serviceID);
+        const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const docs: any[] = [];
 

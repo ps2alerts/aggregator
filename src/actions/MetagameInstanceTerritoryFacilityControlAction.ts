@@ -6,8 +6,7 @@ import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/Insta
 import ApplicationException from '../exceptions/ApplicationException';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
-import {inject} from 'inversify';
-import {TYPES} from '../constants/types';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryFacilityControlAction');
@@ -18,13 +17,14 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
 
     constructor(
         instance: MetagameTerritoryInstance,
+        environment: CensusEnvironment,
         instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
+        territoryCalculatorFactory: TerritoryCalculatorFactory,
         isDefence: boolean,
     ) {
         this.instance = instance;
         this.instanceMetagameFactory = instanceMetagameFactory;
-        this.territoryCalculator = territoryCalculatorFactory.build(instance);
+        this.territoryCalculator = territoryCalculatorFactory.build(instance, environment);
         this.isDefence = isDefence;
     }
 
