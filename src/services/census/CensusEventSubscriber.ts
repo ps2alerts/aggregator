@@ -111,19 +111,13 @@ export default class CensusEventSubscriber implements ServiceInterface {
     private async processDeath(censusEvent: Death): Promise<void> {
         CensusEventSubscriber.logger.silly(`[${this.environment}] Processing Death Event`);
 
-        const instances = this.getInstances(censusEvent);
-
-        // If not related to any instances, chuck it.
-        if (instances.length === 0) {
-            CensusEventSubscriber.logger.silly(`[${this.environment}] No instances found!`);
-            return;
-        }
-
         await Promise.all([
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(async ([attacker, character]) => {
             CensusEventSubscriber.logger.silly(`[${this.environment}] Death: Successfully found all characters`);
+
+            // Update the presence handler so we can have a running population count, even without any instances.
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
                     char,
@@ -131,13 +125,21 @@ export default class CensusEventSubscriber implements ServiceInterface {
                 );
             });
 
+            const instances = this.getInstances(censusEvent);
+
+            // If not related to any instances, don't process any further
+            if (instances.length === 0) {
+                CensusEventSubscriber.logger.silly(`[${this.environment}] No instances found!`);
+                return;
+            }
+
             const item = await this.itemBroker.get(
                 this.environment,
                 Parser.parseNumericalArgument(censusEvent.attacker_weapon_id),
                 Parser.parseNumericalArgument(censusEvent.attacker_vehicle_id),
             );
 
-            for (const instance of this.getInstances(censusEvent)) {
+            for (const instance of instances) {
                 CensusEventSubscriber.logger.silly(`[${this.environment}] Death: Processing instance ${instance.instanceId}`);
                 await this.deathEventHandler.handle(
                     new DeathEvent(
@@ -175,18 +177,17 @@ export default class CensusEventSubscriber implements ServiceInterface {
     private async processGainExperience(censusEvent: GainExperience): Promise<void> {
         CensusEventSubscriber.logger.silly(`[${this.environment}] Processing GainExperience censusEvent`);
 
-        if (this.getInstances(censusEvent).length > 0) {
-            await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
-                .then((character) => {
-                    void this.characterPresenceHandler.update(
-                        character,
-                        parseInt(censusEvent.zone_id, 10),
-                    );
-                })
-                .catch((e: Error) => {
-                    CensusEventSubscriber.handleCharacterException('GainExperience', e.message, this.environment);
-                });
-        }
+        await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
+            .then((character) => {
+                // Update the character presence handler so we can ensure populations are correct at all times
+                void this.characterPresenceHandler.update(
+                    character,
+                    parseInt(censusEvent.zone_id, 10),
+                );
+            })
+            .catch((e: Error) => {
+                CensusEventSubscriber.handleCharacterException('GainExperience', e.message, this.environment);
+            });
     }
 
     private async processMetagameEvent(censusEvent: MetagameEvent): Promise<void> {
@@ -208,6 +209,7 @@ export default class CensusEventSubscriber implements ServiceInterface {
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(([attacker, character]) => {
+            // Update the character presence handler so we can ensure populations are correct at all times
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
                     char,
@@ -215,6 +217,7 @@ export default class CensusEventSubscriber implements ServiceInterface {
                 );
             });
 
+            // If there are no instances, this will not continue to process.
             this.getInstances(censusEvent).forEach((instance) => {
                 void this.vehicleDestroyEventHandler.handle(
                     new VehicleDestroyEvent(
