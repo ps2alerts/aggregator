@@ -38,7 +38,7 @@ export default class Census {
         streamManagerConfig: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
@@ -49,7 +49,7 @@ export default class Census {
         streamManagerConfig: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
@@ -60,7 +60,7 @@ export default class Census {
         streamManagerConfig: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
