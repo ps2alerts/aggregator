@@ -7,14 +7,22 @@ import {TYPES} from '../../constants/types';
 import VehicleDestroyLogic from '../../logics/VehicleDestroyLogic';
 import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
 import ApiMQMessage from '../../data/ApiMQMessage';
+import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
+import {calculateRemainingTime} from '../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class VehicleAggregateHandler implements AggregateHandlerInterface<VehicleDestroyEvent> {
     private static readonly logger = getLogger('VehicleAggregateHandler');
     private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+    constructor(
+    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {
         this.apiMQPublisher = apiMQPublisher;
+        this.apiMQDelayPublisher = apiMQDelayPublisher;
     }
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
@@ -43,6 +51,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                         vehicle: event.attackerVehicleId,
                     }],
                 ));
+
                 await this.apiMQPublisher.send(new ApiMQMessage(
                     MQAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
@@ -92,23 +101,26 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
     ): Promise<void> {
         if (documents.attackerDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    event.instance.instanceId,
                     documents.attackerDocs,
                     [{
                         vehicle: event.attackerVehicleId,
                         world: event.instance.world,
                     }],
-                ));
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                ), calculateRemainingTime(event.instance) + 30000);
+
+                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
                     documents.attackerDocs,
                     [{
                         vehicle: event.attackerVehicleId,
                         world: event.instance.world,
                         character: event.attackerCharacter.id,
                     }],
-                ));
+                ), calculateRemainingTime(event.instance) + 30000);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
@@ -117,23 +129,26 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
 
         if (documents.victimDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    event.instance.instanceId,
                     documents.victimDocs,
                     [{
                         vehicle: event.vehicleId,
                         world: event.instance.world,
                     }],
-                ));
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                ), calculateRemainingTime(event.instance) + 30000);
+
+                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
                     documents.victimDocs,
                     [{
                         vehicle: event.attackerVehicleId,
                         world: event.instance.world,
                         character: event.character.id,
                     }],
-                ));
+                ), calculateRemainingTime(event.instance) + 30000);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);
