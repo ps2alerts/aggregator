@@ -22,6 +22,7 @@ variable "rabbitmq_host" {}
 variable "rabbitmq_user" {}
 variable "rabbitmq_pass" {}
 variable "rabbitmq_api_queue" {}
+variable "rabbitmq_api_queue_delay" {}
 variable "census_service_id" {}
 variable "cpu_limit" {
   default = "250m"
