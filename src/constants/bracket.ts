@@ -1,8 +1,10 @@
 export enum Bracket {
-    NONE = 0,
-    MORNING = 1,
-    AFTERNOON = 2,
-    PRIME = 3,
+    UNKNOWN = 0,
+    DEAD = 1,
+    LOW = 2,
+    MEDIUM = 3,
+    HIGH = 4,
+    PRIME = 5
 }
 
 export const ps2alertsBracketArray = [
@@ -10,4 +12,6 @@ export const ps2alertsBracketArray = [
     1,
     2,
     3,
+    4,
+    5,
 ];

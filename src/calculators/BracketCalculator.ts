@@ -45,30 +45,30 @@ export default class BracketCalculator implements CalculatorInterface<Bracket> {
                 break;
             case World.JAEGER:
                 BracketCalculator.logger.debug(`[${this.instance.instanceId}] Jaeger instance detected, setting bracket to NONE`);
-                return Bracket.NONE; // Jaeger shouldn't have brackets as it makes no sense for it to do so.
+                return Bracket.UNKNOWN; // Jaeger shouldn't have brackets as it makes no sense for it to do so.
         }
 
         BracketCalculator.logger.debug(`[${this.instance.instanceId}] Local server hour is ${time.hour()}`);
         BracketCalculator.logger.debug(`[${this.instance.instanceId}] Is DST? ${time.isDST() ? 'yes' : 'no'}`);
 
-        const bracket = this.calculateBracket(time.hour());
+        const bracket = Bracket.UNKNOWN; // This has been replaced by the API calculating averages
 
         BracketCalculator.logger.debug(`[${this.instance.instanceId}] Bracket is ${bracket}`);
 
         return bracket;
     }
-
-    private calculateBracket(hour: number): Bracket {
-        let bracket = Bracket.NONE;
-
-        if (hour === 23 || (hour >= 0 && hour < 12)) {
-            bracket = Bracket.MORNING; // 23:00 - 11:59
-        } else if (hour >= 12 && hour < 16) {
-            bracket = Bracket.AFTERNOON; // 12:00 - 15:59
-        } else if (hour >= 16 && hour < 23) {
-            bracket = Bracket.PRIME; // 16:00 - 22:59
-        }
-
-        return bracket;
-    }
+    //
+    // private calculateBracket(hour: number): Bracket {
+    //     let bracket = Bracket.UNKNOWN;
+    //
+    //     if (hour === 23 || (hour >= 0 && hour < 12)) {
+    //         bracket = Bracket.MORNING; // 23:00 - 11:59
+    //     } else if (hour >= 12 && hour < 16) {
+    //         bracket = Bracket.AFTERNOON; // 12:00 - 15:59
+    //     } else if (hour >= 16 && hour < 23) {
+    //         bracket = Bracket.PRIME; // 16:00 - 22:59
+    //     }
+    //
+    //     return bracket;
+    // }
 }
