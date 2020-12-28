@@ -48,7 +48,11 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
 
         try {
             ApiMQPublisher.logger.silly(`Sending message to queue: ${jsonLogOutput(msg)}`);
-            await this.channelWrapper.sendToQueue(this.config.apiQueueName, msg, {persistent: true});
+            await this.channelWrapper.sendToQueue(
+                this.config.apiQueueName,
+                msg,
+                {persistent: true},
+            );
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
