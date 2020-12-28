@@ -4,16 +4,17 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
-import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalWeaponAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
         this.apiMQPublisher = apiMQPublisher;
     }
 
@@ -43,14 +44,15 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQMessage(
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_WEAPON_AGGREGATE,
+                event.instance.instanceId,
                 documents,
                 [{
                     world: event.instance.world,
                     'weapon.id': event.attackerWeapon.id,
                 }],
-            ));
+            ), calculateRemainingTime(event.instance) + 30000);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalWeaponAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

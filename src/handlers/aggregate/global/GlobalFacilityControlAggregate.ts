@@ -4,16 +4,17 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
         this.apiMQPublisher = apiMQPublisher;
     }
 
@@ -39,14 +40,15 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQMessage(
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
+                event.instance.instanceId,
                 documents,
                 [{
                     world: event.instance.world,
                     facility: event.facility,
                 }],
-            ));
+            ), calculateRemainingTime(event.instance) + 30000);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

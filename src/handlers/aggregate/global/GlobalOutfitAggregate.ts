@@ -4,16 +4,17 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalOutfitAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
         this.apiMQPublisher = apiMQPublisher;
     }
 
@@ -61,14 +62,15 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
 
         if (attackerDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
+                    event.instance.instanceId,
                     attackerDocs,
                     [{
                         world: event.world,
                         'outfit.id': attackerOutfitId,
                     }],
-                ));
+                ), calculateRemainingTime(event.instance) + 30000);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
@@ -76,14 +78,15 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQMessage(
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
+                event.instance.instanceId,
                 victimDocs,
                 [{
                     world: event.world,
                     'outfit.id': victimOutfitId,
                 }],
-            ));
+            ), calculateRemainingTime(event.instance) + 30000);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

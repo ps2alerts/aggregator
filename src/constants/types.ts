@@ -59,6 +59,7 @@ const TYPES = {
     // Publishers
     rabbitMQPublishers: Symbol.for('RabbitMQPublishers'),
     apiMQPublisher: Symbol.for('ApiMQPublisher'),
+    apiMQDelayPublisher: Symbol.for('ApiMQDelayPublisher'),
     // Handlers
     adminMessageHandlers: Symbol.for('adminMessageHandlers'),
 

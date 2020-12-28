@@ -8,6 +8,7 @@ import {TYPES} from '../../constants/types';
 import AdminAggregatorMessageHandler from '../../handlers/messages/AdminAggregatorMessageHandler';
 import {RabbitMQConnectionHandlerFactory} from './RabbitMQConnectionHandlerFactory';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
+import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(RabbitMQConnectionService);
@@ -22,7 +23,9 @@ export default new ContainerModule((bind) => {
 
     // RabbitMQ Publishers
     bind<ApiMQPublisher>(TYPES.apiMQPublisher).to(ApiMQPublisher).inSingletonScope();
+    bind<ApiMQDelayPublisher>(TYPES.apiMQDelayPublisher).to(ApiMQDelayPublisher).inSingletonScope();
     bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).toService(TYPES.apiMQPublisher);
+    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).toService(TYPES.apiMQDelayPublisher);
 
     // Message Handlers (which actually do the things with data)
     bind<AdminAggregatorMessageHandler>(TYPES.adminMessageHandlers).to(AdminAggregatorMessageHandler).inSingletonScope();
