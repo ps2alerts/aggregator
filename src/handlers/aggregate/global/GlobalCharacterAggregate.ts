@@ -8,6 +8,7 @@ import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDela
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
+import moment from 'moment/moment';
 
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -72,6 +73,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     [{
                         world: event.world,
                         'character.id': event.attackerCharacter.id,
+                        date: moment('today').format(),
                     }],
                 ), calculateRemainingTime(event.instance) + 30000);
             } catch (err) {
@@ -88,6 +90,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 [{
                     world: event.world,
                     'character.id': event.character.id,
+                    date: moment('today').format(),
                 }],
             ), calculateRemainingTime(event.instance) + 30000);
         } catch (err) {
