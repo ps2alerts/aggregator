@@ -4,16 +4,17 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {Kill} from 'ps2census';
-import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalLoadoutAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalLoadoutAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
         this.apiMQPublisher = apiMQPublisher;
     }
 
@@ -45,14 +46,15 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
         if (attackerDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
+                    event.instance.instanceId,
                     attackerDocs,
                     [{
                         world: event.instance.world,
                         loadout: event.attackerLoadoutId,
                     }],
-                ));
+                ), calculateRemainingTime(event.instance) + 30000);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
@@ -61,14 +63,15 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
         if (victimDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
+                    event.instance.instanceId,
                     victimDocs,
                     [{
                         world: event.instance.world,
                         loadout: event.characterLoadoutId,
                     }],
-                ));
+                ), calculateRemainingTime(event.instance) + 30000);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

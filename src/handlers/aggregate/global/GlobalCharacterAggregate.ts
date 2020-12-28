@@ -4,16 +4,17 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import ApiMQMessage from '../../../data/ApiMQMessage';
+import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalCharacterAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
         this.apiMQPublisher = apiMQPublisher;
     }
 
@@ -64,14 +65,15 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQMessage(
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
                     attackerDocs,
                     [{
                         world: event.world,
                         'character.id': event.attackerCharacter.id,
                     }],
-                ));
+                ), calculateRemainingTime(event.instance) + 30000);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
@@ -79,14 +81,15 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQMessage(
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                event.instance.instanceId,
                 victimDocs,
                 [{
                     world: event.world,
                     'character.id': event.character.id,
                 }],
-            ));
+            ), calculateRemainingTime(event.instance) + 30000);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

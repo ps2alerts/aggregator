@@ -13,6 +13,7 @@ import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
 
 @injectable()
 export default class InstanceAuthority {
@@ -209,7 +210,6 @@ export default class InstanceAuthority {
 
     public printActives(): void {
         InstanceAuthority.logger.info('==== Current actives =====');
-        const date = new Date();
         this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
             let output = `I: ${instance.instanceId} | W: ${instance.world}`;
 
@@ -218,10 +218,8 @@ export default class InstanceAuthority {
             }
 
             // Display expected time left
-            const endTime = instance.timeStarted.getTime() + instance.duration;
-            const remaining = (endTime - date.getTime()) / 1000;
             const displayDate = new Date(0);
-            displayDate.setSeconds(remaining);
+            displayDate.setSeconds(calculateRemainingTime(instance) / 1000);
             output = `${output} | ${displayDate.toISOString().substr(11, 8)} remaining`;
 
             InstanceAuthority.logger.info(output);

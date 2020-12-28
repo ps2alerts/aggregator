@@ -34,7 +34,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
     // from the subscriber itself.
     public async connect(): Promise<boolean> {
         AdminAggregatorSubscriber.logger.info('Subscribing...');
-        AdminAggregatorSubscriber.channelWrapper = await this.connectionHandlerFactory.setupConnection(AdminAggregatorSubscriber.queueName, this.handleMessage);
+        AdminAggregatorSubscriber.channelWrapper = await this.connectionHandlerFactory.setupQueue(AdminAggregatorSubscriber.queueName, this.handleMessage);
         AdminAggregatorSubscriber.logger.info('Subscribed!');
 
         return true;
