@@ -23,6 +23,7 @@ import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterf
 import {ItemBrokerInterface} from '../../interfaces/ItemBrokerInterface';
 import Parser from '../../utils/parser';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
+import {metagameEventTypeArray} from '../../constants/metagameEventType';
 
 @injectable()
 export default class CensusEventSubscriber implements ServiceInterface {
@@ -193,12 +194,16 @@ export default class CensusEventSubscriber implements ServiceInterface {
     private async processMetagameEvent(censusEvent: MetagameEvent): Promise<void> {
         CensusEventSubscriber.logger.debug(`[${this.environment}] Processing MetagameEvent censusEvent`);
 
-        try {
-            const metagameEvent = new MetagameEventEvent(censusEvent);
-            await this.metagameEventEventHandler.handle(metagameEvent, this.environment);
-        } catch (e) {
+        if (metagameEventTypeArray.includes(parseInt(censusEvent.metagame_event_id, 10))) {
+            try {
+                const metagameEvent = new MetagameEventEvent(censusEvent);
+                await this.metagameEventEventHandler.handle(metagameEvent, this.environment);
+            } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            CensusEventSubscriber.logger.error(e.message);
+                CensusEventSubscriber.logger.error(e.message);
+            }
+        } else {
+            CensusEventSubscriber.logger.warn(`Unknown / unsupported metagame_event_id: ${censusEvent.metagame_event_id}`);
         }
     }
 

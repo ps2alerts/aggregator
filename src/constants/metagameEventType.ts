@@ -63,9 +63,6 @@ export const metagameEventTypeArray = [
     191,
     192,
     193,
-    208,
-    209,
-    210,
 ];
 
 const longAlert = 90 * 60 * 1000;
