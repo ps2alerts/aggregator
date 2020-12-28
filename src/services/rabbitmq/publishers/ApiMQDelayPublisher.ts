@@ -30,7 +30,7 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
             this.config.apiDelayQueueName,
             null,
             {
-                messageTtl: 7200000, // 2 hours
+                messageTtl: 5700000, // 95 minutes
                 deadLetterExchange: '',
                 deadLetterRoutingKey: this.config.apiQueueName,
                 arguments: {
