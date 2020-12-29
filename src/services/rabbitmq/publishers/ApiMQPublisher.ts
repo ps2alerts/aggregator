@@ -8,6 +8,7 @@ import ApiMQMessage from '../../../data/ApiMQMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
 import {jsonLogOutput} from '../../../utils/json';
+import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 
 @injectable()
 export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface {
@@ -40,7 +41,7 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
         return true;
     }
 
-    public async send(msg: ApiMQMessage): Promise<boolean> {
+    public async send(msg: ApiMQMessage | ApiMQGlobalAggregateMessage): Promise<boolean> {
         // Throw if we're attempting to send empty documents
         if (msg.data.docs.length === 0) {
             throw new ApplicationException(`Attempted to send 0 documents to the API, pointless! Pattern: ${msg.pattern}`);
