@@ -6,16 +6,15 @@ import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import {Faction} from '../../../constants/faction';
 import ApplicationException from '../../../exceptions/ApplicationException';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
-import {shortAlert} from '../../../constants/metagameEventType';
 
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
     private static readonly logger = getLogger('GlobalVictoryAggregate');
-    private readonly apiMQPublisher: ApiMQDelayPublisher;
+    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
+    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
         this.apiMQPublisher = apiMQPublisher;
     }
 
@@ -50,7 +49,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                     world: event.world,
                     zone: event.zone,
                 }],
-            ), shortAlert);
+            ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
