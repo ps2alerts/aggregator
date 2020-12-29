@@ -6,9 +6,9 @@ import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import {Faction} from '../../../constants/faction';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import {shortAlert} from '../../../constants/metagameEventType';
 
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
@@ -50,7 +50,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                     world: event.world,
                     zone: event.zone,
                 }],
-            ), calculateRemainingTime(event) + 30000);
+            ), shortAlert);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

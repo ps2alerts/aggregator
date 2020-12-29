@@ -9,7 +9,6 @@ import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterfac
 import VehicleCharacterDeathLogic from '../../logics/VehicleCharacterDeathLogic';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
-import {calculateRemainingTime} from '../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class VehicleDeathEventHandler implements AggregateHandlerInterface<DeathEvent> {
@@ -87,7 +86,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                         world: event.instance.world,
                         vehicle: event.attackerVehicleId,
                     }],
-                ), calculateRemainingTime(event.instance) + 30000);
+                ), event.instance.duration);
 
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
@@ -98,7 +97,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                         vehicle: event.attackerVehicleId,
                         character: event.character.id,
                     }],
-                ), calculateRemainingTime(event.instance) + 30000);
+                ), event.instance.duration);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 VehicleDeathEventHandler.logger.error(`Could not publish message to API! E: ${err.message}`);

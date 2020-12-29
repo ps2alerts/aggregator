@@ -8,13 +8,17 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
 import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import {shortAlert} from '../../../constants/metagameEventType';
 
 @injectable()
 export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
     private readonly config: RabbitMQ;
     private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
-    private channelWrapper: ChannelWrapper;
+    private channelWrapperLong: ChannelWrapper;
+    private channelWrapperShort: ChannelWrapper;
+    private readonly shortQueue: string;
+    private readonly longQueue: string;
 
     constructor(
     @inject('rabbitMQConfig') config: RabbitMQ,
@@ -22,15 +26,29 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
     ) {
         this.config = config;
         this.connectionHandlerFactory = connectionHandlerFactory;
+        this.shortQueue = `${this.config.apiDelayQueueName}-46min`;
+        this.longQueue = `${this.config.apiDelayQueueName}-91min`;
     }
 
     public async connect(): Promise<boolean> {
-        ApiMQDelayPublisher.logger.info('Connecting to queue...');
-        this.channelWrapper = await this.connectionHandlerFactory.setupQueue(
-            this.config.apiDelayQueueName,
+        ApiMQDelayPublisher.logger.info('Connecting to queues...');
+        this.channelWrapperLong = await this.connectionHandlerFactory.setupQueue(
+            this.longQueue,
             null,
             {
-                messageTtl: 5700000, // 95 minutes
+                messageTtl: 5460000, // 91 minutes
+                deadLetterExchange: '',
+                deadLetterRoutingKey: this.config.apiQueueName,
+                arguments: {
+                    'x-queue-mode': 'lazy',
+                },
+            });
+
+        this.channelWrapperShort = await this.connectionHandlerFactory.setupQueue(
+            this.shortQueue,
+            null,
+            {
+                messageTtl: 2760000, // 46 minutes
                 deadLetterExchange: '',
                 deadLetterRoutingKey: this.config.apiQueueName,
                 arguments: {
@@ -42,20 +60,25 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
         return true;
     }
 
-    public async send(msg: ApiMQGlobalAggregateMessage, expiration: number): Promise<boolean> {
+    public async send(msg: ApiMQGlobalAggregateMessage, duration: number): Promise<boolean> {
         // Throw if we're attempting to send empty documents
         if (msg.data.docs.length === 0) {
             throw new ApplicationException(`Attempted to send 0 documents to the API, pointless! Pattern: ${msg.pattern}`);
         }
 
+        let wrapper = this.channelWrapperLong;
+
+        if (duration === shortAlert) {
+            wrapper = this.channelWrapperShort;
+        }
+
         try {
             ApiMQDelayPublisher.logger.silly(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
-            await this.channelWrapper.sendToQueue(
-                this.config.apiDelayQueueName,
+            await wrapper.sendToQueue(
+                duration === shortAlert ? this.shortQueue : this.longQueue,
                 msg,
                 {
                     persistent: true,
-                    expiration: String(expiration),
                 });
             return true;
         } catch (err) {
