@@ -7,7 +7,6 @@ import {Kill} from 'ps2census';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -73,7 +72,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                         world: event.world,
                         'character.id': event.attackerCharacter.id,
                     }],
-                ), calculateRemainingTime(event.instance) + 30000);
+                ), event.instance.duration);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
@@ -89,7 +88,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     world: event.world,
                     'character.id': event.character.id,
                 }],
-            ), calculateRemainingTime(event.instance) + 30000);
+            ), event.instance.duration);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

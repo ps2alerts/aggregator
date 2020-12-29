@@ -8,7 +8,6 @@ import {Kill} from 'ps2census';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -94,7 +93,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 event.instance.instanceId,
                 documents,
                 [{world: event.instance.world}],
-            ), calculateRemainingTime(event.instance) + 30000);
+            ), event.instance.duration);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

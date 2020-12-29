@@ -7,7 +7,6 @@ import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import {calculateRemainingTime} from '../../../utils/InstanceRemainingTime';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -48,7 +47,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                     world: event.instance.world,
                     facility: event.facility,
                 }],
-            ), calculateRemainingTime(event.instance) + 30000);
+            ), event.instance.duration);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
