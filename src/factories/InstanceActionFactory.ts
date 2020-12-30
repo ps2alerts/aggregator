@@ -15,6 +15,7 @@ import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameI
 import BracketCalculatorFactory from './BracketCalculatorFactory';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -24,6 +25,7 @@ export default class InstanceActionFactory {
     private readonly globalVictoryAggregate: GlobalVictoryAggregate;
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
     private readonly bracketCalculatorFactory: BracketCalculatorFactory;
+    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
     constructor(
     @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
@@ -32,6 +34,7 @@ export default class InstanceActionFactory {
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.bracketCalculatorFactory) bracketCalculatorFactory: BracketCalculatorFactory,
         @inject(TYPES.globalVictoryAggregate) globalVictoryAggregate: GlobalVictoryAggregate,
+        @inject(TYPES.outfitParticipantCacheHandler) outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
@@ -39,6 +42,7 @@ export default class InstanceActionFactory {
         this.territoryCalculatorFactory = territoryCalculatorFactory;
         this.bracketCalculatorFactory = bracketCalculatorFactory;
         this.globalVictoryAggregate = globalVictoryAggregate;
+        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
     }
 
     public buildStart(
@@ -71,6 +75,7 @@ export default class InstanceActionFactory {
                 this.instanceMetagameModelFactory,
                 this.territoryCalculatorFactory,
                 this.globalVictoryAggregate,
+                this.outfitParticipantCacheHandler,
             );
         }
 
