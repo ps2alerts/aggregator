@@ -10,6 +10,7 @@ import CharacterBroker from './CharacterBroker';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import ItemBroker from './ItemBroker';
 import {Context} from 'inversify/dts/planning/context';
+import OutfitParticipantCacheHandler from './OutfitParticipantCacheHandler';
 
 export default new ContainerModule((bind) => {
     bind<CharacterPresenceHandlerInterface>(TYPES.characterPresenceHandler).to(CharacterPresenceHandler).inSingletonScope();
@@ -29,4 +30,5 @@ export default new ContainerModule((bind) => {
     });
 
     bind<ItemBrokerInterface>(TYPES.itemBrokerInterface).to(ItemBroker).inSingletonScope();
+    bind<OutfitParticipantCacheHandler>(TYPES.outfitParticipantCacheHandler).to(OutfitParticipantCacheHandler).inSingletonScope();
 });

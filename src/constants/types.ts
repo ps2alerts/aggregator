@@ -62,6 +62,7 @@ const TYPES = {
     apiMQDelayPublisher: Symbol.for('ApiMQDelayPublisher'),
     // Handlers
     adminMessageHandlers: Symbol.for('adminMessageHandlers'),
+    outfitParticipantCacheHandler: Symbol.for('outfitParticipantCacheHandler'),
 
     // Other Factories
     censusStreamServiceFactory: Symbol.for('CensusStreamServiceFactory'),

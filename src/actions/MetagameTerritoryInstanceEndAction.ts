@@ -10,6 +10,7 @@ import {jsonLogOutput} from '../utils/json';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
@@ -18,6 +19,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
     private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
     private readonly territoryCalculator: TerritoryCalculator;
     private readonly globalVictoryAggregate: GlobalVictoryAggregate;
+    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
     constructor(
         instance: MetagameTerritoryInstance,
@@ -25,12 +27,14 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         territoryCalculatorFactory: TerritoryCalculatorFactory,
         globalVictoryAggregate: GlobalVictoryAggregate,
+        outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {
         this.instance = instance;
         this.environment = environment;
         this.instanceMetagameFactory = instanceMetagameFactory;
         this.territoryCalculator = territoryCalculatorFactory.build(instance, environment);
         this.globalVictoryAggregate = globalVictoryAggregate;
+        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
     }
 
     public async execute(): Promise<boolean> {
@@ -53,6 +57,10 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
 
         // Update the world, zone and bracket aggregators
         await this.globalVictoryAggregate.handle(this.instance);
+
+        // Remove the outfit participant set data from Redis
+        await this.outfitParticipantCacheHandler.flushOutfits(this.instance.instanceId);
+
         return true;
     }
 

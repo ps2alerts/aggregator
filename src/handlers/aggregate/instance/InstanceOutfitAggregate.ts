@@ -7,14 +7,20 @@ import {Kill} from 'ps2census';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';
 
 @injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceOutfitAggregate');
     private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
+    constructor(
+    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.outfitParticipantCacheHandler) outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+    ) {
         this.apiMQPublisher = apiMQPublisher;
+        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -58,6 +64,20 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
         // Purpose for this is we can aggregate stats for "outfitless" characters, e.g. TR (-3) got X kills
         const attackerOutfitId = event.attackerCharacter.outfit ? event.attackerCharacter.outfit.id : `-${event.attackerCharacter.faction}`;
         const victimOutfitId = event.character.outfit ? event.character.outfit.id : `-${event.character.faction}`;
+
+        // Outfit participant tracking
+        if (event.killType !== Kill.Suicide) {
+            await this.outfitParticipantCacheHandler.addOutfit(attackerOutfitId, event.attackerCharacter.id, event.instance.instanceId);
+        }
+
+        await this.outfitParticipantCacheHandler.addOutfit(victimOutfitId, event.character.id, event.instance.instanceId);
+
+        // Tot up the participants then add it to the docs
+        if (event.killType !== Kill.Suicide) {
+            attackerDocs.push({$set: {participants: await this.outfitParticipantCacheHandler.getOutfitParticipants(attackerOutfitId, event.instance.instanceId)}});
+        }
+
+        victimDocs.push({$set: {participants: await this.outfitParticipantCacheHandler.getOutfitParticipants(victimOutfitId, event.instance.instanceId)}});
 
         if (attackerDocs.length > 0) {
             try {
