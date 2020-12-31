@@ -18,11 +18,11 @@ resource datadog_monitor "aggregator_not_running" {
 resource datadog_monitor "aggregator_high_mem" {
   name = "PS2Alerts Aggregator high memory [${var.environment}]"
   type = "metric alert"
-  query = "max(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 180244000"
+  query = "max(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 131072000"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high memory"})
 
   thresholds = {
-    critical = 180244000 #175MB
+    critical = 131072000 #125MB
   }
 
   notify_no_data = true
@@ -35,11 +35,11 @@ resource datadog_monitor "aggregator_high_mem" {
 resource datadog_monitor "aggregator_high_cpu" {
   name = "PS2Alerts Aggregator high CPU [${var.environment}]"
   type = "metric alert"
-  query = "avg(last_10m):avg:kubernetes.cpu.usage.total{kube_container_name:ps2alerts-aggregator-${var.environment}} > 275000000"
+  query = "avg(last_10m):avg:kubernetes.cpu.usage.total{kube_container_name:ps2alerts-aggregator-${var.environment}} > 300000000"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high CPU"})
 
   thresholds = {
-    critical = 275000000 # 0.275 CPU
+    critical = 300000000 # 0.3 CPU
   }
 
   notify_no_data = true
@@ -101,11 +101,11 @@ resource datadog_monitor "aggregator_high_census_reconnects" {
 resource datadog_monitor "aggregator_high_census_stale_connection" {
   name = "PS2Alerts Aggregator high Census stale connections [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* service:CensusStaleConnectionWatcherAuthority Census\").index(\"*\").rollup(\"count\").last(\"1h\") > 5"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* service:CensusStaleConnectionWatcherAuthority Census\").index(\"*\").rollup(\"count\").last(\"30m\") > 10"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high census stale connections"})
 
   thresholds = {
-    critical = 5
+    critical = 10
   }
 
   require_full_window = false
@@ -116,7 +116,7 @@ resource datadog_monitor "aggregator_high_census_stale_connection" {
 resource datadog_monitor "aggregator_high_tls_errors" {
   name = "PS2Alerts Aggregator high Census TLS errors [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* TLS\").index(\"*\").rollup(\"count\").last(\"1h\") > 5"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* TLS\").index(\"*\").rollup(\"count\").last(\"30m\") > 5"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high census TLS errors"})
 
   thresholds = {
@@ -131,7 +131,7 @@ resource datadog_monitor "aggregator_high_tls_errors" {
 resource datadog_monitor "aggregator_unhandled_rejections" {
   name = "PS2Alerts Aggregator high unhandled rejections [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* unhandled rejection\").index(\"*\").rollup(\"count\").last(\"1h\") > 5"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* unhandled rejection\").index(\"*\").rollup(\"count\").last(\"30m\") > 5"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high unhandled rejections"})
 
   thresholds = {
