@@ -6,16 +6,17 @@ import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import {Faction} from '../../../constants/faction';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import moment from 'moment/moment';
+import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
     private static readonly logger = getLogger('GlobalVictoryAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
-        this.apiMQPublisher = apiMQPublisher;
+    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher) {
+        this.apiMQDelayPublisher = apiMQDelayPublisher;
     }
 
     public async handle(event: MetagameTerritoryInstance): Promise<boolean> {
@@ -41,15 +42,16 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+            await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
                 event.instanceId,
                 docs,
                 [{
                     world: event.world,
                     zone: event.zone,
+                    date: moment().format('YYYY-MM-DD'),
                 }],
-            ));
+            ), 0);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
