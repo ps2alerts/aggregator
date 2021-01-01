@@ -209,23 +209,25 @@ export default class InstanceAuthority {
     }
 
     public printActives(): void {
-        InstanceAuthority.logger.info('==== Current actives =====');
-        this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
-            let output = `I: ${instance.instanceId} | W: ${instance.world}`;
+        if (this.currentInstances.length) {
+            InstanceAuthority.logger.info('==== Current actives =====');
+            this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
+                let output = `I: ${instance.instanceId} | W: ${instance.world}`;
 
-            if (instance instanceof MetagameTerritoryInstance) {
-                output = `${output} | Z: ${instance.zone}`;
-            }
+                if (instance instanceof MetagameTerritoryInstance) {
+                    output = `${output} | Z: ${instance.zone}`;
+                }
 
-            // Display expected time left
-            const displayDate = new Date(0);
-            displayDate.setSeconds(calculateRemainingTime(instance) / 1000);
-            output = `${output} | ${displayDate.toISOString().substr(11, 8)} remaining`;
+                // Display expected time left
+                const displayDate = new Date(0);
+                displayDate.setSeconds(calculateRemainingTime(instance) / 1000);
+                output = `${output} | ${displayDate.toISOString().substr(11, 8)} remaining`;
 
-            InstanceAuthority.logger.info(output);
-        });
+                InstanceAuthority.logger.info(output);
+            });
 
-        InstanceAuthority.logger.info('==== Current actives end =====');
+            InstanceAuthority.logger.info('==== Current actives end =====');
+        }
     }
 
     private async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
