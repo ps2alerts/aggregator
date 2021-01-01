@@ -115,8 +115,6 @@ export default class InstanceAuthority {
 
         // Find Instance and update
         try {
-            await this.instanceActionFactory.buildEnd(instance, environment).execute();
-
             // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
             const timeout = new Promise((resolve, reject) => {
                 const id = setTimeout(() => {
@@ -150,6 +148,8 @@ export default class InstanceAuthority {
             remove(this.currentInstances, (i) => {
                 return i.instanceId === instance.instanceId;
             });
+
+            await this.instanceActionFactory.buildEnd(instance, environment).execute();
 
             InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives();
