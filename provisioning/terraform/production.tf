@@ -8,7 +8,7 @@ module "aggregator_production" {
   database_pass            = var.db_pass
   database_host            = "ps2alerts-db"
   database_port            = 27017
-  database_name            = "ps2alerts-production"
+  database_name            = "ps2alerts"
   database_pool_size       = 20
   database_debug           = false
   redis_host               = "ps2alerts-redis-master"
