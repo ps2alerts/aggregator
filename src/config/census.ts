@@ -1,11 +1,10 @@
 import {get} from '../utils/env';
 import {ClientConfig, rest} from 'ps2census';
-import {TestCharacters} from '../constants/testCharacters';
 
 export default class Census {
     public static readonly streamManagerConfig = {
         worlds: ['all'],
-        characters: [TestCharacters.MAELSTROME26_JAEGER_VS],
+        characters: ['all'],
         logicalAndCharactersWithWorlds: true,
     };
 
@@ -39,7 +38,7 @@ export default class Census {
         streamManagerConfig: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
@@ -50,7 +49,7 @@ export default class Census {
         streamManagerConfig: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
@@ -61,7 +60,7 @@ export default class Census {
         streamManagerConfig: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
