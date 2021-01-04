@@ -20,9 +20,9 @@ module "aggregator_production" {
   rabbitmq_api_queue       = "api-queue-production"
   rabbitmq_api_queue_delay = "api-queue-delay-production"
   census_service_id        = var.census_service_id
-  cpu_limit                = "400m"
+  cpu_limit                = "600m"
   mem_limit                = "0.15Gi"
-  cpu_request              = "300m"
+  cpu_request              = "450m"
   mem_request              = "0.15Gi"
   discord_webhook          = "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
   logger_transports        = "console,discord"
