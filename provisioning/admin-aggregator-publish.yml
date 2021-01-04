@@ -16,37 +16,37 @@
     valid_factions: ["1", "2", "3"]
   vars_prompt:
     - name: type
-      prompt: "Select message type [instanceStart, instanceEnd, activeInstances]"
+      prompt: "Select message type [start, end, activeInstances]"
       private: no
-      default: "instanceStart"
+      default: "start"
 
     - name: world
-      prompt: "[instanceStart] Select world {{ valid_worlds }}"
+      prompt: "[start] Select world {{ valid_worlds }}"
       private: no
       default: 19
 
     - name: zone
-      prompt: "[instanceStart] Select zone {{ valid_zones }} "
+      prompt: "[start] Select zone {{ valid_zones }} "
       private: no
       default: 2
 
     - name: faction
-      prompt: "[instanceStart] Select triggering faction {{ valid_factions }} "
+      prompt: "[start] Select triggering faction {{ valid_factions }} "
       private: no
       default: 1
 
     - name: meltdown
-      prompt: "[instanceStart] Meltdown? [true/false]"
+      prompt: "[start] Meltdown? [true/false]"
       private: no
       default: false
 
     - name: duration
-      prompt: "[instanceStart] Specify duration in seconds. Default is \"5400\" for 1:30 hours"
+      prompt: "[start] Specify duration in seconds. Default is \"5400\" for 1:30 hours"
       private: no
       default: 5400
 
     - name: instanceId
-      prompt: "[instanceEnd] Specify PS2Alerts Instance ID to end"
+      prompt: "[end] Specify PS2Alerts Instance ID to end"
       private: no
 
     - name: env
@@ -54,22 +54,22 @@
       private: no
       default: "dev"
   tasks:
-    - name: Ensure world is valid if instanceStart type
+    - name: Ensure world is valid if start type
       fail:
         msg: "World isn't valid!"
-      when: type == "instanceStart" and world not in valid_worlds
+      when: type == "start" and world not in valid_worlds
 
-    - name: Ensure zone is valid if instanceStart type
+    - name: Ensure zone is valid if start type
       fail:
         msg: "Zone isn't valid!"
-      when: type == "instanceStart" and zone is not in valid_zones
+      when: type == "start" and zone is not in valid_zones
 
-    - name: Ensure faction is valid if instanceStart type
+    - name: Ensure faction is valid if start type
       fail:
         msg: "Zone isn't valid!"
-      when: type == "instanceStart" and faction is not in valid_factions
+      when: type == "start" and faction is not in valid_factions
 
-    - name: Create instanceStart message body
+    - name: Create start message body
       set_fact:
         message:
           type: "{{ type }}"
@@ -82,15 +82,15 @@
             type: "metagame"
             start: "{{ ansible_date_time.epoch }}"
             duration: "{{ duration }}"
-      when: type == "instanceStart"
+      when: type == "start"
 
-    - name: Create instanceEnd message body
+    - name: Create end message body
       set_fact:
         message:
           type: "{{ type }}"
           body:
             instanceId: "{{ instanceId }}"
-      when: type == "instanceEnd"
+      when: type == "end"
 
     - name: Create activeInstances message body
       set_fact:
