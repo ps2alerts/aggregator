@@ -72,7 +72,7 @@
     - name: Create start message body
       set_fact:
         message:
-          type: "{{ type }}"
+          type: "instanceStart"
           body:
             instanceId: "{{ 100000 | random }}"
             world: "{{ world }}"
@@ -87,7 +87,7 @@
     - name: Create end message body
       set_fact:
         message:
-          type: "{{ type }}"
+          type: "instanceEnd"
           body:
             instanceId: "{{ instanceId }}"
       when: type == "end"
