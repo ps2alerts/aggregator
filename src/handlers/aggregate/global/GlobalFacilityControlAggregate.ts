@@ -7,14 +7,21 @@ import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import {Bracket} from '../../../constants/bracket';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
-    private readonly apiMQPublisher: ApiMQDelayPublisher;
+    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
+    constructor(
+    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {
         this.apiMQPublisher = apiMQPublisher;
+        this.apiMQDelayPublisher = apiMQDelayPublisher;
     }
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
@@ -39,7 +46,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+            await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
                 event.instance.instanceId,
                 documents,
@@ -48,6 +55,18 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                     facility: event.facility,
                 }],
             ), event.instance.duration);
+
+            // Total bracket aggregation
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                MQAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
+                event.instance.instanceId,
+                documents,
+                [{
+                    world: event.instance.world,
+                    facility: event.facility,
+                }],
+                Bracket.TOTAL,
+            ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

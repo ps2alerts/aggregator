@@ -7,14 +7,21 @@ import {Kill} from 'ps2census';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import {Bracket} from '../../../constants/bracket';
 
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalCharacterAggregate');
-    private readonly apiMQPublisher: ApiMQDelayPublisher;
+    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
+    constructor(
+    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {
         this.apiMQPublisher = apiMQPublisher;
+        this.apiMQDelayPublisher = apiMQDelayPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -64,7 +71,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     attackerDocs,
@@ -73,6 +80,18 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                         'character.id': event.attackerCharacter.id,
                     }],
                 ), event.instance.duration);
+
+                // Total bracket aggregation
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
+                    attackerDocs,
+                    [{
+                        world: event.world,
+                        'character.id': event.attackerCharacter.id,
+                    }],
+                    Bracket.TOTAL,
+                ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
@@ -80,7 +99,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+            await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                 event.instance.instanceId,
                 victimDocs,
@@ -89,6 +108,18 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     'character.id': event.character.id,
                 }],
             ), event.instance.duration);
+
+            // Total bracket aggregation
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                event.instance.instanceId,
+                victimDocs,
+                [{
+                    world: event.world,
+                    'character.id': event.character.id,
+                }],
+                Bracket.TOTAL,
+            ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

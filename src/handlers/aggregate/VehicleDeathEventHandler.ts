@@ -9,6 +9,7 @@ import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterfac
 import VehicleCharacterDeathLogic from '../../logics/VehicleCharacterDeathLogic';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
+import {Bracket} from '../../constants/bracket';
 
 @injectable()
 export default class VehicleDeathEventHandler implements AggregateHandlerInterface<DeathEvent> {
@@ -88,6 +89,17 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     }],
                 ), event.instance.duration);
 
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    event.instance.instanceId,
+                    documents.attackerDocs,
+                    [{
+                        world: event.instance.world,
+                        vehicle: event.attackerVehicleId,
+                    }],
+                    Bracket.TOTAL,
+                ));
+
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
@@ -98,6 +110,18 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                         character: event.character.id,
                     }],
                 ), event.instance.duration);
+
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
+                    documents.attackerDocs,
+                    [{
+                        world: event.instance.world,
+                        vehicle: event.attackerVehicleId,
+                        character: event.character.id,
+                    }],
+                    Bracket.TOTAL,
+                ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 VehicleDeathEventHandler.logger.error(`Could not publish message to API! E: ${err.message}`);

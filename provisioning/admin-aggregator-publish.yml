@@ -23,7 +23,7 @@
     - name: world
       prompt: "[instanceStart] Select world {{ valid_worlds }}"
       private: no
-      default: 10
+      default: 19
 
     - name: zone
       prompt: "[instanceStart] Select zone {{ valid_zones }} "

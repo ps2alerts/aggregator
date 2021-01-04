@@ -9,6 +9,7 @@ import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
 import ApiMQMessage from '../../data/ApiMQMessage';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
+import {Bracket} from '../../constants/bracket';
 
 @injectable()
 export default class VehicleAggregateHandler implements AggregateHandlerInterface<VehicleDestroyEvent> {
@@ -110,6 +111,18 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ), event.instance.duration);
 
+                // Total bracket aggregation
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    event.instance.instanceId,
+                    documents.attackerDocs,
+                    [{
+                        vehicle: event.attackerVehicleId,
+                        world: event.instance.world,
+                    }],
+                    Bracket.TOTAL,
+                ));
+
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
@@ -120,6 +133,19 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                         character: event.attackerCharacter.id,
                     }],
                 ), event.instance.duration);
+
+                // Total bracket aggregation
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
+                    documents.attackerDocs,
+                    [{
+                        vehicle: event.attackerVehicleId,
+                        world: event.instance.world,
+                        character: event.attackerCharacter.id,
+                    }],
+                    Bracket.TOTAL,
+                ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
@@ -138,6 +164,17 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ), event.instance.duration);
 
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    event.instance.instanceId,
+                    documents.victimDocs,
+                    [{
+                        vehicle: event.vehicleId,
+                        world: event.instance.world,
+                    }],
+                    Bracket.TOTAL,
+                ));
+
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
@@ -148,6 +185,18 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                         character: event.character.id,
                     }],
                 ), event.instance.duration);
+
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
+                    documents.victimDocs,
+                    [{
+                        vehicle: event.attackerVehicleId,
+                        world: event.instance.world,
+                        character: event.character.id,
+                    }],
+                    Bracket.TOTAL,
+                ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);

@@ -8,14 +8,21 @@ import {Kill} from 'ps2census';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import {Bracket} from '../../../constants/bracket';
 
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalFactionCombatAggregate');
-    private readonly apiMQPublisher: ApiMQDelayPublisher;
+    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
+    constructor(
+    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {
         this.apiMQPublisher = apiMQPublisher;
+        this.apiMQDelayPublisher = apiMQDelayPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -88,12 +95,21 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+            await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{world: event.instance.world}],
             ), event.instance.duration);
+
+            // Total bracket aggregation
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                MQAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
+                event.instance.instanceId,
+                documents,
+                [{world: event.instance.world}],
+                Bracket.TOTAL,
+            ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

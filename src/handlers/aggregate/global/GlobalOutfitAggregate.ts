@@ -7,14 +7,21 @@ import {Kill} from 'ps2census';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import {Bracket} from '../../../constants/bracket';
 
 @injectable()
 export default class GlobalOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalOutfitAggregate');
-    private readonly apiMQPublisher: ApiMQDelayPublisher;
+    private readonly apiMQPublisher: ApiMQPublisher;
+    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQPublisher: ApiMQDelayPublisher) {
+    constructor(
+    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {
         this.apiMQPublisher = apiMQPublisher;
+        this.apiMQDelayPublisher = apiMQDelayPublisher;
     }
 
     public async handle(event: DeathEvent): Promise<boolean> {
@@ -61,7 +68,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
 
         if (attackerDocs.length > 0) {
             try {
-                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                     MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
                     event.instance.instanceId,
                     attackerDocs,
@@ -70,6 +77,18 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                         'outfit.id': attackerOutfitId,
                     }],
                 ), event.instance.duration);
+
+                // Total bracket aggregation
+                await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
+                    event.instance.instanceId,
+                    attackerDocs,
+                    [{
+                        world: event.world,
+                        'outfit.id': attackerOutfitId,
+                    }],
+                    Bracket.TOTAL,
+                ));
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
                 GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
@@ -77,7 +96,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
         }
 
         try {
-            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+            await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
                 event.instance.instanceId,
                 victimDocs,
@@ -86,6 +105,18 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                     'outfit.id': victimOutfitId,
                 }],
             ), event.instance.duration);
+
+            // Total bracket aggregation
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
+                event.instance.instanceId,
+                victimDocs,
+                [{
+                    world: event.world,
+                    'outfit.id': victimOutfitId,
+                }],
+                Bracket.TOTAL,
+            ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

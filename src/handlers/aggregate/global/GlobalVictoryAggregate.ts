@@ -9,13 +9,20 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import moment from 'moment/moment';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import {Bracket} from '../../../constants/bracket';
 
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
     private static readonly logger = getLogger('GlobalVictoryAggregate');
+    private readonly apiMQPublisher: ApiMQPublisher;
     private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
-    constructor(@inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher) {
+    constructor(
+    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {
+        this.apiMQPublisher = apiMQPublisher;
         this.apiMQDelayPublisher = apiMQDelayPublisher;
     }
 
@@ -52,6 +59,18 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                     date: moment().format('YYYY-MM-DD'),
                 }],
             ), 0);
+
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
+                MQAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
+                event.instanceId,
+                docs,
+                [{
+                    world: event.world,
+                    zone: event.zone,
+                    date: moment().format('YYYY-MM-DD'),
+                }],
+                Bracket.TOTAL,
+            ));
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);

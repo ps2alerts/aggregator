@@ -39,7 +39,7 @@ export default class CensusStream {
         this.wsClient.on('subscribed', (subscriptions) => {
             CensusStream.logger.info(`[${this.environment}] Census stream subscribed! Subscriptions:`);
             CensusStream.logger.info(jsonLogOutput(subscriptions));
-            this.censusStaleConnectionWatcherAuthority.run();
+            // this.censusStaleConnectionWatcherAuthority.run();
             this.censusEventSubscriber.constructListeners();
         });
 

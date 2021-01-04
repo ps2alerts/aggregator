@@ -1,5 +1,6 @@
 export enum Bracket {
-    UNKNOWN = 0,
+    UNKNOWN = -1,
+    TOTAL = 0,
     DEAD = 1,
     LOW = 2,
     MEDIUM = 3,
@@ -8,6 +9,7 @@ export enum Bracket {
 }
 
 export const ps2alertsBracketArray = [
+    -1,
     0,
     1,
     2,
