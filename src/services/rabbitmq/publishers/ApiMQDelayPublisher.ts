@@ -17,10 +17,8 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
     private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
     private channelWrapperLong: ChannelWrapper;
     private channelWrapperShort: ChannelWrapper;
-    private channelWrapperTiny: ChannelWrapper;
     private readonly shortQueue: string;
     private readonly longQueue: string;
-    private readonly tinyQueue: string;
 
     constructor(
     @inject('rabbitMQConfig') config: RabbitMQ,
@@ -30,7 +28,6 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
         this.connectionHandlerFactory = connectionHandlerFactory;
         this.shortQueue = `${this.config.apiDelayQueueName}-46min`;
         this.longQueue = `${this.config.apiDelayQueueName}-91min`;
-        this.tinyQueue = `${this.config.apiDelayQueueName}-1min`;
     }
 
     public async connect(): Promise<boolean> {
@@ -59,17 +56,6 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
                 },
             });
 
-        this.channelWrapperTiny = await this.connectionHandlerFactory.setupQueue(
-            this.tinyQueue,
-            null,
-            {
-                messageTtl: 60000, // 1 minute
-                deadLetterExchange: '',
-                deadLetterRoutingKey: this.config.apiQueueName,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
-            });
         ApiMQDelayPublisher.logger.info('Connected!');
 
         return true;
@@ -88,10 +74,6 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
             case shortAlert:
                 wrapper = this.channelWrapperShort;
                 queue = this.shortQueue;
-                break;
-            case 0:
-                wrapper = this.channelWrapperTiny;
-                queue = this.tinyQueue;
                 break;
         }
 

@@ -49,7 +49,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
         }
 
         try {
-            await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
+            await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
                 event.instanceId,
                 docs,
@@ -58,7 +58,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                     zone: event.zone,
                     date: moment().format('YYYY-MM-DD'),
                 }],
-            ), 0);
+            ));
 
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
                 MQAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
