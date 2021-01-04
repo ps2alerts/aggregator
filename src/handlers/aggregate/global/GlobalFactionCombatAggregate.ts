@@ -10,6 +10,7 @@ import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDela
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../constants/bracket';
+import moment from 'moment/moment';
 
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -99,7 +100,10 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 MQAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
                 event.instance.instanceId,
                 documents,
-                [{world: event.instance.world}],
+                [{
+                    world: event.instance.world,
+                    date: moment().format('YYYY-MM-DD'),
+                }],
             ), event.instance.duration);
 
             // Total bracket aggregation
@@ -107,7 +111,10 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 MQAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
                 event.instance.instanceId,
                 documents,
-                [{world: event.instance.world}],
+                [{
+                    world: event.instance.world,
+                    date: moment().format('YYYY-MM-DD'),
+                }],
                 Bracket.TOTAL,
             ));
         } catch (err) {
