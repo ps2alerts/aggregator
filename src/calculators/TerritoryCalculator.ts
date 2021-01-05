@@ -14,7 +14,6 @@ import {InstanceResultInterface} from '../interfaces/InstanceResultInterface';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 import {CensusEnvironment} from '../types/CensusEnvironment';
-import {Zone} from '../constants/zone';
 
 export interface TerritoryResultInterface extends InstanceResultInterface {
     cutoff: number;
@@ -38,8 +37,6 @@ interface FacilityInterface {
 interface FacilityLatticeLinkInterface {
     facilityA: number;
     facilityB: number;
-    zoneId: Zone;
-    description?: string;
 }
 
 @injectable()
@@ -71,11 +68,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         const warpgates: Map<Faction, FacilityInterface[]> = new Map<Faction, FacilityInterface[]>();
 
         // Get the lattice links for the zone
-        const latticeLinks = this.transformLatticeData(this.instance.zone);
-
-        if (!latticeLinks) {
-            throw new ApplicationException(`Lattice links weren't generated correctly for ${this.instance.zone}!`);
-        }
+        const latticeLinks = await this.getLatticeLinks();
 
         // Get the map's facilities, allowing us to grab warpgates for starting the traversal and facility names for debug
         await this.getMapFacilities();
@@ -249,7 +242,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                 zone_id: String(this.instance.zone),
             },
         ).then(async (result) => {
-            if (!result.length || result.length === 0) {
+            if (result.length === 0) {
                 throw new ApplicationException(`Unable to get Facility map for I: ${this.instance.instanceId} - Z: ${this.instance.zone}`, 'TerritoryCalculator');
             }
 
@@ -273,25 +266,33 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         });
     }
 
-    private transformLatticeData(zoneId: Zone): FacilityLatticeLinkInterface[] {
-        try {
-            // eslint-disable-next-line @typescript-eslint/naming-convention,@typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
-            const data: Array<{ zone_id: string, facility_id_a: string, facility_id_b: string, description?: string }> = require(`${__dirname}/../constants/lattice/${zoneId}.json`);
+    private async getLatticeLinks(): Promise<FacilityLatticeLinkInterface[]> {
+        const facilityLatticeLinks: FacilityLatticeLinkInterface[] = [];
+        const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
 
-            const returnData: FacilityLatticeLinkInterface[] = [];
+        await get(
+            rest.limit(
+                rest.facilityLink,
+                1000,
+            ),
+            {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                zone_id: String(this.instance.zone),
+            },
+        ).then((result) => {
+            if (result.length === 0) {
+                throw new ApplicationException(`[${this.instance.instanceId}] No facility links detected for Z: ${this.instance.zone}!`, 'TerritoryCalculator');
+            }
 
-            data.forEach((link) => {
-                returnData.push({
+            result.forEach((link: rest.collectionTypes.facilityLink) => {
+                facilityLatticeLinks.push({
                     facilityA: parseInt(link.facility_id_a, 10),
                     facilityB: parseInt(link.facility_id_b, 10),
-                    zoneId: parseInt(link.zone_id, 10),
                 });
             });
-            return returnData;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to read Lattice Link data for zone ${this.instance.zone}! E: ${err.message}`);
-        }
+        });
+
+        return facilityLatticeLinks;
     }
 
     // Oh boi, it's graph time! https://github.com/ps2alerts/aggregator/issues/125#issuecomment-689070901
