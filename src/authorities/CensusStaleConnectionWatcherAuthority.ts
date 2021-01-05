@@ -33,12 +33,12 @@ export default class CensusStaleConnectionWatcherAuthority {
 
         this.deathMessageTimer = setInterval(() => {
             CensusStaleConnectionWatcherAuthority.logger.silly(`[${this.environment}] Census Death message timeout check running...`);
-            this.checkMap(this.lastMessagesDeathMap, 60000, 'Death');
+            this.checkMap(this.lastMessagesDeathMap, this.wsClient.environment === 'ps2' ? 60000 : 120000, 'Death');
         }, this.checkInterval);
 
         this.experienceMessageTimer = setInterval(() => {
             CensusStaleConnectionWatcherAuthority.logger.silly(`[${this.environment}] Census Experience message timeout check running...`);
-            this.checkMap(this.lastMessagesExperienceMap, 30000, 'Experience');
+            this.checkMap(this.lastMessagesExperienceMap, this.wsClient.environment === 'ps2' ? 30000 : 60000, 'Experience');
         }, this.checkInterval);
     }
 
