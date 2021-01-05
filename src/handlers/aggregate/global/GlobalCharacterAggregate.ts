@@ -43,6 +43,25 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
+        // Keep the character's outfit, battle rank and ASP updated
+        attackerDocs.push({
+            $set: {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                'character.battle_rank': event.attackerCharacter.battleRank,
+                'character.asp': event.attackerCharacter.asp,
+                'character.outfit': event.attackerCharacter.outfit,
+            },
+        });
+
+        victimDocs.push({
+            $set: {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                'character.battle_rank': event.character.battleRank,
+                'character.asp': event.character.asp,
+                'character.outfit': event.character.outfit,
+            },
+        });
+
         // NSO handling
         if (event.killType === Kill.Undetermined) {
             if (event.attackerCharacter.faction === event.character.faction) {
