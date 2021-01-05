@@ -176,11 +176,11 @@ resource datadog_monitor "aggregator_territory_calculator_errors" {
 resource datadog_monitor "aggregator_instance_start_errors" {
   name = "PS2Alerts Aggregator Instance Start errors [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Failed to properly run start actions\").index(\"*\").rollup(\"count\").last(\"5m\") > 2"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Failed to properly run start actions\").index(\"*\").rollup(\"count\").last(\"5m\") > 0"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "instance start errors"})
 
   thresholds = {
-    critical = 2
+    critical = 0
   }
 
   require_full_window = false
@@ -206,11 +206,11 @@ resource datadog_monitor "aggregator_instance_start_db_errors" {
 resource datadog_monitor "aggregator_instance_end_errors" {
   name = "PS2Alerts Aggregator Instance End errors [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Unable to end instance correctly\").index(\"*\").rollup(\"count\").last(\"5m\") > 1"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Unable to end instance correctly\").index(\"*\").rollup(\"count\").last(\"5m\") > 0"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "instance end errors"})
 
   thresholds = {
-    critical = 1
+    critical = 0
   }
 
   require_full_window = false
