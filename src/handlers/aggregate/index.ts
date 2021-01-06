@@ -16,6 +16,7 @@ import GlobalFacilityControlAggregate from './global/GlobalFacilityControlAggreg
 import GlobalFactionCombatAggregate from './global/GlobalFactionCombatAggregate';
 import GlobalLoadoutAggregate from './global/GlobalLoadoutAggregate';
 import GlobalOutfitAggregate from './global/GlobalOutfitAggregate';
+import GlobalOutfitCapturesAggregate from './global/GlobalOutfitCapturesAggregate';
 import GlobalVictoryAggregate from './global/GlobalVictoryAggregate';
 import GlobalWeaponAggregate from './global/GlobalWeaponAggregate';
 // Instance Aggregates
@@ -24,6 +25,7 @@ import InstanceFacilityControlAggregate from './instance/InstanceFacilityControl
 import InstanceFactionCombatAggregate from './instance/InstanceFactionCombatAggregate';
 import InstanceLoadoutAggregate from './instance/InstanceLoadoutAggregate';
 import InstanceOutfitAggregate from './instance/InstanceOutfitAggregate';
+import InstanceOutfitCapturesAggregate from './instance/InstanceOutfitCapturesAggregate';
 import InstancePopulationAggregate from './instance/InstancePopulationAggregate';
 import InstanceWeaponAggregate from './instance/InstanceWeaponAggregate';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
@@ -47,6 +49,8 @@ export default new ContainerModule((bind) => {
     // FacilityControl Event
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(GlobalFacilityControlAggregate).inSingletonScope();
     bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(InstanceFacilityControlAggregate).inSingletonScope();
+    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(InstanceOutfitCapturesAggregate).inSingletonScope();
+    bind<EventHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(GlobalOutfitCapturesAggregate).inSingletonScope();
 
     // Population Event
     bind<PopulationHandlerInterface<PopulationData>>(TYPES.populationAggregates).to(InstancePopulationAggregate).inSingletonScope();

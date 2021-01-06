@@ -34,12 +34,26 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
             attackerDocs.push({$setOnInsert: {
                 outfit: event.attackerCharacter.outfit,
             }});
+
+            // Ensure outfit information is always up to date
+            attackerDocs.push({
+                $set: {
+                    outfit: event.attackerCharacter.outfit,
+                },
+            });
         }
 
         if (event.character.outfit) {
             victimDocs.push({$setOnInsert: {
                 outfit: event.character.outfit,
             }});
+
+            // Ensure outfit information is always up to date
+            victimDocs.push({
+                $set: {
+                    outfit: event.character.outfit,
+                },
+            });
         }
 
         // Victim deaths always counted in every case
