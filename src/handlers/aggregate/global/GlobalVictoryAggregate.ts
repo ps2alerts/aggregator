@@ -56,7 +56,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 [{
                     world: event.world,
                     zone: event.zone,
-                    date: moment().format('YYYY-MM-DD'),
+                    date: moment().startOf('day').toDate(),
                 }],
             ));
 
@@ -67,7 +67,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 [{
                     world: event.world,
                     zone: event.zone,
-                    date: moment().format('YYYY-MM-DD'),
+                    date: moment().startOf('day').toDate(),
                 }],
                 Bracket.TOTAL,
             ));
