@@ -21,8 +21,6 @@ export default class PopulationAuthority {
     }
 
     public run(): void {
-        PopulationAuthority.logger.info('Running Population Authority');
-
         if (this.timer) {
             PopulationAuthority.logger.warn('Attempted to run PopulationAuthority timer when already defined!');
             this.stop();
@@ -30,7 +28,7 @@ export default class PopulationAuthority {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {
-            PopulationAuthority.logger.debug('Running PopulationAuthority presence collection');
+            PopulationAuthority.logger.info('Running PopulationAuthority presence collection');
 
             // Collect current population metrics from CharacterPresenceHandlerInterface
             const populationData = await this.characterPresenceHandler.collate();
