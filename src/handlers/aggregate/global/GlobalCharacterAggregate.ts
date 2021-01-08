@@ -77,6 +77,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         if (event.killType === Kill.TeamKill) {
             attackerDocs.push({$inc: {teamKills: 1}});
+            victimDocs.push({$inc: {teamKilled: 1}});
         }
 
         if (event.killType === Kill.Suicide || event.killType === Kill.RestrictedArea) {
