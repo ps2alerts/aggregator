@@ -22,7 +22,7 @@ module "aggregator_production" {
   census_service_id        = var.census_service_id
   cpu_limit                = "600m"
   mem_limit                = "0.25Gi"
-  cpu_request              = "450m"
+  cpu_request              = "500m"
   mem_request              = "0.25Gi"
   discord_webhook          = "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
   logger_transports        = "console,discord"

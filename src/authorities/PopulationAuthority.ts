@@ -21,6 +21,8 @@ export default class PopulationAuthority {
     }
 
     public run(): void {
+        PopulationAuthority.logger.info('Running Population Authority');
+
         if (this.timer) {
             PopulationAuthority.logger.warn('Attempted to run PopulationAuthority timer when already defined!');
             this.stop();
