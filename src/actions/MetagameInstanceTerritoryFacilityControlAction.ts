@@ -57,6 +57,8 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
     private async tryCalculate(attempts = 0): Promise<TerritoryResultInterface> {
         attempts++;
 
+        MetagameInstanceTerritoryFacilityControlAction.logger.debug(`TerritoryCalculator attempt #${attempts}`);
+
         if (attempts > 3) {
             throw new ApplicationException('TerritoryCalculator failed after 3 attempts', 'MetagameInstanceTerritoryFacilityControlAction');
         }
