@@ -4,7 +4,7 @@ import {ActionInterface} from '../interfaces/ActionInterface';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import ApplicationException from '../exceptions/ApplicationException';
-import TerritoryCalculator from '../calculators/TerritoryCalculator';
+import TerritoryCalculator, {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 
@@ -36,24 +36,7 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
 
         MetagameInstanceTerritoryFacilityControlAction.logger.info(`[${this.instance.instanceId}] Running FacilityControlAction`);
 
-        let result;
-
-        try {
-            result = await this.territoryCalculator.calculate();
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #1. E: ${e.message}`);
-
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            setTimeout(async () => {
-                try {
-                    result = await this.territoryCalculator.calculate();
-                } catch (err) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    throw new ApplicationException(`[${this.instance.instanceId}] TerritoryCalculator failed retry! E: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
-                }
-            }, 1000);
-        }
+        const result = await this.tryCalculate(0);
 
         try {
             // Update database record with the result of the territory / victor
@@ -69,5 +52,28 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
         }
 
         return true;
+    }
+
+    private async tryCalculate(attempts = 0): Promise<TerritoryResultInterface> {
+        attempts++;
+
+        if (attempts > 3) {
+            throw new ApplicationException('TerritoryCalculator failed after 3 attempts', 'MetagameInstanceTerritoryFacilityControlAction');
+        }
+
+        try {
+            return await this.territoryCalculator.calculate();
+        } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${e.message}`);
+
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            setTimeout(async () => {
+                MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Retrying TerritoryCalculator - Attempt #${attempts}`);
+                return this.tryCalculate(attempts);
+            }, 5000);
+        }
+
+        throw new ApplicationException('Unexpected operation path for tryCalculate', 'MetagameInstanceTerritoryFacilityControlAction');
     }
 }
