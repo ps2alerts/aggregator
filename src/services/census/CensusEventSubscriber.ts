@@ -75,6 +75,12 @@ export default class CensusEventSubscriber implements ServiceInterface {
             return;
         }
 
+        this.wsClient.on(Events.PS2_SERVICE_STATE, (server, status) => {
+            if (!status) {
+                CensusEventSubscriber.logger.error(`[${this.environment}] Server Instability! ${server} reported as down!`);
+            }
+        });
+
         // Set up event handlers
         this.wsClient.on(Events.PS2_DEATH, (censusEvent: Death) => {
             void this.processDeath(censusEvent);

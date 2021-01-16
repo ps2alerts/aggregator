@@ -217,3 +217,18 @@ resource datadog_monitor "aggregator_instance_end_errors" {
 
   tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
 }
+
+resource datadog_monitor "aggregator_server_instability" {
+  name = "PS2Alerts Server Instability [${var.environment}]"
+  type = "log alert"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Server Instability!\").index(\"*\").rollup(\"count\").last(\"5m\") > 0"
+  message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "server instability"})
+
+  thresholds = {
+    critical = 0
+  }
+
+  require_full_window = false
+
+  tags = jsondecode(templatefile("${path.module}/../../dd-tags.tmpl", {environment: var.environment, application: "aggregator"}))
+}
