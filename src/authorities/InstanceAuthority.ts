@@ -80,25 +80,27 @@ export default class InstanceAuthority {
                     bracket: null,
                 });
                 InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
-
-                // Execute start actions
-                await this.instanceActionFactory.buildStart(instance, environment).execute().catch(async (e) => {
-                    // End early if instance failed to insert so we don't add a instance to the list of actives.
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${e.message}`);
-
-                    await this.trashInstance(instance);
-                    return false;
-                });
-
-                this.currentInstances.push(instance); // Add instance to the in-memory data so it can be called upon rapidly without polling DB
-                this.printActives(); // Show currently running alerts in console / log
-
-                return true;
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`[${instance.instanceId}] Unable to insert instance into DB! ${err}`, 'InstanceAuthority');
             }
+
+            // Execute start actions, if it fails trash the instance
+            try {
+                await this.instanceActionFactory.buildStart(instance, environment).execute();
+            } catch (e) {
+                // End early if instance failed to insert so we don't add a instance to the list of actives.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${e.message}`);
+
+                await this.trashInstance(instance);
+                return false;
+            }
+
+            this.currentInstances.push(instance); // Add instance to the in-memory data so it can be called upon rapidly without polling DB
+            this.printActives(); // Show currently running alerts in console / log
+
+            return true;
         }
 
         throw new ApplicationException(`[${instance.instanceId}] Start instance ended unexpectedly!`, 'InstanceAuthority');
@@ -145,14 +147,12 @@ export default class InstanceAuthority {
                 throw new ApplicationException(err.message);
             });
 
-            remove(this.currentInstances, (i) => {
-                return i.instanceId === instance.instanceId;
-            });
+            this.removeActiveInstance(instance);
 
             await this.instanceActionFactory.buildEnd(instance, environment).execute();
 
             InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
-            this.printActives();
+            this.printActives(true);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -202,13 +202,13 @@ export default class InstanceAuthority {
             this.printActives();
         }, 60000);
 
-        this.printActives();
+        this.printActives(true);
         InstanceAuthority.logger.debug('Initializing ActiveInstances FINISHED');
         this.initialized = true;
         return true;
     }
 
-    public printActives(): void {
+    public printActives(mustShow = false): void {
         if (this.currentInstances.length) {
             InstanceAuthority.logger.info('==== Current actives =====');
             this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
@@ -227,7 +227,17 @@ export default class InstanceAuthority {
             });
 
             InstanceAuthority.logger.info('==== Current actives end =====');
+        } else if (mustShow) {
+            InstanceAuthority.logger.info('==== Current actives is empty =====');
         }
+    }
+
+    private removeActiveInstance(instance: PS2AlertsInstanceInterface): void {
+        remove(this.currentInstances, (i) => {
+            return i.instanceId === instance.instanceId;
+        });
+
+        InstanceAuthority.logger.debug(`================== ${instance.instanceId} removed from actives ==================`);
     }
 
     private async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
@@ -240,5 +250,9 @@ export default class InstanceAuthority {
         });
 
         InstanceAuthority.logger.error(`================ [${instance.instanceId}] INSTANCE DELETED! ================`);
+
+        this.removeActiveInstance(instance);
+
+        this.printActives(true);
     }
 }

@@ -23,7 +23,7 @@ export default {
         censusIncomingEvents: true,
         censusEventContent: {
             deaths: false,
-            metagame: true,
+            metagame: false,
             facilityControl: false,
         },
     },
