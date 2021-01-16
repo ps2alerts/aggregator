@@ -29,6 +29,10 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
 
         const documents = [];
 
+        documents.push({$setOnInsert: {
+            zone: event.instance.zone,
+        }});
+
         if (event.isDefence) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
             const defenceKey = `${FactionUtils.parseFactionIdToShortName(event.newFaction)}.defences`;

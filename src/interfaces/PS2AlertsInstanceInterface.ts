@@ -6,6 +6,7 @@ import {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
 export default interface PS2AlertsInstanceInterface {
     instanceId: string;
     world: World;
+    zone: Zone;
     timeStarted: Date;
     timeEnded: Date | null;
     result: TerritoryResultInterface | null;
