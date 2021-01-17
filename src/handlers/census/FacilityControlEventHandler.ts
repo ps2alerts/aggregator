@@ -38,7 +38,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
-        FacilityControlEventHandler.logger.debug(`[Instance ${event.instance.instanceId}] Facility ${event.facility} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
+        FacilityControlEventHandler.logger.debug(`[Instance ${event.instance.instanceId}] Facility ${event.facility.id} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
 
         try {
             await this.storeEvent(event);
@@ -79,7 +79,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         try {
             await this.factory.model.create({
                 instance: event.instance.instanceId,
-                facility: event.facility,
+                facility: event.facility.id,
                 timestamp: event.timestamp,
                 oldFaction: event.oldFaction,
                 newFaction: event.newFaction,

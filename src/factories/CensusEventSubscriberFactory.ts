@@ -10,6 +10,7 @@ import FacilityControlEventHandler from '../handlers/census/FacilityControlEvent
 import VehicleDestroyEventHandler from '../handlers/census/VehicleDestroyEventHandler';
 import InstanceAuthority from '../authorities/InstanceAuthority';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
 
 export default class CensusEventSubscriberFactory {
     private readonly deathEventHandler: DeathEventHandler;
@@ -20,6 +21,7 @@ export default class CensusEventSubscriberFactory {
     private readonly instanceAuthority: InstanceAuthority;
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
     private readonly itemBroker: ItemBrokerInterface;
+    private readonly facilityDataBroker: FacilityDataBrokerInterface;
 
     constructor(
         deathEventHandler: DeathEventHandler,
@@ -30,6 +32,7 @@ export default class CensusEventSubscriberFactory {
         instanceAuthority: InstanceAuthority,
         characterPresenceHandler: CharacterPresenceHandlerInterface,
         itemBroker: ItemBrokerInterface,
+        facilityDataBroker: FacilityDataBrokerInterface,
     ) {
         this.deathEventHandler = deathEventHandler;
         this.metagameEventEventHandler = metagameEventEventHandler;
@@ -39,6 +42,7 @@ export default class CensusEventSubscriberFactory {
         this.instanceAuthority = instanceAuthority;
         this.characterPresenceHandler = characterPresenceHandler;
         this.itemBroker = itemBroker;
+        this.facilityDataBroker = facilityDataBroker;
     }
 
     public build(
@@ -58,6 +62,7 @@ export default class CensusEventSubscriberFactory {
             this.instanceAuthority,
             this.characterPresenceHandler,
             this.itemBroker,
+            this.facilityDataBroker,
         );
     }
 }

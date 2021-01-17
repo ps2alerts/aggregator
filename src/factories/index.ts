@@ -35,5 +35,6 @@ export default new ContainerModule((bind) => {
         container.get(TYPES.instanceAuthority),
         container.get(TYPES.characterPresenceHandler),
         container.get(TYPES.itemBrokerInterface),
+        container.get(TYPES.facilityDataBrokerInterface),
     ));
 });

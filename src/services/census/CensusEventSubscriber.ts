@@ -1,8 +1,7 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {Client, Death, Events, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
-import {TYPES} from '../../constants/types';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
@@ -24,6 +23,7 @@ import {ItemBrokerInterface} from '../../interfaces/ItemBrokerInterface';
 import Parser from '../../utils/parser';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
 import {metagameEventTypeArray} from '../../constants/metagameEventType';
+import {FacilityDataBrokerInterface} from '../../interfaces/FacilityDataBrokerInterface';
 
 @injectable()
 export default class CensusEventSubscriber implements ServiceInterface {
@@ -40,6 +40,7 @@ export default class CensusEventSubscriber implements ServiceInterface {
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
     private readonly characterBroker: CharacterBrokerInterface;
     private readonly itemBroker: ItemBrokerInterface;
+    private readonly facilityDataBroker: FacilityDataBrokerInterface;
     private eventsReady = false;
 
     constructor(
@@ -51,9 +52,10 @@ export default class CensusEventSubscriber implements ServiceInterface {
         facilityControlEventHandler: FacilityControlEventHandler,
         gainExperienceEventHandler: GainExperienceEventHandler,
         vehicleDestroyEventHandler: VehicleDestroyEventHandler,
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
-        @inject(TYPES.characterPresenceHandler) characterPresenceHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.itemBrokerInterface) itemBroker: ItemBrokerInterface,
+        instanceAuthority: InstanceAuthority,
+        characterPresenceHandler: CharacterPresenceHandlerInterface,
+        itemBroker: ItemBrokerInterface,
+        facilityDataBroker: FacilityDataBrokerInterface,
     ) {
         this.wsClient = wsClient;
         this.environment = environment;
@@ -66,6 +68,7 @@ export default class CensusEventSubscriber implements ServiceInterface {
         this.instanceAuthority = instanceAuthority;
         this.characterPresenceHandler = characterPresenceHandler;
         this.itemBroker = itemBroker;
+        this.facilityDataBroker = facilityDataBroker;
     }
 
     // Here we pass all the events
@@ -168,17 +171,24 @@ export default class CensusEventSubscriber implements ServiceInterface {
     private async processFacilityControl(censusEvent: FacilityControl): Promise<void> {
         CensusEventSubscriber.logger.silly(`[${this.environment}] Processing FacilityControl censusEvent`);
 
-        this.getInstances(censusEvent).forEach((instance) => {
+        for (const instance of this.getInstances(censusEvent)) {
+            const facility = await this.facilityDataBroker.get(
+                this.environment,
+                Parser.parseNumericalArgument(censusEvent.facility_id),
+                Parser.parseNumericalArgument(censusEvent.zone_id),
+            );
+
             setTimeout(() => {
                 void this.facilityControlEventHandler.handle(
                     new FacilityControlEvent(
                         censusEvent,
                         instance,
+                        facility,
                     ),
                     this.environment,
                 );
             }, instance instanceof MetagameTerritoryInstance ? 2000 : 1);
-        });
+        }
     }
 
     private async processGainExperience(censusEvent: GainExperience): Promise<void> {

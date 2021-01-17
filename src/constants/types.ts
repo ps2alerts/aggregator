@@ -31,6 +31,7 @@ const TYPES = {
     ps2ps4euCharacterBrokerInterface: Symbol.for('ps2ps4euCharacterBrokerInterface'),
     ps2ps4usCharacterBrokerInterface: Symbol.for('ps2ps4usCharacterBrokerInterface'),
     itemBrokerInterface: Symbol.for('ItemBrokerInterface'),
+    facilityDataBrokerInterface: Symbol.for('FacilityDataBrokerInterface'),
 
     // Cache Drivers
     censusCharacterCacheDriver: Symbol.for('CensusCharacterCacheDriver'),

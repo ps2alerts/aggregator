@@ -28,7 +28,9 @@ export default class ItemBroker implements ItemBrokerInterface {
 
     public async get(
         environment: CensusEnvironment,
-        itemId: number, vehicleId: Vehicle): Promise<ItemInterface> {
+        itemId: number,
+        vehicleId: Vehicle,
+    ): Promise<ItemInterface> {
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             if (!vehicleId) {
                 ItemBroker.logger.silly(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);
@@ -45,15 +47,15 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            ItemBroker.logger.silly(`${cacheKey} cache HIT`);
+            ItemBroker.logger.silly(`item ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
             return new Item(JSON.parse(<string>data));
         }
 
-        ItemBroker.logger.silly(`${cacheKey} cache MISS`);
+        ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
         const get = rest.getFactory(environment, this.censusConfig.serviceID);
 
-        // Grab the character data from Census
+        // Grab the item data from Census
         try {
             await get(
                 rest.limit(

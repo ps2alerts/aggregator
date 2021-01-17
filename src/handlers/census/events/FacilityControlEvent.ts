@@ -18,11 +18,12 @@ import FactionUtils from '../../../utils/FactionUtils';
 import {Faction} from '../../../constants/faction';
 import {FacilityControl} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
+import {FacilityDataInterface} from '../../../interfaces/FacilityDataInterface';
 
 @injectable()
 export default class FacilityControlEvent {
     public readonly instance: PS2AlertsInstanceInterface;
-    public readonly facility: number;
+    public readonly facility: FacilityDataInterface;
     public readonly timestamp: Date;
     public readonly oldFaction: Faction;
     public readonly newFaction: Faction;
@@ -30,14 +31,10 @@ export default class FacilityControlEvent {
     public readonly isDefence: boolean;
     public readonly outfitCaptured: string | null;
 
-    constructor(event: FacilityControl, instance: PS2AlertsInstanceInterface) {
+    constructor(event: FacilityControl, instance: PS2AlertsInstanceInterface, facility: FacilityDataInterface) {
         this.instance = instance;
 
-        this.facility = Parser.parseNumericalArgument(event.facility_id);
-
-        if (isNaN(this.facility)) {
-            throw new IllegalArgumentException('facility_id', 'FacilityControlEvent');
-        }
+        this.facility = facility;
 
         this.timestamp = event.timestamp;
 

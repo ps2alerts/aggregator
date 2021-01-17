@@ -27,24 +27,31 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         GlobalFacilityControlAggregate.logger.silly('GlobalFacilityControlAggregate.handle');
 
+        const newFactionName = FactionUtils.parseFactionIdToShortName(event.newFaction);
+        const oldFactionName = FactionUtils.parseFactionIdToShortName(event.oldFaction);
+
         const documents = [];
 
         documents.push({$setOnInsert: {
-            zone: event.instance.zone,
+            facility: event.facility,
         }});
 
         if (event.isDefence) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const defenceKey = `${FactionUtils.parseFactionIdToShortName(event.newFaction)}.defences`;
+            const defenceKey = `${newFactionName}.defences`;
             documents.push(
                 {$inc: {[defenceKey]: 1}},
                 {$inc: {['totals.defences']: 1}},
             );
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const captureKey = `${FactionUtils.parseFactionIdToShortName(event.newFaction)}.captures`;
+            const captureKey = `${newFactionName}.captures`;
+            const captureTakenKey = `${newFactionName}.takenFrom.${oldFactionName}`;
+            const captureLostKey = `${oldFactionName}.lostTo.${newFactionName}`;
             documents.push(
                 {$inc: {[captureKey]: 1}},
+                {$inc: {[captureTakenKey]: 1}},
+                {$inc: {[captureLostKey]: 1}},
                 {$inc: {['totals.captures']: 1}},
             );
         }
@@ -56,7 +63,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 documents,
                 [{
                     world: event.instance.world,
-                    facility: event.facility,
+                    'facility.id': event.facility.id,
                 }],
             ), event.instance.duration);
 
