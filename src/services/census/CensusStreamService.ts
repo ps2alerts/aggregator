@@ -14,10 +14,8 @@ export default class CensusStreamService implements ServiceInterface {
         this.censusStreamServices = censusStreamServices;
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async boot(): Promise<void> {
-        CensusStreamService.logger.debug('Booting Census Streams... (NOT IMPLEMENTED)');
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async boot(): Promise<void> {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async start(): Promise<void> {
@@ -35,8 +33,6 @@ export default class CensusStreamService implements ServiceInterface {
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async terminate(): Promise<void> {
-        CensusStreamService.logger.debug('Terminating Census Stream Service!');
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async terminate(): Promise<void> {}
 }

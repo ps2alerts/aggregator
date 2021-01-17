@@ -5,7 +5,7 @@ import {RedisConnection} from './RedisConnection';
 
 @injectable()
 export default class RedisConnectionService implements ServiceInterface {
-    public readonly bootPriority = 10;
+    public readonly bootPriority = 3;
     private static readonly logger = getLogger('RedisConnectionService');
     private readonly redisConnection: RedisConnection;
 
@@ -19,14 +19,9 @@ export default class RedisConnectionService implements ServiceInterface {
         this.redisConnection.getClient();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async start(): Promise<void> {
-        RedisConnectionService.logger.debug('Starting RedisConnection Service... (NOT IMPLEMENTED)');
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async start(): Promise<void> {}
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async terminate(): Promise<void> {
-        RedisConnectionService.logger.warn('Terminating Redis Connection... (NOT IMPLEMENTED)');
-        // Nothing to do, it's just a client, it eventually times out
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async terminate(): Promise<void> {}
 }

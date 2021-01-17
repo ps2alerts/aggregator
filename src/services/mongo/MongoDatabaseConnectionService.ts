@@ -5,7 +5,7 @@ import MongoDBConnection from './MongoDBConnection';
 
 @injectable()
 export default class MongoDatabaseConnectionService implements ServiceInterface {
-    public readonly bootPriority = 10;
+    public readonly bootPriority = 1;
     private static readonly logger = getLogger('MongoDatabaseConnectionService');
     private readonly dbClient: MongoDBConnection;
 
@@ -19,14 +19,10 @@ export default class MongoDatabaseConnectionService implements ServiceInterface 
         await this.dbClient.getConnection();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async start(): Promise<void> {
-        MongoDatabaseConnectionService.logger.debug('Starting Mongo Database Connection Service... (NOT IMPLEMENTED)');
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async start(): Promise<void> {}
 
     // This isn't implemented as it appears to do it automatically
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async terminate(): Promise<void> {
-        MongoDatabaseConnectionService.logger.warn('Terminating Mongo Database Connection... (NOT IMPLEMENTED');
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async terminate(): Promise<void> {}
 }

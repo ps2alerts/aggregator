@@ -7,7 +7,7 @@ import ApplicationException from '../../exceptions/ApplicationException';
 
 @injectable()
 export default class RabbitMQConnectionService implements ServiceInterface {
-    public readonly bootPriority = 10;
+    public readonly bootPriority = 4;
     private static readonly logger = getLogger('RabbitMQSubscriptionService');
     private readonly messageQueueSubscribers: RabbitMQConnectionAwareInterface[];
     private readonly messageQueuePublishers: RabbitMQConnectionAwareInterface[];
@@ -44,14 +44,9 @@ export default class RabbitMQConnectionService implements ServiceInterface {
         ));
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async start(): Promise<void> {
-        RabbitMQConnectionService.logger.debug('Starting RabbitMQConnectionService... (NOT IMPLEMENTED)');
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async start(): Promise<void> {}
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async terminate(): Promise<void> {
-        RabbitMQConnectionService.logger.warn('Terminating RabbitMQConnectionService... (NOT IMPLEMENTED)');
-        // TODO: Terminate subscription from consuming, drop current messages and mark them as failed
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
+    public async terminate(): Promise<void> {}
 }
