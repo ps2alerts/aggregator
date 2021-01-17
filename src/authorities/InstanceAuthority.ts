@@ -62,6 +62,10 @@ export default class InstanceAuthority {
     }
 
     public async startInstance(instance: PS2AlertsInstanceInterface, environment: CensusEnvironment): Promise<boolean> {
+        if (!this.initialized) {
+            throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
+        }
+
         InstanceAuthority.logger.info(`================== STARTING INSTANCE ON WORLD ${instance.world}! ==================`);
 
         if (instance instanceof MetagameTerritoryInstance) {

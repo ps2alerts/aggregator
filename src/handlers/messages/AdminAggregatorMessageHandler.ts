@@ -72,10 +72,20 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
         );
 
         try {
-            return this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
+            return await this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${e.message}`);
+            AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${e.message}. Retrying...`);
+
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            setTimeout(async () => {
+                try {
+                    return await this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
+                } catch (err) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    AdminAggregatorMessageHandler.logger.error(`Failed starting instance after 2nd try! #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${err.message}.`);
+                }
+            }, 5000);
         }
 
         return false;
