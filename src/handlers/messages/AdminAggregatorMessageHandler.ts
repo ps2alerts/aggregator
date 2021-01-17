@@ -82,8 +82,9 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 try {
                     return await this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
                 } catch (err) {
+                    // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    AdminAggregatorMessageHandler.logger.error(`Failed starting instance after 2nd try! #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${err.message}.`);
+                    AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
                 }
             }, 5000);
         }
@@ -96,17 +97,11 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
         const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
 
         if (!instance) {
+            // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
             AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
         }
 
-        try {
-            return await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! Error: ${e.message}`);
-        }
-
-        return false;
+        return await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
     }
 
     private activeInstances(): void {

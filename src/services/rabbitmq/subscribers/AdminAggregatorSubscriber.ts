@@ -86,18 +86,13 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Unable to handle message! Probably invalid format. E: ${e.message}`);
             AdminAggregatorSubscriber.channelWrapper.ack(msg);
+            AdminAggregatorSubscriber.logger.debug(`Acked failed message for ${AdminAggregatorSubscriber.queueName}`);
             return false;
         }
 
+        // For some reason this does **NOT** catch exceptions, so we must ack in every case and not throw any exceptions within.
         AdminAggregatorSubscriber.adminMessageHandlers.map(
-            (handler: MessageQueueHandlerInterface<ParsedQueueMessage>) => void handler.handle(message)
-                .catch((e) => {
-                    if (e instanceof Error) {
-                        AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Error processing message! E: ${e.message}\r\n${jsonLogOutput(e)}`);
-                    } else {
-                        AdminAggregatorSubscriber.logger.error('UNEXPECTED ERROR processing message!');
-                    }
-                }),
+            (handler: MessageQueueHandlerInterface<ParsedQueueMessage>) => void handler.handle(message),
         );
         AdminAggregatorSubscriber.channelWrapper.ack(msg);
         AdminAggregatorSubscriber.logger.debug(`Acked message for ${AdminAggregatorSubscriber.queueName}`);
