@@ -36,9 +36,9 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
 
         MetagameInstanceTerritoryFacilityControlAction.logger.info(`[${this.instance.instanceId}] Running FacilityControlAction`);
 
-        const result = await this.tryCalculate(0);
-
         try {
+            const result = await this.tryCalculate(0);
+
             // Update database record with the result of the territory / victor
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
