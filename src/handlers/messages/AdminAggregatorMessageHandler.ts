@@ -94,14 +94,23 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
 
     private async endInstance(message: ParsedQueueMessage): Promise<boolean> {
         const aggregatorMessage = new AdminAggregatorInstanceEndMessage(message.body);
-        const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
 
-        if (!instance) {
-            // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
-            AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
+        try {
+            const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
+
+            if (!instance) {
+                // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
+                return false;
+            }
+
+            return await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
+        } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${e.message}`);
         }
 
-        return await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
+        return false;
     }
 
     private activeInstances(): void {
