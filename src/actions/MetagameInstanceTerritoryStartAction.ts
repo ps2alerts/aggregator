@@ -8,8 +8,8 @@ import {InstanceFacilityControlSchemaInterface} from '../models/instance/Instanc
 import ApplicationException from '../exceptions/ApplicationException';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
-import BracketCalculator from '../calculators/BracketCalculator';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import {Bracket} from '../constants/bracket';
 
 interface MapDataInterface {
     instance: string;
@@ -31,7 +31,6 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
     private readonly censusConfig: Census;
     private readonly facilityControlAction: ActionInterface;
-    private readonly bracketCalculator: BracketCalculator;
 
     constructor(
         instance: MetagameTerritoryInstance,
@@ -40,7 +39,6 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         censusConfig: Census,
         facilityControlAction: ActionInterface,
-        bracketCalculator: BracketCalculator,
     ) {
         this.instance = instance;
         this.environment = environment;
@@ -48,13 +46,12 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
         this.censusConfig = censusConfig;
         this.facilityControlAction = facilityControlAction;
-        this.bracketCalculator = bracketCalculator;
     }
 
     public async execute(): Promise<boolean> {
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()`);
 
-        this.instance.bracket = await this.bracketCalculator.calculate();
+        this.instance.bracket = Bracket.UNKNOWN;
 
         await this.instanceMetagameFactory.model.updateOne(
             {instanceId: this.instance.instanceId},

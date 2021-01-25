@@ -3,6 +3,7 @@ import {getLogger} from '../logger';
 import {World} from '../constants/world';
 import {Client, PS2Event} from 'ps2census';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import LocalServerTimeCalculator from '../calculators/LocalServerTimeCalculator';
 
 @injectable()
 export default class CensusStaleConnectionWatcherAuthority {
@@ -80,7 +81,14 @@ export default class CensusStaleConnectionWatcherAuthority {
         map.forEach((lastTime: number, world: World) => {
             const threshold: number = Date.now() - thresholdLimit;
 
-            if (lastTime < threshold) {
+            // If the bracket for the world is dead, disregard the world as chances are there's nothing going on
+            const localServerHour = new LocalServerTimeCalculator(
+                world,
+                new Date(),
+            ).calculate();
+
+            // If between 09:00-23:59
+            if (localServerHour >= 9 && lastTime < threshold) {
                 CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] No Census ${type} messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Rebooting Connection.`);
                 void this.wsClient.resubscribe();
             }

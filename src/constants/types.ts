@@ -70,7 +70,6 @@ const TYPES = {
     censusEventSubscriberFactory: Symbol.for('CensusEventSubscriberFactory'),
     instanceActionFactory: Symbol.for('InstanceActionFactory'),
     territoryCalculatorFactory: Symbol.for('TerritoryCalculatorFactory'),
-    bracketCalculatorFactory: Symbol.for('BracketCalculatorFactory'),
     globalVictoryAggregate: Symbol.for('GlobalVictoryAggregate'),
 };
 

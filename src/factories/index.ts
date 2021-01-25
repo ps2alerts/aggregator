@@ -3,7 +3,6 @@ import {TYPES} from '../constants/types';
 import InstanceActionFactory from './InstanceActionFactory';
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
 import {Context} from 'inversify/dts/planning/context';
-import BracketCalculatorFactory from './BracketCalculatorFactory';
 import CensusStreamServiceFactory from './CensusStreamServiceFactory';
 import MetagameEventEventHandler from '../handlers/census/MetagameEventEventHandler';
 import FacilityControlEventHandler from '../handlers/census/FacilityControlEventHandler';
@@ -19,8 +18,6 @@ export default new ContainerModule((bind) => {
         container.get(TYPES.instanceFacilityControlModelFactory),
         container.get(TYPES.censusConfig),
     )).inSingletonScope();
-
-    bind<BracketCalculatorFactory>(TYPES.bracketCalculatorFactory).to(BracketCalculatorFactory).inSingletonScope();
 
     bind<CensusStreamServiceFactory>(TYPES.censusStreamServiceFactory).toDynamicValue(({container}: Context) => new CensusStreamServiceFactory(
         container.get(TYPES.characterPresenceHandler),

@@ -12,7 +12,6 @@ import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTer
 import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
 import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameInstanceTerritoryFacilityControlAction';
-import BracketCalculatorFactory from './BracketCalculatorFactory';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
@@ -24,7 +23,6 @@ export default class InstanceActionFactory {
     private readonly censusConfig: Census;
     private readonly globalVictoryAggregate: GlobalVictoryAggregate;
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
-    private readonly bracketCalculatorFactory: BracketCalculatorFactory;
     private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
     constructor(
@@ -32,7 +30,6 @@ export default class InstanceActionFactory {
         @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         @inject(TYPES.censusConfig) censusConfig: Census,
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
-        @inject(TYPES.bracketCalculatorFactory) bracketCalculatorFactory: BracketCalculatorFactory,
         @inject(TYPES.globalVictoryAggregate) globalVictoryAggregate: GlobalVictoryAggregate,
         @inject(TYPES.outfitParticipantCacheHandler) outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {
@@ -40,7 +37,6 @@ export default class InstanceActionFactory {
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
         this.censusConfig = censusConfig;
         this.territoryCalculatorFactory = territoryCalculatorFactory;
-        this.bracketCalculatorFactory = bracketCalculatorFactory;
         this.globalVictoryAggregate = globalVictoryAggregate;
         this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
     }
@@ -57,7 +53,6 @@ export default class InstanceActionFactory {
                 this.instanceFacilityControlModelFactory,
                 this.censusConfig,
                 this.buildFacilityControlEvent(instance, environment, false),
-                this.bracketCalculatorFactory.build(instance),
             );
         }
 
