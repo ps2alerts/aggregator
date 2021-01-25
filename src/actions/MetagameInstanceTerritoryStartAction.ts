@@ -11,6 +11,18 @@ import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/Insta
 import BracketCalculator from '../calculators/BracketCalculator';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 
+interface MapDataInterface {
+    instance: string;
+    facility: number;
+    timestamp: Date;
+    oldFaction: number;
+    newFaction: number;
+    durationHeld: 0;
+    isDefence: 0;
+    isInitial: boolean;
+    outfitCaptured: null;
+}
+
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
     private readonly instance: MetagameTerritoryInstance;
@@ -48,13 +60,57 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             {instanceId: this.instance.instanceId},
             {bracket: this.instance.bracket},
         ).catch((err: Error) => {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
         });
 
+        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Trying to get initial map state`);
+
+        const docs = await this.tryInitialMap(0);
+
+        if (!docs) {
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to determine initial map state!`, 'MetagameInstanceTerritoryStartAction');
+        }
+
+        // Insert the map data into the instance facility control collection
+        void this.instanceFacilityControlModelFactory.model.insertMany(docs)
+            .catch((err: Error) => {
+                if (!err.message.includes('E11000')) {
+                    throw new ApplicationException(`[${this.instance.instanceId}] Error inserting initial map state! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
+                }
+            });
+
+        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
+
+        // Also update the result of the instance now we have hydrated the territory info
+        void this.facilityControlAction.execute();
+
+        return true;
+    }
+
+    private async tryInitialMap(attempts = 0): Promise<MapDataInterface[] | undefined> {
+        try {
+            return await this.getInitialMap();
+        } catch (err) {
+            if (attempts === 3) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                throw new ApplicationException(`[${this.instance.instanceId}] Start action - Initial map data failed to return from Census! Attempt #${attempts}. E: ${err.message}`);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Start action - Initial map data failed to return from Census! Attempt #${attempts}. E: ${err.message}`);
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            setTimeout(async () => {
+                return await this.tryInitialMap(attempts);
+            }, 5000);
+        }
+    }
+
+    private async getInitialMap(): Promise<MapDataInterface[]> {
         // Take a snapshot of the map for use with territory calculations for the end
         const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const docs: any[] = [];
+        const docs: MapDataInterface[] = [];
 
         await get(
             rest.join(
@@ -105,20 +161,9 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                 }
             });
 
-            // Insert the map data into the instance facility control collection
-            void this.instanceFacilityControlModelFactory.model.insertMany(docs)
-                .catch((err: Error) => {
-                    if (!err.message.includes('E11000')) {
-                        throw new ApplicationException(`[${this.instance.instanceId}] Error inserting Initial Map Capture! ${err.message}`, 'MetagameInstanceTerritoryStartAction');
-                    }
-                });
-
-            MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
-
-            // Also update the result of the instance now we have hydrated the territory info
-            void this.facilityControlAction.execute();
+            return docs;
         });
 
-        return true;
+        return docs;
     }
 }

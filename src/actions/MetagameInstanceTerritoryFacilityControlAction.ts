@@ -39,6 +39,11 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
         try {
             const result = await this.tryCalculate(0);
 
+            if (!result) {
+                MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] tryCalculate returned no results!`, 'MetagameInstanceTerritoryFacilityControlAction');
+                return false;
+            }
+
             // Update database record with the result of the territory / victor
             await this.instanceMetagameFactory.model.updateOne(
                 {instanceId: this.instance.instanceId},
@@ -54,28 +59,31 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
         return true;
     }
 
-    private async tryCalculate(attempts = 0): Promise<TerritoryResultInterface> {
+    private async tryCalculate(attempts = 0): Promise<TerritoryResultInterface | undefined> {
         attempts++;
-
-        MetagameInstanceTerritoryFacilityControlAction.logger.debug(`TerritoryCalculator attempt #${attempts}`);
 
         if (attempts > 3) {
             throw new ApplicationException('TerritoryCalculator failed after 3 attempts', 'MetagameInstanceTerritoryFacilityControlAction');
         }
 
+        MetagameInstanceTerritoryFacilityControlAction.logger.debug(`TerritoryCalculator attempt #${attempts}`);
+
         try {
             return await this.territoryCalculator.calculate();
         } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${e.message}`);
+            if (attempts === 3) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${e.message}`);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                MetagameInstanceTerritoryFacilityControlAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${e.message}`);
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setTimeout(async () => {
-                MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Retrying TerritoryCalculator - Attempt #${attempts}`);
+                MetagameInstanceTerritoryFacilityControlAction.logger.warn(`[${this.instance.instanceId}] Retrying TerritoryCalculator - Attempt #${attempts}`);
                 return this.tryCalculate(attempts);
             }, 5000);
         }
-
-        throw new ApplicationException('Unexpected operation path for tryCalculate', 'MetagameInstanceTerritoryFacilityControlAction');
     }
 }

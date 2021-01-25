@@ -42,12 +42,12 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache HIT`);
+            FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
             return new FacilityData(JSON.parse(<string>data), zone);
         }
 
-        FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache MISS`);
+        FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache MISS`);
         const get = rest.getFactory(environment, this.censusConfig.serviceID);
 
         // Grab the map region data from Census
