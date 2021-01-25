@@ -56,11 +56,11 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           name = var.identifier
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
-            limits {
+            limits = {
               cpu = var.cpu_limit
               memory = var.mem_limit
             }
-            requests {
+            requests = {
               cpu = var.cpu_request
               memory = var.mem_request
             }
