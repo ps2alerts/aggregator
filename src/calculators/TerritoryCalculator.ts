@@ -15,6 +15,7 @@ import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Zone} from '../constants/zone';
+import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 
 export interface TerritoryResultInterface extends InstanceResultInterface {
     cutoff: number;
@@ -239,33 +240,61 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
 
     private async getMapFacilities(): Promise<void> {
         const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
-        await get(
-            rest.limit(
-                rest.mapRegion,
-                1000,
+        const request = get(
+            rest.join(
+                rest.map,
+                [{
+                    type: 'map_region',
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    inject_at: 'map_region',
+                    on: 'Regions.Row.RowData.RegionId',
+                    to: 'map_region_id',
+                }],
             ),
-            {
+            { // Query for filter
                 // eslint-disable-next-line @typescript-eslint/naming-convention
-                zone_id: String(this.instance.zone),
+                world_id: String(this.instance.world),
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                zone_ids: String(this.instance.zone),
             },
-        ).then(async (result) => {
-            if (!result.length || result.length === 0) {
+        );
+
+        const apiRequest = new CensusApiRetryDriver(request, 'TerritoryCalculator');
+        await apiRequest.try().then(async (result) => {
+            if (!result || result.length === 0) {
                 throw new ApplicationException(`Unable to get Facility map for I: ${this.instance.instanceId} - Z: ${this.instance.zone}`, 'TerritoryCalculator');
             }
 
-            for (const region of result) {
-                const id = parseInt(region.facility_id, 10);
+            for (const row of result[0].Regions.Row) {
+                const region = row.RowData;
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                const id = parseInt(region.map_region.facility_id, 10);
 
                 // If facility is in blacklist, don't map it
                 if (censusOldFacilities.includes(id) || isNaN(id)) {
                     continue;
                 }
 
+                let facilityFaction = Faction.NONE;
+
+                // Attempt to get facility faction - if we're unable we'll attempt to get it from Census instead
+                try {
+                    facilityFaction = await this.getFacilityFaction(id);
+                } catch (err) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                    TerritoryCalculator.logger.error(`${err.message} - replacing with values from Census`);
+                    facilityFaction = parseInt(region.FactionId, 10);
+                    TerritoryCalculator.logger.warn(`[${this.instance.instanceId}] Facility faction replaced! New value is ${facilityFaction}`);
+                }
+
                 const facility: FacilityInterface = {
                     facilityId: id,
-                    facilityName: region.facility_name,
-                    facilityType: parseInt(region.facility_type_id, 10),
-                    facilityFaction: await this.getFacilityFaction(id),
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                    facilityName: region.map_region.facility_name,
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                    facilityType: parseInt(region.map_region.facility_type_id, 10),
+                    facilityFaction,
                 };
                 this.mapFacilityList.set(id, facility);
                 this.cutoffFacilityList.set(id, facility);
@@ -290,7 +319,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             return returnData;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to read Lattice Link data for zone ${this.instance.zone}! E: ${err.message}`);
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to read Lattice Link data! E: ${err.message}`);
         }
     }
 

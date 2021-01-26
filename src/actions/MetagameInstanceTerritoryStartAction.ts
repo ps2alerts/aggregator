@@ -10,6 +10,11 @@ import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Bracket} from '../constants/bracket';
+import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
+import {mapRegion, mapRegionTypeData} from 'ps2census/dist/rest';
+import map from 'ps2census/dist/rest/types/map';
+import collectionIndex from 'ps2census/dist/rest/indexes/collectionIndex';
+import {collections} from 'ps2census/dist/rest/utils/requestTypes';
 
 interface MapDataInterface {
     instance: string;
@@ -62,10 +67,10 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
 
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Trying to get initial map state`);
 
-        const docs = await this.tryInitialMap(0);
+        const docs = await this.getInitialMap();
 
         if (!docs) {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to determine initial map state!`, 'MetagameInstanceTerritoryStartAction');
+            throw new ApplicationException(`[${this.instance.instanceId}] Map state was empty!`, 'MetagameInstanceTerritoryStartAction');
         }
 
         // Insert the map data into the instance facility control collection
@@ -84,32 +89,13 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         return true;
     }
 
-    private async tryInitialMap(attempts = 0): Promise<MapDataInterface[] | undefined> {
-        try {
-            return await this.getInitialMap();
-        } catch (err) {
-            if (attempts === 3) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`[${this.instance.instanceId}] Start action - Initial map data failed to return from Census! Attempt #${attempts}. E: ${err.message}`);
-            } else {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Start action - Initial map data failed to return from Census! Attempt #${attempts}. E: ${err.message}`);
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            setTimeout(async () => {
-                return await this.tryInitialMap(attempts);
-            }, 5000);
-        }
-    }
-
     private async getInitialMap(): Promise<MapDataInterface[]> {
         // Take a snapshot of the map for use with territory calculations for the end
         const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const docs: MapDataInterface[] = [];
 
-        await get(
+        const request = get(
             rest.join(
                 rest.map,
                 [{
@@ -126,12 +112,15 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 zone_ids: String(this.instance.zone),
             },
-        ).then((mapData) => {
-            const date = new Date();
+        );
 
-            if (mapData[0].Regions.Row.length === 0) {
+        const apiRequest = new CensusApiRetryDriver(request, 'MetagameInstanceTerritoryStartAction');
+        await apiRequest.try().then((mapData) => {
+            if (!mapData || mapData.length === 0) {
                 throw new ApplicationException(`[${this.instance.instanceId}] No map data was returned from Census! Cannot start alert properly!`);
             }
+
+            const date = new Date();
 
             mapData[0].Regions.Row.forEach((row) => {
                 // Check if we have a facility type, if we don't chuck it as it's an old facility
@@ -157,8 +146,6 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                     MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
                 }
             });
-
-            return docs;
         });
 
         return docs;

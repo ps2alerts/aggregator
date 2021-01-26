@@ -11,6 +11,7 @@ import {Zone} from '../constants/zone';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
+import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 
 @injectable()
 export default class FacilityDataBroker implements FacilityDataBrokerInterface {
@@ -48,18 +49,21 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
         }
 
         FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache MISS`);
+
         const get = rest.getFactory(environment, this.censusConfig.serviceID);
+        const request = get(
+            rest.limit(
+                rest.mapRegion,
+                1,
+            ),
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            {facility_id: facilityId.toString()},
+        );
 
         // Grab the map region data from Census
         try {
-            await get(
-                rest.limit(
-                    rest.mapRegion,
-                    1,
-                ),
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                {facility_id: facilityId.toString()},
-            ).then(async (facility) => {
+            const apiRequest = new CensusApiRetryDriver(request, 'FacilityDataBroker');
+            await apiRequest.try().then(async (facility) => {
                 if (!facility || !facility[0] || !facility[0].facility_id) {
                     FacilityDataBroker.logger.error(`[${environment}] Could not find facility ${facilityId} (Zone ${zone}) in Census, or they returned garbage.`);
                     return facilityData;

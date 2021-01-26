@@ -11,6 +11,7 @@ import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis as RedisInterface} from 'ioredis';
 import {Vehicle} from '../constants/vehicle';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -54,17 +55,19 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
         const get = rest.getFactory(environment, this.censusConfig.serviceID);
+        const request = get(
+            rest.limit(
+                rest.item,
+                1,
+            ),
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            {item_id: itemId.toString()},
+        );
 
         // Grab the item data from Census
         try {
-            await get(
-                rest.limit(
-                    rest.item,
-                    1,
-                ),
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                {item_id: itemId.toString()},
-            ).then(async (item) => {
+            const apiRequest = new CensusApiRetryDriver(request, 'ItemBroker');
+            await apiRequest.try().then(async (item) => {
                 if (!item || !item[0] || !item[0].item_id) {
                     ItemBroker.logger.error(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
                     return new FakeItemFactory().build();
