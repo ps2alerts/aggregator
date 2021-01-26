@@ -11,10 +11,6 @@ import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/Insta
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Bracket} from '../constants/bracket';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
-import {mapRegion, mapRegionTypeData} from 'ps2census/dist/rest';
-import map from 'ps2census/dist/rest/types/map';
-import collectionIndex from 'ps2census/dist/rest/indexes/collectionIndex';
-import {collections} from 'ps2census/dist/rest/utils/requestTypes';
 
 interface MapDataInterface {
     instance: string;
@@ -84,7 +80,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
 
         // Also update the result of the instance now we have hydrated the territory info
-        void this.facilityControlAction.execute();
+        await this.facilityControlAction.execute();
 
         return true;
     }
