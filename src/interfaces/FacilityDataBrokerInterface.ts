@@ -1,8 +1,8 @@
 import {CensusEnvironment} from '../types/CensusEnvironment';
-import {Zone} from "../constants/zone";
-import {FacilityDataInterface} from "./FacilityDataInterface";
+import {Zone} from '../constants/zone';
+import {FacilityDataInterface} from './FacilityDataInterface';
 
-export interface FacilityDataBrokerInterface<> {
+export interface FacilityDataBrokerInterface {
     get(
         environment: CensusEnvironment,
         facilityId: number,
