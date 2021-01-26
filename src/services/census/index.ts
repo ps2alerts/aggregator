@@ -51,17 +51,17 @@ export default new ContainerModule((bind) => {
             return new Client(config.census.serviceID, clientConfig);
         }).inSingletonScope();
 
-    // bind<Client>(TYPES.ps2ps4usWebsocketClient)
-    //     .toDynamicValue(({container}) => {
-    //         const clientConfig = {...config.census.ps2ps4usClientConfig};
-    //
-    //         clientConfig.characterManager = {
-    //             ...clientConfig.characterManager,
-    //             cache: container.get(TYPES.censusCharacterCacheDriver),
-    //         };
-    //
-    //         return new Client(config.census.serviceID, clientConfig);
-    //     }).inSingletonScope();
+    bind<Client>(TYPES.ps2ps4usWebsocketClient)
+        .toDynamicValue(({container}) => {
+            const clientConfig = {...config.census.ps2ps4usClientConfig};
+
+            clientConfig.characterManager = {
+                ...clientConfig.characterManager,
+                cache: container.get(TYPES.censusCharacterCacheDriver),
+            };
+
+            return new Client(config.census.serviceID, clientConfig);
+        }).inSingletonScope();
 
     bind<CensusStream>(TYPES.censusStreamServices)
         .toDynamicValue(({container}) => {
