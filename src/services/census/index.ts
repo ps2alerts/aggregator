@@ -85,16 +85,16 @@ export default new ContainerModule((bind) => {
             );
         }).inSingletonScope();
 
-    // bind<CensusStream>(TYPES.censusStreamServices)
-    //     .toDynamicValue(({container}) => {
-    //         const factory: CensusStreamServiceFactory = container.get(TYPES.censusStreamServiceFactory);
-    //         return factory.build(
-    //             container.get(TYPES.ps2ps4usWebsocketClient),
-    //             'ps2ps4us',
-    //             container.get(TYPES.ps2ps4usCensusEventSubscriberService),
-    //             container.get(TYPES.ps2ps4usCensusStaleConnectionWatcherAuthority),
-    //         );
-    //     }).inSingletonScope();
+    bind<CensusStream>(TYPES.censusStreamServices)
+        .toDynamicValue(({container}) => {
+            const factory: CensusStreamServiceFactory = container.get(TYPES.censusStreamServiceFactory);
+            return factory.build(
+                container.get(TYPES.ps2ps4usWebsocketClient),
+                'ps2ps4us',
+                container.get(TYPES.ps2ps4usCensusEventSubscriberService),
+                container.get(TYPES.ps2ps4usCensusStaleConnectionWatcherAuthority),
+            );
+        }).inSingletonScope();
 
     bind<CensusEventSubscriber>(TYPES.pcCensusEventSubscriberService)
         .toDynamicValue(({container}) => {
