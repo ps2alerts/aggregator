@@ -36,7 +36,7 @@ export class CensusApiRetryDriver<T> {
                 return await this.try(attempts);
             } else {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request failed after 3 attempts! E: ${err.message}`, 'CensusApiRetryDriver');
+                CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
             }
         }
     }
