@@ -35,6 +35,8 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 return await this.startInstance(message);
             case 'instanceEnd':
                 return await this.endInstance(message);
+            case 'endAll':
+                return await this.endAllInstances();
             case 'activeInstances':
                 void this.activeInstances();
                 return true;
@@ -108,6 +110,30 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
         } catch (e) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${e.message}`);
+        }
+
+        return false;
+    }
+
+    private async endAllInstances(): Promise<boolean> {
+        try {
+            const instances = this.instanceAuthority.getAllInstances();
+
+            if (instances.length === 0) {
+                // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+                AdminAggregatorMessageHandler.logger.error('No instances found to end!');
+                return false;
+            }
+
+            for (const instance of instances) {
+                await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
+            }
+
+            return true;
+
+        } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+            AdminAggregatorMessageHandler.logger.error(`Failed ending all instances via adminAggregator message! E: ${e.message}`);
         }
 
         return false;

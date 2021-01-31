@@ -16,7 +16,7 @@
     valid_factions: ["1", "2", "3"]
   vars_prompt:
     - name: type
-      prompt: "Select message type [start, end, activeInstances]"
+      prompt: "Select message type [start, end, endAll, activeInstances]"
       private: no
       default: "start"
 
@@ -91,6 +91,14 @@
           body:
             instanceId: "{{ instanceId }}"
       when: type == "end"
+
+    - name: Create endAll message body
+      set_fact:
+        message:
+          type: "endAll"
+          body:
+            foo: "bar"
+      when: type == "endAll"
 
     - name: Create activeInstances message body
       set_fact:
