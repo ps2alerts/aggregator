@@ -9,6 +9,7 @@ import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDela
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../constants/bracket';
+import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
 export default class GlobalLoadoutAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -26,6 +27,9 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalLoadoutAggregate.logger.silly('GlobalLoadoutAggregate.handle');
+
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -49,6 +53,12 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
         if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             attackerDocs.push({$inc: {headshots: 1}});
+        }
+
+        // Faction vs Faction
+        if (event.attackerCharacter.faction !== event.character.faction) {
+            const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
+            attackerDocs.push({$inc: {[factionKey]: 1}});
         }
 
         if (attackerDocs.length > 0) {

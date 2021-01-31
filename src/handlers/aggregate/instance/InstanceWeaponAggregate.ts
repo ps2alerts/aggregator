@@ -7,6 +7,7 @@ import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
 export default class InstanceWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -19,6 +20,9 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceWeaponAggregate.logger.silly('InstanceWeaponAggregate.handle');
+
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
 
         const documents = [];
 
@@ -40,6 +44,12 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             documents.push({$inc: {headshots: 1}});
+        }
+
+        // Faction vs Faction
+        if (event.attackerCharacter.faction !== event.character.faction) {
+            const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
+            documents.push({$inc: {[factionKey]: 1}});
         }
 
         try {

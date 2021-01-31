@@ -8,6 +8,7 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';
+import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -25,6 +26,9 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceOutfitAggregate.logger.silly('InstanceOutfitAggregate.handle');
+
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -74,6 +78,12 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
 
         if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             attackerDocs.push({$inc: {headshots: 1}});
+        }
+
+        // Faction vs Faction
+        if (event.attackerCharacter.faction !== event.character.faction) {
+            const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
+            attackerDocs.push({$inc: {[factionKey]: 1}});
         }
 
         // Purpose for this is we can aggregate stats for "outfitless" characters, e.g. TR (-3) got X kills
