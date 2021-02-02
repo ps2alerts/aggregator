@@ -18,11 +18,11 @@ resource datadog_monitor "aggregator_not_running" {
 resource datadog_monitor "aggregator_high_mem" {
   name = "PS2Alerts Aggregator high memory [${var.environment}]"
   type = "metric alert"
-  query = "max(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 131072000"
+  query = "max(last_5m):avg:kubernetes.memory.rss{kube_container_name:ps2alerts-aggregator-${var.environment}} > 235930000"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high memory"})
 
   thresholds = {
-    critical = 131072000 #125MB
+    critical = 235930000 #255MB
   }
 
   notify_no_data = true
@@ -35,11 +35,11 @@ resource datadog_monitor "aggregator_high_mem" {
 resource datadog_monitor "aggregator_high_cpu" {
   name = "PS2Alerts Aggregator high CPU [${var.environment}]"
   type = "metric alert"
-  query = "avg(last_10m):avg:kubernetes.cpu.usage.total{kube_container_name:ps2alerts-aggregator-${var.environment}} > 500000000"
+  query = "avg(last_10m):avg:kubernetes.cpu.usage.total{kube_container_name:ps2alerts-aggregator-${var.environment}} > 450000000"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high CPU"})
 
   thresholds = {
-    critical = 500000000 # 0.5 CPU
+    critical = 450000000 # 0.4 CPU
   }
 
   notify_no_data = true
@@ -146,11 +146,11 @@ resource datadog_monitor "aggregator_unhandled_rejections" {
 resource datadog_monitor "aggregator_high_killed" {
   name = "PS2Alerts Aggregator high killed [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Killed\").index(\"*\").rollup(\"count\").last(\"30m\") > 2"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* Killed\").index(\"*\").rollup(\"count\").last(\"30m\") > 1"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high killed"})
 
   thresholds = {
-    critical = 2
+    critical = 1
   }
 
   require_full_window = false
@@ -161,11 +161,11 @@ resource datadog_monitor "aggregator_high_killed" {
 resource datadog_monitor "aggregator_territory_calculator_errors" {
   name = "PS2Alerts Aggregator TerritoryCalculator errors [${var.environment}]"
   type = "log alert"
-  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* TerritoryCalculator failed\").index(\"*\").rollup(\"count\").last(\"15m\") > 1"
+  query = "logs(\"container_name:*ps2alerts-aggregator-${var.environment}* status:error TerritoryCalculator failed\").index(\"*\").rollup(\"count\").last(\"15m\") > 2"
   message = templatefile("${path.module}/../../dd-monitor-message.tmpl", {environment: var.environment, application: "Aggregator", description: "high TerritoryCalculator errors"})
 
   thresholds = {
-    critical = 1
+    critical = 2
   }
 
   require_full_window = false
