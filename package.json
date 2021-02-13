@@ -42,7 +42,7 @@
     "moment-timezone": "^0.5.33",
     "mongoose": "5.10.1",
     "mysql2": "^2.1.0",
-    "ps2census": "^0.5.6",
+    "ps2census": "^2.0.3",
     "reflect-metadata": "^0.1.13",
     "utf-8-validate": "^5.0.3",
     "winston": "^3.3.3",
