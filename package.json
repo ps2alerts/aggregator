@@ -39,7 +39,7 @@
     "lodash": "^4.17.15",
     "logform": "^2.2.0",
     "moment": "^2.29.1",
-    "moment-timezone": "^0.5.32",
+    "moment-timezone": "^0.5.33",
     "mongoose": "5.10.1",
     "mysql2": "^2.1.0",
     "ps2census": "^0.5.6",
