@@ -37,7 +37,7 @@
           DB_SCHEMA: "ps2alerts"
           DB_DEBUG: "false"
           REDIS_HOST: "ps2alerts-redis"
-          REDIS_DB: "1"
+          REDIS_DB: "0"
           API_BASE_URL: "http://dev.api.ps2alerts.com"
           CENSUS_SERVICE_ID: "{{ census_service_id }}"
           LOGGER_TRANSPORTS: "console"
