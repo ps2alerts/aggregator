@@ -13,7 +13,7 @@ module "aggregator_staging" {
   database_debug           = false
   redis_host               = "ps2alerts-redis-master"
   redis_pass               = var.redis_pass
-  redis_db                 = 1
+  redis_db                 = 10
   rabbitmq_host            = "ps2alerts-rabbitmq"
   rabbitmq_user            = "ps2alerts"
   rabbitmq_pass            = var.rabbitmq_pass
