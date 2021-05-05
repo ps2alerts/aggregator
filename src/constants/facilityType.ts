@@ -8,5 +8,6 @@ export enum FacilityType {
     WARPGATE = 7,
     INTERLINK_FACILITY = 8,
     CONSTRUCTION_OUTPOST = 9,
-    RELIC_OUTPOST = 10 // Desolation only
+    RELIC_OUTPOST = 10, // Desolation only
+    CONTAINMENT_SITE = 11
 }

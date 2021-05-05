@@ -291,11 +291,12 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                 const facility: FacilityInterface = {
                     facilityId: id,
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                    facilityName: region.map_region.facility_name,
+                    facilityName: region.map_region.facility_name ?? 'UNKNOWN!',
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                    facilityType: parseInt(region.map_region.facility_type_id, 10),
+                    facilityType: parseInt(region.map_region.facility_type_id, 10) ?? 1,
                     facilityFaction,
                 };
+
                 this.mapFacilityList.set(id, facility);
                 this.cutoffFacilityList.set(id, facility);
             }
@@ -327,8 +328,12 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     // This function traverses the lattice links for each base, starting at the warpgate. It traverses each link until no other
     // bases can be found that are owned by the same faction. It then adds each facility to a map, which we collate later to get the raw number of bases.
     private async traverse(facilityId: number, linkingFaction: Faction, depth: number, latticeLinks: FacilityLatticeLinkInterface[]): Promise<boolean> {
+        if (!this.mapFacilityList.has(facilityId)) {
+            throw new ApplicationException(`Facility ID ${facilityId} does not exist in the facility list!`);
+        }
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore bruhhh
+        // @ts-ignore
         const facilityName = this.mapFacilityList.get(facilityId).facilityName;
 
         depth++;
