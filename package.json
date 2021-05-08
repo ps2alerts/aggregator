@@ -44,7 +44,7 @@
     "mysql2": "^2.1.0",
     "ps2census": "^0.5.6",
     "reflect-metadata": "^0.1.13",
-    "utf-8-validate": "^5.0.3",
+    "utf-8-validate": "^5.0.5",
     "winston": "^3.3.3",
     "winston-transport": "^4.4.0",
     "ws": "^7.4.3"
