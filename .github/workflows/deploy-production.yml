@@ -29,7 +29,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
 #      - name: Build and push base image
-#        uses: docker/build-push-action@v2.3.0
+#        uses: docker/build-push-action@v2.5.0
 #        with:
 #          context: provisioning/base
 #          file: provisioning/base/Dockerfile
@@ -39,7 +39,7 @@ jobs:
 #          tags: maelstromeous/applications:ps2alerts-aggregator-base
 
       - name: Build and push production image
-        uses: docker/build-push-action@v2.3.0
+        uses: docker/build-push-action@v2.5.0
         with:
           file: provisioning/production/Dockerfile
           platforms: linux/amd64
