@@ -35,7 +35,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "inversify": "^5.0.5",
-    "ioredis": "^4.23.0",
+    "ioredis": "^4.28.2",
     "lodash": "^4.17.21",
     "logform": "^2.2.0",
     "moment": "^2.29.1",
