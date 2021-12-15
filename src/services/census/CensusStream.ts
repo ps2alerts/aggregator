@@ -82,7 +82,9 @@ export default class CensusStream {
         });
 
         this.wsClient.on('ps2Event', (event: PS2Event) => {
-            if (parseInt(event.world_id, 10) === World.JAEGER) {
+            const worldId = parseInt(event.world_id, 10);
+
+            if ([World.JAEGER, World.EMERALD].includes(worldId)) {
                 return true;
             }
 
