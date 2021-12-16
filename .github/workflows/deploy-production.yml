@@ -4,8 +4,23 @@ on:
   push:
     branches: [master]
 jobs:
+  sanity-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: provisioning/terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Terraform Format
+        run: terraform fmt -check
+
   build-docker-images:
     runs-on: ubuntu-latest
+    needs:
+      - sanity-checks
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -28,15 +43,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-#      - name: Build and push base image
-#        uses: docker/build-push-action@v2.3.0
-#        with:
-#          context: provisioning/base
-#          file: provisioning/base/Dockerfile
-#          platforms: linux/amd64
-#          push: true
-#          no-cache: true
-#          tags: maelstromeous/applications:ps2alerts-aggregator-base
+      #      - name: Build and push base image
+      #        uses: docker/build-push-action@v2.3.0
+      #        with:
+      #          context: provisioning/base
+      #          file: provisioning/base/Dockerfile
+      #          platforms: linux/amd64
+      #          push: true
+      #          no-cache: true
+      #          tags: maelstromeous/applications:ps2alerts-aggregator-base
 
       - name: Build and push production image
         uses: docker/build-push-action@v2.3.0
@@ -77,10 +92,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      # Checks that all Terraform configuration files adhere to a canonical format
-      - name: Terraform Format
-        run: terraform fmt -check
 
       # Generates an execution plan for Terraform, with the injected SHA
       - name: Terraform Plan

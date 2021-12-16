@@ -6,8 +6,8 @@
     queue_name: "adminAggregator-development"
     environment: ""
     hostname: "localhost"
-    user: "user"
-    password: "bitnami"
+    user: "guest"
+    password: "guest"
     vhost: "%2F"
     world: ""
     zone: ""
@@ -41,7 +41,7 @@
       default: false
 
     - name: duration
-      prompt: "[start] Specify duration in seconds. Default is \"5400\" for 1:30 hours"
+      prompt: '[start] Specify duration in seconds. Default is "5400" for 1:30 hours'
       private: no
       default: 5400
 
