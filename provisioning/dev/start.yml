@@ -6,6 +6,9 @@
   vars_files:
     - ../../vars.local.yml
   tasks:
+    - debug:
+        msg: "========= 📡 Starting Aggregator Module 📡  ========="
+
     - name: Delete dist folder
       file:
         path: "{{ root_dir }}/dist"
@@ -15,7 +18,7 @@
       docker_container:
         name: ps2alerts-aggregator
         image: ps2alerts/aggregator:dev
-        state: started
+        state: present
         restart: no
         recreate: yes
         restart_policy: "no"
