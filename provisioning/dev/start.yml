@@ -18,7 +18,7 @@
       docker_container:
         name: ps2alerts-aggregator
         image: ps2alerts/aggregator:dev
-        state: present
+        state: started
         restart: no
         recreate: yes
         restart_policy: "no"
