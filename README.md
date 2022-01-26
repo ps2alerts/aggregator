@@ -12,9 +12,9 @@ This project powers the PS2Alerts website. Its primary purpose is to act as a Da
 
 ## Installation
 
-Run `ps2alerts-start` to start all associated services including this module. Dependencies will be handled via the bootstrap process.
+For first time runs, you must run `ps2alerts-aggregator-init`, which goes ahead and builds the base image required for the dev Docker image to run.
 
-For first time runs, you must run `ps2alerts-aggregator-start-full`, which goes ahead and builds the base image required for the dev Docker image to run.
+Run `ps2alerts-start` to start all associated services including this module. Dependencies will be handled via the bootstrap process.
 
 To start the aggregator for development, run `ps2alerts-aggregator-dev`. This will bootstrap the container with ENV vars etc and tail the docker logs, as you would if you ran it manually via NPM.
 
@@ -29,7 +29,7 @@ On Mac OS X, [gyp has a hard dependency on XCode](https://medium.com/@Harry_1408
 
 For local development, you're recommended to have the following installed:
 
-* [Node v10+](https://nodejs.org/en/download) recommend using NVM (Node Version Manager)
+* [Node v12+](https://nodejs.org/en/download) recommend using NVM (Node Version Manager)
 * [NPM](https://www.npmjs.com/get-npm)
 
 ## Contributions
