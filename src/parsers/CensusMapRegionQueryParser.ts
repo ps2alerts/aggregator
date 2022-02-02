@@ -6,7 +6,7 @@ import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
 
 /* eslint-disable */
-interface ReversedEngineeredOshurDataInterface {
+interface ReverseEngineeredOshurDataInterface {
     map_region_id: string;
     facility_id: string;
     facility_name: string;
@@ -42,7 +42,7 @@ export default class CensusMapRegionQueryParser {
     private readonly getMethod: rest.requestTypes.getMethod;
     private readonly caller: string;
     private readonly instance: MetagameTerritoryInstance;
-    private readonly oshurData: ReversedEngineeredOshurDataInterface[];
+    private readonly oshurData: ReverseEngineeredOshurDataInterface[];
 
     constructor(
         getMethod: rest.requestTypes.getMethod,
@@ -94,7 +94,7 @@ export default class CensusMapRegionQueryParser {
 
             // Loop the data and patch it
             for (const row of mapData[0].Regions.Row) {
-                const oshurData = this.getOshurData(row);
+                const oshurData = this.getOshurRegionData(row);
 
                 /* eslint-disable */
                 row.RowData.map_region = {
@@ -115,19 +115,19 @@ export default class CensusMapRegionQueryParser {
     }
 
     // noinspection JSMethodCanBeStatic
-    private initOshurData(): ReversedEngineeredOshurDataInterface[] {
+    private initOshurData(): ReverseEngineeredOshurDataInterface[] {
         // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-return
         return require(`${__dirname}/../constants/lattice/344-reverse-engineered.json`);
     }
 
     // Grabs the data from Oshur and filters exactly what is required
-    private getOshurData(
+    private getOshurRegionData(
         row: RegionMapJoinQueryRowInterface,
-    ): ReversedEngineeredOshurDataInterface {
-        const foundOshurMapRegion: ReversedEngineeredOshurDataInterface[] = this.oshurData.filter((oshurRow) => {
+    ): ReverseEngineeredOshurDataInterface {
+        const foundRegion: ReverseEngineeredOshurDataInterface[] = this.oshurData.filter((oshurRow) => {
             return row.RowData.RegionId === oshurRow.map_region_id;
         });
 
-        return foundOshurMapRegion[0] ?? [];
+        return foundRegion[0] ?? [];
     }
 }
