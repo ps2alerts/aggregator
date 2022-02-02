@@ -52,6 +52,9 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
             ).catch((err: Error) => {
                 throw new ApplicationException(`[${this.instance.instanceId}] Unable to update result data! Err: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
             });
+
+            // Also update the instance in memory
+            this.instance.result = result;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to process FacilityControlActions for instance ${this.instance.instanceId}! Err: ${err.message}`);
