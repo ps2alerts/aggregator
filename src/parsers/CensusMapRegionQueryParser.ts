@@ -120,7 +120,7 @@ export default class CensusMapRegionQueryParser {
         return require(`${__dirname}/../constants/lattice/344-reverse-engineered.json`);
     }
 
-    // Special handler for facility ID as Oshur isn't fully in Census yet
+    // Grabs the data from Oshur and filters exactly what is required
     private getOshurData(
         row: RegionMapJoinQueryRowInterface,
     ): ReversedEngineeredOshurDataInterface {
