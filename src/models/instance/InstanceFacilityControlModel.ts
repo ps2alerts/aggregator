@@ -1,6 +1,7 @@
 import {Document, Schema} from 'mongoose';
 import {Faction, factionArray} from '../../constants/faction';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
+import {MapControlInterface} from '../../interfaces/MapControlInterface';
 
 export interface InstanceFacilityControlSchemaInterface extends Document {
     instance: PS2AlertsInstanceInterface['instanceId'];
@@ -10,7 +11,8 @@ export interface InstanceFacilityControlSchemaInterface extends Document {
     newFaction: Faction;
     durationHeld: number;
     isDefence: boolean;
-    outfitCaptured: string|null;
+    outfitCaptured: string | null;
+    mapControl: MapControlInterface | null;
 }
 
 export const instanceFacilityControlSchema: Schema = new Schema({
@@ -51,6 +53,10 @@ export const instanceFacilityControlSchema: Schema = new Schema({
     },
     outfitCaptured: {
         type: String,
+        default: null,
+    },
+    mapControl: {
+        type: Object,
         default: null,
     },
 }).index(

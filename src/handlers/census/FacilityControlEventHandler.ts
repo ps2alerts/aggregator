@@ -86,6 +86,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
                 durationHeld: event.durationHeld,
                 isDefence: event.isDefence,
                 outfitCaptured: event.outfitCaptured,
+                mapControl: event.mapControl,
             });
             return true;
         } catch (err) {
