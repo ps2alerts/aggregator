@@ -8,18 +8,21 @@ export enum MetagameEventType {
     HOSSIN_ENLIGHTENMENT = 154,
     AMERISH_ENLIGHTENMENT = 157,
     ESAMIR_ENLIGHTENMENT = 151,
+    OSHUR_ENGLIGHTENMENT = 224,
 
     // NC Triggered
     INDAR_LIBERATION = 149,
     HOSSIN_LIBERATION = 155,
     AMERISH_LIBERATION = 158,
     ESAMIR_LIBERATION = 152,
+    OSHUR_LIBERATION = 222,
 
     // TR Triggered
     INDAR_SUPERIORITY = 147,
     HOSSIN_SUPERIORITY = 153,
     AMERISH_SUPERIORITY = 156,
     ESAMIR_SUPERIORITY = 150,
+    OSHUR_SUPERIORITY = 223,
 
     // Current Generation Unstable Meltdowns
     NC_INDAR_UNSTABLE_MELTDOWN = 179,
@@ -73,6 +76,9 @@ export const metagameEventTypeArray = [
     212,
     213,
     214,
+    222,
+    223,
+    224,
 ];
 
 export const longAlert = 90 * 60 * 1000;
@@ -124,5 +130,10 @@ export const metagameEventTypeDetailsMap: Map<number, MetagameDetailsInterface> 
         [212, {title: 'Esamir Conquest (high pop)', zone: Zone.ESAMIR, duration: longAlert, triggeringFaction: Faction.NONE, unstable: false}],
         [213, {title: 'Hossin Conquest (high pop)', zone: Zone.HOSSIN, duration: longAlert, triggeringFaction: Faction.NONE, unstable: false}],
         [214, {title: 'Indar Conquest (high pop)', zone: Zone.INDAR, duration: longAlert, triggeringFaction: Faction.NONE, unstable: false}],
+
+        // Oshur
+        [222, {title: 'Oshur Liberation', zone: Zone.OSHUR, duration: longAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: false}],
+        [223, {title: 'Oshur Superiority', zone: Zone.OSHUR, duration: longAlert, triggeringFaction: Faction.TERRAN_REPUBLIC, unstable: false}],
+        [224, {title: 'Oshur Enlightenment', zone: Zone.OSHUR, duration: longAlert, triggeringFaction: Faction.VANU_SOVEREIGNTY, unstable: false}],
     ],
 );

@@ -12,7 +12,7 @@
     world: ""
     zone: ""
     valid_worlds: ["1", "10", "13", "17", "19", "40", "1000", "2000"]
-    valid_zones: ["2", "4", "6", "8"]
+    valid_zones: ["2", "4", "6", "8", "344"]
     valid_factions: ["1", "2", "3"]
   vars_prompt:
     - name: type

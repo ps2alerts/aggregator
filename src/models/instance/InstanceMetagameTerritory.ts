@@ -4,8 +4,8 @@ import {Zone, zoneArray} from '../../constants/zone';
 import {MetagameEventType, metagameEventTypeArray} from '../../constants/metagameEventType';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import {Ps2alertsEventState, ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
-import {TerritoryResultInterface} from '../../calculators/TerritoryCalculator';
 import {Bracket, ps2alertsBracketArray} from '../../constants/bracket';
+import TerritoryResultInterface from '../../interfaces/TerritoryResultInterface';
 
 export interface InstanceMetagameTerritorySchemaInterface extends Document {
     instanceId: PS2AlertsInstanceInterface['instanceId'];

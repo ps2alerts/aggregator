@@ -4,9 +4,10 @@ import {ActionInterface} from '../interfaces/ActionInterface';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import ApplicationException from '../exceptions/ApplicationException';
-import TerritoryCalculator, {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
+import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryFacilityControlAction');

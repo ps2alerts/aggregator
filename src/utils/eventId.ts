@@ -39,11 +39,16 @@ export default class EventId {
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.ESAMIR_SUPERIORITY],
                 ],
             )],
+            [Zone.OSHUR, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.OSHUR_ENGLIGHTENMENT],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.OSHUR_LIBERATION],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.OSHUR_SUPERIORITY],
+                ],
+            )],
         ],
     );
 
-    // Don't have a clue if any of these are right...
-    // TODO: VERIFY FACTION TRIGGERS https://github.com/ps2alerts/aggregator/issues/138
     private static readonly unstableMeltdownZoneFactionMap: Map<Zone, Map<Faction, MetagameEventType>> = new Map<Zone, Map<Faction, MetagameEventType>>(
         [
             [Zone.INDAR, new Map(
@@ -210,6 +215,10 @@ export default class EventId {
             case 210: // Koltyr Territory Control VS Triggered (ACTIVE - BUT WE DON'T TRACK)
                 // return Zone.KOLTYR OR Zone.DESOLATION
                 return -1;
+            case 222:
+            case 224:
+            case 225:
+                return Zone.OSHUR;
         }
 
         return -1;

@@ -4,8 +4,8 @@ import {World} from '../constants/world';
 import {Zone} from '../constants/zone';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
-import {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
 import {Bracket} from '../constants/bracket';
+import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default class MetagameTerritoryInstance extends InstanceAbstract implements PS2AlertsInstanceInterface {
     public readonly zone: Zone;

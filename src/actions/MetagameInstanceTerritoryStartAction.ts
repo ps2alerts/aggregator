@@ -6,23 +6,12 @@ import Census from '../config/census';
 import {rest} from 'ps2census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import ApplicationException from '../exceptions/ApplicationException';
-import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Bracket} from '../constants/bracket';
-import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
-
-interface MapDataInterface {
-    instance: string;
-    facility: number;
-    timestamp: Date;
-    oldFaction: number;
-    newFaction: number;
-    durationHeld: 0;
-    isDefence: 0;
-    isInitial: boolean;
-    outfitCaptured: null;
-}
+import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
+import MapDataInterface from '../interfaces/MapDataInterface';
+import {censusOldFacilities} from '../constants/censusOldFacilities';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
@@ -87,61 +76,41 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
 
     private async getInitialMap(): Promise<MapDataInterface[]> {
         // Take a snapshot of the map for use with territory calculations for the end
-        const get = rest.getFactory(this.environment, this.censusConfig.serviceID);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapData = await new CensusMapRegionQueryParser(
+            rest.getFactory(this.environment, this.censusConfig.serviceID),
+            'MetagameInstanceTerritoryStartAction',
+            this.instance,
+        ).getMapData();
+
+        if (mapData.length === 0) {
+            throw new ApplicationException('Unable to properly get map data from census!');
+        }
+
         const docs: MapDataInterface[] = [];
+        const date = new Date();
 
-        const request = get(
-            rest.join(
-                rest.map,
-                [{
-                    type: 'map_region',
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    inject_at: 'map_region',
-                    on: 'Regions.Row.RowData.RegionId',
-                    to: 'map_region_id',
-                }],
-            ),
-            { // Query for filter
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                world_id: String(this.instance.world),
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                zone_ids: String(this.instance.zone),
-            },
-        );
+        mapData[0].Regions.Row.forEach((row) => {
+            // Check if we have a facility type, if we don't chuck it as it's an old facility
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            const facilityId = parseInt(row.RowData.map_region.facility_id, 10);
 
-        const apiRequest = new CensusApiRetryDriver(request, 'MetagameInstanceTerritoryStartAction');
-        await apiRequest.try().then((mapData) => {
-            if (!mapData || mapData.length === 0) {
-                throw new ApplicationException(`[${this.instance.instanceId}] No map data was returned from Census! Cannot start alert properly!`);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (row.RowData.map_region.facility_type_id && facilityId && !censusOldFacilities.includes(facilityId)) {
+                docs.push({
+                    instance: this.instance.instanceId,
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    facility: facilityId,
+                    timestamp: date,
+                    oldFaction: parseInt(row.RowData.FactionId, 10),
+                    newFaction: parseInt(row.RowData.FactionId, 10),
+                    durationHeld: 0,
+                    isDefence: 0,
+                    isInitial: true,
+                    outfitCaptured: null,
+                });
+            } else {
+                MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
             }
-
-            const date = new Date();
-
-            mapData[0].Regions.Row.forEach((row) => {
-                // Check if we have a facility type, if we don't chuck it as it's an old facility
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                const facilityId = parseInt(row.RowData.map_region.facility_id, 10);
-
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (row.RowData.map_region.facility_type_id && facilityId && !censusOldFacilities.includes(facilityId)) {
-                    docs.push({
-                        instance: this.instance.instanceId,
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                        facility: parseInt(row.RowData.map_region.facility_id, 10),
-                        timestamp: date,
-                        oldFaction: parseInt(row.RowData.FactionId, 10),
-                        newFaction: parseInt(row.RowData.FactionId, 10),
-                        durationHeld: 0,
-                        isDefence: 0,
-                        isInitial: true,
-                        outfitCaptured: null,
-                    });
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
-                }
-            });
         });
 
         return docs;

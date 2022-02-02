@@ -1,5 +1,5 @@
 import {World} from '../constants/world';
-import {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
+import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default abstract class InstanceAbstract {
     public readonly instanceId: string;

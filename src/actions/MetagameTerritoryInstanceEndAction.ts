@@ -5,12 +5,13 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import ApplicationException from '../exceptions/ApplicationException';
 import FactionUtils from '../utils/FactionUtils';
-import TerritoryCalculator, {TerritoryResultInterface} from '../calculators/TerritoryCalculator';
+import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {jsonLogOutput} from '../utils/json';
 import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
+import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
