@@ -12,6 +12,8 @@ export default class ZoneUtils {
                 return Zone.AMERISH;
             case Zone.ESAMIR:
                 return Zone.ESAMIR;
+            case Zone.OSHUR:
+                return Zone.OSHUR;
             default:
                 throw new IllegalArgumentException(`Unknown zone: ${value}`, 'ZoneUtils.parse');
         }

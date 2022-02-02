@@ -79,6 +79,11 @@ export default class EventId {
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_ESAMIR_UNSTABLE_MELTDOWN],
                 ],
             )],
+            [Zone.OSHUR, new Map(
+                [
+                    // We don't know these yet :-/
+                ],
+            )],
         ],
     );
 
@@ -215,9 +220,9 @@ export default class EventId {
             case 210: // Koltyr Territory Control VS Triggered (ACTIVE - BUT WE DON'T TRACK)
                 // return Zone.KOLTYR OR Zone.DESOLATION
                 return -1;
-            case 222:
-            case 224:
-            case 225:
+            case 222: // Oshur NC Triggered
+            case 223: // Oshur TR Triggered
+            case 224: // Oshur VS Triggered
                 return Zone.OSHUR;
         }
 
