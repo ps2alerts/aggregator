@@ -4,4 +4,5 @@ export default interface TerritoryResultInterface extends InstanceResultInterfac
     cutoff: number;
     outOfPlay: number;
     draw: boolean;
+    perBasePercentage: number;
 }

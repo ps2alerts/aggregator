@@ -1,4 +1,5 @@
 export const censusOldFacilities = [
+    0, // Oshur Vast Expanse
     202, // NS Salvage Yard
     216, // West Highlands Checkpoint
     222, // East Canyon Checkpoint

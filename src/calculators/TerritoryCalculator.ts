@@ -145,7 +145,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
 
         if (TerritoryCalculator.logger.isDebugEnabled()) {
             // eslint-disable-next-line no-console
-            console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size);
+            console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
         }
 
         const percentages = this.calculatePercentages(baseCount, bases, outOfPlayCount);
@@ -165,6 +165,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             outOfPlay: percentages.outOfPlay,
             victor: this.instance.state === Ps2alertsEventState.ENDED ? victor.victor : null,
             draw: this.instance.state === Ps2alertsEventState.ENDED ? victor.draw : false,
+            perBasePercentage: percentages.perBase,
         };
     }
 
