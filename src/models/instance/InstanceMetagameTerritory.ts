@@ -6,6 +6,7 @@ import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterf
 import {Ps2alertsEventState, ps2alertsEventStateArray} from '../../constants/ps2alertsEventState';
 import {Bracket, ps2alertsBracketArray} from '../../constants/bracket';
 import TerritoryResultInterface from '../../interfaces/TerritoryResultInterface';
+import {PS2AlertsInstanceFeaturesInterface} from '../../interfaces/PS2AlertsInstanceFeaturesInterface';
 
 export interface InstanceMetagameTerritorySchemaInterface extends Document {
     instanceId: PS2AlertsInstanceInterface['instanceId'];
@@ -19,6 +20,7 @@ export interface InstanceMetagameTerritorySchemaInterface extends Document {
     duration: number;
     state: Ps2alertsEventState;
     bracket: Bracket | null;
+    features: PS2AlertsInstanceFeaturesInterface;
 }
 
 export const instanceMetagameTerritorySchema: Schema = new Schema({
@@ -67,6 +69,9 @@ export const instanceMetagameTerritorySchema: Schema = new Schema({
     bracket: {
         type: Number,
         enum: ps2alertsBracketArray,
+    },
+    features: {
+        type: Object,
     },
 }).index(
     {world: 1, censusInstanceId: 1},

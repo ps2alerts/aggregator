@@ -82,6 +82,9 @@ export default class InstanceAuthority {
                     duration: instance.duration,
                     state: instance.state,
                     bracket: null,
+                    features: {
+                        captureHistory: true,
+                    },
                 });
                 InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
             } catch (err) {
