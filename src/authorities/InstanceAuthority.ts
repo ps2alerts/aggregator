@@ -33,7 +33,7 @@ export default class InstanceAuthority {
     }
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface {
-        InstanceAuthority.logger.debug(`Attempting to find an instance with ID: "${instanceId}"...`);
+        InstanceAuthority.logger.silly(`Attempting to find an instance with ID: "${instanceId}"...`);
 
         const instance = this.currentInstances.find((i) => {
             return i.instanceId === instanceId;
@@ -43,8 +43,8 @@ export default class InstanceAuthority {
             throw new ApplicationException(`Unable to find InstanceID "${instanceId}"!`, 'InstanceAuthority');
         }
 
-        InstanceAuthority.logger.debug(`Found instance with ID: "${instanceId}"!`);
-        InstanceAuthority.logger.debug(`${jsonLogOutput(instance)}`);
+        InstanceAuthority.logger.silly(`Found instance with ID: "${instanceId}"!`);
+        InstanceAuthority.logger.silly(`${jsonLogOutput(instance)}`);
 
         return instance;
     }

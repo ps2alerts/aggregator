@@ -89,20 +89,18 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     }
 
     private async storeEvent(event: FacilityControlEvent): Promise<string | null> {
-        const doc = {
-            instance: event.instance.instanceId,
-            facility: event.facility.id,
-            timestamp: event.timestamp,
-            oldFaction: event.oldFaction,
-            newFaction: event.newFaction,
-            durationHeld: event.durationHeld,
-            isDefence: event.isDefence,
-            outfitCaptured: event.outfitCaptured,
-            mapControl: null,
-        };
-
         try {
-            const resultObject = await this.factory.model.create(doc);
+            const resultObject = await this.factory.model.create({
+                instance: event.instance.instanceId,
+                facility: event.facility.id,
+                timestamp: event.timestamp,
+                oldFaction: event.oldFaction,
+                newFaction: event.newFaction,
+                durationHeld: event.durationHeld,
+                isDefence: event.isDefence,
+                outfitCaptured: event.outfitCaptured,
+                mapControl: null,
+            });
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return resultObject._id;
         } catch (err) {

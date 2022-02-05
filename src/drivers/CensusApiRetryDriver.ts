@@ -18,7 +18,10 @@ export class CensusApiRetryDriver<T> {
         attempts++;
 
         try {
-            CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempting to get data from Census... Attempt #${attempts}`);
+            if (attempts > 2) {
+                CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempting to get data from Census... Attempt #${attempts}`);
+            }
+
             const res = await this.getMethod;
 
             if (attempts > 1) {
