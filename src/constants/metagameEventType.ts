@@ -45,6 +45,7 @@ export enum MetagameEventType {
     ESAMIR_HIGH_POP_CONQUEST = 212,
     HOSSIN_HIGH_POP_CONQUEST = 213,
     INDAR_HIGH_POP_CONQUEST = 214,
+    OSHUR_HIGH_POP_CONQUEST = 226,
 }
 
 export const metagameEventTypeArray = [
@@ -79,6 +80,7 @@ export const metagameEventTypeArray = [
     222,
     223,
     224,
+    226,
 ];
 
 export const longAlert = 90 * 60 * 1000;
@@ -135,5 +137,6 @@ export const metagameEventTypeDetailsMap: Map<number, MetagameDetailsInterface> 
         [222, {title: 'Oshur Liberation', zone: Zone.OSHUR, duration: longAlert, triggeringFaction: Faction.NEW_CONGLOMERATE, unstable: false}],
         [223, {title: 'Oshur Superiority', zone: Zone.OSHUR, duration: longAlert, triggeringFaction: Faction.TERRAN_REPUBLIC, unstable: false}],
         [224, {title: 'Oshur Enlightenment', zone: Zone.OSHUR, duration: longAlert, triggeringFaction: Faction.VANU_SOVEREIGNTY, unstable: false}],
+        [226, {title: 'Oshur Conquest (high pop)', zone: Zone.OSHUR, duration: longAlert, triggeringFaction: Faction.NONE, unstable: false}],
     ],
 );
