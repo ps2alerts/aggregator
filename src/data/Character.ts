@@ -12,7 +12,8 @@ class Character implements CharacterInterface {
     public faction: Faction;
     public world: World;
     public battleRank: number;
-    public asp: boolean;
+    public asp: number;
+    public adjustedBattleRank: number;
     public outfit: Outfit | null;
 
     constructor(characterData: CharacterWorldOutfitLeader) {
@@ -26,7 +27,8 @@ class Character implements CharacterInterface {
         }
 
         this.battleRank = parseInt(characterData.battle_rank.value, 10);
-        this.asp = characterData.prestige_level === '1';
+        this.asp = parseInt(characterData.prestige_level, 10);
+        this.adjustedBattleRank = this.battleRank + this.asp * 100 + (this.asp > 0 ? 20 : 0);
 
         if (characterData.outfit_member) {
             this.outfit = new Outfit(characterData.outfit_member, characterData);
