@@ -53,6 +53,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 'character.battle_rank': event.attackerCharacter.battleRank,
                 'character.asp': event.attackerCharacter.asp,
+                'character.adjustedBattleRank': event.attackerCharacter.adjustedBattleRank,
                 'character.outfit': event.attackerCharacter.outfit,
             },
         });
@@ -62,6 +63,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 'character.battle_rank': event.character.battleRank,
                 'character.asp': event.character.asp,
+                'character.adjustedBattleRank': event.character.adjustedBattleRank,
                 'character.outfit': event.character.outfit,
             },
         });
