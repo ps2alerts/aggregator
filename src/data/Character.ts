@@ -29,12 +29,15 @@ class Character implements CharacterInterface {
         this.battleRank = parseInt(characterData.battle_rank.value, 10);
         this.asp = parseInt(characterData.prestige_level, 10);
         let aspBRs = 0;
-        if(Number.isSafeInteger(this.asp)){
+
+        if (Number.isSafeInteger(this.asp)){
             aspBRs += this.asp * 100;
-            if(this.asp > 0){
+
+            if (this.asp > 0){
                 aspBRs += 20;
             }
         }
+
         this.adjustedBattleRank = this.battleRank + aspBRs;
 
         if (characterData.outfit_member) {
