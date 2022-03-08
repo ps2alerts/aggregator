@@ -8,4 +8,4 @@ USER node
 
 COPY --chown=node:node . /app
 
-RUN cd /app && npm ci && npm run build && npm prune --production
+RUN cd /app && yarn install
