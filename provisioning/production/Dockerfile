@@ -8,4 +8,4 @@ USER node
 
 COPY --chown=node:node . /app
 
-RUN cd /app && yarn install
+RUN cd /app && yarn install && yarn run build
