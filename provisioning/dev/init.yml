@@ -55,7 +55,7 @@
     - name: Run yarn install for Aggregator deps
       docker_container:
         name: ps2alerts-aggregator-yarn
-        image: node:12
+        image: node:16
         volumes:
           - "{{ root_dir | realpath }}:/app:rw"
         user: "{{ id.stdout }}:{{ id.stdout }}"
