@@ -1,8 +1,7 @@
 import app from './bootstrap';
 import Kernel from './bootstrap/Kernel';
 
-process.on('uncaughtException', (e) => console.log('PRE KERNEL ERROR', e));
-
+// eslint-disable-next-line no-console
 const kernel = app.resolve(Kernel);
 
 void kernel.run().then(() => {

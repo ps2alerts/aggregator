@@ -25,17 +25,23 @@ import {CensusEnvironment} from '../../types/CensusEnvironment';
 import {metagameEventTypeArray} from '../../constants/metagameEventType';
 import {FacilityDataBrokerInterface} from '../../interfaces/FacilityDataBrokerInterface';
 import ApplicationException from "../../exceptions/ApplicationException";
+import config from "../../config";
+import CharacterPresenceHandler from "../../handlers/CharacterPresenceHandler";
+import ItemBroker from "../../handlers/ItemBroker";
+import FacilityDataBroker from "../../handlers/FacilityDataBroker";
+import CharacterBroker from "../../handlers/CharacterBroker";
 
 @injectable()
 export default class CensusEventSubscriber implements ServiceInterface {
     public readonly bootPriority = 10;
-    private static readonly logger = getLogger('CenusEventSubscriber');
+    private static readonly logger = getLogger('CensusEventSubscriber');
     private eventsReady = false;
+
+    private readonly environment: CensusEnvironment = config.census.censusEnvironment;
 
     constructor(
         private readonly wsClient: CensusClient,
-        private readonly environment: CensusEnvironment,
-        private readonly characterBroker: CharacterBrokerInterface,
+        @inject(CharacterBroker) private readonly characterBroker: CharacterBrokerInterface,
         private readonly deathEventHandler: DeathEventHandler,
         private readonly metagameEventEventHandler: MetagameEventEventHandler,
         private readonly facilityControlEventHandler: FacilityControlEventHandler,

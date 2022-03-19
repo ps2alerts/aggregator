@@ -14,6 +14,7 @@ import {CensusEnvironment} from '../types/CensusEnvironment';
 import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
 import {inject, injectable} from 'inversify';
 
+@injectable()
 export default class CensusEventSubscriberFactory {
     constructor(
         private readonly deathEventHandler: DeathEventHandler,

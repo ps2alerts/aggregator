@@ -6,14 +6,16 @@ import CensusEventSubscriber from './CensusEventSubscriber';
 import CensusStaleConnectionWatcherAuthority from '../../authorities/CensusStaleConnectionWatcherAuthority';
 import {jsonLogOutput} from '../../utils/json';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
+import config from '../../config';
 
 @injectable()
 export default class CensusStream {
+    public readonly environment: CensusEnvironment = config.census.censusEnvironment;
+
     private static readonly logger = getLogger('ps2census');
 
     constructor(
         public readonly wsClient: CensusClient,
-        public readonly environment: CensusEnvironment,
         private readonly censusEventSubscriber: CensusEventSubscriber,
         private readonly censusStaleConnectionWatcherAuthority: CensusStaleConnectionWatcherAuthority,
     ) {}
