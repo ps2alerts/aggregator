@@ -1,4 +1,4 @@
-import {inject, injectable, multiInject} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
 import {TYPES} from '../constants/types';
@@ -12,7 +12,6 @@ import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import CensusStream from '../services/census/CensusStream';
-import ApplicationException from '../exceptions/ApplicationException';
 
 @injectable()
 export default class FacilityDataBroker implements FacilityDataBrokerInterface {
@@ -22,7 +21,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
     constructor(
         @inject(TYPES.censusConfig) private readonly censusConfig: Census,
         @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
-        @multiInject(TYPES.censusStreamServices) private readonly censusStreamServices: CensusStream[],
+        private readonly censusStreamService: CensusStream,
     ) {
         this.cacheClient = cacheConnection.getClient();
     }
@@ -50,14 +49,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
 
         FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache MISS`);
 
-        // Get the correct CensusClient
-        const censusClient = this.censusStreamServices.find((service) => service.environment === environment);
-
-        if (!censusClient) {
-            throw new ApplicationException('Could not find CensusClient based off environment!');
-        }
-
-        const query = censusClient.wsClient.rest.getQueryBuilder('map_region')
+        const query = this.censusStreamService.wsClient.rest.getQueryBuilder('map_region')
             .limit(1);
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const filter = {facility_id: facilityId.toString()};

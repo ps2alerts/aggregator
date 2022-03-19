@@ -1,8 +1,7 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
-import {TYPES} from '../../constants/types';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 
@@ -15,9 +14,9 @@ export default class AuthorityService implements ServiceInterface {
     private readonly overdueInstanceAuthority: OverdueInstanceAuthority;
 
     constructor(
-    @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
-        @inject(TYPES.overdueInstanceAuthority) overdueInstanceAuthority: OverdueInstanceAuthority,
-        @inject(TYPES.populationAuthority) populationAuthority: PopulationAuthority,
+        instanceAuthority: InstanceAuthority,
+        overdueInstanceAuthority: OverdueInstanceAuthority,
+        populationAuthority: PopulationAuthority,
     ) {
         this.instanceAuthority = instanceAuthority;
         this.overdueInstanceAuthority = overdueInstanceAuthority;

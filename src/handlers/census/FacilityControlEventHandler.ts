@@ -26,7 +26,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[],
         @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority
+        instanceAuthority: InstanceAuthority
     ) {
         /* eslint-enable */
         this.factory = instanceFacilityControlModelFactory;

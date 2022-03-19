@@ -23,7 +23,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         private readonly censusConfig: Census,
         private readonly facilityControlAction: ActionInterface,
-        private readonly censusStreamServices: CensusStream[],
+        private readonly censusStreamService: CensusStream,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -63,16 +63,9 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     }
 
     private async getInitialMap(): Promise<MapDataInterface[]> {
-        // Get the correct CensusClient
-        const censusClient = this.censusStreamServices.find((service) => service.environment === this.environment);
-
-        if (!censusClient) {
-            throw new ApplicationException('Could not find CensusClient based off environment!');
-        }
-
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            censusClient.wsClient,
+            this.censusStreamService.wsClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();

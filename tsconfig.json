@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "lib": ["es6"],
     "noImplicitAny": true,
     "module": "CommonJS",
     "moduleResolution": "Node",
@@ -20,6 +21,7 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
     "target": "ES6",
+    "types": ["reflect-metadata"],
     "sourceMap": true
   },
   "include": [

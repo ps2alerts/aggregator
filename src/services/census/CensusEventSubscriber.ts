@@ -1,6 +1,6 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {CensusClient, Death, Events, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
@@ -42,9 +42,9 @@ export default class CensusEventSubscriber implements ServiceInterface {
         private readonly gainExperienceEventHandler: GainExperienceEventHandler,
         private readonly vehicleDestroyEventHandler: VehicleDestroyEventHandler,
         private readonly instanceAuthority: InstanceAuthority,
-        private readonly characterPresenceHandler: CharacterPresenceHandlerInterface,
-        private readonly itemBroker: ItemBrokerInterface,
-        private readonly facilityDataBroker: FacilityDataBrokerInterface,
+        @inject(CharacterPresenceHandler) private readonly characterPresenceHandler: CharacterPresenceHandlerInterface,
+        @inject(ItemBroker) private readonly itemBroker: ItemBrokerInterface,
+        @inject(FacilityDataBroker) private readonly facilityDataBroker: FacilityDataBrokerInterface,
     ) {}
 
     // Here we pass all the events

@@ -1,7 +1,7 @@
 import app from './bootstrap';
 import Kernel from './bootstrap/Kernel';
 
-process.on('uncaughtException', console.log);
+process.on('uncaughtException', (e) => console.log('PRE KERNEL ERROR', e));
 
 const kernel = app.resolve(Kernel);
 

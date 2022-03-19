@@ -1,5 +1,5 @@
-import {get} from '../utils/env';
-import {CharacterManagerOptions, ClientOptions} from 'ps2census';
+import {get, getAndTest} from '../utils/env';
+import {CharacterManagerOptions, ClientOptions, PS2Environment} from 'ps2census';
 
 export default class Census {
     public static readonly streamManagerConfig = {
@@ -22,31 +22,12 @@ export default class Census {
     };
 
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
+    public readonly censusEnvironment: PS2Environment = getAndTest('CENSUS_ENVIRONMENT', (v) => ['ps2', 'ps2ps4eu', 'ps2ps4us'].includes(v));
 
     /**
      * @type {ClientOptions} Configuration for PS2 Census aggregator client
      */
-    public readonly pcClientConfig: ClientOptions = {
-        streamManager: {
-            subscription: {
-                ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
-            },
-        },
-        characterManager: Census.characterManagerConfig,
-    };
-
-    public readonly ps2ps4euClientConfig: ClientOptions = {
-        streamManager: {
-            subscription: {
-                ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
-            },
-        },
-        characterManager: Census.characterManagerConfig,
-    };
-
-    public readonly ps2ps4usClientConfig: ClientOptions = {
+    public readonly clientOptions: ClientOptions = {
         streamManager: {
             subscription: {
                 ...Census.streamManagerConfig,

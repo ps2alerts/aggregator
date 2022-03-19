@@ -1,76 +1,48 @@
 const TYPES = {
     // Configs
-    censusConfig: Symbol.for('CensusConfig'),
-
-    // Clients
-    pcWebsocketClient: Symbol.for('pcWebsocketClient'),
-    ps2ps4euWebsocketClient: Symbol.for('ps2ps4euWebsocketClient'),
-    ps2ps4usWebsocketClient: Symbol.for('ps2ps4usWebsocketClient'),
-
-    // Census services
-    censusStreamServices: Symbol.for('CensusStreamServices'),
-    pcCensusStreamService: Symbol.for('pcCensusStreamService'),
-    ps2ps4euCensusStreamService: Symbol.for('ps2ps4euCensusStreamService'),
-    ps2ps4usCensusStreamService: Symbol.for('ps2ps4usCensusStreamService'),
-
-    // Census Event Subscriber services
-    pcCensusEventSubscriberService: Symbol.for('pcCensusEventSubscriberService'),
-    ps2ps4euCensusEventSubscriberService: Symbol.for('ps2ps4euCensusEventSubscriberService'),
-    ps2ps4usCensusEventSubscriberService: Symbol.for('ps2ps4usCensusEventSubscriberService'),
-
-    // Authorities
-    instanceAuthority: Symbol.for('InstanceAuthority'),
-    overdueInstanceAuthority: Symbol.for('OverdueInstanceAuthority'),
-    populationAuthority: Symbol.for('PopulationAuthority'),
-    pcCensusStaleConnectionWatcherAuthority: Symbol.for('pcCensusStaleConnectionWatcherAuthority'),
-    ps2ps4euCensusStaleConnectionWatcherAuthority: Symbol.for('ps2ps4euCensusStaleConnectionWatcherAuthority'),
-    ps2ps4usCensusStaleConnectionWatcherAuthority: Symbol.for('ps2ps4usCensusStaleConnectionWatcherAuthority'),
+    censusConfig: Symbol.for('censusConfig'),
 
     // Brokers
-    pcCharacterBrokerInterface: Symbol.for('pcCharacterBrokerInterface'),
-    ps2ps4euCharacterBrokerInterface: Symbol.for('ps2ps4euCharacterBrokerInterface'),
-    ps2ps4usCharacterBrokerInterface: Symbol.for('ps2ps4usCharacterBrokerInterface'),
-    itemBrokerInterface: Symbol.for('ItemBrokerInterface'),
-    facilityDataBrokerInterface: Symbol.for('FacilityDataBrokerInterface'),
+    characterBroker: Symbol.for('characterBroker'),
+    itemBroker: Symbol.for('itemBroker'),
+    facilityDataBroker: Symbol.for('facilityDataBroker'),
 
     // Cache Drivers
-    censusCharacterCacheDriver: Symbol.for('CensusCharacterCacheDriver'),
+    censusCharacterCacheDriver: Symbol.for('censusCharacterCacheDriver'),
 
     // Handler Interfaces
-    characterPresenceHandler: Symbol.for('CharacterPresenceHandler'),
-    populationHandler: Symbol.for('PopulationHandler'),
+    characterPresenceHandler: Symbol.for('characterPresenceHandler'),
+    populationHandler: Symbol.for('populationHandler'),
 
     // Instance Models
-    instanceMetagameModelFactory: Symbol.for('InstanceMetagameModelFactory'),
+    instanceMetagameModelFactory: Symbol.for('instanceMetagameModelFactory'),
 
     // Model Factory Symbols
-    instanceFacilityControlModelFactory: Symbol.for('InstanceFacilityControlModelFactory'),
+    instanceFacilityControlModelFactory: Symbol.for('instanceFacilityControlModelFactory'),
 
     // Aggregates
     // Aggregate Listeners
-    deathAggregates: Symbol.for('DeathAggregates'),
-    facilityControlAggregates: Symbol.for('FacilityControlAggregates'),
-    populationAggregates: Symbol.for('PopulationAggregates'),
-    vehicleDestroyAggregates: Symbol.for('VehicleDestroyAggregates'),
+    deathAggregates: Symbol.for('deathAggregates'),
+    facilityControlAggregates: Symbol.for('facilityControlAggregates'),
+    populationAggregates: Symbol.for('populationAggregates'),
+    vehicleDestroyAggregates: Symbol.for('vehicleDestroyAggregates'),
 
     // Message Queue
-    rabbitMqConnectionHandlerFactory: Symbol.for('RabbitMQConnectionHandlerFactory'),
+    rabbitMqConnectionHandlerFactory: Symbol.for('rabbitMqConnectionHandlerFactory'),
     // Subscribers
-    rabbitMQSubscribers: Symbol.for('RabbitMQSubscribers'),
+    rabbitMQSubscribers: Symbol.for('rabbitMQSubscribers'),
     // Publishers
-    rabbitMQPublishers: Symbol.for('RabbitMQPublishers'),
-    apiMQPublisher: Symbol.for('ApiMQPublisher'),
-    apiMQDelayPublisher: Symbol.for('ApiMQDelayPublisher'),
+    rabbitMQPublishers: Symbol.for('rabbitMQPublishers'),
+    apiMQPublisher: Symbol.for('apiMQPublisher'),
+    apiMQDelayPublisher: Symbol.for('apiMQDelayPublisher'),
     // Handlers
     adminMessageHandlers: Symbol.for('adminMessageHandlers'),
     outfitParticipantCacheHandler: Symbol.for('outfitParticipantCacheHandler'),
 
     // Other Factories
-    censusStreamServiceFactory: Symbol.for('CensusStreamServiceFactory'),
-    censusEventSubscriberFactory: Symbol.for('CensusEventSubscriberFactory'),
-    instanceActionFactory: Symbol.for('InstanceActionFactory'),
-    territoryCalculatorFactory: Symbol.for('TerritoryCalculatorFactory'),
-    globalVictoryAggregate: Symbol.for('GlobalVictoryAggregate'),
+    instanceActionFactory: Symbol.for('instanceActionFactory'),
+    territoryCalculatorFactory: Symbol.for('territoryCalculatorFactory'),
+    globalVictoryAggregate: Symbol.for('globalVictoryAggregate'),
 };
 
 export {TYPES};

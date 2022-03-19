@@ -1,4 +1,4 @@
-import {Mongoose, Model, Document, Schema} from 'mongoose';
+import {Document, Model, Mongoose, Schema} from 'mongoose';
 import {injectable} from 'inversify';
 
 @injectable()

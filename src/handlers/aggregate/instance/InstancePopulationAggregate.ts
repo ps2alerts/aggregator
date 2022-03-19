@@ -18,8 +18,8 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
 
     constructor(
     @inject(TYPES.characterPresenceHandler) playerHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
-        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+                                            instanceAuthority: InstanceAuthority,
+                                            @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
     ) {
         this.playerHandler = playerHandler;
         this.instanceAuthority = instanceAuthority;

@@ -1,5 +1,4 @@
-import {ContainerModule, interfaces} from 'inversify';
-import Context = interfaces.Context;
+import {ContainerModule} from 'inversify';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import CharacterPresenceHandler from './CharacterPresenceHandler';
 import {TYPES} from '../constants/types';
@@ -18,16 +17,9 @@ export default new ContainerModule((bind) => {
 
     bind<PopulationHandlerInterface<PopulationData>>(TYPES.populationHandler).to(PopulationHandler).inSingletonScope();
 
-    bind<CharacterBrokerInterface>(TYPES.pcCharacterBrokerInterface).toDynamicValue(({container}: Context) =>
-        new CharacterBroker(container.get(TYPES.pcWebsocketClient), container.get(TYPES.censusCharacterCacheDriver)));
+    bind<CharacterBrokerInterface>(TYPES.characterBroker).to(CharacterBroker);
 
-    bind<CharacterBrokerInterface>(TYPES.ps2ps4euCharacterBrokerInterface).toDynamicValue(({container}: Context) =>
-        new CharacterBroker(container.get(TYPES.ps2ps4euWebsocketClient), container.get(TYPES.censusCharacterCacheDriver)));
-
-    bind<CharacterBrokerInterface>(TYPES.ps2ps4usCharacterBrokerInterface).toDynamicValue(({container}: Context) =>
-        new CharacterBroker(container.get(TYPES.ps2ps4usWebsocketClient), container.get(TYPES.censusCharacterCacheDriver)));
-
-    bind<ItemBrokerInterface>(TYPES.itemBrokerInterface).to(ItemBroker).inSingletonScope();
-    bind<FacilityDataBroker>(TYPES.facilityDataBrokerInterface).to(FacilityDataBroker).inSingletonScope();
+    bind<ItemBrokerInterface>(TYPES.itemBroker).to(ItemBroker).inSingletonScope();
+    bind<FacilityDataBroker>(TYPES.facilityDataBroker).to(FacilityDataBroker).inSingletonScope();
     bind<OutfitParticipantCacheHandler>(TYPES.outfitParticipantCacheHandler).to(OutfitParticipantCacheHandler).inSingletonScope();
 });

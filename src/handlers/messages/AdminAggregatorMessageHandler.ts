@@ -22,7 +22,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
     constructor(
-    @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
+    instanceAuthority: InstanceAuthority,
         @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
     ) {
         this.instanceAuthority = instanceAuthority;

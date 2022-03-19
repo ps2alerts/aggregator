@@ -1,3 +1,4 @@
+import {TYPES} from '../constants/types';
 import {CensusClient} from 'ps2census';
 import CensusEventSubscriber from '../services/census/CensusEventSubscriber';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
@@ -11,39 +12,20 @@ import VehicleDestroyEventHandler from '../handlers/census/VehicleDestroyEventHa
 import InstanceAuthority from '../authorities/InstanceAuthority';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
+import {inject, injectable} from 'inversify';
 
 export default class CensusEventSubscriberFactory {
-    private readonly deathEventHandler: DeathEventHandler;
-    private readonly metagameEventEventHandler: MetagameEventEventHandler;
-    private readonly facilityControlEventHandler: FacilityControlEventHandler;
-    private readonly gainExperienceEventHandler: GainExperienceEventHandler;
-    private readonly vehicleDestroyEventHandler: VehicleDestroyEventHandler;
-    private readonly instanceAuthority: InstanceAuthority;
-    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
-    private readonly itemBroker: ItemBrokerInterface;
-    private readonly facilityDataBroker: FacilityDataBrokerInterface;
-
     constructor(
-        deathEventHandler: DeathEventHandler,
-        metagameEventEventHandler: MetagameEventEventHandler,
-        facilityControlEventHandler: FacilityControlEventHandler,
-        gainExperienceEventHandler: GainExperienceEventHandler,
-        vehicleDestroyEventHandler: VehicleDestroyEventHandler,
-        instanceAuthority: InstanceAuthority,
-        characterPresenceHandler: CharacterPresenceHandlerInterface,
-        itemBroker: ItemBrokerInterface,
-        facilityDataBroker: FacilityDataBrokerInterface,
-    ) {
-        this.deathEventHandler = deathEventHandler;
-        this.metagameEventEventHandler = metagameEventEventHandler;
-        this.facilityControlEventHandler = facilityControlEventHandler;
-        this.gainExperienceEventHandler = gainExperienceEventHandler;
-        this.vehicleDestroyEventHandler = vehicleDestroyEventHandler;
-        this.instanceAuthority = instanceAuthority;
-        this.characterPresenceHandler = characterPresenceHandler;
-        this.itemBroker = itemBroker;
-        this.facilityDataBroker = facilityDataBroker;
-    }
+        private readonly deathEventHandler: DeathEventHandler,
+        private readonly metagameEventEventHandler: MetagameEventEventHandler,
+        private readonly facilityControlEventHandler: FacilityControlEventHandler,
+        private readonly gainExperienceEventHandler: GainExperienceEventHandler,
+        private readonly vehicleDestroyEventHandler: VehicleDestroyEventHandler,
+        private readonly instanceAuthority: InstanceAuthority,
+        @inject(TYPES.characterPresenceHandler) private readonly characterPresenceHandler: CharacterPresenceHandlerInterface,
+        @inject(TYPES.itemBroker) private readonly itemBroker: ItemBrokerInterface,
+        @inject(TYPES.facilityDataBroker) private readonly facilityDataBroker: FacilityDataBrokerInterface,
+    ) {}
 
     public build(
         wsClient: CensusClient,
@@ -52,7 +34,6 @@ export default class CensusEventSubscriberFactory {
     ): CensusEventSubscriber {
         return new CensusEventSubscriber(
             wsClient,
-            environment,
             characterBroker,
             this.deathEventHandler,
             this.metagameEventEventHandler,

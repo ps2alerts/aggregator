@@ -1,4 +1,4 @@
-import {inject, injectable, multiInject} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
@@ -11,7 +11,6 @@ import {Vehicle} from '../constants/vehicle';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import CensusStream from '../services/census/CensusStream';
-import ApplicationException from '../exceptions/ApplicationException';
 import {Redis} from 'ioredis';
 
 @injectable()
@@ -20,7 +19,7 @@ export default class ItemBroker implements ItemBrokerInterface {
     private readonly cacheClient: Redis;
 
     constructor(
-        @multiInject(TYPES.censusStreamServices) private readonly censusStreamServices: CensusStream[],
+        private readonly censusStreamService: CensusStream,
         @inject(TYPES.censusConfig) private readonly censusConfig: Census,
         @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
     ) {
@@ -55,14 +54,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
 
-        // Get the correct CensusClient
-        const censusClient = this.censusStreamServices.find((service) => service.environment === environment);
-
-        if (!censusClient) {
-            throw new ApplicationException('Could not find CensusClient based off environment!');
-        }
-
-        const query = censusClient.wsClient.rest.getQueryBuilder('item')
+        const query = this.censusStreamService.wsClient.rest.getQueryBuilder('item')
             .limit(1);
         const filter = {
             // eslint-disable-next-line @typescript-eslint/naming-convention

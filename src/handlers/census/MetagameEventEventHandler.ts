@@ -1,10 +1,9 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import MetagameEventEvent from './events/MetagameEventEvent';
-import {TYPES} from '../../constants/types';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {MetagameEventState} from '../../constants/metagameEventState';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
@@ -18,7 +17,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
     private static readonly logger = getLogger('MetagameEventEventHandler');
 
     constructor(
-        @inject(TYPES.instanceAuthority) private readonly instanceAuthority: InstanceAuthority,
+        private readonly instanceAuthority: InstanceAuthority,
     ) {}
 
     public async handle(event: MetagameEventEvent, environment: CensusEnvironment): Promise<boolean> {

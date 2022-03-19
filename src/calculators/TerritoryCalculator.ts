@@ -1,6 +1,6 @@
 import {CalculatorInterface} from './CalculatorInterface';
 import {Faction} from '../constants/faction';
-import {inject, injectable, multiInject} from 'inversify';
+import {injectable} from 'inversify';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
@@ -14,7 +14,6 @@ import {Zone} from '../constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import CensusStream from "../services/census/CensusStream";
-import {TYPES} from "../constants/types";
 import MongooseModelFactory from "../factories/MongooseModelFactory";
 
 interface PercentagesInterface extends FactionNumbersInterface {
@@ -49,7 +48,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         private readonly instance: MetagameTerritoryInstance,
         private readonly environment: CensusEnvironment,
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        private readonly censusStreamServices: CensusStream[],
+        private readonly censusStreamService: CensusStream,
     ) {}
 
     public async calculate(): Promise<TerritoryResultInterface> {
@@ -226,15 +225,9 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     }
 
     private async getMapFacilities(): Promise<void> {
-        const censusClient = this.censusStreamServices.find((service) => service.environment === this.environment);
-
-        if (!censusClient) {
-            throw new ApplicationException('Could not find CensusClient based off environment!');
-        }
-
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            censusClient.wsClient,
+            this.censusStreamService.wsClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();

@@ -3,6 +3,6 @@
   tasks:
     - name: Stop Aggregator container
       docker_container:
-        name: ps2alerts-aggregator
+        name: ps2alerts-aggregator-pc
         state: stopped
       ignore_errors: yes

@@ -21,13 +21,13 @@ export default class TerritoryCalculatorFactory {
     public build(
         instance: MetagameTerritoryInstance,
         environment: CensusEnvironment,
-        censusStreamServices: CensusStream[],
+        censusStreamService: CensusStream,
     ): TerritoryCalculator {
         return new TerritoryCalculator(
             instance,
             environment,
             this.instanceFacilityControlFactory,
-            censusStreamServices,
+            censusStreamService,
         );
     }
 }
