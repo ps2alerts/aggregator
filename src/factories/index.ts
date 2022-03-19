@@ -1,8 +1,8 @@
-import {ContainerModule} from 'inversify';
+import {ContainerModule, interfaces} from 'inversify';
+import Context = interfaces.Context;
 import {TYPES} from '../constants/types';
 import InstanceActionFactory from './InstanceActionFactory';
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
-import {Context} from 'inversify/dts/planning/context';
 import CensusStreamServiceFactory from './CensusStreamServiceFactory';
 import MetagameEventEventHandler from '../handlers/census/MetagameEventEventHandler';
 import FacilityControlEventHandler from '../handlers/census/FacilityControlEventHandler';

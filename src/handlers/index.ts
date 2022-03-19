@@ -1,4 +1,5 @@
-import {ContainerModule} from 'inversify';
+import {ContainerModule, interfaces} from 'inversify';
+import Context = interfaces.Context;
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import CharacterPresenceHandler from './CharacterPresenceHandler';
 import {TYPES} from '../constants/types';
@@ -9,7 +10,6 @@ import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
 import CharacterBroker from './CharacterBroker';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import ItemBroker from './ItemBroker';
-import {Context} from 'inversify/dts/planning/context';
 import OutfitParticipantCacheHandler from './OutfitParticipantCacheHandler';
 import FacilityDataBroker from './FacilityDataBroker';
 

@@ -1,6 +1,8 @@
 import app from './bootstrap';
 import Kernel from './bootstrap/Kernel';
 
+process.on('uncaughtException', console.log);
+
 const kernel = app.resolve(Kernel);
 
 void kernel.run().then(() => {

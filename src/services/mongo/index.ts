@@ -1,4 +1,5 @@
-import {ContainerModule} from 'inversify';
+import {ContainerModule, interfaces} from 'inversify';
+import Context = interfaces.Context;
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import MongoDatabaseConnectionService from './MongoDatabaseConnectionService';
 import MongoDBConnection from './MongoDBConnection';
@@ -6,7 +7,6 @@ import config from '../../config';
 import {Mongoose} from 'mongoose';
 import Database from '../../config/database';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
-import {Context} from 'inversify/dts/planning/context';
 import {TYPES} from '../../constants/types';
 // Census Event models
 import {instanceFacilityControlSchema, InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';

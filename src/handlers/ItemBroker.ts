@@ -1,4 +1,4 @@
-import {inject, injectable} from 'inversify';
+import {inject, injectable, multiInject} from 'inversify';
 import {getLogger} from '../logger';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
@@ -20,7 +20,7 @@ export default class ItemBroker implements ItemBrokerInterface {
     private readonly cacheClient: Redis;
 
     constructor(
-        private readonly censusStreamServices: CensusStream[],
+        @multiInject(TYPES.censusStreamServices) private readonly censusStreamServices: CensusStream[],
         @inject(TYPES.censusConfig) private readonly censusConfig: Census,
         @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
     ) {
