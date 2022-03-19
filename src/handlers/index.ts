@@ -18,17 +18,14 @@ export default new ContainerModule((bind) => {
 
     bind<PopulationHandlerInterface<PopulationData>>(TYPES.populationHandler).to(PopulationHandler).inSingletonScope();
 
-    bind<CharacterBrokerInterface>(TYPES.pcCharacterBrokerInterface).toDynamicValue(({container}: Context) => {
-        return new CharacterBroker(container.get(TYPES.pcWebsocketClient));
-    });
+    bind<CharacterBrokerInterface>(TYPES.pcCharacterBrokerInterface).toDynamicValue(({container}: Context) =>
+        new CharacterBroker(container.get(TYPES.pcWebsocketClient), container.get(TYPES.censusCharacterCacheDriver)));
 
-    bind<CharacterBrokerInterface>(TYPES.ps2ps4euCharacterBrokerInterface).toDynamicValue(({container}: Context) => {
-        return new CharacterBroker(container.get(TYPES.ps2ps4euWebsocketClient));
-    });
+    bind<CharacterBrokerInterface>(TYPES.ps2ps4euCharacterBrokerInterface).toDynamicValue(({container}: Context) =>
+        new CharacterBroker(container.get(TYPES.ps2ps4euWebsocketClient), container.get(TYPES.censusCharacterCacheDriver)));
 
-    bind<CharacterBrokerInterface>(TYPES.ps2ps4usCharacterBrokerInterface).toDynamicValue(({container}: Context) => {
-        return new CharacterBroker(container.get(TYPES.ps2ps4usWebsocketClient));
-    });
+    bind<CharacterBrokerInterface>(TYPES.ps2ps4usCharacterBrokerInterface).toDynamicValue(({container}: Context) =>
+        new CharacterBroker(container.get(TYPES.ps2ps4usWebsocketClient), container.get(TYPES.censusCharacterCacheDriver)));
 
     bind<ItemBrokerInterface>(TYPES.itemBrokerInterface).to(ItemBroker).inSingletonScope();
     bind<FacilityDataBroker>(TYPES.facilityDataBrokerInterface).to(FacilityDataBroker).inSingletonScope();

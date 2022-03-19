@@ -5,29 +5,19 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import ApplicationException from '../exceptions/ApplicationException';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
-import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryFacilityControlAction');
-    private readonly instance: MetagameTerritoryInstance;
-    private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
-    private readonly territoryCalculator: TerritoryCalculator;
-    private readonly isDefence: boolean;
 
     constructor(
-        instance: MetagameTerritoryInstance,
-        environment: CensusEnvironment,
-        instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        territoryCalculatorFactory: TerritoryCalculatorFactory,
-        isDefence: boolean,
-    ) {
-        this.instance = instance;
-        this.instanceMetagameFactory = instanceMetagameFactory;
-        this.territoryCalculator = territoryCalculatorFactory.build(instance, environment);
-        this.isDefence = isDefence;
-    }
+        private readonly instance: MetagameTerritoryInstance,
+        private readonly environment: CensusEnvironment,
+        private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
+        private readonly territoryCalculator: TerritoryCalculator,
+        private readonly isDefence: boolean,
+    ) {}
 
     public async execute(): Promise<boolean> {
         // If a defence, we don't care, no need to recalculate everything.
@@ -56,8 +46,9 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
             // Also update the instance in memory
             this.instance.result = result;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Unable to process FacilityControlActions for instance ${this.instance.instanceId}! Err: ${err.message}`);
+            if (err instanceof Error) {
+                throw new ApplicationException(`Unable to process FacilityControlActions for instance ${this.instance.instanceId}! Err: ${err.message}`);
+            }
         }
 
         return true;
@@ -74,19 +65,21 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
 
         try {
             return await this.territoryCalculator.calculate();
-        } catch (e) {
+        } catch (err) {
             if (attempts === 3) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${e.message}`);
+                if (err instanceof Error) {
+                    MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
+                }
+
             } else {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                MetagameInstanceTerritoryFacilityControlAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${e.message}`);
+                if (err instanceof Error) {
+                    MetagameInstanceTerritoryFacilityControlAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
+                }
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            setTimeout(async () => {
+            setTimeout(() => {
                 MetagameInstanceTerritoryFacilityControlAction.logger.warn(`[${this.instance.instanceId}] Retrying TerritoryCalculator - Attempt #${attempts}`);
-                return this.tryCalculate(attempts);
+                void this.tryCalculate(attempts);
             }, 5000);
         }
     }

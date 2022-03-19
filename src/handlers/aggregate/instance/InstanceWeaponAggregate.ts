@@ -62,8 +62,9 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
                 }],
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            InstanceWeaponAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                InstanceWeaponAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

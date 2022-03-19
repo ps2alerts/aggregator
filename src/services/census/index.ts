@@ -1,7 +1,7 @@
 import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import config from '../../config';
-import {Client} from 'ps2census';
+import {CensusClient} from 'ps2census';
 import Census from '../../config/census';
 import CensusCacheDriver from '../../drivers/CensusCacheDriver';
 import {TYPES} from '../../constants/types';
@@ -27,7 +27,7 @@ export default new ContainerModule((bind) => {
         )).inSingletonScope();
 
     // Websocket Clients
-    bind<Client>(TYPES.pcWebsocketClient)
+    bind<CensusClient>(TYPES.pcWebsocketClient)
         .toDynamicValue(({container}) => {
             const clientConfig = {...config.census.pcClientConfig};
 
@@ -36,10 +36,10 @@ export default new ContainerModule((bind) => {
                 cache: container.get(TYPES.censusCharacterCacheDriver),
             };
 
-            return new Client(config.census.serviceID, clientConfig);
+            return new CensusClient(config.census.serviceID, 'ps2', clientConfig);
         }).inSingletonScope();
 
-    bind<Client>(TYPES.ps2ps4euWebsocketClient)
+    bind<CensusClient>(TYPES.ps2ps4euWebsocketClient)
         .toDynamicValue(({container}) => {
             const clientConfig = {...config.census.ps2ps4euClientConfig};
 
@@ -48,10 +48,10 @@ export default new ContainerModule((bind) => {
                 cache: container.get(TYPES.censusCharacterCacheDriver),
             };
 
-            return new Client(config.census.serviceID, clientConfig);
+            return new CensusClient(config.census.serviceID, 'ps2ps4eu', clientConfig);
         }).inSingletonScope();
 
-    bind<Client>(TYPES.ps2ps4usWebsocketClient)
+    bind<CensusClient>(TYPES.ps2ps4usWebsocketClient)
         .toDynamicValue(({container}) => {
             const clientConfig = {...config.census.ps2ps4usClientConfig};
 
@@ -60,7 +60,7 @@ export default new ContainerModule((bind) => {
                 cache: container.get(TYPES.censusCharacterCacheDriver),
             };
 
-            return new Client(config.census.serviceID, clientConfig);
+            return new CensusClient(config.census.serviceID, 'ps2ps4us', clientConfig);
         }).inSingletonScope();
 
     bind<CensusStream>(TYPES.censusStreamServices)

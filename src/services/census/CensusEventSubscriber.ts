@@ -1,7 +1,7 @@
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
-import {Client, Death, Events, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
+import {CensusClient, Death, Events, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
@@ -24,52 +24,28 @@ import Parser from '../../utils/parser';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
 import {metagameEventTypeArray} from '../../constants/metagameEventType';
 import {FacilityDataBrokerInterface} from '../../interfaces/FacilityDataBrokerInterface';
+import ApplicationException from "../../exceptions/ApplicationException";
 
 @injectable()
 export default class CensusEventSubscriber implements ServiceInterface {
     public readonly bootPriority = 10;
     private static readonly logger = getLogger('CenusEventSubscriber');
-    private readonly wsClient: Client;
-    private readonly environment: CensusEnvironment;
-    private readonly deathEventHandler: DeathEventHandler;
-    private readonly metagameEventEventHandler: MetagameEventEventHandler;
-    private readonly facilityControlEventHandler: FacilityControlEventHandler;
-    private readonly gainExperienceEventHandler: GainExperienceEventHandler;
-    private readonly vehicleDestroyEventHandler: VehicleDestroyEventHandler;
-    private readonly instanceAuthority: InstanceAuthority;
-    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
-    private readonly characterBroker: CharacterBrokerInterface;
-    private readonly itemBroker: ItemBrokerInterface;
-    private readonly facilityDataBroker: FacilityDataBrokerInterface;
     private eventsReady = false;
 
     constructor(
-        wsClient: Client,
-        environment: CensusEnvironment,
-        characterBroker: CharacterBrokerInterface,
-        deathEventHandler: DeathEventHandler,
-        metagameEventEventHandler: MetagameEventEventHandler,
-        facilityControlEventHandler: FacilityControlEventHandler,
-        gainExperienceEventHandler: GainExperienceEventHandler,
-        vehicleDestroyEventHandler: VehicleDestroyEventHandler,
-        instanceAuthority: InstanceAuthority,
-        characterPresenceHandler: CharacterPresenceHandlerInterface,
-        itemBroker: ItemBrokerInterface,
-        facilityDataBroker: FacilityDataBrokerInterface,
-    ) {
-        this.wsClient = wsClient;
-        this.environment = environment;
-        this.characterBroker = characterBroker;
-        this.deathEventHandler = deathEventHandler;
-        this.metagameEventEventHandler = metagameEventEventHandler;
-        this.facilityControlEventHandler = facilityControlEventHandler;
-        this.gainExperienceEventHandler = gainExperienceEventHandler;
-        this.vehicleDestroyEventHandler = vehicleDestroyEventHandler;
-        this.instanceAuthority = instanceAuthority;
-        this.characterPresenceHandler = characterPresenceHandler;
-        this.itemBroker = itemBroker;
-        this.facilityDataBroker = facilityDataBroker;
-    }
+        private readonly wsClient: CensusClient,
+        private readonly environment: CensusEnvironment,
+        private readonly characterBroker: CharacterBrokerInterface,
+        private readonly deathEventHandler: DeathEventHandler,
+        private readonly metagameEventEventHandler: MetagameEventEventHandler,
+        private readonly facilityControlEventHandler: FacilityControlEventHandler,
+        private readonly gainExperienceEventHandler: GainExperienceEventHandler,
+        private readonly vehicleDestroyEventHandler: VehicleDestroyEventHandler,
+        private readonly instanceAuthority: InstanceAuthority,
+        private readonly characterPresenceHandler: CharacterPresenceHandlerInterface,
+        private readonly itemBroker: ItemBrokerInterface,
+        private readonly facilityDataBroker: FacilityDataBrokerInterface,
+    ) {}
 
     // Here we pass all the events
     public constructListeners(): void {
@@ -125,6 +101,9 @@ export default class CensusEventSubscriber implements ServiceInterface {
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(async ([attacker, character]) => {
+            if (!attacker || !character) {
+                throw new ApplicationException('A Character did not return! Cannot complete processDeath!', 'CensusEventSubscriber:processDeath')
+            }
             CensusEventSubscriber.logger.silly(`[${this.environment}] Death: Successfully found all characters`);
 
             // Update the presence handler so we can have a running population count, even without any instances.
@@ -196,6 +175,9 @@ export default class CensusEventSubscriber implements ServiceInterface {
 
         await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
             .then((character) => {
+                if (!character) {
+                    throw new ApplicationException('A Character did not return! Cannot complete processVehicleDestroy!', 'CensusEventSubscriber:processGainExperience')
+                }
                 // Update the character presence handler so we can ensure populations are correct at all times
                 void this.characterPresenceHandler.update(
                     character,
@@ -214,9 +196,10 @@ export default class CensusEventSubscriber implements ServiceInterface {
             try {
                 const metagameEvent = new MetagameEventEvent(censusEvent);
                 await this.metagameEventEventHandler.handle(metagameEvent, this.environment);
-            } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                CensusEventSubscriber.logger.error(e.message);
+            } catch (err) {
+                if (err instanceof Error) {
+                    CensusEventSubscriber.logger.error(err.message);
+                }
             }
         } else {
             CensusEventSubscriber.logger.warn(`Unknown / unsupported metagame_event_id: ${censusEvent.metagame_event_id}`);
@@ -230,6 +213,9 @@ export default class CensusEventSubscriber implements ServiceInterface {
             this.characterBroker.get(censusEvent.attacker_character_id, parseInt(censusEvent.world_id, 10)),
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(([attacker, character]) => {
+            if (!attacker || !character) {
+                throw new ApplicationException('A Character did not return! Cannot complete processVehicleDestroy!', 'CensusEventSubscriber:processVehicleDestroy')
+            }
             // Update the character presence handler so we can ensure populations are correct at all times
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(

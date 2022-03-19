@@ -1,14 +1,14 @@
 import {injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {World} from '../constants/world';
-import {Client, PS2Event} from 'ps2census';
+import {CensusClient, PS2Event} from 'ps2census';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import LocalServerTimeCalculator from '../calculators/LocalServerTimeCalculator';
 
 @injectable()
 export default class CensusStaleConnectionWatcherAuthority {
     private static readonly logger = getLogger('CensusStaleConnectionWatcherAuthority');
-    private readonly wsClient: Client;
+    private readonly wsClient: CensusClient;
     private readonly environment: CensusEnvironment;
     private deathMessageTimer?: NodeJS.Timeout;
     private experienceMessageTimer?: NodeJS.Timeout;
@@ -17,7 +17,7 @@ export default class CensusStaleConnectionWatcherAuthority {
     private readonly lastMessagesExperienceMap: Map<World, number> = new Map<World, number>();
 
     constructor(
-        wsClient: Client,
+        wsClient: CensusClient,
         environment: CensusEnvironment,
     ) {
         this.wsClient = wsClient;

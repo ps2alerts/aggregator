@@ -3,7 +3,6 @@ import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import Census from '../config/census';
-import {rest} from 'ps2census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import ApplicationException from '../exceptions/ApplicationException';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
@@ -12,31 +11,20 @@ import {Bracket} from '../constants/bracket';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MapDataInterface from '../interfaces/MapDataInterface';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
+import CensusStream from '../services/census/CensusStream';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
-    private readonly instance: MetagameTerritoryInstance;
-    private readonly environment: CensusEnvironment;
-    private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
-    private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly censusConfig: Census;
-    private readonly facilityControlAction: ActionInterface;
 
     constructor(
-        instance: MetagameTerritoryInstance,
-        environment: CensusEnvironment,
-        instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        censusConfig: Census,
-        facilityControlAction: ActionInterface,
-    ) {
-        this.instance = instance;
-        this.environment = environment;
-        this.instanceMetagameFactory = instanceMetagameFactory;
-        this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
-        this.censusConfig = censusConfig;
-        this.facilityControlAction = facilityControlAction;
-    }
+        private readonly instance: MetagameTerritoryInstance,
+        private readonly environment: CensusEnvironment,
+        private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
+        private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
+        private readonly censusConfig: Census,
+        private readonly facilityControlAction: ActionInterface,
+        private readonly censusStreamServices: CensusStream[],
+    ) {}
 
     public async execute(): Promise<boolean> {
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()`);
@@ -75,9 +63,16 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     }
 
     private async getInitialMap(): Promise<MapDataInterface[]> {
+        // Get the correct CensusClient
+        const censusClient = this.censusStreamServices.find((service) => service.environment === this.environment);
+
+        if (!censusClient) {
+            throw new ApplicationException('Could not find CensusClient based off environment!');
+        }
+
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            rest.getFactory(this.environment, this.censusConfig.serviceID),
+            censusClient.wsClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();

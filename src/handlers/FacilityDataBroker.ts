@@ -1,6 +1,5 @@
-import {inject, injectable} from 'inversify';
+import {inject, injectable, multiInject} from 'inversify';
 import {getLogger} from '../logger';
-import {rest} from 'ps2census';
 import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
 import {TYPES} from '../constants/types';
 import Census from '../config/census';
@@ -12,19 +11,20 @@ import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
+import CensusStream from '../services/census/CensusStream';
+import ApplicationException from '../exceptions/ApplicationException';
 
 @injectable()
 export default class FacilityDataBroker implements FacilityDataBrokerInterface {
     private static readonly logger = getLogger('FacilityDataBroker');
-    private readonly censusConfig: Census;
     private readonly cacheClient: RedisInterface;
 
     constructor(
-    @inject(TYPES.censusConfig) censusConfig: Census,
-        @inject(RedisConnection) cacheClient: RedisConnection,
+        @inject(TYPES.censusConfig) private readonly censusConfig: Census,
+        @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
+        @multiInject(TYPES.censusStreamServices) private readonly censusStreamServices: CensusStream[],
     ) {
-        this.censusConfig = censusConfig;
-        this.cacheClient = cacheClient.getClient();
+        this.cacheClient = cacheConnection.getClient();
     }
 
     public async get(
@@ -50,19 +50,21 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
 
         FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache MISS`);
 
-        const get = rest.getFactory(environment, this.censusConfig.serviceID);
-        const request = get(
-            rest.limit(
-                rest.mapRegion,
-                1,
-            ),
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            {facility_id: facilityId.toString()},
-        );
+        // Get the correct CensusClient
+        const censusClient = this.censusStreamServices.find((service) => service.environment === environment);
+
+        if (!censusClient) {
+            throw new ApplicationException('Could not find CensusClient based off environment!');
+        }
+
+        const query = censusClient.wsClient.rest.getQueryBuilder('map_region')
+            .limit(1);
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        const filter = {facility_id: facilityId.toString()};
 
         // Grab the map region data from Census
         try {
-            const apiRequest = new CensusApiRetryDriver(request, 'FacilityDataBroker');
+            const apiRequest = new CensusApiRetryDriver(environment, query, filter, 'FacilityDataBroker');
             await apiRequest.try().then(async (facility) => {
                 if (!facility || !facility[0] || !facility[0].facility_id) {
                     FacilityDataBroker.logger.error(`[${environment}] Could not find facility ${facilityId} (Zone ${zone}) in Census, or they returned garbage.`);
@@ -77,9 +79,10 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
                 FacilityDataBroker.logger.silly(`[${environment}] Facility ID ${facilityId} successfully stored in cache`);
                 facilityData = new FacilityData(facility[0], zone);
             });
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            FacilityDataBroker.logger.error(`[${environment}] Unable to properly grab facility ${facilityId} from Census. Error: ${e.message}`);
+        } catch (err) {
+            if (err instanceof Error) {
+                FacilityDataBroker.logger.error(`[${environment}] Unable to properly grab facility ${facilityId} from Census. Error: ${err.message}`);
+            }
         }
 
         return facilityData;

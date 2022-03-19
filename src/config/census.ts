@@ -1,5 +1,5 @@
 import {get} from '../utils/env';
-import {ClientConfig, rest} from 'ps2census';
+import {CharacterManagerOptions, ClientOptions} from 'ps2census';
 
 export default class Census {
     public static readonly streamManagerConfig = {
@@ -8,34 +8,26 @@ export default class Census {
         logicalAndCharactersWithWorlds: true,
     };
 
-    public static readonly characterManagerConfig = {
-        request: rest.retry(rest.resolve(
-            rest.hide(
-                rest.character,
-                [
-                    'head_id',
-                    'times',
-                    'certs',
-                    'profile_id',
-                    'title_id',
-                    'daily_ribbon',
-                ],
+    public static readonly characterManagerConfig: CharacterManagerOptions = {
+        query: (query) => query.resolve('world', ['outfit_member_extended', ['outfit_id', 'name', 'alias', 'leader_character_id']])
+            .hide(
+                'head_id',
+                'times',
+                'certs',
+                'profile_id',
+                'title_id',
+                'daily_ribbon',
             ),
-            [
-                'world',
-                ['outfit_member_extended', ['outfit_id', 'name', 'alias', 'leader_character_id']],
-            ],
-        )),
+        retries: 3,
     };
 
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
 
     /**
-     * @type {ClientConfig} Configuration for PS2 Census aggregator client
+     * @type {ClientOptions} Configuration for PS2 Census aggregator client
      */
-    public readonly pcClientConfig: ClientConfig = {
-        environment: 'ps2',
-        streamManagerConfig: {
+    public readonly pcClientConfig: ClientOptions = {
+        streamManager: {
             subscription: {
                 ...Census.streamManagerConfig,
                 eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
@@ -44,9 +36,8 @@ export default class Census {
         characterManager: Census.characterManagerConfig,
     };
 
-    public readonly ps2ps4euClientConfig: ClientConfig = {
-        environment: 'ps2ps4eu',
-        streamManagerConfig: {
+    public readonly ps2ps4euClientConfig: ClientOptions = {
+        streamManager: {
             subscription: {
                 ...Census.streamManagerConfig,
                 eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
@@ -55,9 +46,8 @@ export default class Census {
         characterManager: Census.characterManagerConfig,
     };
 
-    public readonly ps2ps4usClientConfig: ClientConfig = {
-        environment: 'ps2ps4us',
-        streamManagerConfig: {
+    public readonly ps2ps4usClientConfig: ClientOptions = {
+        streamManager: {
             subscription: {
                 ...Census.streamManagerConfig,
                 eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],

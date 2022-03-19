@@ -75,18 +75,20 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
 
         try {
             return await this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${e.message}. Retrying...`);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${err.message}. Retrying...`);
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setTimeout(async () => {
                 try {
                     return await this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
                 } catch (err) {
-                    // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
+                    if (err instanceof Error) {
+                        // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+                        AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
+                    }
                 }
             }, 5000);
         }
@@ -107,9 +109,10 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             }
 
             return await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${e.message}`);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${err.message}`);
+            }
         }
 
         return false;
@@ -130,10 +133,10 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             }
 
             return true;
-
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed ending all instances via adminAggregator message! E: ${e.message}`);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed ending all instances via adminAggregator message! E: ${err.message}`);
+            }
         }
 
         return false;

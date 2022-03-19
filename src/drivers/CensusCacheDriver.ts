@@ -10,7 +10,6 @@ export default class CensusCacheDriver implements CacheContract {
     private readonly namespace: string = 'census';
     private readonly expiry: number = 86400; // 1 day
     private readonly cacheClient: Redis;
-    private readonly retrieving = new Map<string, Promise<any>>();
 
     constructor(
         namespace: string,
@@ -22,12 +21,16 @@ export default class CensusCacheDriver implements CacheContract {
         this.cacheClient = cacheClient.getClient();
     }
 
-    public forget(key: string): Promise<boolean> {
-        return this.cacheClient.del(this.cacheKey(key)).then((res) => res > 0);
+    public async forget(key: string): Promise<void> {
+        await this.cacheClient.del(this.cacheKey(key)).then((res) => res > 0);
     }
 
     public async forgetAll(): Promise<void> {
         await this.cacheClient.flushall();
+    }
+
+    public fetch(key: string): Promise<any> {
+        return this.cacheClient.get(key);
     }
 
     public async put(key: string, data: any): Promise<void> {
@@ -36,29 +39,6 @@ export default class CensusCacheDriver implements CacheContract {
             this.expiry,
             JSON.stringify(data),
         );
-    }
-
-    public async remember(key: string, cb: () => Promise<any>): Promise<any> {
-        let data: any = await this.cacheClient.get(this.cacheKey(key));
-
-        if (!data) {
-            let retrieve = this.retrieving.get(key);
-
-            if (!retrieve) {
-                retrieve = cb();
-                this.retrieving.set(key, retrieve);
-            }
-
-            data = await retrieve;
-            await this.put(key, data);
-            this.retrieving.delete(key);
-        } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            data = JSON.parse(data);
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return data;
     }
 
     private cacheKey(key: string): string {

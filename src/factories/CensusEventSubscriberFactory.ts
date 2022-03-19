@@ -1,4 +1,4 @@
-import {Client} from 'ps2census';
+import {CensusClient} from 'ps2census';
 import CensusEventSubscriber from '../services/census/CensusEventSubscriber';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import DeathEventHandler from '../handlers/census/DeathEventHandler';
@@ -46,7 +46,7 @@ export default class CensusEventSubscriberFactory {
     }
 
     public build(
-        wsClient: Client,
+        wsClient: CensusClient,
         environment: CensusEnvironment,
         characterBroker: CharacterBrokerInterface,
     ): CensusEventSubscriber {

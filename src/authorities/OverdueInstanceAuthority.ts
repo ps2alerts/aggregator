@@ -31,8 +31,9 @@ export default class OverdueInstanceAuthority {
                     OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
                     void this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
                 } catch (err) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! E: ${err.message}`);
+                    if (err instanceof Error) {
+                        OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! E: ${err.message}`);
+                    }
                 }
             });
         }, 15000);

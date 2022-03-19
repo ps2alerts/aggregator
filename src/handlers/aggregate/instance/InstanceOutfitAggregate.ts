@@ -115,8 +115,9 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -130,8 +131,9 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 }],
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

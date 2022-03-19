@@ -1,35 +1,33 @@
 import MongooseModelFactory from './MongooseModelFactory';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
-import Census from '../config/census';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import CensusStream from '../services/census/CensusStream';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
     private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly censusConfig: Census;
 
     constructor(
-    @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @inject(TYPES.censusConfig) censusConfig: Census,
+        @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
 
     ) {
         this.instanceFacilityControlFactory = instanceFacilityControlModelFactory;
-        this.censusConfig = censusConfig;
     }
 
     public build(
         instance: MetagameTerritoryInstance,
         environment: CensusEnvironment,
+        censusStreamServices: CensusStream[],
     ): TerritoryCalculator {
         return new TerritoryCalculator(
             instance,
             environment,
             this.instanceFacilityControlFactory,
-            this.censusConfig,
+            censusStreamServices,
         );
     }
 }

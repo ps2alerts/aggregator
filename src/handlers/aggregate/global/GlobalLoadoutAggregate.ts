@@ -85,8 +85,9 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -114,8 +115,9 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    GlobalLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                }
             }
         }
 

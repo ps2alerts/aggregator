@@ -62,8 +62,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character attacker message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character attacker message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -88,8 +89,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character victim message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character victim message to API! E: ${err.message}`);
+                }
             }
         }
     }
@@ -147,8 +149,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -198,8 +201,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);
+                }
             }
         }
     }

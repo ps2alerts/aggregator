@@ -2,7 +2,7 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {inject, injectable} from 'inversify';
+import {inject, injectable, multiInject} from 'inversify';
 import {TYPES} from '../constants/types';
 import MongooseModelFactory from './MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
@@ -15,31 +15,19 @@ import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameI
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
+import CensusStream from '../services/census/CensusStream';
 
 @injectable()
 export default class InstanceActionFactory {
-    private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
-    private readonly censusConfig: Census;
-    private readonly globalVictoryAggregate: GlobalVictoryAggregate;
-    private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
-    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
-
     constructor(
-    @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        @inject(TYPES.censusConfig) censusConfig: Census,
-        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
-        @inject(TYPES.globalVictoryAggregate) globalVictoryAggregate: GlobalVictoryAggregate,
-        @inject(TYPES.outfitParticipantCacheHandler) outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-    ) {
-        this.instanceFacilityControlModelFactory = instanceFacilityControlModelFactory;
-        this.instanceMetagameModelFactory = instanceMetagameModelFactory;
-        this.censusConfig = censusConfig;
-        this.territoryCalculatorFactory = territoryCalculatorFactory;
-        this.globalVictoryAggregate = globalVictoryAggregate;
-        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
-    }
+        @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
+        @inject(TYPES.instanceMetagameModelFactory) private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
+        @inject(TYPES.censusConfig) private readonly censusConfig: Census,
+        @inject(TYPES.territoryCalculatorFactory) private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
+        @inject(TYPES.globalVictoryAggregate) private readonly globalVictoryAggregate: GlobalVictoryAggregate,
+        @inject(TYPES.outfitParticipantCacheHandler) private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+        @multiInject(TYPES.censusStreamServices) private readonly censusStreamServices: CensusStream[],
+    ) {}
 
     public buildStart(
         instance: PS2AlertsInstanceInterface,
@@ -53,6 +41,7 @@ export default class InstanceActionFactory {
                 this.instanceFacilityControlModelFactory,
                 this.censusConfig,
                 this.buildFacilityControlEvent(instance, environment, false),
+                this.censusStreamServices,
             );
         }
 
@@ -68,7 +57,7 @@ export default class InstanceActionFactory {
                 instance,
                 environment,
                 this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory,
+                this.territoryCalculatorFactory.build(instance, environment, this.censusStreamServices),
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
             );
@@ -87,7 +76,7 @@ export default class InstanceActionFactory {
                 instance,
                 environment,
                 this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory,
+                this.territoryCalculatorFactory.build(instance, environment, this.censusStreamServices),
                 isDefence,
             );
         }

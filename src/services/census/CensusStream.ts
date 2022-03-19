@@ -1,8 +1,7 @@
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
-import {Client, PS2Event} from 'ps2census';
+import {CensusClient, PS2Event} from 'ps2census';
 import {World} from '../../constants/world';
-import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import CensusEventSubscriber from './CensusEventSubscriber';
 import CensusStaleConnectionWatcherAuthority from '../../authorities/CensusStaleConnectionWatcherAuthority';
 import {jsonLogOutput} from '../../utils/json';
@@ -11,25 +10,13 @@ import {CensusEnvironment} from '../../types/CensusEnvironment';
 @injectable()
 export default class CensusStream {
     private static readonly logger = getLogger('ps2census');
-    private readonly wsClient: Client;
-    private readonly environment: CensusEnvironment;
-    private readonly censusEventSubscriber: CensusEventSubscriber;
-    private readonly censusStaleConnectionWatcherAuthority: CensusStaleConnectionWatcherAuthority;
-    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
     constructor(
-        wsClient: Client,
-        environment: CensusEnvironment,
-        censusEventSubscriber: CensusEventSubscriber,
-        censusStaleConnectionWatcherAuthority: CensusStaleConnectionWatcherAuthority,
-        characterPresenceHandler: CharacterPresenceHandlerInterface,
-    ) {
-        this.wsClient = wsClient;
-        this.environment = environment;
-        this.censusEventSubscriber = censusEventSubscriber;
-        this.censusStaleConnectionWatcherAuthority = censusStaleConnectionWatcherAuthority;
-        this.characterPresenceHandler = characterPresenceHandler;
-    }
+        public readonly wsClient: CensusClient,
+        public readonly environment: CensusEnvironment,
+        private readonly censusEventSubscriber: CensusEventSubscriber,
+        private readonly censusStaleConnectionWatcherAuthority: CensusStaleConnectionWatcherAuthority,
+    ) {}
 
     public async bootClient(): Promise<void> {
         CensusStream.logger.info(`[${this.environment}] Booting Census Stream...`);

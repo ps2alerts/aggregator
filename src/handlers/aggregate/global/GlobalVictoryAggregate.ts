@@ -72,8 +72,9 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

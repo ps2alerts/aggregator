@@ -7,7 +7,6 @@ import ApplicationException from '../exceptions/ApplicationException';
 import FactionUtils from '../utils/FactionUtils';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {jsonLogOutput} from '../utils/json';
-import TerritoryCalculatorFactory from '../factories/TerritoryCalculatorFactory';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
@@ -15,28 +14,15 @@ import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
-    private readonly instance: MetagameTerritoryInstance;
-    private readonly environment: CensusEnvironment;
-    private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
-    private readonly territoryCalculator: TerritoryCalculator;
-    private readonly globalVictoryAggregate: GlobalVictoryAggregate;
-    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
     constructor(
-        instance: MetagameTerritoryInstance,
-        environment: CensusEnvironment,
-        instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        territoryCalculatorFactory: TerritoryCalculatorFactory,
-        globalVictoryAggregate: GlobalVictoryAggregate,
-        outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-    ) {
-        this.instance = instance;
-        this.environment = environment;
-        this.instanceMetagameFactory = instanceMetagameFactory;
-        this.territoryCalculator = territoryCalculatorFactory.build(instance, environment);
-        this.globalVictoryAggregate = globalVictoryAggregate;
-        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
-    }
+        private readonly instance: MetagameTerritoryInstance,
+        private readonly environment: CensusEnvironment,
+        private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
+        private readonly territoryCalculator: TerritoryCalculator,
+        private readonly globalVictoryAggregate: GlobalVictoryAggregate,
+        private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+    ) {}
 
     public async execute(): Promise<boolean> {
         MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
@@ -52,8 +38,9 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
                 throw new ApplicationException(`[${this.instance.instanceId}] Unable to set victor! Err: ${err.message}`);
             });
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            MetagameTerritoryInstanceEndAction.logger.error(`[${this.instance.instanceId}] Unable to process endAction! Err: ${err.message}`);
+            if (err instanceof Error) {
+                MetagameTerritoryInstanceEndAction.logger.error(`[${this.instance.instanceId}] Unable to process endAction! Err: ${err.message}`);
+            }
         }
 
         // Update the world, zone and bracket aggregators

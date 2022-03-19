@@ -95,10 +95,11 @@ export default class InstanceAuthority {
             // Execute start actions, if it fails trash the instance
             try {
                 await this.instanceActionFactory.buildStart(instance, environment).execute();
-            } catch (e) {
-                // End early if instance failed to insert so we don't add a instance to the list of actives.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${e.message}`);
+            } catch (err) {
+                // End early if instance failed to insert, so we don't add an instance to the list of actives.
+                if (err instanceof Error) {
+                    InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${err.message}`);
+                }
 
                 await this.trashInstance(instance);
                 return false;

@@ -1,5 +1,5 @@
 // Special class to handle the MapRegion query, as it's done in multiple places and prone to crashing
-import {rest} from 'ps2census';
+import {CensusClient} from 'ps2census';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
@@ -35,48 +35,35 @@ interface RegionMapJoinQueryRowInterface {
         }
     };
 }
-
 /* eslint-enable */
 
 export default class CensusMapRegionQueryParser {
-    private readonly getMethod: rest.requestTypes.getMethod;
-    private readonly caller: string;
-    private readonly instance: MetagameTerritoryInstance;
     private readonly oshurData: ReverseEngineeredOshurDataInterface[];
 
     constructor(
-        getMethod: rest.requestTypes.getMethod,
-        caller: string,
-        instance: MetagameTerritoryInstance,
+        private readonly censusClient: CensusClient,
+        private readonly caller: string,
+        private readonly instance: MetagameTerritoryInstance,
     ) {
-        this.getMethod = getMethod;
-        this.caller = caller;
-        this.instance = instance;
         this.oshurData = this.initOshurData();
     }
 
     // Returns
     public async getMapData(): Promise<RegionMapJoinQueryInterface[]> {
-        const request = this.getMethod(
-            rest.join(
-                rest.map,
-                [{
-                    type: 'map_region',
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    inject_at: 'map_region',
-                    on: 'Regions.Row.RowData.RegionId',
-                    to: 'map_region_id',
-                }],
-            ),
-            { // Query for filter
+        const query = this.censusClient.rest.getQueryBuilder('map')
+            .join({
+                type: 'map_region',
                 // eslint-disable-next-line @typescript-eslint/naming-convention
-                world_id: String(this.instance.world),
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                zone_ids: String(this.instance.zone),
-            },
-        );
+                inject_at: 'map_region',
+                on: 'Regions.Row.RowData.RegionId',
+                to: 'map_region_id',
+            })
+        const filter = {
+            world_id: String(this.instance.world),
+            zone_ids: String(this.instance.zone),
+        }
 
-        const apiRequest = new CensusApiRetryDriver(request, 'MetagameInstanceTerritoryStartAction');
+        const apiRequest = new CensusApiRetryDriver(this.censusClient.environment, query, filter,'MetagameInstanceTerritoryStartAction');
         let mapDataFinal: RegionMapJoinQueryInterface[] = [];
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

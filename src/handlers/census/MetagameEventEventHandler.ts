@@ -10,23 +10,16 @@ import {MetagameEventState} from '../../constants/metagameEventState';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
-import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
-    private readonly instanceAuthority: InstanceAuthority;
-    private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
     constructor(
-    @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
-        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
-    ) {
-        this.instanceAuthority = instanceAuthority;
-        this.territoryCalculatorFactory = territoryCalculatorFactory;
-    }
+        @inject(TYPES.instanceAuthority) private readonly instanceAuthority: InstanceAuthority,
+    ) {}
 
     public async handle(event: MetagameEventEvent, environment: CensusEnvironment): Promise<boolean> {
         MetagameEventEventHandler.logger.debug('Parsing MetagameEventEvent message...');

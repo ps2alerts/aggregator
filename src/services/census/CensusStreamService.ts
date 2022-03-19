@@ -8,11 +8,8 @@ import CensusStream from './CensusStream';
 export default class CensusStreamService implements ServiceInterface {
     public readonly bootPriority = 10;
     private static readonly logger = getLogger('CensusStreamService');
-    private readonly censusStreamServices: CensusStream[];
 
-    constructor(@multiInject(TYPES.censusStreamServices) censusStreamServices: CensusStream[]) {
-        this.censusStreamServices = censusStreamServices;
-    }
+    constructor(@multiInject(TYPES.censusStreamServices) private readonly censusStreamServices: CensusStream[]) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
     public async boot(): Promise<void> {}

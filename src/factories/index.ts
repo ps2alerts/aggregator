@@ -16,12 +16,9 @@ export default new ContainerModule((bind) => {
 
     bind<TerritoryCalculatorFactory>(TYPES.territoryCalculatorFactory).toDynamicValue(({container}: Context) => new TerritoryCalculatorFactory(
         container.get(TYPES.instanceFacilityControlModelFactory),
-        container.get(TYPES.censusConfig),
     )).inSingletonScope();
 
-    bind<CensusStreamServiceFactory>(TYPES.censusStreamServiceFactory).toDynamicValue(({container}: Context) => new CensusStreamServiceFactory(
-        container.get(TYPES.characterPresenceHandler),
-    ));
+    bind<CensusStreamServiceFactory>(TYPES.censusStreamServiceFactory).toDynamicValue(() => new CensusStreamServiceFactory());
 
     bind<CensusEventSubscriberFactory>(TYPES.censusEventSubscriberFactory).toDynamicValue(({container}: Context) => new CensusEventSubscriberFactory(
         container.get(DeathEventHandler),
