@@ -1,6 +1,6 @@
 import {injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {CacheContract, CensusClient} from 'ps2census';
+import {CensusClient} from 'ps2census';
 import Character from '../data/Character';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
 import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
@@ -14,7 +14,6 @@ export default class CharacterBroker implements CharacterBrokerInterface {
 
     constructor(
         private readonly wsClient: CensusClient,
-        private readonly characterCacheDriver: CacheContract,
     ) {}
 
     public async get(characterId: string, world: World): Promise<Character | undefined> {
@@ -26,14 +25,14 @@ export default class CharacterBroker implements CharacterBrokerInterface {
 
         // Grab the character data from Census / Cache
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const censusCharacter: CharacterWorldOutfitLeader = await this.wsClient.characterManager.fetch(characterId);
 
             // Convert into Character object
             return new Character(censusCharacter);
         } catch (err) {
 
-            // TODO: Await Micro's fix to expose the forget from the characterManager https://github.com/microwavekonijn/ps2census/issues/57
-            await this.characterCacheDriver.forget(characterId);
+            await this.wsClient.characterManager.forget(characterId);
             CharacterBroker.logger.silly(`Forgot cache entry for ${characterId}`);
 
             if (err instanceof Error) {
