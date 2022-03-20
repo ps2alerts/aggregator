@@ -149,7 +149,7 @@ export default class Kernel implements KernelInterface {
 
     /**
      * Application level errors will be caught here, echoed out and displayed correctly
-     * @param exception ApplicationException|Error
+     * @param exception ApplicationException
      */
     private handleApplicationException(exception: ApplicationException): void {
         Kernel.logger.error(`MESSAGE: ${exception.message}`);
