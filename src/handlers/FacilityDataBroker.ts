@@ -1,8 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
-import {TYPES} from '../constants/types';
-import Census from '../config/census';
 import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis as RedisInterface} from 'ioredis';
 import {CensusEnvironment} from '../types/CensusEnvironment';
@@ -11,7 +9,7 @@ import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
-import CensusStream from '../services/census/CensusStream';
+import {RestClient} from 'ps2census/dist/rest';
 
 @injectable()
 export default class FacilityDataBroker implements FacilityDataBrokerInterface {
@@ -19,7 +17,6 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
     private readonly cacheClient: RedisInterface;
 
     constructor(
-        @inject(TYPES.censusConfig) private readonly censusConfig: Census,
         @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
         private readonly censusStreamService: CensusStream,
     ) {

@@ -1,4 +1,3 @@
-import CharacterPresenceHandlerInterface from '../../../interfaces/CharacterPresenceHandlerInterface';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {getLogger} from '../../../logger';
@@ -13,19 +12,12 @@ import CharacterPresenceHandler from '../../CharacterPresenceHandler';
 @injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
     private static readonly logger = getLogger('InstancePopulationAggregate');
-    private readonly playerHandler: CharacterPresenceHandlerInterface;
-    private readonly instanceAuthority: InstanceAuthority;
-    private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(
-        characterPresenceHandler: CharacterPresenceHandler,
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
-        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-    ) {
-        this.playerHandler = characterPresenceHandler;
-        this.instanceAuthority = instanceAuthority;
-        this.apiMQPublisher = apiMQPublisher;
-    }
+        private readonly characterPresenceHandler: CharacterPresenceHandler,
+        private readonly instanceAuthority: InstanceAuthority,
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+    ) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
         InstancePopulationAggregate.logger.silly('InstancePopulationAggregate.handle');

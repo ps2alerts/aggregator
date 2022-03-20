@@ -9,7 +9,7 @@ import {Bracket} from '../constants/bracket';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MapDataInterface from '../interfaces/MapDataInterface';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
-import CensusStream from '../services/census/CensusStream';
+import {RestClient} from 'ps2census/dist/rest';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
@@ -19,7 +19,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         private readonly facilityControlAction: ActionInterface,
-        private readonly censusStreamService: CensusStream,
+        private readonly restClient: RestClient,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -61,7 +61,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     private async getInitialMap(): Promise<MapDataInterface[]> {
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            this.censusStreamService.censusClient,
+            this.restClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();

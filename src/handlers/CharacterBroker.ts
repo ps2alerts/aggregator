@@ -1,6 +1,6 @@
 import {injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {CensusClient} from 'ps2census';
+import {CharacterManager} from 'ps2census';
 import Character from '../data/Character';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
 import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
@@ -13,7 +13,7 @@ export default class CharacterBroker implements CharacterBrokerInterface {
     private static readonly logger = getLogger('CharacterBroker');
 
     constructor(
-        private readonly censusClient: CensusClient,
+        private readonly characterManager: CharacterManager,
     ) {}
 
     public async get(characterId: string, world: World): Promise<Character | undefined> {
@@ -26,13 +26,13 @@ export default class CharacterBroker implements CharacterBrokerInterface {
         // Grab the character data from Census / Cache
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const censusCharacter: CharacterWorldOutfitLeader = await this.censusClient.characterManager.fetch(characterId);
+            const censusCharacter: CharacterWorldOutfitLeader = await this.characterManager.fetch(characterId);
 
             // Convert into Character object
             return new Character(censusCharacter);
         } catch (err) {
 
-            await this.censusClient.characterManager.forget(characterId);
+            await this.characterManager.forget(characterId);
             CharacterBroker.logger.silly(`Forgot cache entry for ${characterId}`);
 
             if (err instanceof Error) {

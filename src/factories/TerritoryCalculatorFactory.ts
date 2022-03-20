@@ -4,7 +4,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
-import CensusStream from '../services/census/CensusStream';
+import {RestClient} from 'ps2census/dist/rest';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
@@ -18,12 +18,12 @@ export default class TerritoryCalculatorFactory {
 
     public build(
         instance: MetagameTerritoryInstance,
-        censusStreamService: CensusStream,
+        restClient: RestClient,
     ): TerritoryCalculator {
         return new TerritoryCalculator(
             instance,
             this.instanceFacilityControlFactory,
-            censusStreamService,
+            restClient,
         );
     }
 }

@@ -3,9 +3,9 @@ import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import {TYPES} from '../../constants/types';
-import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import VehicleDestroyEvent from './events/VehicleDestroyEvent';
+import CharacterPresenceHandler from '../CharacterPresenceHandler';
 
 @injectable()
 export default class VehicleDestroyEventHandler implements EventHandlerInterface<VehicleDestroyEvent> {
@@ -15,7 +15,7 @@ export default class VehicleDestroyEventHandler implements EventHandlerInterface
 
     /* eslint-disable */
     constructor(
-        characterPresenceHandler: CharacterPresenceHandlerInterface,
+        characterPresenceHandler: CharacterPresenceHandler,
         @multiInject(TYPES.vehicleDestroyAggregates) aggregateHandlers: EventHandlerInterface<VehicleDestroyEvent>[],
         @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher
     ) {

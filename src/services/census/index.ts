@@ -1,18 +1,16 @@
 import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import config from '../../config';
-import {CensusClient} from 'ps2census';
-import Census from '../../config/census';
+import {CensusClient, CharacterManager} from 'ps2census';
 import CensusCacheDriver from '../../drivers/CensusCacheDriver';
 import {TYPES} from '../../constants/types';
 import {RedisConnection} from '../redis/RedisConnection';
 import CensusStreamService from './CensusStreamService';
 import CensusStream from './CensusStream';
 import CensusEventSubscriber from './CensusEventSubscriber';
+import {RestClient} from 'ps2census/dist/rest';
 
 export default new ContainerModule((bind) => {
-    bind<Census>(TYPES.censusConfig).toConstantValue(config.census);
-
     // Boot the Census Stream services
     bind<ServiceInterface>(SERVICE).to(CensusStreamService).inSingletonScope();
 
@@ -39,4 +37,14 @@ export default new ContainerModule((bind) => {
     bind(CensusStream).toSelf().inSingletonScope();
 
     bind(CensusEventSubscriber).toSelf().inSingletonScope();
+
+    bind(RestClient).toDynamicValue(({container}) => {
+        const censusClient = container.get(CensusClient);
+        return censusClient.rest;
+    });
+
+    bind(CharacterManager).toDynamicValue(({container}) => {
+        const censusClient = container.get(CensusClient);
+        return censusClient.characterManager;
+    });
 });

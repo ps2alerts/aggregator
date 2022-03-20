@@ -3,16 +3,16 @@ import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
-import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import GainExperienceEvent from './events/GainExperienceEvent';
+import CharacterPresenceHandler from '../CharacterPresenceHandler';
 
 @injectable()
 export default class GainExperienceEventHandler implements EventHandlerInterface<GainExperienceEvent> {
     private static readonly logger = getLogger('GainExperienceHandler');
-    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
+    private readonly characterPresenceHandler: CharacterPresenceHandler;
 
-    constructor(characterHandler: CharacterPresenceHandlerInterface) {
-        this.characterPresenceHandler = characterHandler;
+    constructor(characterPresenceHandler: CharacterPresenceHandler) {
+        this.characterPresenceHandler = characterPresenceHandler;
     }
 
     public async handle(event: GainExperienceEvent): Promise<boolean>{

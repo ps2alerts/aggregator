@@ -13,7 +13,7 @@ import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
 import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameInstanceTerritoryFacilityControlAction';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
-import CensusStream from '../services/census/CensusStream';
+import {RestClient} from 'ps2census/dist/rest';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -23,7 +23,7 @@ export default class InstanceActionFactory {
         private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.globalVictoryAggregate) private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-        private readonly censusStreamService: CensusStream,
+        private readonly restClient: RestClient,
     ) {}
 
     public buildStart(
@@ -35,7 +35,7 @@ export default class InstanceActionFactory {
                 this.instanceMetagameModelFactory,
                 this.instanceFacilityControlModelFactory,
                 this.buildFacilityControlEvent(instance, false),
-                this.censusStreamService,
+                this.restClient,
             );
         }
 
@@ -49,7 +49,7 @@ export default class InstanceActionFactory {
             return new MetagameTerritoryInstanceEndAction(
                 instance,
                 this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory.build(instance, this.censusStreamService),
+                this.territoryCalculatorFactory.build(instance, this.restClient),
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
             );
@@ -66,7 +66,7 @@ export default class InstanceActionFactory {
             return new MetagameInstanceTerritoryFacilityControlAction(
                 instance,
                 this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory.build(instance, this.censusStreamService),
+                this.territoryCalculatorFactory.build(instance, this.restClient),
                 isDefence,
             );
         }

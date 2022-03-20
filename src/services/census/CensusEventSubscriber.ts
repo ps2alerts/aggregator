@@ -1,5 +1,5 @@
 import {getLogger} from '../../logger';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {CensusClient, Death, Events, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
@@ -25,7 +25,6 @@ import config from "../../config";
 import ItemBroker from "../../handlers/ItemBroker";
 import FacilityDataBroker from "../../handlers/FacilityDataBroker";
 import CharacterBroker from "../../handlers/CharacterBroker";
-import {TYPES} from "../../constants/types";
 
 @injectable()
 export default class CensusEventSubscriber {
@@ -42,7 +41,7 @@ export default class CensusEventSubscriber {
         private readonly facilityControlEventHandler: FacilityControlEventHandler,
         private readonly gainExperienceEventHandler: GainExperienceEventHandler,
         private readonly vehicleDestroyEventHandler: VehicleDestroyEventHandler,
-        @inject(TYPES.instanceAuthority) private readonly instanceAuthority: InstanceAuthority,
+        private readonly instanceAuthority: InstanceAuthority,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
         private readonly itemBroker: ItemBroker,
         private readonly facilityDataBroker: FacilityDataBroker,

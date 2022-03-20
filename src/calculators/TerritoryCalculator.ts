@@ -12,8 +12,8 @@ import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 import {Zone} from '../constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
-import CensusStream from "../services/census/CensusStream";
 import MongooseModelFactory from "../factories/MongooseModelFactory";
+import {RestClient} from "ps2census/dist/rest";
 
 interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -46,7 +46,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     constructor(
         private readonly instance: MetagameTerritoryInstance,
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        private readonly censusStreamService: CensusStream,
+        private readonly restClient: RestClient,
     ) {}
 
     public async calculate(): Promise<TerritoryResultInterface> {
@@ -225,7 +225,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     private async getMapFacilities(): Promise<void> {
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            this.censusStreamService.censusClient,
+            this.restClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();

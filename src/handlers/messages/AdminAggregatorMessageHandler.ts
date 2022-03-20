@@ -1,7 +1,7 @@
 import {MessageQueueHandlerInterface} from '../../interfaces/MessageQueueHandlerInterface';
 import ParsedQueueMessage from '../../data/ParsedQueueMessage';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import EventId from '../../utils/eventId';
@@ -12,7 +12,6 @@ import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
 import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
-import {TYPES} from "../../constants/types";
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
@@ -21,7 +20,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
     private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
     constructor(
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
+        instanceAuthority: InstanceAuthority,
         territoryCalculatorFactory: TerritoryCalculatorFactory,
     ) {
         this.instanceAuthority = instanceAuthority;

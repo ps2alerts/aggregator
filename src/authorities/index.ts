@@ -3,10 +3,9 @@ import OverdueInstanceAuthority from './OverdueInstanceAuthority';
 import PopulationAuthority from './PopulationAuthority';
 import CensusStaleConnectionWatcherAuthority from './CensusStaleConnectionWatcherAuthority';
 import InstanceAuthority from './InstanceAuthority';
-import {TYPES} from '../constants/types';
 
 export default new ContainerModule((bind) => {
-    bind(TYPES.instanceAuthority)
+    bind(InstanceAuthority)
         .to(InstanceAuthority)
         .inSingletonScope();
 

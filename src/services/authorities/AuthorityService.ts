@@ -1,10 +1,9 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import ServiceInterface from '../../interfaces/ServiceInterface';
 import {getLogger} from '../../logger';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
-import {TYPES} from '../../constants/types';
 
 @injectable()
 export default class AuthorityService implements ServiceInterface {
@@ -12,7 +11,7 @@ export default class AuthorityService implements ServiceInterface {
     private static readonly logger = getLogger('AuthorityService');
 
     constructor(
-        @inject(TYPES.instanceAuthority) private readonly instanceAuthority: InstanceAuthority,
+        private readonly instanceAuthority: InstanceAuthority,
         private readonly overdueInstanceAuthority: OverdueInstanceAuthority,
         private readonly populationAuthority: PopulationAuthority,
     ) {}

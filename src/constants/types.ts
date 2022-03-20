@@ -1,7 +1,4 @@
 const TYPES = {
-    // Configs
-    censusConfig: Symbol.for('censusConfig'),
-
     // Cache Drivers
     censusCharacterCacheDriver: Symbol.for('censusCharacterCacheDriver'),
 

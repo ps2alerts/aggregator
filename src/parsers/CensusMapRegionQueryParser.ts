@@ -1,9 +1,9 @@
 // Special class to handle the MapRegion query, as it's done in multiple places and prone to crashing
-import {CensusClient} from 'ps2census';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
+import {RestClient} from "ps2census/dist/rest";
 
 /* eslint-disable */
 interface ReverseEngineeredOshurDataInterface {
@@ -41,7 +41,7 @@ export default class CensusMapRegionQueryParser {
     private readonly oshurData: ReverseEngineeredOshurDataInterface[];
 
     constructor(
-        private readonly censusClient: CensusClient,
+        private readonly restClient: RestClient,
         private readonly caller: string,
         private readonly instance: MetagameTerritoryInstance,
     ) {
@@ -50,7 +50,7 @@ export default class CensusMapRegionQueryParser {
 
     // Returns
     public async getMapData(): Promise<RegionMapJoinQueryInterface[]> {
-        const query = this.censusClient.rest.getQueryBuilder('map')
+        const query = this.restClient.getQueryBuilder('map')
             .join({
                 type: 'map_region',
                 // eslint-disable-next-line @typescript-eslint/naming-convention

@@ -1,15 +1,14 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {getLogger} from '../logger';
 import InstanceAuthority from './InstanceAuthority';
-import {TYPES} from '../constants/types';
 
 @injectable()
 export default class OverdueInstanceAuthority {
     private static readonly logger = getLogger('OverdueInstanceAuthority');
     private timer?: NodeJS.Timeout;
 
-    constructor(@inject(TYPES.instanceAuthority) private readonly instanceAuthority: InstanceAuthority) {}
+    constructor(private readonly instanceAuthority: InstanceAuthority) {}
 
     public run(): void {
         if (this.timer) {
