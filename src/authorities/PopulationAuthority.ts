@@ -4,6 +4,7 @@ import {TYPES} from '../constants/types';
 import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
+import CharacterPresenceHandler from '../handlers/CharacterPresenceHandler';
 
 @injectable()
 export default class PopulationAuthority {
@@ -14,7 +15,7 @@ export default class PopulationAuthority {
 
     constructor(
     @inject(TYPES.populationHandler) populationHandler: PopulationHandlerInterface<PopulationData>,
-        @inject(TYPES.characterPresenceHandler) characterPresenceHandler: CharacterPresenceHandlerInterface,
+                                     characterPresenceHandler: CharacterPresenceHandler,
     ) {
         this.populationHandler = populationHandler;
         this.characterPresenceHandler = characterPresenceHandler;

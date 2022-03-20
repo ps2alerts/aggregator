@@ -63,7 +63,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         // Grab the item data from Census
         try {
-            const apiRequest = new CensusApiRetryDriver(environment, query, filter, 'ItemBroker');
+            const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker');
             await apiRequest.try().then(async (items) => {
                 if (!items) {
                     ItemBroker.logger.error(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);

@@ -56,7 +56,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
 
         // Grab the map region data from Census
         try {
-            const apiRequest = new CensusApiRetryDriver(environment, query, filter, 'FacilityDataBroker');
+            const apiRequest = new CensusApiRetryDriver(query, filter, 'FacilityDataBroker');
             await apiRequest.try().then(async (facility) => {
                 if (!facility || !facility[0] || !facility[0].facility_id) {
                     FacilityDataBroker.logger.error(`[${environment}] Could not find facility ${facilityId} (Zone ${zone}) in Census, or they returned garbage.`);

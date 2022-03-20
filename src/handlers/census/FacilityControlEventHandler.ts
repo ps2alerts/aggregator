@@ -10,7 +10,6 @@ import FactionUtils from '../../utils/FactionUtils';
 import {InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
-import {CensusEnvironment} from '../../types/CensusEnvironment';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 
 @injectable()
@@ -25,7 +24,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
     constructor(
         @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[],
-        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
+        instanceActionFactory: InstanceActionFactory,
         instanceAuthority: InstanceAuthority
     ) {
         /* eslint-enable */
@@ -35,7 +34,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         this.instanceAuthority = instanceAuthority;
     }
 
-    public async handle(event: FacilityControlEvent, environment: CensusEnvironment): Promise<boolean>{
+    public async handle(event: FacilityControlEvent): Promise<boolean>{
         FacilityControlEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
@@ -59,7 +58,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         }
 
         this.aggregateHandlers.map(
-            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event, environment)
+            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event)
                 .catch((e) => {
                     if (e instanceof Error) {
                         FacilityControlEventHandler.logger.error(`Error parsing AggregateHandlers for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -70,7 +69,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         );
 
         // Handle Instance Events
-        await this.instanceActionFactory.buildFacilityControlEvent(event.instance, environment, event.isDefence).execute().catch((e) => {
+        await this.instanceActionFactory.buildFacilityControlEvent(event.instance, event.isDefence).execute().catch((e) => {
             if (e instanceof Error) {
                 FacilityControlEventHandler.logger.error(`Error parsing Instance Action "facilityControlEvent" for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {

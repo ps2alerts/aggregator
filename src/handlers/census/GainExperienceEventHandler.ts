@@ -1,9 +1,8 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
-import {TYPES} from '../../constants/types';
 import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import GainExperienceEvent from './events/GainExperienceEvent';
 
@@ -12,7 +11,7 @@ export default class GainExperienceEventHandler implements EventHandlerInterface
     private static readonly logger = getLogger('GainExperienceHandler');
     private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.characterPresenceHandler) characterHandler: CharacterPresenceHandlerInterface) {
+    constructor(characterHandler: CharacterPresenceHandlerInterface) {
         this.characterPresenceHandler = characterHandler;
     }
 

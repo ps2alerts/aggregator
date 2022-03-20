@@ -10,7 +10,6 @@ import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
-import {CensusEnvironment} from '../../types/CensusEnvironment';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
@@ -20,7 +19,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
         private readonly instanceAuthority: InstanceAuthority,
     ) {}
 
-    public async handle(event: MetagameEventEvent, environment: CensusEnvironment): Promise<boolean> {
+    public async handle(event: MetagameEventEvent): Promise<boolean> {
         MetagameEventEventHandler.logger.debug('Parsing MetagameEventEvent message...');
 
         if (config.features.logging.censusEventContent.metagame) {
@@ -59,7 +58,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
             );
 
             try {
-                return await this.instanceAuthority.startInstance(instance, environment);
+                return await this.instanceAuthority.startInstance(instance);
             } catch (e) {
                 if (e instanceof Error) {
                     MetagameEventEventHandler.logger.error(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -73,7 +72,7 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
 
         if (event.eventState === MetagameEventState.FINISHED) {
             if (instances[0]) {
-                return await this.instanceAuthority.endInstance(instances[0], environment);
+                return await this.instanceAuthority.endInstance(instances[0]);
             } else {
                 MetagameEventEventHandler.logger.error(`Instance not found: ${jsonLogOutput(event)}`);
                 return false;

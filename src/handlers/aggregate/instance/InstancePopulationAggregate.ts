@@ -8,6 +8,7 @@ import InstanceAuthority from '../../../authorities/InstanceAuthority';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import CharacterPresenceHandler from '../../CharacterPresenceHandler';
 
 @injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
@@ -17,11 +18,11 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
     private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(
-    @inject(TYPES.characterPresenceHandler) playerHandler: CharacterPresenceHandlerInterface,
-                                            instanceAuthority: InstanceAuthority,
-                                            @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
+        characterPresenceHandler: CharacterPresenceHandler,
+        instanceAuthority: InstanceAuthority,
+        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
     ) {
-        this.playerHandler = playerHandler;
+        this.playerHandler = characterPresenceHandler;
         this.instanceAuthority = instanceAuthority;
         this.apiMQPublisher = apiMQPublisher;
     }

@@ -8,7 +8,6 @@ import FactionUtils from '../utils/FactionUtils';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {jsonLogOutput} from '../utils/json';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
@@ -17,7 +16,6 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly environment: CensusEnvironment,
         private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         private readonly territoryCalculator: TerritoryCalculator,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,

@@ -18,7 +18,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
 
     constructor(
     @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.outfitParticipantCacheHandler) outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+                                  outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {
         this.apiMQPublisher = apiMQPublisher;
         this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;

@@ -2,16 +2,10 @@ const TYPES = {
     // Configs
     censusConfig: Symbol.for('censusConfig'),
 
-    // Brokers
-    characterBroker: Symbol.for('characterBroker'),
-    itemBroker: Symbol.for('itemBroker'),
-    facilityDataBroker: Symbol.for('facilityDataBroker'),
-
     // Cache Drivers
     censusCharacterCacheDriver: Symbol.for('censusCharacterCacheDriver'),
 
     // Handler Interfaces
-    characterPresenceHandler: Symbol.for('characterPresenceHandler'),
     populationHandler: Symbol.for('populationHandler'),
 
     // Instance Models
@@ -37,11 +31,9 @@ const TYPES = {
     apiMQDelayPublisher: Symbol.for('apiMQDelayPublisher'),
     // Handlers
     adminMessageHandlers: Symbol.for('adminMessageHandlers'),
-    outfitParticipantCacheHandler: Symbol.for('outfitParticipantCacheHandler'),
 
     // Other Factories
     instanceActionFactory: Symbol.for('instanceActionFactory'),
-    territoryCalculatorFactory: Symbol.for('territoryCalculatorFactory'),
     globalVictoryAggregate: Symbol.for('globalVictoryAggregate'),
 };
 

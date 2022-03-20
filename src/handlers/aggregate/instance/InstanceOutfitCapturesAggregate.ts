@@ -17,7 +17,7 @@ export default class InstanceOutfitCapturesAggregate implements AggregateHandler
 
     constructor(
     @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.outfitParticipantCacheHandler) outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+                                  outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {
         this.apiMQPublisher = apiMQPublisher;
         this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;

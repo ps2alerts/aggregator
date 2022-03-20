@@ -5,7 +5,6 @@ import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import ApplicationException from '../exceptions/ApplicationException';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface {
@@ -13,7 +12,6 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly environment: CensusEnvironment,
         private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         private readonly territoryCalculator: TerritoryCalculator,
         private readonly isDefence: boolean,

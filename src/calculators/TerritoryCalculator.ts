@@ -9,7 +9,6 @@ import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Zone} from '../constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
@@ -46,7 +45,6 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly environment: CensusEnvironment,
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         private readonly censusStreamService: CensusStream,
     ) {}

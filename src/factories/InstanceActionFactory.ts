@@ -13,7 +13,6 @@ import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInst
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
 import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameInstanceTerritoryFacilityControlAction';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import CensusStream from '../services/census/CensusStream';
 
@@ -23,24 +22,21 @@ export default class InstanceActionFactory {
         @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         @inject(TYPES.instanceMetagameModelFactory) private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         @inject(TYPES.censusConfig) private readonly censusConfig: Census,
-        @inject(TYPES.territoryCalculatorFactory) private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
+        private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.globalVictoryAggregate) private readonly globalVictoryAggregate: GlobalVictoryAggregate,
-        @inject(TYPES.outfitParticipantCacheHandler) private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+        private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
         private readonly censusStreamService: CensusStream,
     ) {}
 
     public buildStart(
         instance: PS2AlertsInstanceInterface,
-        environment: CensusEnvironment,
     ): ActionInterface {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameInstanceTerritoryStartAction(
                 instance,
-                environment,
                 this.instanceMetagameModelFactory,
                 this.instanceFacilityControlModelFactory,
-                this.censusConfig,
-                this.buildFacilityControlEvent(instance, environment, false),
+                this.buildFacilityControlEvent(instance, false),
                 this.censusStreamService,
             );
         }
@@ -50,14 +46,12 @@ export default class InstanceActionFactory {
 
     public buildEnd(
         instance: PS2AlertsInstanceInterface,
-        environment: CensusEnvironment,
     ): ActionInterface {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameTerritoryInstanceEndAction(
                 instance,
-                environment,
                 this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory.build(instance, environment, this.censusStreamService),
+                this.territoryCalculatorFactory.build(instance, this.censusStreamService),
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
             );
@@ -68,15 +62,13 @@ export default class InstanceActionFactory {
 
     public buildFacilityControlEvent(
         instance: PS2AlertsInstanceInterface,
-        environment: CensusEnvironment,
         isDefence: boolean,
     ): ActionInterface {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameInstanceTerritoryFacilityControlAction(
                 instance,
-                environment,
                 this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory.build(instance, environment, this.censusStreamService),
+                this.territoryCalculatorFactory.build(instance, this.censusStreamService),
                 isDefence,
             );
         }

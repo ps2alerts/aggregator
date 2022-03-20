@@ -2,11 +2,9 @@ import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
-import Census from '../config/census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import ApplicationException from '../exceptions/ApplicationException';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Bracket} from '../constants/bracket';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MapDataInterface from '../interfaces/MapDataInterface';
@@ -18,10 +16,8 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly environment: CensusEnvironment,
         private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        private readonly censusConfig: Census,
         private readonly facilityControlAction: ActionInterface,
         private readonly censusStreamService: CensusStream,
     ) {}

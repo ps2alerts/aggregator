@@ -2,7 +2,6 @@ import {injectable} from 'inversify';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {getLogger} from '../logger';
 import InstanceAuthority from './InstanceAuthority';
-import {getCensusEnvironment} from '../utils/CensusEnvironment';
 
 @injectable()
 export default class OverdueInstanceAuthority {
@@ -25,7 +24,7 @@ export default class OverdueInstanceAuthority {
             }).forEach((instance: PS2AlertsInstanceInterface) => {
                 try {
                     OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
-                    void this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
+                    void this.instanceAuthority.endInstance(instance);
                 } catch (err) {
                     if (err instanceof Error) {
                         OverdueInstanceAuthority.logger.error(`Overdue instance ${instance.instanceId} was unable to be forcefully ended! E: ${err.message}`);

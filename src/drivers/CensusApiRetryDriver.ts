@@ -1,7 +1,7 @@
 import {getLogger} from '../logger';
-import {PS2Environment, rest} from 'ps2census';
 import {CollectionNames, Conditions, Format} from 'ps2census/dist/rest/types/collection';
 import {CensusResponse} from 'ps2census/dist/rest';
+import {rest} from 'ps2census';
 
 // This class exists as Census occasionally sends us invalid responses and we must retry them.
 export class CensusApiRetryDriver<T extends CollectionNames> {
@@ -11,7 +11,6 @@ export class CensusApiRetryDriver<T extends CollectionNames> {
     private readonly delayTime = 5000; // 30 seconds total for waiting for the API to recover
 
     constructor(
-        private readonly environment: PS2Environment,
         private readonly query: rest.GetQuery<T>,
         private readonly filter: Conditions<T>,
         private readonly caller: string,

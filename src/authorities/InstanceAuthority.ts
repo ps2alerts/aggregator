@@ -12,7 +12,6 @@ import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
 
 @injectable()
@@ -26,7 +25,7 @@ export default class InstanceAuthority {
 
     constructor(
     @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
+                                                instanceActionFactory: InstanceActionFactory,
     ) {
         this.instanceMetagameModelFactory = instanceMetagameModelFactory;
         this.instanceActionFactory = instanceActionFactory;
@@ -61,7 +60,7 @@ export default class InstanceAuthority {
         });
     }
 
-    public async startInstance(instance: PS2AlertsInstanceInterface, environment: CensusEnvironment): Promise<boolean> {
+    public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         if (!this.initialized) {
             throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
         }
@@ -94,7 +93,7 @@ export default class InstanceAuthority {
 
             // Execute start actions, if it fails trash the instance
             try {
-                await this.instanceActionFactory.buildStart(instance, environment).execute();
+                await this.instanceActionFactory.buildStart(instance).execute();
             } catch (err) {
                 // End early if instance failed to insert, so we don't add an instance to the list of actives.
                 if (err instanceof Error) {
@@ -114,7 +113,7 @@ export default class InstanceAuthority {
         throw new ApplicationException(`[${instance.instanceId}] Start instance ended unexpectedly!`, 'InstanceAuthority');
     }
 
-    public async endInstance(instance: PS2AlertsInstanceInterface, environment: CensusEnvironment): Promise<boolean> {
+    public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         InstanceAuthority.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
 
         // Set instance state immediately to ended so no further stats will process
@@ -157,7 +156,7 @@ export default class InstanceAuthority {
 
             this.removeActiveInstance(instance);
 
-            await this.instanceActionFactory.buildEnd(instance, environment).execute();
+            await this.instanceActionFactory.buildEnd(instance).execute();
 
             InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives(true);
