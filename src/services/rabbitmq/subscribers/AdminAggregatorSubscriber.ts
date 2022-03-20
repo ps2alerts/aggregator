@@ -68,6 +68,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
 
         AdminAggregatorSubscriber.logger.info(`[${queueName}] successfully parsed message! ${jsonLogOutput(data)}`);
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return new ParsedQueueMessage(data.type, data.body);
     }
 

@@ -46,6 +46,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.silly(`item ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return new Item(JSON.parse(<string>data));
         }
 

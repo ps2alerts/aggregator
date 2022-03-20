@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import RabbitMQ from '../../../config/rabbitmq';
 import {inject, injectable} from 'inversify';
 import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';

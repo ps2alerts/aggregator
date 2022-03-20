@@ -48,6 +48,7 @@ export default class DiscordTransport extends Transport {
     public log(info: any, callback: () => void): any {
         this.addQueue({
             description: info.message,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             color: this.levelToColor(info.level),
             timestamp: info.timestamp,
             footer: {

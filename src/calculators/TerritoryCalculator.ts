@@ -12,8 +12,8 @@ import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 import {Zone} from '../constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
-import MongooseModelFactory from "../factories/MongooseModelFactory";
-import {RestClient} from "ps2census/dist/rest";
+import MongooseModelFactory from '../factories/MongooseModelFactory';
+import {RestClient} from 'ps2census/dist/rest';
 
 interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;

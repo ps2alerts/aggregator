@@ -41,6 +41,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
         if (await this.cacheClient.exists(cacheKey)) {
             FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return new FacilityData(JSON.parse(<string>data), zone);
         }
 

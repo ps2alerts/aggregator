@@ -14,6 +14,7 @@ export default function(filter: LogFilter): FormatWrap {
     const map = new Map<string, number | false>(filter.map(convertToNumber));
 
     return format((info) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const level = map.get(info.label);
 
         if (level === undefined) {

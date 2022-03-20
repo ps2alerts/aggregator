@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -45,7 +46,6 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         // Keep the character's outfit, battle rank and ASP updated
         attackerDocs.push({
             $set: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
                 'character.battle_rank': event.attackerCharacter.battleRank,
                 'character.asp': event.attackerCharacter.asp,
                 'character.adjustedBattleRank': event.attackerCharacter.adjustedBattleRank,
@@ -55,7 +55,6 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         victimDocs.push({
             $set: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
                 'character.battle_rank': event.character.battleRank,
                 'character.asp': event.character.asp,
                 'character.adjustedBattleRank': event.character.adjustedBattleRank,

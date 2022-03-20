@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {ContainerModule, interfaces} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import MongoDatabaseConnectionService from './MongoDatabaseConnectionService';

@@ -145,8 +145,12 @@ export default class InstanceAuthority {
                 promise,
                 timeout,
             ]).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                throw new ApplicationException(err.message);
+                if (err instanceof Error) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    throw new ApplicationException(err.message);
+                }
+
+                throw new ApplicationException('InstanceAuthority failed in an unknown way!');
             });
 
             this.removeActiveInstance(instance);

@@ -93,7 +93,7 @@ export default class Kernel implements KernelInterface {
 
             // Fucked
             if (!(err instanceof Error)) {
-                Kernel.logger.error(`====== KERNEL DIED, NO ERROR OBJECT GIVEN! =======`, err);
+                Kernel.logger.error('====== KERNEL DIED, NO ERROR OBJECT GIVEN! =======', err);
             }
 
             await this.terminate(1);

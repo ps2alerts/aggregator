@@ -11,7 +11,7 @@ import DeathEventHandler from '../../handlers/census/DeathEventHandler';
 import MetagameEventEventHandler from '../../handlers/census/MetagameEventEventHandler';
 import FacilityControlEventHandler from '../../handlers/census/FacilityControlEventHandler';
 import GainExperienceEventHandler from '../../handlers/census/GainExperienceEventHandler';
-import CharacterPresenceHandler from "../../handlers/CharacterPresenceHandler";
+import CharacterPresenceHandler from '../../handlers/CharacterPresenceHandler';
 // Other
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import VehicleDestroyEvent from '../../handlers/census/events/VehicleDestroyEvent';
@@ -20,11 +20,11 @@ import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterf
 import Parser from '../../utils/parser';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
 import {metagameEventTypeArray} from '../../constants/metagameEventType';
-import ApplicationException from "../../exceptions/ApplicationException";
-import config from "../../config";
-import ItemBroker from "../../handlers/ItemBroker";
-import FacilityDataBroker from "../../handlers/FacilityDataBroker";
-import CharacterBroker from "../../handlers/CharacterBroker";
+import ApplicationException from '../../exceptions/ApplicationException';
+import config from '../../config';
+import ItemBroker from '../../handlers/ItemBroker';
+import FacilityDataBroker from '../../handlers/FacilityDataBroker';
+import CharacterBroker from '../../handlers/CharacterBroker';
 
 @injectable()
 export default class CensusEventSubscriber {
@@ -102,8 +102,9 @@ export default class CensusEventSubscriber {
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(async ([attacker, character]) => {
             if (!attacker || !character) {
-                throw new ApplicationException('A Character did not return! Cannot complete processDeath!', 'CensusEventSubscriber:processDeath')
+                throw new ApplicationException('A Character did not return! Cannot complete processDeath!', 'CensusEventSubscriber:processDeath');
             }
+
             CensusEventSubscriber.logger.silly(`[${this.environment}] Death: Successfully found all characters`);
 
             // Update the presence handler so we can have a running population count, even without any instances.
@@ -137,7 +138,7 @@ export default class CensusEventSubscriber {
                         attacker,
                         character,
                         item,
-                    )
+                    ),
                 );
             }
         }).catch((e: Error) => {
@@ -162,7 +163,7 @@ export default class CensusEventSubscriber {
                         censusEvent,
                         instance,
                         facility,
-                    )
+                    ),
                 );
             }, instance instanceof MetagameTerritoryInstance ? 2000 : 1);
         }
@@ -174,8 +175,9 @@ export default class CensusEventSubscriber {
         await this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10))
             .then((character) => {
                 if (!character) {
-                    throw new ApplicationException('A Character did not return! Cannot complete processVehicleDestroy!', 'CensusEventSubscriber:processGainExperience')
+                    throw new ApplicationException('A Character did not return! Cannot complete processVehicleDestroy!', 'CensusEventSubscriber:processGainExperience');
                 }
+
                 // Update the character presence handler so we can ensure populations are correct at all times
                 void this.characterPresenceHandler.update(
                     character,
@@ -212,8 +214,9 @@ export default class CensusEventSubscriber {
             this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
         ]).then(([attacker, character]) => {
             if (!attacker || !character) {
-                throw new ApplicationException('A Character did not return! Cannot complete processVehicleDestroy!', 'CensusEventSubscriber:processVehicleDestroy')
+                throw new ApplicationException('A Character did not return! Cannot complete processVehicleDestroy!', 'CensusEventSubscriber:processVehicleDestroy');
             }
+
             // Update the character presence handler so we can ensure populations are correct at all times
             [attacker, character].forEach((char) => {
                 void this.characterPresenceHandler.update(
@@ -230,7 +233,7 @@ export default class CensusEventSubscriber {
                         instance,
                         attacker,
                         character,
-                    )
+                    ),
                 );
             });
         }).catch((e: Error) => {

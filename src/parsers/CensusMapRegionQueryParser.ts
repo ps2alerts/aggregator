@@ -3,7 +3,7 @@ import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
-import {RestClient} from "ps2census/dist/rest";
+import {RestClient} from 'ps2census/dist/rest';
 
 /* eslint-disable */
 interface ReverseEngineeredOshurDataInterface {
@@ -57,13 +57,16 @@ export default class CensusMapRegionQueryParser {
                 inject_at: 'map_region',
                 on: 'Regions.Row.RowData.RegionId',
                 to: 'map_region_id',
-            })
+            });
+        /* eslint-disable */
         const filter = {
             world_id: String(this.instance.world),
             zone_ids: String(this.instance.zone),
-        }
+        };
+        /* eslint-enable */
 
-        const apiRequest = new CensusApiRetryDriver(query, filter,'MetagameInstanceTerritoryStartAction');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        const apiRequest = new CensusApiRetryDriver(query, filter, 'MetagameInstanceTerritoryStartAction');
         let mapDataFinal: RegionMapJoinQueryInterface[] = [];
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

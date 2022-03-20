@@ -86,7 +86,7 @@ module.exports = {
             "method"
         ],
         "@typescript-eslint/naming-convention": [
-            "error",
+            "warn",
             {
                 "selector": "variableLike",
                 "format": ["camelCase"]
@@ -221,7 +221,7 @@ module.exports = {
         "yoda": "error",
 
         // eslint: Variables
-        "no-shadow": "error",
+        "no-shadow": 0,
 
         // eslint: Stylistic Issues
         "array-bracket-newline": [

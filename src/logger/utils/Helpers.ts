@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import config from '../../config';
 import Transport from 'winston-transport';
 import {TransportConfig} from '../../config/logger';
