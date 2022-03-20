@@ -15,6 +15,7 @@ const TYPES = {
     // Aggregate Listeners
     deathAggregates: Symbol.for('deathAggregates'),
     facilityControlAggregates: Symbol.for('facilityControlAggregates'),
+    globalVictoryAggregate: Symbol.for('globalVictoryAggregate'),
     populationAggregates: Symbol.for('populationAggregates'),
     vehicleDestroyAggregates: Symbol.for('vehicleDestroyAggregates'),
 
@@ -28,12 +29,6 @@ const TYPES = {
     apiMQDelayPublisher: Symbol.for('apiMQDelayPublisher'),
     // Handlers
     adminMessageHandlers: Symbol.for('adminMessageHandlers'),
-
-    // Other Factories
-    instanceActionFactory: Symbol.for('instanceActionFactory'),
-    globalVictoryAggregate: Symbol.for('globalVictoryAggregate'),
-
-    instanceAuthority: Symbol.for('instanceAuthority'),
 };
 
 export {TYPES};
