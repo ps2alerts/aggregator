@@ -13,7 +13,7 @@ export default class CharacterBroker implements CharacterBrokerInterface {
     private static readonly logger = getLogger('CharacterBroker');
 
     constructor(
-        private readonly wsClient: CensusClient,
+        private readonly censusClient: CensusClient,
     ) {}
 
     public async get(characterId: string, world: World): Promise<Character | undefined> {
@@ -26,13 +26,13 @@ export default class CharacterBroker implements CharacterBrokerInterface {
         // Grab the character data from Census / Cache
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const censusCharacter: CharacterWorldOutfitLeader = await this.wsClient.characterManager.fetch(characterId);
+            const censusCharacter: CharacterWorldOutfitLeader = await this.censusClient.characterManager.fetch(characterId);
 
             // Convert into Character object
             return new Character(censusCharacter);
         } catch (err) {
 
-            await this.wsClient.characterManager.forget(characterId);
+            await this.censusClient.characterManager.forget(characterId);
             CharacterBroker.logger.silly(`Forgot cache entry for ${characterId}`);
 
             if (err instanceof Error) {
