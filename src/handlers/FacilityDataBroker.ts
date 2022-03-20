@@ -18,7 +18,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
 
     constructor(
         @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
-        private readonly censusStreamService: CensusStream,
+        private readonly restClient: RestClient,
     ) {
         this.cacheClient = cacheConnection.getClient();
     }
@@ -46,7 +46,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
 
         FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache MISS`);
 
-        const query = this.censusStreamService.censusClient.rest.getQueryBuilder('map_region')
+        const query = this.restClient.getQueryBuilder('map_region')
             .limit(1);
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const filter = {facility_id: facilityId.toString()};

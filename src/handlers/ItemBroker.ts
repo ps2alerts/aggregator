@@ -4,14 +4,12 @@ import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
 import FakeItemFactory from '../constants/fakeItem';
-import {TYPES} from '../constants/types';
-import Census from '../config/census';
 import {RedisConnection} from '../services/redis/RedisConnection';
 import {Vehicle} from '../constants/vehicle';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
-import CensusStream from '../services/census/CensusStream';
 import {Redis} from 'ioredis';
+import {RestClient} from 'ps2census/dist/rest';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -19,8 +17,7 @@ export default class ItemBroker implements ItemBrokerInterface {
     private readonly cacheClient: Redis;
 
     constructor(
-        private readonly censusStreamService: CensusStream,
-        @inject(TYPES.censusConfig) private readonly censusConfig: Census,
+        private readonly restClient: RestClient,
         @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
     ) {
         this.cacheClient = cacheConnection.getClient();
@@ -54,7 +51,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
 
-        const query = this.censusStreamService.censusClient.rest.getQueryBuilder('item')
+        const query = this.restClient.getQueryBuilder('item')
             .limit(1);
         const filter = {
             // eslint-disable-next-line @typescript-eslint/naming-convention
