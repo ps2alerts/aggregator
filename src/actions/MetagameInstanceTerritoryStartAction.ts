@@ -61,7 +61,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     private async getInitialMap(): Promise<MapDataInterface[]> {
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            this.censusStreamService.wsClient,
+            this.censusStreamService.censusClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();

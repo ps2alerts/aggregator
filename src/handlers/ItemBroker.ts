@@ -54,7 +54,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
 
-        const query = this.censusStreamService.wsClient.rest.getQueryBuilder('item')
+        const query = this.censusStreamService.censusClient.rest.getQueryBuilder('item')
             .limit(1);
         const filter = {
             // eslint-disable-next-line @typescript-eslint/naming-convention

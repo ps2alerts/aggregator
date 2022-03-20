@@ -225,7 +225,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     private async getMapFacilities(): Promise<void> {
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            this.censusStreamService.wsClient,
+            this.censusStreamService.censusClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();
