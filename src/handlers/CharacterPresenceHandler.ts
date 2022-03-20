@@ -5,19 +5,16 @@ import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHa
 import PopulationData from '../data/PopulationData';
 import {Faction, factionArray} from '../constants/faction';
 import Character from '../data/Character';
-import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis} from 'ioredis';
 import {World, worldArray} from '../constants/world';
 import FactionUtils from '../utils/FactionUtils';
+import {TYPES} from '../constants/types';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
     private static readonly logger = getLogger('CharacterPresenceHandler');
-    private readonly cacheClient: Redis;
 
-    constructor(@inject(RedisConnection) cacheConnection: RedisConnection) {
-        this.cacheClient = cacheConnection.getClient();
-    }
+    constructor(@inject(TYPES.redis) private readonly cacheClient: Redis) {}
 
     // Updates / adds characters presence, setting a Redis key with expiry.
     public async update(character: Character, zone: number): Promise<boolean> {

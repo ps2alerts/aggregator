@@ -4,24 +4,21 @@ import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
 import FakeItemFactory from '../constants/fakeItem';
-import {RedisConnection} from '../services/redis/RedisConnection';
 import {Vehicle} from '../constants/vehicle';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {Redis} from 'ioredis';
 import {RestClient} from 'ps2census/dist/rest';
+import {TYPES} from '../constants/types';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
     private static readonly logger = getLogger('ItemBroker');
-    private readonly cacheClient: Redis;
 
     constructor(
         private readonly restClient: RestClient,
-        @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
-    ) {
-        this.cacheClient = cacheConnection.getClient();
-    }
+        @inject(TYPES.redis) private readonly cacheClient: Redis,
+    ) {}
 
     public async get(
         environment: CensusEnvironment,

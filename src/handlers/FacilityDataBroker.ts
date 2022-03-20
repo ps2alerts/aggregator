@@ -1,8 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
-import {RedisConnection} from '../services/redis/RedisConnection';
-import {Redis as RedisInterface} from 'ioredis';
+import {Redis} from 'ioredis';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Zone} from '../constants/zone';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
@@ -10,18 +9,16 @@ import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {RestClient} from 'ps2census/dist/rest';
+import {TYPES} from '../constants/types';
 
 @injectable()
 export default class FacilityDataBroker implements FacilityDataBrokerInterface {
     private static readonly logger = getLogger('FacilityDataBroker');
-    private readonly cacheClient: RedisInterface;
 
     constructor(
-        @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
+        @inject(TYPES.redis) private readonly cacheClient: Redis,
         private readonly restClient: RestClient,
-    ) {
-        this.cacheClient = cacheConnection.getClient();
-    }
+    ) {}
 
     public async get(
         environment: CensusEnvironment,

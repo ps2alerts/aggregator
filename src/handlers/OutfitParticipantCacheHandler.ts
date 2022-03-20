@@ -1,16 +1,13 @@
 import {inject, injectable} from 'inversify';
-import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis} from 'ioredis';
 import {getLogger} from '../logger';
+import {TYPES} from '../constants/types';
 
 @injectable()
 export default class OutfitParticipantCacheHandler {
     private static readonly logger = getLogger('OutfitParticipantCacheHandler');
-    private readonly cacheClient: Redis;
 
-    constructor(@inject(RedisConnection) cacheConnection: RedisConnection) {
-        this.cacheClient = cacheConnection.getClient();
-    }
+    constructor(@inject(TYPES.redis) private readonly cacheClient: Redis) {}
 
     public async addOutfit(outfitId: string, characterId: string, instanceId: string): Promise<boolean> {
         await this.cacheClient.sadd(`OutfitParticipants-${instanceId}-${outfitId}`, characterId);

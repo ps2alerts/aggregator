@@ -1,4 +1,6 @@
 const TYPES = {
+    redis: Symbol.for('redis'),
+
     // Cache Drivers
     censusCharacterCacheDriver: Symbol.for('censusCharacterCacheDriver'),
 

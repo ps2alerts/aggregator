@@ -1,21 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types */
 
 import {inject, injectable} from 'inversify';
-import {RedisConnection} from '../services/redis/RedisConnection';
 import {CacheContract} from 'ps2census';
 import {Redis} from 'ioredis';
+import {TYPES} from '../constants/types';
 
 @injectable()
 export default class CensusCacheDriver implements CacheContract {
-    private readonly cacheClient: Redis;
-
     constructor(
-        @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
+        @inject(TYPES.redis) private readonly cacheClient: Redis,
         private readonly namespace: string = 'census',
         private readonly expiry: number = 86400,
-    ) {
-        this.cacheClient = cacheConnection.getClient();
-    }
+    ) {}
 
     public async forget(key: string): Promise<void> {
         await this.cacheClient.del(this.cacheKey(key)).then((res) => res > 0);

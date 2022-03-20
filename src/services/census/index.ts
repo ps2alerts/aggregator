@@ -4,7 +4,6 @@ import config from '../../config';
 import {CensusClient, CharacterManager} from 'ps2census';
 import CensusCacheDriver from '../../drivers/CensusCacheDriver';
 import {TYPES} from '../../constants/types';
-import {RedisConnection} from '../redis/RedisConnection';
 import CensusStreamService from './CensusStreamService';
 import CensusStream from './CensusStream';
 import CensusEventSubscriber from './CensusEventSubscriber';
@@ -17,7 +16,7 @@ export default new ContainerModule((bind) => {
     // Driver
     bind<CensusCacheDriver>(TYPES.censusCharacterCacheDriver)
         .toDynamicValue(({container}) => new CensusCacheDriver(
-            container.get(RedisConnection),
+            container.get(TYPES.redis),
             'character',
             86400,
         )).inSingletonScope();
@@ -41,10 +40,10 @@ export default new ContainerModule((bind) => {
     bind(RestClient).toDynamicValue(({container}) => {
         const censusClient = container.get(CensusClient);
         return censusClient.rest;
-    });
+    }).inSingletonScope();
 
     bind(CharacterManager).toDynamicValue(({container}) => {
         const censusClient = container.get(CensusClient);
         return censusClient.characterManager;
-    });
+    }).inSingletonScope();
 });

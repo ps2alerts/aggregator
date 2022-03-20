@@ -1,19 +1,15 @@
-import {inject, injectable} from 'inversify';
-import RedisConfig from '../../config/redis';
+import {injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import ApplicationException from '../../exceptions/ApplicationException';
-import Redis, {Redis as RedisInterface} from 'ioredis';
+import Redis, {Redis as RedisInterface, RedisOptions} from 'ioredis';
+import config from '../../config';
 
 @injectable()
 export class RedisConnection {
     public client: RedisInterface;
     private static readonly logger = getLogger('RedisConnection');
-    private readonly config: RedisConfig;
+    private readonly config: RedisOptions = config.redis;
     private initialized = false;
-
-    constructor(@inject('redisConfig') redisConfig: RedisConfig) {
-        this.config = redisConfig;
-    }
 
     public getClient(): RedisInterface{
         if (this.initialized) {
