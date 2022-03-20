@@ -1,7 +1,6 @@
 import app from './bootstrap';
 import Kernel from './bootstrap/Kernel';
 
-// eslint-disable-next-line no-console
 const kernel = app.resolve(Kernel);
 
 void kernel.run().then(() => {
