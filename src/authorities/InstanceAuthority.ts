@@ -18,18 +18,13 @@ import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
 export default class InstanceAuthority {
     private static readonly logger = getLogger('InstanceAuthority');
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
-    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
-    private readonly instanceActionFactory: InstanceActionFactory;
     private activeTimer?: NodeJS.Timeout;
     private initialized = false;
 
     constructor(
-    @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-                                                instanceActionFactory: InstanceActionFactory,
-    ) {
-        this.instanceMetagameModelFactory = instanceMetagameModelFactory;
-        this.instanceActionFactory = instanceActionFactory;
-    }
+        @inject(TYPES.instanceMetagameModelFactory) private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
+        private readonly instanceActionFactory: InstanceActionFactory,
+    ) {}
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface {
         InstanceAuthority.logger.silly(`Attempting to find an instance with ID: "${instanceId}"...`);
