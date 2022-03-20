@@ -22,8 +22,6 @@ enum RunningStates {
 @injectable()
 export default class Kernel implements KernelInterface {
     private static readonly logger = getLogger('kernel');
-    private readonly container: Container;
-    private readonly services: ServiceInterface[];
 
     /**
      * @type {RunningStates} Running state of the kernel
@@ -33,15 +31,12 @@ export default class Kernel implements KernelInterface {
     /**
      * Constructor.
      * @param {Container} container the IoC Container
-     * @param {ServiceInterface } services
+     * @param {ServiceInterface[]} services services to boot
      */
     constructor(
-        container: Container,
-        @multiInject(SERVICE) services: ServiceInterface[],
-    ) {
-        this.container = container;
-        this.services = services;
-    }
+        private readonly container: Container,
+        @multiInject(SERVICE) private readonly services: ServiceInterface[],
+    ) {}
 
     /**
      * Execute order 66 (run the app).
@@ -86,23 +81,22 @@ export default class Kernel implements KernelInterface {
             Kernel.logger.info('==== Services started! ====');
 
             this.state = RunningStates.RUNNING;
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-            const name: string = e.name;
-
-            switch (name) {
-                case 'ApplicationException':
-                case 'InvalidArgumentException':
-                    this.handleApplicationException(e);
-                    break;
-
-                default: {
-                    Kernel.logger.error(`====== UNKNOWN EXCEPTION HAS OCCURRED! "${name}" STACK AS FOLLOWS:`);
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-                    Kernel.logger.error(`${e.trace ? e.trace : e.stack ? e.stack : e.toString()}`);
-                    void this.terminate(1);
-                }
+        } catch (err) {
+            if (err instanceof ApplicationException) {
+                this.handleApplicationException(err);
             }
+
+            if (err instanceof Error) {
+                Kernel.logger.error(`====== UNKNOWN ERROR HAS OCCURRED! "${err.name}" MESSAGE AS FOLLOWS:`);
+                Kernel.logger.error(err.message);
+            }
+
+            // Fucked
+            if (!(err instanceof Error)) {
+                Kernel.logger.error('====== KERNEL DIED, NO ERROR OBJECT GIVEN! =======', err);
+            }
+
+            await this.terminate(1);
         }
     }
 
@@ -154,7 +148,7 @@ export default class Kernel implements KernelInterface {
     }
 
     /**
-     * Application level errors will be catched here, echoed out and displayed correctly
+     * Application level errors will be caught here, echoed out and displayed correctly
      * @param exception ApplicationException
      */
     private handleApplicationException(exception: ApplicationException): void {

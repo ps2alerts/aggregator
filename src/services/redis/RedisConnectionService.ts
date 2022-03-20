@@ -9,6 +9,7 @@ export default class RedisConnectionService implements ServiceInterface {
     private static readonly logger = getLogger('RedisConnectionService');
     private readonly redisConnection: RedisConnection;
 
+    // I *think* we have to keep this as is in order to ensure the client is booted fully.
     constructor(redisConnection: RedisConnection) {
         this.redisConnection = redisConnection;
     }

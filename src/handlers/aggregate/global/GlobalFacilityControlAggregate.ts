@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
@@ -13,16 +14,11 @@ import {Bracket} from '../../../constants/bracket';
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.apiMQDelayPublisher = apiMQDelayPublisher;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         GlobalFacilityControlAggregate.logger.silly('GlobalFacilityControlAggregate.handle');
@@ -79,8 +75,9 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

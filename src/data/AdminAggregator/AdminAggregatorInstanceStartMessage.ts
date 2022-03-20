@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {World} from '../../constants/world';
 import {Zone} from '../../constants/zone';
 import ApplicationException from '../../exceptions/ApplicationException';

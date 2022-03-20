@@ -12,11 +12,8 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 @injectable()
 export default class InstanceFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceFactionCombatAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
-        this.apiMQPublisher = apiMQPublisher;
-    }
+    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceFactionCombatAggregate.logger.silly('InstanceFactionCombatAggregate.handle');
@@ -103,8 +100,9 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
                 [{instance: event.instance.instanceId}],
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            InstanceFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                InstanceFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

@@ -86,7 +86,7 @@ module.exports = {
             "method"
         ],
         "@typescript-eslint/naming-convention": [
-            "error",
+            "warn",
             {
                 "selector": "variableLike",
                 "format": ["camelCase"]
@@ -129,7 +129,7 @@ module.exports = {
         "@typescript-eslint/no-confusing-non-null-assertion": "error",
         "@typescript-eslint/no-dynamic-delete": "error",
         "@typescript-eslint/no-invalid-void-type": "error",
-        "@typescript-eslint/no-parameter-properties": "error",
+        "@typescript-eslint/no-parameter-properties": "off",
         "@typescript-eslint/no-require-imports": "error",
         "@typescript-eslint/require-await": "warn",
         "@typescript-eslint/no-throw-literal": "error",
@@ -221,7 +221,7 @@ module.exports = {
         "yoda": "error",
 
         // eslint: Variables
-        "no-shadow": "error",
+        "no-shadow": 0,
 
         // eslint: Stylistic Issues
         "array-bracket-newline": [

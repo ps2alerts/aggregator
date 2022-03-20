@@ -15,16 +15,11 @@ import moment from 'moment/moment';
 @injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalFactionCombatAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.apiMQDelayPublisher = apiMQDelayPublisher;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalFactionCombatAggregate.logger.silly('GlobalFactionCombatAggregate.handle');
@@ -127,8 +122,9 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            GlobalFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                GlobalFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

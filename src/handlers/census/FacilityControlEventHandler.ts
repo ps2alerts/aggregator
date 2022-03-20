@@ -10,32 +10,20 @@ import FactionUtils from '../../utils/FactionUtils';
 import {InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
 import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
-import {CensusEnvironment} from '../../types/CensusEnvironment';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
-    private readonly factory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>;
-    private readonly instanceActionFactory: InstanceActionFactory;
-    private readonly instanceAuthority: InstanceAuthority;
 
-    /* eslint-disable */
     constructor(
-        @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[],
-        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority
-    ) {
-        /* eslint-enable */
-        this.factory = instanceFacilityControlModelFactory;
-        this.aggregateHandlers = aggregateHandlers;
-        this.instanceActionFactory = instanceActionFactory;
-        this.instanceAuthority = instanceAuthority;
-    }
+        @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
+        @multiInject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>,
+        private readonly instanceActionFactory: InstanceActionFactory,
+        private readonly instanceAuthority: InstanceAuthority,
+    ) {}
 
-    public async handle(event: FacilityControlEvent, environment: CensusEnvironment): Promise<boolean>{
+    public async handle(event: FacilityControlEvent): Promise<boolean>{
         FacilityControlEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
@@ -59,7 +47,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         }
 
         this.aggregateHandlers.map(
-            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event, environment)
+            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event)
                 .catch((e) => {
                     if (e instanceof Error) {
                         FacilityControlEventHandler.logger.error(`Error parsing AggregateHandlers for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -70,7 +58,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         );
 
         // Handle Instance Events
-        await this.instanceActionFactory.buildFacilityControlEvent(event.instance, environment, event.isDefence).execute().catch((e) => {
+        await this.instanceActionFactory.buildFacilityControlEvent(event.instance, event.isDefence).execute().catch((e) => {
             if (e instanceof Error) {
                 FacilityControlEventHandler.logger.error(`Error parsing Instance Action "facilityControlEvent" for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
@@ -90,7 +78,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     private async storeEvent(event: FacilityControlEvent): Promise<string | null> {
         try {
-            const resultObject = await this.factory.model.create({
+            const resultObject = await this.instanceFacilityControlModelFactory.model.create({
                 instance: event.instance.instanceId,
                 facility: event.facility.id,
                 timestamp: event.timestamp,
@@ -104,12 +92,11 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return resultObject._id;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+            if (err instanceof Error) {
+                if (!err.message.includes('E11000')) {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Instance: ${event.instance.instanceId} - ${err.message}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+                }
             }
         }
 
@@ -131,15 +118,14 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
         try {
             // eslint-disable-next-line @typescript-eslint/naming-convention
-            await this.factory.model.updateOne({_id: objectId}, doc);
+            await this.instanceFacilityControlModelFactory.model.updateOne({_id: objectId}, doc);
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert FacilityControlEvent storeMapControl into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+            if (err instanceof Error) {
+                if (!err.message.includes('E11000')) {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    throw new ApplicationException(`Unable to insert FacilityControlEvent storeMapControl into DB! Instance: ${event.instance.instanceId} - ${err.message}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
+                }
             }
         }
 

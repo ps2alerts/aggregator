@@ -1,4 +1,3 @@
-import CharacterPresenceHandlerInterface from '../../../interfaces/CharacterPresenceHandlerInterface';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {getLogger} from '../../../logger';
@@ -8,23 +7,17 @@ import InstanceAuthority from '../../../authorities/InstanceAuthority';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import CharacterPresenceHandler from '../../CharacterPresenceHandler';
 
 @injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
     private static readonly logger = getLogger('InstancePopulationAggregate');
-    private readonly playerHandler: CharacterPresenceHandlerInterface;
-    private readonly instanceAuthority: InstanceAuthority;
-    private readonly apiMQPublisher: ApiMQPublisher;
 
     constructor(
-    @inject(TYPES.characterPresenceHandler) playerHandler: CharacterPresenceHandlerInterface,
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
-        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-    ) {
-        this.playerHandler = playerHandler;
-        this.instanceAuthority = instanceAuthority;
-        this.apiMQPublisher = apiMQPublisher;
-    }
+        private readonly characterPresenceHandler: CharacterPresenceHandler,
+        private readonly instanceAuthority: InstanceAuthority,
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+    ) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
         InstancePopulationAggregate.logger.silly('InstancePopulationAggregate.handle');
@@ -61,8 +54,9 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
                 documents,
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            InstancePopulationAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                InstancePopulationAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

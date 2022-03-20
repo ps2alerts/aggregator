@@ -14,16 +14,11 @@ import {Bracket} from '../../constants/bracket';
 @injectable()
 export default class VehicleAggregateHandler implements AggregateHandlerInterface<VehicleDestroyEvent> {
     private static readonly logger = getLogger('VehicleAggregateHandler');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.apiMQDelayPublisher = apiMQDelayPublisher;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {}
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
         VehicleAggregateHandler.logger.silly('VehicleAggregateHandler.handle');
@@ -62,8 +57,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character attacker message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character attacker message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -88,8 +84,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character victim message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character victim message to API! E: ${err.message}`);
+                }
             }
         }
     }
@@ -147,8 +144,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -198,8 +196,9 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);
+                }
             }
         }
     }

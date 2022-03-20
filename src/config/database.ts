@@ -1,8 +1,4 @@
-import {
-    get,
-    getBool,
-    getInt,
-} from '../utils/env';
+import {get, getBool, getInt} from '../utils/env';
 import {ConnectionOptions} from 'mongoose';
 import {injectable} from 'inversify';
 

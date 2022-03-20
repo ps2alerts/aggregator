@@ -68,6 +68,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
 
         AdminAggregatorSubscriber.logger.info(`[${queueName}] successfully parsed message! ${jsonLogOutput(data)}`);
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return new ParsedQueueMessage(data.type, data.body);
     }
 
@@ -82,9 +83,11 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
 
         try {
             message = AdminAggregatorSubscriber.parseMessage(msg, AdminAggregatorSubscriber.queueName);
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Unable to handle message! Probably invalid format. E: ${e.message}`);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Unable to handle message! Probably invalid format. E: ${err.message}`);
+            }
+
             AdminAggregatorSubscriber.channelWrapper.ack(msg);
             AdminAggregatorSubscriber.logger.debug(`Acked failed message for ${AdminAggregatorSubscriber.queueName}`);
             return false;

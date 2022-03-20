@@ -2,11 +2,6 @@ import {Zone} from '../constants/zone';
 import {Faction} from '../constants/faction';
 import {MetagameEventType} from '../constants/metagameEventType';
 
-export enum MeltdownState {
-    NORMAL = 1,
-    UNSTABLE = 2
-}
-
 export default class EventId {
     // FML
     private static readonly normalStateZoneFactionMap: Map<Zone, Map<Faction, MetagameEventType>> = new Map<Zone, Map<Faction, MetagameEventType>>(

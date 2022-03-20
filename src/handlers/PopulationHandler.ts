@@ -8,13 +8,8 @@ import PopulationData from '../data/PopulationData';
 @injectable()
 export default class PopulationHandler implements PopulationHandlerInterface<PopulationData> {
     private static readonly logger = getLogger('PopulationHandler');
-    private readonly aggregateHandlers: Array<PopulationHandlerInterface<PopulationData>>;
 
-    constructor(
-    @multiInject(TYPES.populationAggregates) populationAggregates: Array<PopulationHandlerInterface<PopulationData>>,
-    ) {
-        this.aggregateHandlers = populationAggregates;
-    }
+    constructor(@multiInject(TYPES.populationAggregates) private readonly aggregateHandlers: Array<PopulationHandlerInterface<PopulationData>>) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
         PopulationHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});

@@ -2,23 +2,18 @@ import {inject, injectable} from 'inversify';
 import PopulationHandlerInterface from '../interfaces/PopulationHandlerInterface';
 import {TYPES} from '../constants/types';
 import {getLogger} from '../logger';
-import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
+import CharacterPresenceHandler from '../handlers/CharacterPresenceHandler';
 
 @injectable()
 export default class PopulationAuthority {
     private static readonly logger = getLogger('PopulationAuthority');
     private timer?: NodeJS.Timeout;
-    private readonly populationHandler: PopulationHandlerInterface<PopulationData>;
-    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
     constructor(
-    @inject(TYPES.populationHandler) populationHandler: PopulationHandlerInterface<PopulationData>,
-        @inject(TYPES.characterPresenceHandler) characterPresenceHandler: CharacterPresenceHandlerInterface,
-    ) {
-        this.populationHandler = populationHandler;
-        this.characterPresenceHandler = characterPresenceHandler;
-    }
+        @inject(TYPES.populationHandler) private readonly populationHandler: PopulationHandlerInterface<PopulationData>,
+        private readonly characterPresenceHandler: CharacterPresenceHandler,
+    ) {}
 
     public run(): void {
         if (this.timer) {
@@ -30,7 +25,7 @@ export default class PopulationAuthority {
         this.timer = setInterval(async () => {
             PopulationAuthority.logger.debug('Running PopulationAuthority presence collection');
 
-            // Collect current population metrics from CharacterPresenceHandlerInterface
+            // Collect current population metrics from CharacterPresenceHandler
             const populationData = await this.characterPresenceHandler.collate();
 
             // Get instances, inject populations as recorded, call handlers

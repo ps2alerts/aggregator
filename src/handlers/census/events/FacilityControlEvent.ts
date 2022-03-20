@@ -23,8 +23,6 @@ import {MapControlInterface} from '../../../interfaces/MapControlInterface';
 
 @injectable()
 export default class FacilityControlEvent {
-    public readonly instance: PS2AlertsInstanceInterface;
-    public readonly facility: FacilityDataInterface;
     public readonly timestamp: Date;
     public readonly oldFaction: Faction;
     public readonly newFaction: Faction;
@@ -33,7 +31,11 @@ export default class FacilityControlEvent {
     public readonly outfitCaptured: string | null;
     public readonly mapControl: MapControlInterface | null;
 
-    constructor(event: FacilityControl, instance: PS2AlertsInstanceInterface, facility: FacilityDataInterface) {
+    constructor(
+        event: FacilityControl,
+        public readonly instance: PS2AlertsInstanceInterface,
+        public readonly facility: FacilityDataInterface,
+    ) {
         this.instance = instance;
 
         this.facility = facility;

@@ -1,3 +1,3 @@
-import {rest} from 'ps2census';
+import {Format} from 'ps2census/dist/rest/types/collection';
 
-export type CensusItem = rest.collectionTypes.item;
+export type CensusItem = Format<'item'>;

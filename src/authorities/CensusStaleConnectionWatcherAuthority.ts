@@ -1,14 +1,14 @@
 import {injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {World} from '../constants/world';
-import {Client, PS2Event} from 'ps2census';
+import {CensusClient, PS2Event} from 'ps2census';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import LocalServerTimeCalculator from '../calculators/LocalServerTimeCalculator';
+import config from '../config';
 
 @injectable()
 export default class CensusStaleConnectionWatcherAuthority {
     private static readonly logger = getLogger('CensusStaleConnectionWatcherAuthority');
-    private readonly wsClient: Client;
     private readonly environment: CensusEnvironment;
     private deathMessageTimer?: NodeJS.Timeout;
     private experienceMessageTimer?: NodeJS.Timeout;
@@ -17,11 +17,9 @@ export default class CensusStaleConnectionWatcherAuthority {
     private readonly lastMessagesExperienceMap: Map<World, number> = new Map<World, number>();
 
     constructor(
-        wsClient: Client,
-        environment: CensusEnvironment,
+        private readonly censusClient: CensusClient,
     ) {
-        this.wsClient = wsClient;
-        this.environment = environment;
+        this.environment = config.census.censusEnvironment;
     }
 
     public run(): void {
@@ -34,12 +32,12 @@ export default class CensusStaleConnectionWatcherAuthority {
 
         this.deathMessageTimer = setInterval(() => {
             CensusStaleConnectionWatcherAuthority.logger.silly(`[${this.environment}] Census Death message timeout check running...`);
-            this.checkMap(this.lastMessagesDeathMap, this.wsClient.environment === 'ps2' ? 60000 : 120000, 'Death');
+            this.checkMap(this.lastMessagesDeathMap, this.censusClient.environment === 'ps2' ? 60000 : 120000, 'Death');
         }, this.checkInterval);
 
         this.experienceMessageTimer = setInterval(() => {
             CensusStaleConnectionWatcherAuthority.logger.silly(`[${this.environment}] Census Experience message timeout check running...`);
-            this.checkMap(this.lastMessagesExperienceMap, this.wsClient.environment === 'ps2' ? 30000 : 60000, 'Experience');
+            this.checkMap(this.lastMessagesExperienceMap, this.censusClient.environment === 'ps2' ? 30000 : 60000, 'Experience');
         }, this.checkInterval);
     }
 
@@ -75,7 +73,7 @@ export default class CensusStaleConnectionWatcherAuthority {
     private checkMap(map: Map<World, number>, thresholdLimit: number, type: string): void {
         if (map.size === 0) {
             CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] ZERO census messages have come through for type ${type}! Killing connection!`);
-            void this.wsClient.resubscribe();
+            void this.censusClient.resubscribe();
         }
 
         map.forEach((lastTime: number, world: World) => {
@@ -90,7 +88,7 @@ export default class CensusStaleConnectionWatcherAuthority {
             // If between 09:00-23:59
             if (localServerHour >= 9 && lastTime < threshold) {
                 CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] No Census ${type} messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Rebooting Connection.`);
-                void this.wsClient.resubscribe();
+                void this.censusClient.resubscribe();
             }
         });
     }

@@ -44,7 +44,7 @@ export default class MongoDBConnection {
      *
      * @return {Promise<Mongoose | boolean>}
      */
-    public async getConnection(): Promise<Mongoose | boolean> {
+    public async getConnection(): Promise<Mongoose | boolean | undefined> {
         if (this.isConnecting) {
             MongoDBConnection.logger.warn('MongoDBConnection is currently connecting, aborting connection.');
             return false;
@@ -56,9 +56,10 @@ export default class MongoDBConnection {
             try {
                 await this.connect();
                 return this.db;
-            } catch (error) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`CRITICAL: UNABLE TO OPEN DATABASE CONNECTION! ${error.message ?? error}`, 'database/mongo-connection', 1);
+            } catch (err) {
+                if (err instanceof Error) {
+                    throw new ApplicationException(`CRITICAL: UNABLE TO OPEN DATABASE CONNECTION! ${err.message}`, 'database/mongo-connection', 1);
+                }
             }
         }
     }
@@ -102,9 +103,10 @@ export default class MongoDBConnection {
             if (config.debug) {
                 this.db.set('debug', true);
             }
-        } catch (error) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Was unable to create a connection to Mongo! ${error.message}`, 'database/mongo-connection');
+        } catch (err) {
+            if (err instanceof Error) {
+                throw new ApplicationException(`Was unable to create a connection to Mongo! ${err.message}`, 'database/mongo-connection');
+            }
         }
     }
 

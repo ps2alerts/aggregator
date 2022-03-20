@@ -1,10 +1,7 @@
 import {CalculatorInterface} from './CalculatorInterface';
 import {Faction} from '../constants/faction';
 import {injectable} from 'inversify';
-import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
-import {rest} from 'ps2census';
-import Census from '../config/census';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
@@ -12,10 +9,11 @@ import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Zone} from '../constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
+import MongooseModelFactory from '../factories/MongooseModelFactory';
+import {RestClient} from 'ps2census/dist/rest';
 
 interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -40,26 +38,16 @@ interface FacilityLatticeLinkInterface {
 @injectable()
 export default class TerritoryCalculator implements CalculatorInterface<TerritoryResultInterface> {
     private static readonly logger = getLogger('TerritoryCalculator');
-    private readonly instance: MetagameTerritoryInstance;
-    private readonly environment: CensusEnvironment;
-    private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly censusConfig: Census;
     private readonly factionParsedFacilitiesMap: Map<Faction, Set<number>> = new Map<Faction, Set<number>>();
     private readonly mapFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     private readonly cutoffFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     private readonly disabledFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
 
     constructor(
-        instance: MetagameTerritoryInstance,
-        environment: CensusEnvironment,
-        instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        censusConfig: Census,
-    ) {
-        this.instance = instance;
-        this.environment = environment;
-        this.instanceFacilityControlFactory = instanceFacilityControlModelFactory;
-        this.censusConfig = censusConfig;
-    }
+        private readonly instance: MetagameTerritoryInstance,
+        private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
+        private readonly restClient: RestClient,
+    ) {}
 
     public async calculate(): Promise<TerritoryResultInterface> {
         TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
@@ -235,8 +223,9 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     }
 
     private async getMapFacilities(): Promise<void> {
+        // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            rest.getFactory(this.environment, this.censusConfig.serviceID),
+            this.restClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
         ).getMapData();
@@ -261,7 +250,10 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                 facilityFaction = await this.getFacilityFaction(id);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                TerritoryCalculator.logger.error(`${err.message} - replacing with values from Census`);
+                if (err instanceof Error) {
+                    TerritoryCalculator.logger.error(`${err.message} - replacing with values from Census`);
+                }
+
                 facilityFaction = parseInt(region.FactionId, 10);
                 TerritoryCalculator.logger.warn(`[${this.instance.instanceId}] Facility faction replaced! New value is ${facilityFaction}`);
             }
@@ -278,7 +270,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         }
     }
 
-    private transformLatticeData(zoneId: Zone): FacilityLatticeLinkInterface[] {
+    private transformLatticeData(zoneId: Zone): FacilityLatticeLinkInterface[] | undefined {
         try {
             // eslint-disable-next-line @typescript-eslint/naming-convention,@typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
             const data: Array<{ zone_id: string, facility_id_a: string, facility_id_b: string, description?: string }> = require(`${__dirname}/../constants/lattice/${zoneId}.json`);
@@ -294,8 +286,9 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             });
             return returnData;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to read Lattice Link data! E: ${err.message}`);
+            if (err instanceof Error) {
+                throw new ApplicationException(`[${this.instance.instanceId}] Unable to read Lattice Link data! E: ${err.message}`);
+            }
         }
     }
 
@@ -380,7 +373,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
         TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
 
-        const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlFactory.model.findOne({
+        const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlModelFactory.model.findOne({
             instance: this.instance.instanceId,
             facility: facilityId,
         })

@@ -5,21 +5,16 @@ import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHa
 import PopulationData from '../data/PopulationData';
 import {Faction, factionArray} from '../constants/faction';
 import Character from '../data/Character';
-import {RedisConnection} from '../services/redis/RedisConnection';
 import {Redis} from 'ioredis';
 import {World, worldArray} from '../constants/world';
 import FactionUtils from '../utils/FactionUtils';
+import {TYPES} from '../constants/types';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
     private static readonly logger = getLogger('CharacterPresenceHandler');
-    private readonly cache: Redis;
 
-    constructor(
-    @inject(RedisConnection) cacheClient: RedisConnection,
-    ) {
-        this.cache = cacheClient.getClient();
-    }
+    constructor(@inject(TYPES.redis) private readonly cacheClient: Redis) {}
 
     // Updates / adds characters presence, setting a Redis key with expiry.
     public async update(character: Character, zone: number): Promise<boolean> {
@@ -30,10 +25,10 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         }
 
         // Add character to overall Redis collection to control expiry.
-        await this.cache.setex(`CharacterPresence-${character.id}`, 60 * 5, 'foo');
+        await this.cacheClient.setex(`CharacterPresence-${character.id}`, 60 * 5, 'foo');
 
         // Add character to Redis set based on World, Zone and Faction.
-        await this.cache.sadd(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
+        await this.cacheClient.sadd(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
 
         return true;
     }
@@ -41,11 +36,11 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
     // Deletes characters out of Redis and the Redis Set.
     public async delete(character: Character): Promise<boolean> {
         // Delete character out of Redis
-        await this.cache.del(`CharacterPresence-${character.id}`);
+        await this.cacheClient.del(`CharacterPresence-${character.id}`);
 
         // If the character is a member of any Redis sets, remove them from the sets.
         for (const zone of zoneArray) {
-            await this.cache.srem(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
+            await this.cacheClient.srem(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
         }
 
         CharacterPresenceHandler.logger.silly(`Deleted CharacterPresence cache entry for char ${character.id}`, 'CharacterPresenceHandler');
@@ -118,24 +113,24 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
     private async getCharacterList(world: World, zone: Zone, faction: Faction): Promise<string[]> {
         let changes = false;
-        const chars = await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
+        const chars = await this.cacheClient.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
 
         // For each character, loop through and check if they still exist in Redis, which is based off an expiry.
         // If they don't, they're inactive, so we'll delete them out of the set.
         // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const char in chars) {
-            const exists = await this.cache.exists(`CharacterPresence-${chars[char]}`);
+            const exists = await this.cacheClient.exists(`CharacterPresence-${chars[char]}`);
 
             if (!exists) {
                 CharacterPresenceHandler.logger.silly(`Removing stale char ${chars[char]} from set CharacterPresencePops-${world}-${zone}-${faction}`);
-                await this.cache.srem(`CharacterPresencePops-${world}-${zone}-${faction}`, chars[char]);
+                await this.cacheClient.srem(`CharacterPresencePops-${world}-${zone}-${faction}`, chars[char]);
                 changes = true;
             }
         }
 
         // Since the above list has been changed, we'll return the characters again.
         if (changes) {
-            return await this.cache.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
+            return await this.cacheClient.smembers(`CharacterPresencePops-${world}-${zone}-${faction}`);
         }
 
         return chars;

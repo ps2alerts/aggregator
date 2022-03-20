@@ -4,32 +4,21 @@ import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
-import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
-// import ApplicationException from '../../exceptions/ApplicationException';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
-import {CensusEnvironment} from '../../types/CensusEnvironment';
-// import ApiMQMessage from '../../data/ApiMQMessage';
-// import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
+import CharacterPresenceHandler from '../CharacterPresenceHandler';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('DeathEventHandler');
-    private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>;
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    /* eslint-disable */
     constructor(
-        @inject(TYPES.characterPresenceHandler) characterPresenceHandler: CharacterPresenceHandlerInterface,
-        @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[],
-        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher
-    ) {
-        /* eslint-enable */
-        this.aggregateHandlers = aggregateHandlers;
-        this.apiMQPublisher = apiMQPublisher;
-    }
+        private readonly characterPresenceHandler: CharacterPresenceHandler,
+        @multiInject(TYPES.deathAggregates) private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>,
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+    ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    public async handle(event: DeathEvent, environment: CensusEnvironment): Promise<boolean> {
+    public async handle(event: DeathEvent): Promise<boolean> {
         DeathEventHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
 
         // try {
@@ -49,7 +38,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
         DeathEventHandler.logger.silly('=== Processing DeathEvent Handlers ===');
 
         this.aggregateHandlers.map(
-            (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event, environment)
+            (handler: EventHandlerInterface<DeathEvent>) => void handler.handle(event)
                 .catch((e) => {
                     if (e instanceof Error) {
                         DeathEventHandler.logger.error(`Error parsing AggregateHandlers for DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
