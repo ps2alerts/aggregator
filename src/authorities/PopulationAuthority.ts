@@ -9,16 +9,11 @@ import CharacterPresenceHandler from '../handlers/CharacterPresenceHandler';
 export default class PopulationAuthority {
     private static readonly logger = getLogger('PopulationAuthority');
     private timer?: NodeJS.Timeout;
-    private readonly populationHandler: PopulationHandlerInterface<PopulationData>;
-    private readonly characterPresenceHandler: CharacterPresenceHandler;
 
     constructor(
-    @inject(TYPES.populationHandler) populationHandler: PopulationHandlerInterface<PopulationData>,
-                                     characterPresenceHandler: CharacterPresenceHandler,
-    ) {
-        this.populationHandler = populationHandler;
-        this.characterPresenceHandler = characterPresenceHandler;
-    }
+        @inject(TYPES.populationHandler) private readonly populationHandler: PopulationHandlerInterface<PopulationData>,
+        private readonly characterPresenceHandler: CharacterPresenceHandler,
+    ) {}
 
     public run(): void {
         if (this.timer) {

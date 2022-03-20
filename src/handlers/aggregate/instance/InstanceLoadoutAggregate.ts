@@ -12,11 +12,8 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class InstanceLoadoutAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceLoadoutAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
-        this.apiMQPublisher = apiMQPublisher;
-    }
+    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceLoadoutAggregate.logger.silly('InstanceLoadoutAggregate.handle');

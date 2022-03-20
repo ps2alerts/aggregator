@@ -15,9 +15,7 @@ import InstanceAuthority from '../../authorities/InstanceAuthority';
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
 
-    constructor(
-        private readonly instanceAuthority: InstanceAuthority,
-    ) {}
+    constructor(private readonly instanceAuthority: InstanceAuthority) {}
 
     public async handle(event: MetagameEventEvent): Promise<boolean> {
         MetagameEventEventHandler.logger.debug('Parsing MetagameEventEvent message...');

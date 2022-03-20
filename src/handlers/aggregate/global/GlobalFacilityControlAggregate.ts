@@ -13,16 +13,11 @@ import {Bracket} from '../../../constants/bracket';
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.apiMQDelayPublisher = apiMQDelayPublisher;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         GlobalFacilityControlAggregate.logger.silly('GlobalFacilityControlAggregate.handle');

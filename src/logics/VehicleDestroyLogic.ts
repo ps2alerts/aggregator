@@ -5,13 +5,11 @@ import {getLogger} from '../logger';
 
 export default class VehicleDestroyLogic implements LogicInterface {
     private static readonly logger = getLogger('VehicleDestroyLogic');
-    private readonly event: VehicleDestroyEvent;
-    private readonly mode: string;
 
-    constructor(event: VehicleDestroyEvent, mode = 'UNKNOWN') {
-        this.event = event;
-        this.mode = mode;
-    }
+    constructor(
+        private readonly event: VehicleDestroyEvent,
+        private readonly mode = 'UNKNOWN',
+    ) {}
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public calculate(): {attackerDocs: any[], victimDocs: any[]} {

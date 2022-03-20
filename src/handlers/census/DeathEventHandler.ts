@@ -10,19 +10,12 @@ import CharacterPresenceHandler from '../CharacterPresenceHandler';
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('DeathEventHandler');
-    private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>;
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    /* eslint-disable */
     constructor(
-        characterPresenceHandler: CharacterPresenceHandler,
-        @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[],
-        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher
-    ) {
-        /* eslint-enable */
-        this.aggregateHandlers = aggregateHandlers;
-        this.apiMQPublisher = apiMQPublisher;
-    }
+        private readonly characterPresenceHandler: CharacterPresenceHandler,
+        @multiInject(TYPES.deathAggregates) private readonly aggregateHandlers: Array<EventHandlerInterface<DeathEvent>>,
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+    ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async handle(event: DeathEvent): Promise<boolean> {

@@ -9,11 +9,8 @@ import CharacterPresenceHandler from '../CharacterPresenceHandler';
 @injectable()
 export default class GainExperienceEventHandler implements EventHandlerInterface<GainExperienceEvent> {
     private static readonly logger = getLogger('GainExperienceHandler');
-    private readonly characterPresenceHandler: CharacterPresenceHandler;
 
-    constructor(characterPresenceHandler: CharacterPresenceHandler) {
-        this.characterPresenceHandler = characterPresenceHandler;
-    }
+    constructor(private readonly characterPresenceHandler: CharacterPresenceHandler) {}
 
     public async handle(event: GainExperienceEvent): Promise<boolean>{
         GainExperienceEventHandler.logger.silly('Parsing message...');

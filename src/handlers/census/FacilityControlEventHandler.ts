@@ -15,24 +15,13 @@ import InstanceAuthority from '../../authorities/InstanceAuthority';
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
-    private readonly factory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>;
-    private readonly instanceActionFactory: InstanceActionFactory;
-    private readonly instanceAuthority: InstanceAuthority;
 
-    /* eslint-disable */
     constructor(
-        @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[],
-        instanceActionFactory: InstanceActionFactory,
-        instanceAuthority: InstanceAuthority
-    ) {
-        /* eslint-enable */
-        this.factory = instanceFacilityControlModelFactory;
-        this.aggregateHandlers = aggregateHandlers;
-        this.instanceActionFactory = instanceActionFactory;
-        this.instanceAuthority = instanceAuthority;
-    }
+        @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
+        @multiInject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>,
+        private readonly instanceActionFactory: InstanceActionFactory,
+        private readonly instanceAuthority: InstanceAuthority,
+    ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean>{
         FacilityControlEventHandler.logger.silly('Parsing message...');
@@ -89,7 +78,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
     private async storeEvent(event: FacilityControlEvent): Promise<string | null> {
         try {
-            const resultObject = await this.factory.model.create({
+            const resultObject = await this.instanceFacilityControlModelFactory.model.create({
                 instance: event.instance.instanceId,
                 facility: event.facility.id,
                 timestamp: event.timestamp,
@@ -129,7 +118,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
         try {
             // eslint-disable-next-line @typescript-eslint/naming-convention
-            await this.factory.model.updateOne({_id: objectId}, doc);
+            await this.instanceFacilityControlModelFactory.model.updateOne({_id: objectId}, doc);
             return true;
         } catch (err) {
             if (err instanceof Error) {

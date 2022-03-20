@@ -12,9 +12,7 @@ import FakeCharacterFactory from '../constants/fakeCharacter';
 export default class CharacterBroker implements CharacterBrokerInterface {
     private static readonly logger = getLogger('CharacterBroker');
 
-    constructor(
-        private readonly characterManager: CharacterManager,
-    ) {}
+    constructor(private readonly characterManager: CharacterManager) {}
 
     public async get(characterId: string, world: World): Promise<Character | undefined> {
         if (characterId === '0' || !characterId) {

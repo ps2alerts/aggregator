@@ -27,12 +27,14 @@ export default class GainExperienceEvent {
     public readonly world: World;
     public readonly zone: Zone;
     public readonly timestamp: Date;
-    public readonly character: Character;
     public readonly experienceId: number;
     public readonly loadout: Loadout;
     public readonly amount: number;
 
-    constructor(event: GainExperience, character: Character) {
+    constructor(
+        event: GainExperience,
+        public readonly character: Character,
+    ) {
         this.world = Parser.parseNumericalArgument(event.world_id);
 
         if (isNaN(this.world)) {

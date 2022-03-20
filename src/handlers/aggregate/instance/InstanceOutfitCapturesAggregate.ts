@@ -5,23 +5,16 @@ import {TYPES} from '../../../constants/types';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
-import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 
 @injectable()
 // Note: This does NOT create a new aggregate, merely adds data to the InstanceOutfitAggregate.
 export default class InstanceOutfitCapturesAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('InstanceOutfitCapturesAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-                                  outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+    ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         InstanceOutfitCapturesAggregate.logger.silly('InstanceOutfitCapturesAggregate.handle');

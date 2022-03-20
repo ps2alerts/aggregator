@@ -11,21 +11,12 @@ import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/Admi
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
-import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
     private static readonly logger = getLogger('AdminAggregatorMessageHandler');
-    private readonly instanceAuthority: InstanceAuthority;
-    private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
-    constructor(
-        instanceAuthority: InstanceAuthority,
-        territoryCalculatorFactory: TerritoryCalculatorFactory,
-    ) {
-        this.instanceAuthority = instanceAuthority;
-        this.territoryCalculatorFactory = territoryCalculatorFactory;
-    }
+    constructor(private readonly instanceAuthority: InstanceAuthority) {}
 
     public async handle(message: ParsedQueueMessage): Promise<boolean> {
         switch (message.type) {

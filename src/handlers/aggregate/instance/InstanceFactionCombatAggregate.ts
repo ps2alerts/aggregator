@@ -12,11 +12,8 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 @injectable()
 export default class InstanceFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceFactionCombatAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
-        this.apiMQPublisher = apiMQPublisher;
-    }
+    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceFactionCombatAggregate.logger.silly('InstanceFactionCombatAggregate.handle');

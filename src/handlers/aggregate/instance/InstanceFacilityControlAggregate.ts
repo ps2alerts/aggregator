@@ -11,11 +11,8 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 @injectable()
 export default class InstanceFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('InstanceFacilityControlAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
-        this.apiMQPublisher = apiMQPublisher;
-    }
+    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         InstanceFacilityControlAggregate.logger.silly('InstanceFacilityControlAggregate.handle');

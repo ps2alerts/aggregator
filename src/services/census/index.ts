@@ -17,9 +17,9 @@ export default new ContainerModule((bind) => {
     // Driver
     bind<CensusCacheDriver>(TYPES.censusCharacterCacheDriver)
         .toDynamicValue(({container}) => new CensusCacheDriver(
+            container.get(RedisConnection),
             'character',
             86400,
-            container.get(RedisConnection),
         )).inSingletonScope();
 
     bind(CensusClient)

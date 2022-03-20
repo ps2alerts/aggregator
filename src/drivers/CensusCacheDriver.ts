@@ -7,18 +7,14 @@ import {Redis} from 'ioredis';
 
 @injectable()
 export default class CensusCacheDriver implements CacheContract {
-    private readonly namespace: string = 'census';
-    private readonly expiry: number = 86400; // 1 day
     private readonly cacheClient: Redis;
 
     constructor(
-        namespace: string,
-        expiry: number,
-        @inject(RedisConnection) cacheClient: RedisConnection,
+        @inject(RedisConnection) private readonly cacheConnection: RedisConnection,
+        private readonly namespace: string = 'census',
+        private readonly expiry: number = 86400,
     ) {
-        this.namespace = namespace;
-        this.expiry = expiry;
-        this.cacheClient = cacheClient.getClient();
+        this.cacheClient = cacheConnection.getClient();
     }
 
     public async forget(key: string): Promise<void> {

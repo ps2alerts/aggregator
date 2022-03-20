@@ -7,11 +7,8 @@ import MongoDBConnection from './MongoDBConnection';
 export default class MongoDatabaseConnectionService implements ServiceInterface {
     public readonly bootPriority = 1;
     private static readonly logger = getLogger('MongoDatabaseConnectionService');
-    private readonly dbClient: MongoDBConnection;
 
-    constructor(dbClient: MongoDBConnection) {
-        this.dbClient = dbClient;
-    }
+    constructor(private readonly dbClient: MongoDBConnection) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {

@@ -15,7 +15,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
 
     constructor(
-        private readonly instance: MetagameTerritoryInstance,
+        public readonly instance: MetagameTerritoryInstance,
         private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         private readonly territoryCalculator: TerritoryCalculator,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,

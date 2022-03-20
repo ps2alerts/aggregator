@@ -8,13 +8,9 @@ import {RestClient} from 'ps2census/dist/rest';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
-    private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-
     constructor(
         @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-    ) {
-        this.instanceFacilityControlFactory = instanceFacilityControlModelFactory;
-    }
+    ) {}
 
     public build(
         instance: MetagameTerritoryInstance,
@@ -22,7 +18,7 @@ export default class TerritoryCalculatorFactory {
     ): TerritoryCalculator {
         return new TerritoryCalculator(
             instance,
-            this.instanceFacilityControlFactory,
+            this.instanceFacilityControlModelFactory,
             restClient,
         );
     }

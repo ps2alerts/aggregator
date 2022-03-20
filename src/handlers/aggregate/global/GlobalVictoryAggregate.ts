@@ -15,16 +15,11 @@ import {Bracket} from '../../../constants/bracket';
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
     private static readonly logger = getLogger('GlobalVictoryAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.apiMQDelayPublisher = apiMQDelayPublisher;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {}
 
     public async handle(event: MetagameTerritoryInstance): Promise<boolean> {
         GlobalVictoryAggregate.logger.debug('GlobalVictoryAggregate.handle');

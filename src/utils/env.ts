@@ -2,10 +2,6 @@ export function get(key: string, def = ''): string {
     return process.env[key]?.trim() ?? def;
 }
 
-export function getAndMap<T>(key: string, map: (value?: string) => T): T {
-    return map(process.env[key]);
-}
-
 export function getAndTest<T extends string>(key: string, test: (value: string) => boolean): T {
     const value = process.env[key];
 

@@ -11,13 +11,10 @@ import {Faction} from '../../../constants/faction';
 
 @injectable()
 export default class VehicleDestroyEvent {
-    public readonly instance: PS2AlertsInstanceInterface;
     public readonly world: World;
     public readonly zone: Zone;
     public readonly timestamp: Date;
-    public readonly character: Character;
     public readonly characterFaction: Faction;
-    public readonly attackerCharacter: Character;
     public readonly attackerLoadoutId: number;
     public readonly attackerVehicleId: number;
     public readonly attackerWeaponId: number;
@@ -28,9 +25,9 @@ export default class VehicleDestroyEvent {
 
     constructor(
         event: VehicleDestroy,
-        instance: PS2AlertsInstanceInterface,
-        attackerCharacter: Character,
-        character: Character,
+        public readonly instance: PS2AlertsInstanceInterface,
+        public readonly attackerCharacter: Character,
+        public readonly character: Character,
     ) {
         this.instance = instance;
 

@@ -13,16 +13,11 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceOutfitAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-                                  outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+    ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceOutfitAggregate.logger.silly('InstanceOutfitAggregate.handle');

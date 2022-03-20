@@ -1,28 +1,19 @@
-import {inject, injectable, multiInject} from 'inversify';
+import {injectable, multiInject} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import {TYPES} from '../../constants/types';
-import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import VehicleDestroyEvent from './events/VehicleDestroyEvent';
 import CharacterPresenceHandler from '../CharacterPresenceHandler';
 
 @injectable()
 export default class VehicleDestroyEventHandler implements EventHandlerInterface<VehicleDestroyEvent> {
     private static readonly logger = getLogger('VehicleDestroyEvent');
-    private readonly aggregateHandlers: Array<EventHandlerInterface<VehicleDestroyEvent>>;
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    /* eslint-disable */
     constructor(
-        characterPresenceHandler: CharacterPresenceHandler,
-        @multiInject(TYPES.vehicleDestroyAggregates) aggregateHandlers: EventHandlerInterface<VehicleDestroyEvent>[],
-        @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher
-    ) {
-        /* eslint-enable */
-        this.aggregateHandlers = aggregateHandlers;
-        this.apiMQPublisher = apiMQPublisher;
-    }
+        private readonly characterPresenceHandler: CharacterPresenceHandler,
+        @multiInject(TYPES.vehicleDestroyAggregates) private readonly aggregateHandlers: Array<EventHandlerInterface<VehicleDestroyEvent>>,
+    ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
