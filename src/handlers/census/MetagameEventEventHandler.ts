@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
@@ -10,13 +10,14 @@ import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
+import {TYPES} from '../../constants/types';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
 
     constructor(
-        private readonly instanceAuthority: InstanceAuthority,
+        @inject(TYPES.instanceAuthority) private readonly instanceAuthority: InstanceAuthority,
     ) {}
 
     public async handle(event: MetagameEventEvent): Promise<boolean> {

@@ -4,8 +4,8 @@ import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
-import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
+import CharacterPresenceHandler from '../CharacterPresenceHandler';
 
 @injectable()
 export default class DeathEventHandler implements EventHandlerInterface<DeathEvent> {
@@ -15,7 +15,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
 
     /* eslint-disable */
     constructor(
-        characterPresenceHandler: CharacterPresenceHandlerInterface,
+        characterPresenceHandler: CharacterPresenceHandler,
         @multiInject(TYPES.deathAggregates) aggregateHandlers: EventHandlerInterface<DeathEvent>[],
         @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher
     ) {

@@ -6,7 +6,6 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
 import MongooseModelFactory from './MongooseModelFactory';
 import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
-import Census from '../config/census';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTerritoryStartAction';
 import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
@@ -21,7 +20,6 @@ export default class InstanceActionFactory {
     constructor(
         @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         @inject(TYPES.instanceMetagameModelFactory) private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        @inject(TYPES.censusConfig) private readonly censusConfig: Census,
         private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.globalVictoryAggregate) private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,

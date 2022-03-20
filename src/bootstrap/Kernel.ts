@@ -22,8 +22,6 @@ enum RunningStates {
 @injectable()
 export default class Kernel implements KernelInterface {
     private static readonly logger = getLogger('kernel');
-    private readonly container: Container;
-    private readonly services: ServiceInterface[];
 
     /**
      * @type {RunningStates} Running state of the kernel
@@ -33,15 +31,12 @@ export default class Kernel implements KernelInterface {
     /**
      * Constructor.
      * @param {Container} container the IoC Container
-     * @param {ServiceInterface } services
+     * @param {ServiceInterface[]} services services to boot
      */
     constructor(
-        container: Container,
-        @multiInject(SERVICE) services: ServiceInterface[],
-    ) {
-        this.container = container;
-        this.services = services;
-    }
+        private readonly container: Container,
+        @multiInject(SERVICE) private readonly services: ServiceInterface[],
+    ) {}
 
     /**
      * Execute order 66 (run the app).

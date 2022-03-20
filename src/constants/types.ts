@@ -35,6 +35,8 @@ const TYPES = {
     // Other Factories
     instanceActionFactory: Symbol.for('instanceActionFactory'),
     globalVictoryAggregate: Symbol.for('globalVictoryAggregate'),
+
+    instanceAuthority: Symbol.for('instanceAuthority'),
 };
 
 export {TYPES};
