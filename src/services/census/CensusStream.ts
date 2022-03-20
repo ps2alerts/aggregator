@@ -12,10 +12,10 @@ import config from '../../config';
 export default class CensusStream {
     public readonly environment: CensusEnvironment = config.census.censusEnvironment;
 
-    private static readonly logger = getLogger('ps2census');
+    private static readonly logger = getLogger('CensusStream');
 
     constructor(
-        public readonly wsClient: CensusClient,
+        public readonly censusClient: CensusClient,
         private readonly censusEventSubscriber: CensusEventSubscriber,
         private readonly censusStaleConnectionWatcherAuthority: CensusStaleConnectionWatcherAuthority,
     ) {}
@@ -23,34 +23,34 @@ export default class CensusStream {
     public async bootClient(): Promise<void> {
         CensusStream.logger.info(`[${this.environment}] Booting Census Stream...`);
 
-        await this.wsClient.watch();
+        await this.censusClient.watch();
 
-        this.wsClient.on('subscribed', (subscriptions) => {
+        this.censusClient.on('subscribed', (subscriptions) => {
             CensusStream.logger.info(`[${this.environment}] Census stream subscribed! Subscriptions:`);
             CensusStream.logger.info(jsonLogOutput(subscriptions));
             this.censusStaleConnectionWatcherAuthority.run();
             this.censusEventSubscriber.constructListeners();
         });
 
-        this.wsClient.on('reconnecting', () => {
+        this.censusClient.on('reconnecting', () => {
             this.censusStaleConnectionWatcherAuthority.stop();
             CensusStream.logger.warn(`[${this.environment}] Census stream connection lost... reconnecting...`);
         });
 
-        this.wsClient.on('disconnected', () => {
+        this.censusClient.on('disconnected', () => {
             this.censusStaleConnectionWatcherAuthority.stop();
             CensusStream.logger.error(`[${this.environment}] Census stream connection disconnected!`);
         });
 
-        this.wsClient.on('error', (error: Error) => {
+        this.censusClient.on('error', (error: Error) => {
             CensusStream.logger.error(`[${this.environment}] Census stream error! ${error.message}`);
         });
 
-        this.wsClient.on('warn', (error: Error) => {
+        this.censusClient.on('warn', (error: Error) => {
             CensusStream.logger.warn(`[${this.environment}] Census stream warn! ${error.message}`);
         });
 
-        this.wsClient.on('debug', (message: string) => {
+        this.censusClient.on('debug', (message: string) => {
             if (
                 !message.includes('Reset heartbeat') &&
                 !message.includes('Heartbeat acknowledged') &&
@@ -60,7 +60,7 @@ export default class CensusStream {
             }
         });
 
-        this.wsClient.on('duplicate', (event: PS2Event) => {
+        this.censusClient.on('duplicate', (event: PS2Event) => {
             if (
                 !event.event_name.indexOf('Death') &&
                 !event.event_name.indexOf('PlayerLogin') &&
@@ -70,7 +70,7 @@ export default class CensusStream {
             }
         });
 
-        this.wsClient.on('ps2Event', (event: PS2Event) => {
+        this.censusClient.on('ps2Event', (event: PS2Event) => {
             const worldId = parseInt(event.world_id, 10);
 
             if ([World.JAEGER, World.EMERALD].includes(worldId)) {
