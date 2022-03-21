@@ -30,13 +30,13 @@ export default class Logger {
             name: 'console',
             options: {},
         },
-        // discord: {
-        //     name: 'discord',
-        //     options: {
-        //         webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
-        //         level: 'error',
-        //     },
-        //     filter: [],
-        // },
+        discord: {
+            name: 'discord',
+            options: {
+                webhookUrl: get('LOGGER_DISCORD_WEBHOOK'),
+                level: 'error',
+            },
+            filter: [],
+        },
     };
 }
