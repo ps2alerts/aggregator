@@ -22,10 +22,10 @@ export function transportFactory(transportList: TransportConfig[]): Transport[] 
         switch (t.name) {
             case 'console':
                 return new transports.Console(options);
-            case 'discord':
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                return new DiscordTransport(options);
+            // case 'discord':
+            //     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //     // @ts-ignore
+            //     return new DiscordTransport(options);
         }
 
         throw new Error();
