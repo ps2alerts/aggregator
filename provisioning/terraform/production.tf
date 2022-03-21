@@ -24,8 +24,8 @@ module "aggregator_production" {
   mem_limit                = "0.25Gi"
   cpu_request              = "300m"
   mem_request              = "0.25Gi"
-  discord_webhook          = "https://discordapp.com/api/webhooks/736389415936720917/RkeDsvhGFjq3HSewPU_q59Et-6cHKCdkISw7apatWF8mJFc0w48YH88-_pG9hh03ljJ6"
-  logger_transports        = "console,discord"
+  discord_webhook          = var.discord_webhook
+  logger_transports        = "console"
   dd_api_key               = var.dd_api_key
   dd_app_key               = var.dd_app_key
 }
