@@ -6,4 +6,6 @@ variable "rabbitmq_pass" {}
 variable "redis_pass" {}
 variable "dd_api_key" {}
 variable "dd_app_key" {}
-variable "discord_webhook" {}
+variable "discord_webhook" {
+  default = ""
+}
