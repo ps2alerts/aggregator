@@ -1,8 +1,8 @@
 ---
 - hosts: localhost
   tasks:
-    - name: Stop Aggregator container
-      docker_container:
-        name: ps2alerts-aggregator-pc
-        state: stopped
-      ignore_errors: yes
+    - name: Stop any running aggregator modules
+      register: output
+      docker_compose:
+        project_src: .
+        state: absent
