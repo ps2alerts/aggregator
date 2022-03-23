@@ -1,0 +1,87 @@
+version: "3.9"
+services:
+  aggregator-pc:
+    image: ps2alerts/aggregator:dev
+    restart: "no"
+    volumes:
+      - "../../:/app:rw"
+    ports:
+      - "1337"
+      - "9229:9229"
+    networks:
+      - "ps2alerts"
+    environment:
+      NODE_ENV: "development"
+      VERSION: "12345"
+      CENSUS_ENVIRONMENT: "ps2"
+      CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
+      DB_USER: "root"
+      DB_PASS: "foobar"
+      DB_HOST: "ps2alerts-db"
+      DB_PORT: "27017"
+      DB_SCHEMA: "ps2alerts"
+      DB_DEBUG: "false"
+      REDIS_HOST: "ps2alerts-redis"
+      REDIS_DB: "0"
+      API_BASE_URL: "http://dev.api.ps2alerts.com"
+      LOGGER_TRANSPORTS: "console"
+    labels:
+      traefik.enable: "false"
+
+  aggregator-ps4eu:
+    image: ps2alerts/aggregator:dev
+    restart: "no"
+    volumes:
+      - "../../:/app:rw"
+    ports:
+      - "1338"
+    networks:
+      - "ps2alerts"
+    environment:
+      NODE_ENV: "development"
+      VERSION: "12345"
+      CENSUS_ENVIRONMENT: "ps2ps4eu"
+      CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
+      DB_USER: "root"
+      DB_PASS: "foobar"
+      DB_HOST: "ps2alerts-db"
+      DB_PORT: "27017"
+      DB_SCHEMA: "ps2alerts"
+      DB_DEBUG: "false"
+      REDIS_HOST: "ps2alerts-redis"
+      REDIS_DB: "0"
+      API_BASE_URL: "http://dev.api.ps2alerts.com"
+      LOGGER_TRANSPORTS: "console"
+    labels:
+      traefik.enable: "false"
+
+  aggregator-ps4us:
+    image: ps2alerts/aggregator:dev
+    restart: "no"
+    volumes:
+      - "../../:/app:rw"
+    ports:
+      - "1339"
+    networks:
+      - "ps2alerts"
+    environment:
+      NODE_ENV: "development"
+      VERSION: "12345"
+      CENSUS_ENVIRONMENT: "ps2ps4us"
+      CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
+      DB_USER: "root"
+      DB_PASS: "foobar"
+      DB_HOST: "ps2alerts-db"
+      DB_PORT: "27017"
+      DB_SCHEMA: "ps2alerts"
+      DB_DEBUG: "false"
+      REDIS_HOST: "ps2alerts-redis"
+      REDIS_DB: "0"
+      API_BASE_URL: "http://dev.api.ps2alerts.com"
+      LOGGER_TRANSPORTS: "console"
+    labels:
+      traefik.enable: "false"
+networks:
+  ps2alerts:
+    external:
+      name: ps2alerts

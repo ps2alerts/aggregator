@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+  vars:
+    root_dir: "{{ playbook_dir }}/../../"
+    debug: "false"
+  vars_files:
+    - ../../vars.local.yml
+  tasks:
+    - debug:
+        msg: "========= 📡 Starting Aggregator Module - MULTI ENVIROMENT MODE 📡  ========="
+
+    - name: Delete dist folder
+      file:
+        path: "{{ root_dir }}/dist"
+        state: absent
+
+    # Replace {{ CENSUS_SERVICE_ID }} from the user's local vars. DO NOT COMMIT THIS FILE!
+    - name: Inject census service ID into docker-compose file
+      lineinfile:
+        path: docker-compose.yml
+        search_string: '$CENSUS_SERVICE_ID'
+        line: '      CENSUS_SERVICE_ID: "{{ census_service_id }}"'
+
+    - name: Stop any running aggregator modules
+      register: output
+      docker_compose:
+        project_src: .
+        state: absent
+
+    - name: Start up aggregator modules
+      register: output
+      docker_compose:
+        project_src: .
+        state: present
