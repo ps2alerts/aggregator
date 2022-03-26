@@ -7,28 +7,42 @@
     - ../../vars.local.yml
   tasks:
     - debug:
-        msg: "========= 📡 Starting Aggregator Module - MULTI ENVIROMENT MODE 📡  ========="
+        msg: "========= 📡 Starting Aggregator Module - MULTI ENVIRONMENT MODE 📡  ========="
 
     - name: Delete dist folder
       file:
         path: "{{ root_dir }}/dist"
         state: absent
 
-    # Replace {{ CENSUS_SERVICE_ID }} from the user's local vars. DO NOT COMMIT THIS FILE!
-    - name: Inject census service ID into docker-compose file
+    - name: Make a sanitised copy of the docker-compose file
+      copy:
+        src: docker-compose.yml
+        dest: docker-compose-local.yml
+
+    # Replace $CENSUS_SERVICE_ID from the user's local vars. DO NOT COMMIT THIS FILE!
+    - name: Inject census service ID into docker-compose-local.yml file
       lineinfile:
-        path: docker-compose.yml
-        search_string: '$CENSUS_SERVICE_ID'
+        path: "{{ playbook_dir }}/docker-compose-local.yml"
+        search_string: '{{ item }}'
         line: '      CENSUS_SERVICE_ID: "{{ census_service_id }}"'
+      with_items:
+        - '$CENSUS_SERVICE_ID'
+        - '$CENSUS_SERVICE_ID'
+        - '$CENSUS_SERVICE_ID' # Yes, we have to loop it 3 times...
+      register: output
 
     - name: Stop any running aggregator modules
       register: output
       docker_compose:
         project_src: .
+        files:
+          - docker-compose-local.yml
         state: absent
 
     - name: Start up aggregator modules
       register: output
       docker_compose:
         project_src: .
+        files:
+          - docker-compose-local.yml
         state: present
