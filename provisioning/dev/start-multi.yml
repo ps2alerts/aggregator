@@ -7,7 +7,7 @@
     - ../../vars.local.yml
   tasks:
     - debug:
-        msg: "========= 📡 Starting Aggregator Module - MULTI ENVIRONMENT MODE 📡  ========="
+        msg: "========= 📡 Starting Aggregator Module - MULTI ENVIRONMENT MODE 📡 ========="
 
     - name: Delete dist folder
       file:
