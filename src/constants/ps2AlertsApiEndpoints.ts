@@ -1,3 +1,5 @@
 export const ps2AlertsApiEndpoints = {
-    instanceMetagameTerritory: '/instances/active',
+    instanceActive: '/instances/active',
+    instanceCreate: '/instances/',
+    instanceMetagame: '/instances/{instanceId}',
 };

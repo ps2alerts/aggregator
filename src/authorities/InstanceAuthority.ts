@@ -68,28 +68,28 @@ export default class InstanceAuthority {
         InstanceAuthority.logger.info(`================== STARTING INSTANCE ON WORLD ${instance.world}! ==================`);
 
         if (instance instanceof MetagameTerritoryInstance) {
-            try {
-                const row = await this.instanceMetagameModelFactory.model.create({
-                    instanceId: instance.instanceId,
-                    world: instance.world,
-                    timeStarted: instance.timeStarted,
-                    timeEnded: null,
-                    result: null,
-                    zone: instance.zone,
-                    censusInstanceId: instance.censusInstanceId,
-                    censusMetagameEventType: instance.censusMetagameEventType,
-                    duration: instance.duration,
-                    state: instance.state,
-                    bracket: null,
-                    features: {
-                        captureHistory: true,
-                    },
-                });
-                InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
-            } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`[${instance.instanceId}] Unable to insert instance into DB! ${err}`, 'InstanceAuthority');
+            const apiResponse = await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instanceCreate, {
+                instanceId: instance.instanceId,
+                world: instance.world,
+                timeStarted: instance.timeStarted,
+                timeEnded: null,
+                result: null,
+                zone: instance.zone,
+                censusInstanceId: instance.censusInstanceId,
+                censusMetagameEventType: instance.censusMetagameEventType,
+                duration: instance.duration,
+                state: instance.state,
+                bracket: null,
+                features: {
+                    captureHistory: true,
+                },
+            });
+
+            if (!apiResponse.data) {
+                throw new ApplicationException('Unable to create instance via API!');
             }
+
+            InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${instance.instanceId} ================`);
 
             // Execute start actions, if it fails trash the instance
             try {
@@ -120,43 +120,17 @@ export default class InstanceAuthority {
         instance.state = Ps2alertsEventState.ENDED;
         InstanceAuthority.logger.debug(`[${instance.instanceId}] marked as ended`);
 
-        const done = false;
-
         // Find Instance and update
         try {
-            // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
-            const timeout = new Promise((resolve, reject) => {
-                const id = setTimeout(() => {
-                    clearTimeout(id);
-
-                    if (!done) {
-                        reject(new Error(`[${instance.instanceId}] Instance end timeout!`));
-                    } else {
-                        resolve(true);
-                    }
-                }, 5000);
+            const apiResponse = await this.ps2AlertsApiClient.patch(ps2AlertsApiEndpoints.instanceActive, {
+                instanceId: instance.instanceId,
+                state: Ps2alertsEventState.ENDED,
+                timeEnded: new Date().toISOString(),
             });
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const promise = this.instanceMetagameModelFactory.model.updateOne(
-                {instanceId: instance.instanceId},
-                {
-                    state: Ps2alertsEventState.ENDED,
-                    timeEnded: new Date(),
-                },
-            );
-
-            await Promise.race([
-                promise,
-                timeout,
-            ]).catch((err) => {
-                if (err instanceof Error) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    throw new ApplicationException(err.message);
-                }
-
-                throw new ApplicationException('InstanceAuthority failed in an unknown way!');
-            });
+            if (!apiResponse.data) {
+                throw new ApplicationException('Could not update the Instance state via the API!');
+            }
 
             this.removeActiveInstance(instance);
 
@@ -178,7 +152,7 @@ export default class InstanceAuthority {
             throw new ApplicationException('InstanceAuthority was called to be initialized more than once!', 'InstanceAuthority');
         }
 
-        const apiResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceMetagameTerritory);
+        const apiResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const instances: MetagameTerritoryInstance[] = apiResponse.data;
 
