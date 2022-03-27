@@ -7,11 +7,16 @@
     - ../../vars.local.yml
   tasks:
     - debug:
-        msg: "========= 📡 Starting Aggregator Module - PC ONLY 📡  ========="
+        msg: "========= 📡 Starting Aggregator Module - PC ONLY 📡 ========="
 
     - name: Delete dist folder
       file:
         path: "{{ root_dir }}/dist"
+        state: absent
+
+    - name: Stop aggregator if running
+      docker_container:
+        name: ps2alerts-aggregator-pc
         state: absent
 
     - name: Start Aggregator Dev Image (ps2 PC ONLY)
@@ -23,7 +28,7 @@
         recreate: yes
         restart_policy: "no"
         volumes:
-          - "{{ root_dir | realpath }}:/app:rw"
+          - "{{ root_dir }}:/app:rw"
         ports:
           - "1337"
           - "9229:9229"
