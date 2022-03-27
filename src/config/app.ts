@@ -12,6 +12,7 @@ export default class App {
         /* eslint-disable */
         return [
             require('../authorities').default,
+            require('../drivers').default,
             require('../handlers').default,
             require('../handlers/aggregate').default,
             require('../factories').default,

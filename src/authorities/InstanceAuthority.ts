@@ -3,7 +3,7 @@ import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
-import {World} from '../constants/world';
+import {pcWorldArray, World} from '../constants/world';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
@@ -13,6 +13,10 @@ import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
 import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
+import {AxiosInstance} from 'axios';
+import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import config from '../config';
+import {censusEnvironments} from '../constants/censusEnvironments';
 
 @injectable()
 export default class InstanceAuthority {
@@ -24,6 +28,7 @@ export default class InstanceAuthority {
     constructor(
         @inject(TYPES.instanceMetagameModelFactory) private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         private readonly instanceActionFactory: InstanceActionFactory,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
     ) {}
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface {
@@ -173,23 +178,31 @@ export default class InstanceAuthority {
             throw new ApplicationException('InstanceAuthority was called to be initialized more than once!', 'InstanceAuthority');
         }
 
-        let rows: InstanceMetagameTerritorySchemaInterface[] = [];
+        const apiResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceMetagameTerritory);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const instances: MetagameTerritoryInstance[] = apiResponse.data;
 
-        try {
-            rows = await this.instanceMetagameModelFactory.model.find({
-                state: Ps2alertsEventState.STARTED,
-            }).exec();
-        } catch (err) {
-            throw new ApplicationException('Unable to retrieve active instances!', 'InstanceAuthority');
-        }
-
-        if (!rows.length) {
-            InstanceAuthority.logger.warn('No active instances were detected in the database! This could be entirely normal however.');
+        if (!instances.length) {
+            InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
         } else {
-            rows.forEach((i) => {
+            instances.forEach((i) => {
+                const censusEnvironment = config.census.censusEnvironment;
+
+                if (censusEnvironment === censusEnvironments.pc && !pcWorldArray.includes(i.world)) {
+                    InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PC environment`);
+                    return false;
+                } else if (censusEnvironment === censusEnvironments.ps4eu && i.world !== World.CERES) {
+                    InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4EU environment`);
+                    return false;
+                } else if (censusEnvironment === censusEnvironments.ps4us && i.world !== World.GENUDINE) {
+                    InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4US environment`);
+                    return false;
+                }
+
+                // Convert the date
                 const instance = new MetagameTerritoryInstance(
                     i.world,
-                    i.timeStarted,
+                    new Date(i.timeStarted), // It's a string from the API, convert back into Date
                     null,
                     i.result,
                     i.zone,

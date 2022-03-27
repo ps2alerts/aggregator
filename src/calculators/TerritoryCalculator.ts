@@ -91,14 +91,14 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             for (const warpgate of facility[1]) {
                 const faction = await this.getFacilityFaction(warpgate.facilityId);
 
-                TerritoryCalculator.logger.debug(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
+                TerritoryCalculator.logger.silly(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
                 await this.traverse(
                     warpgate.facilityId,
                     faction,
                     0,
                     latticeLinks,
                 );
-                TerritoryCalculator.logger.debug(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
+                TerritoryCalculator.logger.silly(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
             }
         }
 
@@ -131,7 +131,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         const baseCount = this.mapFacilityList.size - totalWarpgates;
         const outOfPlayCount = this.disabledFacilityList.size;
 
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
+        if (TerritoryCalculator.logger.isSillyEnabled()) {
             // eslint-disable-next-line no-console
             console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
         }
@@ -214,7 +214,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         const cutoffCount = (baseCount - bases.vs - bases.nc - bases.tr) - outOfPlayCount;
         const cutoffPercent = Math.floor(cutoffCount * perBase);
 
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
+        if (TerritoryCalculator.logger.isSillyEnabled()) {
             // eslint-disable-next-line no-console
             console.log('Cutoff bases', this.cutoffFacilityList);
         }

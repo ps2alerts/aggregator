@@ -7,14 +7,14 @@
     - ../../vars.local.yml
   tasks:
     - debug:
-        msg: "========= 📡 Starting Aggregator Module(s) 📡  ========="
+        msg: "========= 📡 Starting Aggregator Module - PC ONLY 📡  ========="
 
     - name: Delete dist folder
       file:
         path: "{{ root_dir }}/dist"
         state: absent
 
-    - name: Start Aggregator Dev Image (ps2 PC)
+    - name: Start Aggregator Dev Image (ps2 PC ONLY)
       docker_container:
         name: ps2alerts-aggregator-pc
         image: ps2alerts/aggregator:dev
@@ -43,7 +43,7 @@
           DB_DEBUG: "false"
           REDIS_HOST: "ps2alerts-redis"
           REDIS_DB: "0"
-          API_BASE_URL: "http://dev.api.ps2alerts.com"
+          API_BASE_URL: "http://ps2alerts-api:3000"
           LOGGER_TRANSPORTS: "console"
           NODE_DEBUG: "{{ debug }}"
         labels:

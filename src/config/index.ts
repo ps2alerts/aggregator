@@ -3,6 +3,7 @@ import Census from './census';
 import Database from './database';
 import Features from './features';
 import Logger from './logger';
+import InternalApi from './internal-api';
 import RabbitMQ from './rabbitmq';
 import Redis from './redis';
 
@@ -15,6 +16,7 @@ export class Config {
     public readonly database: Database = new Database();
     public readonly features = Features;
     public readonly logger: Logger = new Logger();
+    public readonly internalApi: InternalApi = new InternalApi();
     public readonly rabbitmq: RabbitMQ = new RabbitMQ();
     public readonly redis: Redis = new Redis();
 }

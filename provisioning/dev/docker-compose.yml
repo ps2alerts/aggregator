@@ -23,7 +23,7 @@ services:
       DB_DEBUG: "false"
       REDIS_HOST: "ps2alerts-redis"
       REDIS_DB: "0"
-      API_BASE_URL: "http://dev.api.ps2alerts.com"
+      API_BASE_URL: "http://ps2alerts-api:3000"
       LOGGER_TRANSPORTS: "console"
     labels:
       traefik.enable: "false"
@@ -50,7 +50,7 @@ services:
       DB_DEBUG: "false"
       REDIS_HOST: "ps2alerts-redis"
       REDIS_DB: "0"
-      API_BASE_URL: "http://dev.api.ps2alerts.com"
+      API_BASE_URL: "http://ps2alerts-api:3000"
       LOGGER_TRANSPORTS: "console"
     labels:
       traefik.enable: "false"
@@ -77,7 +77,7 @@ services:
       DB_DEBUG: "false"
       REDIS_HOST: "ps2alerts-redis"
       REDIS_DB: "0"
-      API_BASE_URL: "http://dev.api.ps2alerts.com"
+      API_BASE_URL: "http://ps2alerts-api:3000"
       LOGGER_TRANSPORTS: "console"
     labels:
       traefik.enable: "false"
