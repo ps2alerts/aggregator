@@ -38,7 +38,7 @@
     "ioredis": "^4.28.5",
     "lodash": "^4.17.21",
     "logform": "^2.2.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "moment-timezone": "^0.5.33",
     "mongoose": "^5.13.14",
     "mysql2": "^2.1.0",
