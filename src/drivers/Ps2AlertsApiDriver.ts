@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import axios, {AxiosInstance} from 'axios';
 import {injectable} from 'inversify';
 import config from '../config';
@@ -10,7 +11,10 @@ export class Ps2AlertsApiDriver {
         const apiConfig = config.internalApi;
         this.httpClient = axios.create({
             baseURL: apiConfig.host,
-            timeout: 30000,
+            timeout: 10000,
+            headers: {
+                'Content-Type': 'application/json',
+            },
             auth: {
                 username: apiConfig.username,
                 password: apiConfig.password,

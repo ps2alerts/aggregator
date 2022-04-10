@@ -1,6 +1,6 @@
 import {CalculatorInterface} from './CalculatorInterface';
 import {Faction} from '../constants/faction';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
@@ -14,6 +14,9 @@ import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {RestClient} from 'ps2census/dist/rest';
+import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import {TYPES} from '../constants/types';
+import {AxiosInstance} from 'axios';
 
 interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -47,6 +50,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         private readonly instance: MetagameTerritoryInstance,
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         private readonly restClient: RestClient,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
     ) {}
 
     public async calculate(): Promise<TerritoryResultInterface> {
@@ -373,12 +377,13 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
         TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
 
-        const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlModelFactory.model.findOne({
-            instance: this.instance.instanceId,
-            facility: facilityId,
-        })
-            .sort({timestamp: -1})
-            .exec();
+        const apiResponse = await this.ps2AlertsApiClient.get(
+            ps2AlertsApiEndpoints.instanceEntriesInstanceFacility
+                .replace('{instanceId}', this.instance.instanceId)
+                .replace('{facilityId}', facilityId.toString()),
+        );
+
+        const result = apiResponse.data;
 
         // This should always have a result, whether it be from the initial map capture (which will be the case for the warpgate)
         // or from a capture during the course of monitoring the instance.

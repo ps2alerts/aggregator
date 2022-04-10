@@ -68,7 +68,8 @@ export default class InstanceAuthority {
         InstanceAuthority.logger.info(`================== STARTING INSTANCE ON WORLD ${instance.world}! ==================`);
 
         if (instance instanceof MetagameTerritoryInstance) {
-            const apiResponse = await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instanceCreate, {
+            console.log(instance);
+            const data = JSON.stringify({
                 instanceId: instance.instanceId,
                 world: instance.world,
                 timeStarted: instance.timeStarted,
@@ -85,9 +86,21 @@ export default class InstanceAuthority {
                 },
             });
 
-            if (!apiResponse.data) {
-                throw new ApplicationException('Unable to create instance via API!');
-            }
+            InstanceAuthority.logger.info(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);
+            await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, data)
+                .then((response) => {
+                    if (!response.data) {
+                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                        throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`);
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+
+                    if (err instanceof Error) {
+                        throw new ApplicationException(`Unable to create instance via API! E: ${err.message}`);
+                    }
+                });
 
             InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${instance.instanceId} ================`);
 
@@ -234,13 +247,11 @@ export default class InstanceAuthority {
     }
 
     private async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        await this.instanceMetagameModelFactory.model.deleteOne({
-            instanceId: instance.instanceId,
-        }).catch((e: Error) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`[${instance.instanceId}] UNABLE TO DELETE INSTANCE! E: ${e.message}`, 'InstanceAuthority');
-        });
+        const apiResponse = await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instances);
+
+        if (!apiResponse) {
+            throw new ApplicationException(`[${instance.instanceId}] UNABLE TO DELETE INSTANCE! API CALL FAILED!`, 'InstanceAuthority');
+        }
 
         InstanceAuthority.logger.error(`================ [${instance.instanceId}] INSTANCE DELETED! ================`);
 
