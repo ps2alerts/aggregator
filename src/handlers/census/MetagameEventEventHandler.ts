@@ -13,6 +13,7 @@ import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
+import {World} from '../../constants/world';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
@@ -38,6 +39,11 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
         const instances = this.instanceAuthority.getInstances(event.world, event.zone);
 
         if (event.eventState === MetagameEventState.STARTED) {
+            // Filter out SolTech as it's currently buggy AF
+            if (event.world === World.SOLTECH) {
+                MetagameEventEventHandler.logger.warn('SolTech instance detected, currently ignoring SolTech.');
+            }
+
             if (instances.length > 1) {
                 throw new ApplicationException(`Multiple instances detected when there should only be one! \r\n${jsonLogOutput(event)}`, 'MetagameEventEventHandler');
             }
