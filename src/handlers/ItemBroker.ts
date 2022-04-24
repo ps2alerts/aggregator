@@ -75,7 +75,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             });
         } catch (err) {
             if (err instanceof Error) {
-                ItemBroker.logger.error(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${err.message}`);
+                ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${err.message}`);
             }
         }
 

@@ -10,6 +10,7 @@ import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
+import {Bracket} from '../../constants/bracket';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
@@ -52,7 +53,8 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
                 event.instanceId,
                 event.eventType,
                 metagameDetails.duration,
-                Ps2alertsEventState.STARTED,
+                Ps2alertsEventState.STARTING,
+                Bracket.UNKNOWN, // Force the bracket to be unknown as it is incalculable at the beginning
             );
 
             try {

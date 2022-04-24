@@ -11,6 +11,7 @@ import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/Admi
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
+import {Bracket} from '../../constants/bracket';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
@@ -59,7 +60,8 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             adminAggregatorInstanceStart.instanceId,
             censusEventId,
             adminAggregatorInstanceStart.duration,
-            Ps2alertsEventState.STARTED,
+            Ps2alertsEventState.STARTING,
+            Bracket.UNKNOWN,
         );
 
         try {
@@ -69,17 +71,17 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${err.message}. Retrying...`);
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            setTimeout(async () => {
-                try {
-                    return await this.instanceAuthority.startInstance(instance);
-                } catch (err) {
-                    if (err instanceof Error) {
-                        // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
-                        AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
-                    }
-                }
-            }, 5000);
+            // // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            // setTimeout(async () => {
+            //     try {
+            //         return await this.instanceAuthority.startInstance(instance);
+            //     } catch (err) {
+            //         if (err instanceof Error) {
+            //             // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+            //             AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
+            //         }
+            //     }
+            // }, 5000);
         }
 
         return false;
