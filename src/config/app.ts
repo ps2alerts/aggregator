@@ -18,7 +18,6 @@ export default class App {
             require('../factories').default,
             require('../services/authorities').default,
             require('../services/census').default,
-            require('../services/mongo').default,
             require('../services/rabbitmq').default,
             require('../services/redis').default,
         ];

@@ -1,6 +1,5 @@
 import App from './app';
 import Census from './census';
-import Database from './database';
 import Features from './features';
 import Logger from './logger';
 import InternalApi from './internal-api';
@@ -13,7 +12,6 @@ import Redis from './redis';
 export class Config {
     public readonly app: App = new App();
     public readonly census: Census = new Census();
-    public readonly database: Database = new Database();
     public readonly features = Features;
     public readonly logger: Logger = new Logger();
     public readonly internalApi: InternalApi = new InternalApi();
