@@ -1,6 +1,6 @@
 import {CalculatorInterface} from './CalculatorInterface';
 import {Faction} from '../constants/faction';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
@@ -15,8 +15,9 @@ import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {RestClient} from 'ps2census/dist/rest';
 import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
-import {TYPES} from '../constants/types';
 import {AxiosInstance} from 'axios';
+import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
+    from '../interfaces/PS2AlertsInstanceEntriesInstanceFacilityResponseInterface';
 
 interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -50,7 +51,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         private readonly instance: MetagameTerritoryInstance,
         private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
         private readonly restClient: RestClient,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: AxiosInstance,
     ) {}
 
     public async calculate(): Promise<TerritoryResultInterface> {
@@ -360,7 +361,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         TerritoryCalculator.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
 
         // RE RE RECURSION
-        // Promise of a promise of a promise until we're happy!
+        // Promise of a promise of a promise until we'reyar happy!
         for (const link of nextHops) {
             await this.traverse(
                 link,
@@ -377,13 +378,13 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
         TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
 
-        const apiResponse = await this.ps2AlertsApiClient.get(
+        const apiResponse: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface[] = await this.ps2AlertsApiClient.get(
             ps2AlertsApiEndpoints.instanceEntriesInstanceFacility
                 .replace('{instanceId}', this.instance.instanceId)
                 .replace('{facilityId}', facilityId.toString()),
         );
 
-        const result = apiResponse.data;
+        const result = apiResponse[0];
 
         // This should always have a result, whether it be from the initial map capture (which will be the case for the warpgate)
         // or from a capture during the course of monitoring the instance.
