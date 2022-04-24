@@ -5,7 +5,7 @@
   "main": "./dist",
   "scripts": {
     "start": "node dist/index.js",
-    "start:dev": "ts-node src",
+    "start:dev": "ts-node-dev src/index.ts",
     "start:dev:debug": "tsc && node --inspect=0.0.0.0:9229 dist/index.js",
     "build": "tsc && cp -r src/constants/lattice dist/constants",
     "build:watch": "tsc -w",
