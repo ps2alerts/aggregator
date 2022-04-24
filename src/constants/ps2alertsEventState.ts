@@ -1,5 +1,5 @@
 export enum Ps2alertsEventState {
-    SCHEDULED = 0,
+    STARTING = 0,
     STARTED = 1,
     ENDED = 2,
 }

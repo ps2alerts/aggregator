@@ -7,7 +7,8 @@ import {rest} from 'ps2census';
 export class CensusApiRetryDriver<T extends CollectionNames> {
     private static readonly logger = getLogger('CensusApiRetryDriver');
 
-    private readonly retryLimit = 6;
+    // The below with the combination of CensusClient now having a 10 second timeout (totalling 15s) means we can wait 2 minutes for Census to recover.
+    private readonly retryLimit = 8;
     private readonly delayTime = 5000; // 30 seconds total for waiting for the API to recover
 
     constructor(
@@ -18,6 +19,8 @@ export class CensusApiRetryDriver<T extends CollectionNames> {
 
     public async try(attempts = 0): Promise<CensusResponse<Format<T>> | undefined> {
         attempts++;
+
+        CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempt #${attempts}...`);
 
         try {
             if (attempts > 2) {
