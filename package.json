@@ -40,8 +40,6 @@
     "logform": "^2.2.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
-    "mongoose": "^5.13.14",
-    "mysql2": "^2.1.0",
     "ps2census": "^3.3.0",
     "reflect-metadata": "^0.1.13",
     "utf-8-validate": "^5.0.8",

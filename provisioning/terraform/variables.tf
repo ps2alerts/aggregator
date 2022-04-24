@@ -1,11 +1,12 @@
 variable "checksum_version" {}
 variable "census_service_id" {}
-variable "db_user" {}
-variable "db_pass" {}
 variable "rabbitmq_pass" {}
 variable "redis_pass" {}
-variable "dd_api_key" {}
-variable "dd_app_key" {}
 variable "discord_webhook" {
   default = ""
 }
+variable "internal_api_host" {}
+variable "internal_api_user" {}
+variable "internal_api_pass" {}
+#variable "dd_api_key" {}
+#variable "dd_app_key" {}
