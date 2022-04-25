@@ -72,7 +72,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                     oldFaction: parseInt(row.RowData.FactionId, 10),
                     newFaction: parseInt(row.RowData.FactionId, 10),
                     durationHeld: 0,
-                    isDefence: 0,
+                    isDefence: false,
                     isInitial: true,
                     outfitCaptured: null,
                 });

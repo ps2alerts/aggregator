@@ -146,6 +146,21 @@ export default class InstanceAuthority {
         }
     }
 
+    public async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
+        InstanceAuthority.logger.info(`================== TRASHING INSTANCE "${instance.instanceId}" ==================`);
+
+        this.removeActiveInstance(instance);
+
+        await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
+            .catch((err: Error) => {
+                throw new ApplicationException(`[${instance.instanceId}] UNABLE TO TRASH INSTANCE! API CALL FAILED! E: ${err.message}`, 'InstanceAuthority');
+            });
+
+        InstanceAuthority.logger.error(`================ [${instance.instanceId}] INSTANCE TRASHED! ================`);
+
+        this.printActives(true);
+    }
+
     public async init(): Promise<boolean> {
         InstanceAuthority.logger.debug('Initializing ActiveInstances...');
 
@@ -233,19 +248,5 @@ export default class InstanceAuthority {
         });
 
         InstanceAuthority.logger.debug(`================== ${instance.instanceId} removed from actives ==================`);
-    }
-
-    private async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
-        const apiResponse = await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instances);
-
-        if (!apiResponse) {
-            throw new ApplicationException(`[${instance.instanceId}] UNABLE TO DELETE INSTANCE! API CALL FAILED!`, 'InstanceAuthority');
-        }
-
-        InstanceAuthority.logger.error(`================ [${instance.instanceId}] INSTANCE DELETED! ================`);
-
-        this.removeActiveInstance(instance);
-
-        this.printActives(true);
     }
 }

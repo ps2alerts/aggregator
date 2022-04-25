@@ -4,7 +4,6 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
-import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
 import FactionUtils from '../../utils/FactionUtils';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
@@ -32,21 +31,32 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
         FacilityControlEventHandler.logger.debug(`[Instance ${event.instance.instanceId}] Facility ${event.facility.id} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
 
+        const facilityData = {
+            instance: event.instance.instanceId,
+            facility: event.facility.id,
+            timestamp: event.timestamp,
+            oldFaction: event.oldFaction,
+            newFaction: event.newFaction,
+            durationHeld: event.durationHeld,
+            isDefence: event.isDefence,
+            outfitCaptured: event.outfitCaptured,
+            mapControl: null, // This is null intentionally because we haven't calculated the control result yet (it's done in the handlers)
+        };
+
         await this.ps2AlertsApiClient.post(
-            ps2AlertsApiEndpoints.instanceEntriesInstanceFacility
-                .replace('{instanceId}', event.instance.instanceId),
-            {
-                instance: event.instance.instanceId,
-                facility: event.facility.id,
-                timestamp: event.timestamp,
-                oldFaction: event.oldFaction,
-                newFaction: event.newFaction,
-                durationHeld: event.durationHeld,
-                isDefence: event.isDefence,
-                outfitCaptured: event.outfitCaptured,
-                mapControl: null, // This is null intentionally because we haven't calculated the control result yet (it's done in the handlers)
-            }).catch((err: Error) => {
-            throw new ApplicationException(`[${event.instance.instanceId}] Unable to create facility record! Err: ${err.message}`, 'FacilityControlEventHandler');
+            ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
+            facilityData,
+        ).catch(async (err: Error) => {
+            FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
+
+            // Try again
+            await this.ps2AlertsApiClient.post(
+                ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
+                facilityData,
+            ).catch((err: Error) => {
+                FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
+                return false;
+            });
         });
 
         this.aggregateHandlers.map(
@@ -78,7 +88,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
                 .replace('{facilityId}', String(event.facility.id)),
             {mapControl: result},
         ).catch((err: Error) => {
-            FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to update the map control record via API! Err: ${err.message}`);
+            FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
         return true;
     }

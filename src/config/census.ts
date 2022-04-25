@@ -39,7 +39,7 @@ export default class Census {
         streamManager: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
