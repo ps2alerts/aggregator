@@ -57,11 +57,11 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
-              cpu = var.cpu_limit
+              cpu = "400m"
               memory = var.mem_limit
             }
             requests = {
-              cpu = var.cpu_request
+              cpu = "250m"
               memory = var.mem_request
             }
           }
@@ -146,11 +146,11 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
-              cpu = var.cpu_limit
+              cpu = "150m"
               memory = var.mem_limit
             }
             requests = {
-              cpu = var.cpu_request
+              cpu = "100m"
               memory = var.mem_request
             }
           }
@@ -235,11 +235,11 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
-              cpu = var.cpu_limit
+              cpu = "150m"
               memory = var.mem_limit
             }
             requests = {
-              cpu = var.cpu_request
+              cpu = "100m"
               memory = var.mem_request
             }
           }
