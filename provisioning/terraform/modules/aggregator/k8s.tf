@@ -1,31 +1,9 @@
-resource "kubernetes_service" "ps2alerts_aggregator_service" {
+resource "kubernetes_deployment" "ps2alerts_aggregator_deployment_pc" {
   metadata {
-    name = var.identifier
+    name = join("", [var.identifier, "-", "pc"])
     namespace = var.namespace
     labels = {
-      app = var.identifier
-      environment = var.environment
-    }
-  }
-  spec {
-    type = "ClusterIP"
-    selector = {
-      app = var.identifier
-      environment = var.environment
-    }
-    port {
-      port = 443
-      target_port = 443
-    }
-  }
-}
-
-resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
-  metadata {
-    name = var.identifier
-    namespace = var.namespace
-    labels = {
-      app = var.identifier
+      app = join("", [var.identifier, "-", "pc"])
       environment = var.environment
     }
   }
@@ -37,14 +15,14 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
     revision_history_limit = 1
     selector {
       match_labels = {
-        app = var.identifier
+        name = join("", [var.identifier, "-", "pc"])
         environment = var.environment
       }
     }
     template {
       metadata {
         labels = {
-          app = var.identifier
+          name = join("", [var.identifier, "-", "pc"])
           environment = var.environment
         }
       }
@@ -64,9 +42,6 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
               cpu = "250m"
               memory = var.mem_request
             }
-          }
-          port {
-            container_port = 443
           }
           env {
             name = "NODE_ENV"
@@ -137,25 +112,59 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
             value = var.internal_api_user
           }
           env {
-            name = "INTERNAL_API_PASS"
+            name  = "INTERNAL_API_PASS"
             value = var.internal_api_pass
           }
         }
+      }
+    }
+  }
+}
+
+resource "kubernetes_deployment" "ps2alerts_aggregator_deployment_ps4eu" {
+  metadata {
+    name = join("", [var.identifier, "-", "ps4eu"])
+    namespace = var.namespace
+    labels = {
+      app = join("", [var.identifier, "-", "ps4eu"])
+      environment = var.environment
+    }
+  }
+  lifecycle {
+    ignore_changes = ["spec[0].replicas"]
+  }
+  spec {
+    replicas = 1
+    revision_history_limit = 1
+    selector {
+      match_labels = {
+        name = join("", [var.identifier, "-", "ps4eu"])
+        environment = var.environment
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          name = join("", [var.identifier, "-", "ps4eu"])
+          environment = var.environment
+        }
+      }
+      spec {
+        image_pull_secrets {
+          name = "regcred"
+        }
         container {
-          name = join("", [var.identifier, "-", "ps2ps4eu"])
+          name = join("", [var.identifier, "-", "ps4eu"])
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
-              cpu = "150m"
+              cpu = "100m"
               memory = var.mem_limit
             }
             requests = {
-              cpu = "100m"
+              cpu = "50m"
               memory = var.mem_request
             }
-          }
-          port {
-            container_port = 443
           }
           env {
             name = "NODE_ENV"
@@ -226,25 +235,59 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
             value = var.internal_api_user
           }
           env {
-            name = "INTERNAL_API_PASS"
+            name  = "INTERNAL_API_PASS"
             value = var.internal_api_pass
           }
         }
+      }
+    }
+  }
+}
+
+resource "kubernetes_deployment" "ps2alerts_aggregator_deployment_ps4us" {
+  metadata {
+    name = join("", [var.identifier, "-", "ps4us"])
+    namespace = var.namespace
+    labels = {
+      app = join("", [var.identifier, "-", "ps4us"])
+      environment = var.environment
+    }
+  }
+  lifecycle {
+    ignore_changes = ["spec[0].replicas"]
+  }
+  spec {
+    replicas = 1
+    revision_history_limit = 1
+    selector {
+      match_labels = {
+        name = join("", [var.identifier, "-", "ps4us"])
+        environment = var.environment
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          name = join("", [var.identifier, "-", "ps4us"])
+          environment = var.environment
+        }
+      }
+      spec {
+        image_pull_secrets {
+          name = "regcred"
+        }
         container {
-          name = join("", [var.identifier, "-", "ps2ps4us"])
+          name = join("", [var.identifier, "-", "ps4us"])
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
-              cpu = "150m"
+              cpu = "100m"
               memory = var.mem_limit
             }
             requests = {
-              cpu = "100m"
+              cpu = "50m"
               memory = var.mem_request
             }
-          }
-          port {
-            container_port = 443
           }
           env {
             name = "NODE_ENV"
@@ -315,7 +358,7 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
             value = var.internal_api_user
           }
           env {
-            name = "INTERNAL_API_PASS"
+            name  = "INTERNAL_API_PASS"
             value = var.internal_api_pass
           }
         }
