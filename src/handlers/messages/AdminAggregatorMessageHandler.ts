@@ -12,6 +12,7 @@ import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
 import {Bracket} from '../../constants/bracket';
+import AdminAggregatorInstanceTrashMessage from '../../data/AdminAggregator/AdminAggregatorInstanceTrashMessage';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
@@ -27,6 +28,8 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 return await this.endInstance(message);
             case 'endAll':
                 return await this.endAllInstances();
+            case 'trashInstance':
+                return await this.trashInstance(message);
             case 'activeInstances':
                 void this.activeInstances();
                 return true;
@@ -131,6 +134,28 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
         }
 
         return false;
+    }
+
+    private async trashInstance(message: ParsedQueueMessage): Promise<boolean> {
+        const aggregatorMessage = new AdminAggregatorInstanceTrashMessage(message.body);
+
+        try {
+            const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
+
+            if (!instance) {
+                // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
+                return false;
+            }
+
+            await this.instanceAuthority.trashInstance(instance);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${err.message}`);
+            }
+        }
+
+        return true;
     }
 
     private activeInstances(): void {

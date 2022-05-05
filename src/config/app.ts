@@ -18,6 +18,7 @@ export default class App {
             require('../handlers/aggregate').default,
             require('../services/authorities').default,
             require('../services/census').default,
+            require('../services/ps2alerts-api').default,
             require('../services/rabbitmq').default,
             require('../services/redis').default,
         ];
