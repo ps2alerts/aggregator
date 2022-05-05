@@ -1,6 +1,4 @@
-import {
-    get, getInt,
-} from '../utils/env';
+import {get, getInt} from '../utils/env';
 import {injectable} from 'inversify';
 
 @injectable()

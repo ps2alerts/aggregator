@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -12,11 +13,8 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class InstanceCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceCharacterAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
 
-    constructor(@inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher) {
-        this.apiMQPublisher = apiMQPublisher;
-    }
+    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceCharacterAggregate.logger.silly('InstanceCharacterAggregate.handle');
@@ -81,8 +79,9 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                     }],
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    InstanceCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -96,8 +95,9 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                 }],
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            InstanceCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                InstanceCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

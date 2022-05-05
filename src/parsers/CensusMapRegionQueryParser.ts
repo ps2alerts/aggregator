@@ -1,9 +1,11 @@
 // Special class to handle the MapRegion query, as it's done in multiple places and prone to crashing
-import {rest} from 'ps2census';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
+import {RestClient} from 'ps2census/dist/rest';
+import {getLogger} from '../logger';
+import {Redis} from 'ioredis';
 
 /* eslint-disable */
 interface ReverseEngineeredOshurDataInterface {
@@ -35,53 +37,64 @@ interface RegionMapJoinQueryRowInterface {
         }
     };
 }
-
 /* eslint-enable */
 
 export default class CensusMapRegionQueryParser {
-    private readonly getMethod: rest.requestTypes.getMethod;
-    private readonly caller: string;
-    private readonly instance: MetagameTerritoryInstance;
+    private static readonly logger = getLogger('CensusMapRegionQueryParser');
+
     private readonly oshurData: ReverseEngineeredOshurDataInterface[];
 
     constructor(
-        getMethod: rest.requestTypes.getMethod,
-        caller: string,
-        instance: MetagameTerritoryInstance,
+        private readonly restClient: RestClient,
+        private readonly caller: string,
+        private readonly instance: MetagameTerritoryInstance,
+        private readonly cacheClient: Redis,
     ) {
-        this.getMethod = getMethod;
-        this.caller = caller;
-        this.instance = instance;
         this.oshurData = this.initOshurData();
     }
 
     // Returns
     public async getMapData(): Promise<RegionMapJoinQueryInterface[]> {
-        const request = this.getMethod(
-            rest.join(
-                rest.map,
-                [{
-                    type: 'map_region',
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    inject_at: 'map_region',
-                    on: 'Regions.Row.RowData.RegionId',
-                    to: 'map_region_id',
-                }],
-            ),
-            { // Query for filter
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                world_id: String(this.instance.world),
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                zone_ids: String(this.instance.zone),
-            },
-        );
+        const cacheKey = `census-map-w:${this.instance.world}-z:${this.instance.zone}`;
 
-        const apiRequest = new CensusApiRetryDriver(request, 'MetagameInstanceTerritoryStartAction');
+        // If in cache, grab it
+        if (await this.cacheClient.exists(cacheKey)) {
+            CensusMapRegionQueryParser.logger.debug(`${cacheKey} HIT`);
+            const data = await this.cacheClient.get(cacheKey);
+
+            if (data) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return JSON.parse(data);
+            }
+        }
+
+        CensusMapRegionQueryParser.logger.debug(`${cacheKey} MISS`);
+        CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
+
+        const query = this.restClient.getQueryBuilder('map')
+            .join({
+                type: 'map_region',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                inject_at: 'map_region',
+                on: 'Regions.Row.RowData.RegionId',
+                to: 'map_region_id',
+            });
+        /* eslint-disable */
+        const filter = {
+            world_id: String(this.instance.world),
+            zone_ids: String(this.instance.zone),
+        };
+        /* eslint-enable */
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        const apiRequest = new CensusApiRetryDriver(query, filter, 'MetagameInstanceTerritoryStartAction');
         let mapDataFinal: RegionMapJoinQueryInterface[] = [];
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await apiRequest.try().then((mapData: RegionMapJoinQueryInterface[]) => {
+            CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Census returned map_region data`);
+
             if (!mapData || mapData.length === 0) {
                 throw new ApplicationException(`[${this.instance.instanceId}] No map data was returned from Census! Cannot start alert properly!`);
             }
@@ -110,6 +123,10 @@ export default class CensusMapRegionQueryParser {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to query Census for Map Region data! E: ${e.message}`);
         });
+
+        // Cache the data
+        await this.cacheClient.setex(cacheKey, 5, JSON.stringify(mapDataFinal));
+
         // Return the patched data. We have to do it outside of the last .then as there's some weird execution path stuff going on...
         return mapDataFinal;
     }

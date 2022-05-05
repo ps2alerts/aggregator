@@ -28,4 +28,7 @@
 #   logger_transports        = "console,discord"
 #   dd_api_key               = var.dd_api_key
 #   dd_app_key               = var.dd_app_key
+#   internal_api_host        = var.internal_api_host
+#   internal_api_user        = var.internal_api_user
+#   internal_api_pass        = var.internal_api_pass
 # }

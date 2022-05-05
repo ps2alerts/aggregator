@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {World} from '../../constants/world';
 import {Zone} from '../../constants/zone';
 import ApplicationException from '../../exceptions/ApplicationException';
@@ -26,7 +27,7 @@ export default class AdminAggregatorInstanceStartMessage {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.instanceId = body.instanceId;
+        this.instanceId = parseInt(body.instanceId, 10);
 
         if (!body.world) {
             throw new ApplicationException('Failed to parse AdminAggregatorInstanceStartMessage missing field world', 'AdminAggregatorInstanceStartMessage');

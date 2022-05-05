@@ -2,17 +2,6 @@ variable "checksum_version" {}
 variable "namespace" {}
 variable "identifier" {}
 variable "environment" {}
-variable "database_user" {}
-variable "database_pass" {}
-variable "database_host" {}
-variable "database_port" {}
-variable "database_name" {}
-variable "database_pool_size" {
-  default = 50
-}
-variable "database_debug" {
-  default = false
-}
 variable "redis_host" {}
 variable "redis_db" {
   default = 0
@@ -36,5 +25,8 @@ variable "discord_webhook" {
 variable "logger_transports" {
   default = "console"
 }
-variable "dd_api_key" {}
-variable "dd_app_key" {}
+#variable "dd_api_key" {}
+#variable "dd_app_key" {}
+variable "internal_api_host" {}
+variable "internal_api_user" {}
+variable "internal_api_pass" {}

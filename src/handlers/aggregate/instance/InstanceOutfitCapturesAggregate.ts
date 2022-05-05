@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
@@ -5,23 +6,16 @@ import {TYPES} from '../../../constants/types';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
-import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 
 @injectable()
 // Note: This does NOT create a new aggregate, merely adds data to the InstanceOutfitAggregate.
 export default class InstanceOutfitCapturesAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('InstanceOutfitCapturesAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.outfitParticipantCacheHandler) outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.outfitParticipantCacheHandler = outfitParticipantCacheHandler;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+    ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         InstanceOutfitCapturesAggregate.logger.silly('InstanceOutfitCapturesAggregate.handle');
@@ -47,8 +41,9 @@ export default class InstanceOutfitCapturesAggregate implements AggregateHandler
                 }],
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            InstanceOutfitCapturesAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                InstanceOutfitCapturesAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

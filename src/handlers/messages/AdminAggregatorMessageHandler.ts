@@ -1,8 +1,7 @@
 import {MessageQueueHandlerInterface} from '../../interfaces/MessageQueueHandlerInterface';
 import ParsedQueueMessage from '../../data/ParsedQueueMessage';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {TYPES} from '../../constants/types';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
 import EventId from '../../utils/eventId';
@@ -12,22 +11,14 @@ import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/Admi
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
-import TerritoryCalculatorFactory from '../../factories/TerritoryCalculatorFactory';
-import {getCensusEnvironment} from '../../utils/CensusEnvironment';
+import {Bracket} from '../../constants/bracket';
+import AdminAggregatorInstanceTrashMessage from '../../data/AdminAggregator/AdminAggregatorInstanceTrashMessage';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
     private static readonly logger = getLogger('AdminAggregatorMessageHandler');
-    private readonly instanceAuthority: InstanceAuthority;
-    private readonly territoryCalculatorFactory: TerritoryCalculatorFactory;
 
-    constructor(
-    @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority,
-        @inject(TYPES.territoryCalculatorFactory) territoryCalculatorFactory: TerritoryCalculatorFactory,
-    ) {
-        this.instanceAuthority = instanceAuthority;
-        this.territoryCalculatorFactory = territoryCalculatorFactory;
-    }
+    constructor(private readonly instanceAuthority: InstanceAuthority) {}
 
     public async handle(message: ParsedQueueMessage): Promise<boolean> {
         switch (message.type) {
@@ -37,6 +28,8 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 return await this.endInstance(message);
             case 'endAll':
                 return await this.endAllInstances();
+            case 'trashInstance':
+                return await this.trashInstance(message);
             case 'activeInstances':
                 void this.activeInstances();
                 return true;
@@ -70,25 +63,28 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             adminAggregatorInstanceStart.instanceId,
             censusEventId,
             adminAggregatorInstanceStart.duration,
-            Ps2alertsEventState.STARTED,
+            Ps2alertsEventState.STARTING,
+            Bracket.UNKNOWN,
         );
 
         try {
-            return await this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${e.message}. Retrying...`);
+            return await this.instanceAuthority.startInstance(instance);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${err.message}. Retrying...`);
+            }
 
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            setTimeout(async () => {
-                try {
-                    return await this.instanceAuthority.startInstance(instance, getCensusEnvironment(instance.world));
-                } catch (err) {
-                    // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                    AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
-                }
-            }, 5000);
+            // // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            // setTimeout(async () => {
+            //     try {
+            //         return await this.instanceAuthority.startInstance(instance);
+            //     } catch (err) {
+            //         if (err instanceof Error) {
+            //             // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+            //             AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
+            //         }
+            //     }
+            // }, 5000);
         }
 
         return false;
@@ -106,10 +102,11 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 return false;
             }
 
-            return await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${e.message}`);
+            return await this.instanceAuthority.endInstance(instance);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${err.message}`);
+            }
         }
 
         return false;
@@ -126,17 +123,39 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             }
 
             for (const instance of instances) {
-                await this.instanceAuthority.endInstance(instance, getCensusEnvironment(instance.world));
+                await this.instanceAuthority.endInstance(instance);
             }
 
             return true;
-
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Failed ending all instances via adminAggregator message! E: ${e.message}`);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed ending all instances via adminAggregator message! E: ${err.message}`);
+            }
         }
 
         return false;
+    }
+
+    private async trashInstance(message: ParsedQueueMessage): Promise<boolean> {
+        const aggregatorMessage = new AdminAggregatorInstanceTrashMessage(message.body);
+
+        try {
+            const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
+
+            if (!instance) {
+                // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
+                return false;
+            }
+
+            await this.instanceAuthority.trashInstance(instance);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${err.message}`);
+            }
+        }
+
+        return true;
     }
 
     private activeInstances(): void {

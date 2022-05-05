@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -14,16 +15,11 @@ import FactionUtils from '../../../utils/FactionUtils';
 @injectable()
 export default class GlobalOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('GlobalOutfitAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.apiMQDelayPublisher = apiMQDelayPublisher;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalOutfitAggregate.logger.silly('GlobalOutfitAggregate.handle');
@@ -115,8 +111,9 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                if (err instanceof Error) {
+                    GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+                }
             }
         }
 
@@ -143,8 +140,9 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                GlobalOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

@@ -1,20 +1,16 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
-import {TYPES} from '../../constants/types';
-import CharacterPresenceHandlerInterface from '../../interfaces/CharacterPresenceHandlerInterface';
 import GainExperienceEvent from './events/GainExperienceEvent';
+import CharacterPresenceHandler from '../CharacterPresenceHandler';
 
 @injectable()
 export default class GainExperienceEventHandler implements EventHandlerInterface<GainExperienceEvent> {
     private static readonly logger = getLogger('GainExperienceHandler');
-    private readonly characterPresenceHandler: CharacterPresenceHandlerInterface;
 
-    constructor(@inject(TYPES.characterPresenceHandler) characterHandler: CharacterPresenceHandlerInterface) {
-        this.characterPresenceHandler = characterHandler;
-    }
+    constructor(private readonly characterPresenceHandler: CharacterPresenceHandler) {}
 
     public async handle(event: GainExperienceEvent): Promise<boolean>{
         GainExperienceEventHandler.logger.silly('Parsing message...');

@@ -43,3 +43,12 @@ export const worldArray = [
     1000,
     2000,
 ];
+
+export const pcWorldArray = [
+    1,
+    10,
+    13,
+    17,
+    19,
+    40,
+];

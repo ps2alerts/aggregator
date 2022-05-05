@@ -1,31 +1,24 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {rest} from 'ps2census';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
 import FakeItemFactory from '../constants/fakeItem';
-import {TYPES} from '../constants/types';
-import Census from '../config/census';
-import {RedisConnection} from '../services/redis/RedisConnection';
-import {Redis as RedisInterface} from 'ioredis';
 import {Vehicle} from '../constants/vehicle';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
+import {Redis} from 'ioredis';
+import {RestClient} from 'ps2census/dist/rest';
+import {TYPES} from '../constants/types';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
     private static readonly logger = getLogger('ItemBroker');
-    private readonly censusConfig: Census;
-    private readonly cacheClient: RedisInterface;
 
     constructor(
-    @inject(TYPES.censusConfig) censusConfig: Census,
-        @inject(RedisConnection) cacheClient: RedisConnection,
-    ) {
-        this.censusConfig = censusConfig;
-        this.cacheClient = cacheClient.getClient();
-    }
+        private readonly restClient: RestClient,
+        @inject(TYPES.redis) private readonly cacheClient: Redis,
+    ) {}
 
     public async get(
         environment: CensusEnvironment,
@@ -50,25 +43,24 @@ export default class ItemBroker implements ItemBrokerInterface {
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.silly(`item ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return new Item(JSON.parse(<string>data));
         }
 
         ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
-        const get = rest.getFactory(environment, this.censusConfig.serviceID);
-        const request = get(
-            rest.limit(
-                rest.item,
-                1,
-            ),
+
+        const query = this.restClient.getQueryBuilder('item')
+            .limit(1);
+        const filter = {
             // eslint-disable-next-line @typescript-eslint/naming-convention
-            {item_id: itemId.toString()},
-        );
+            item_id: String(itemId),
+        };
 
         // Grab the item data from Census
         try {
-            const apiRequest = new CensusApiRetryDriver(request, 'ItemBroker');
-            await apiRequest.try().then(async (item) => {
-                if (!item || !item[0] || !item[0].item_id) {
+            const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker');
+            await apiRequest.try().then(async (items) => {
+                if (!items) {
                     ItemBroker.logger.error(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
                     return new FakeItemFactory().build();
                 }
@@ -76,14 +68,15 @@ export default class ItemBroker implements ItemBrokerInterface {
                 ItemBroker.logger.silly(`[${environment}] Item ID ${itemId} successfully retrieved from Census`);
 
                 // Cache the response for 24h then return
-                await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(item[0]));
+                await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(items[0]));
 
                 ItemBroker.logger.silly(`[${environment}] Item ID ${itemId} successfully stored in cache`);
-                returnItem = new Item(item[0]);
+                returnItem = new Item(items[0]);
             });
-        } catch (e) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            ItemBroker.logger.error(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${e.message}`);
+        } catch (err) {
+            if (err instanceof Error) {
+                ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${err.message}`);
+            }
         }
 
         return returnItem;

@@ -1,36 +1,32 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
-import MongooseModelFactory from '../factories/MongooseModelFactory';
 import {TYPES} from '../constants/types';
-import {World} from '../constants/world';
+import {pcWorldArray, World} from '../constants/world';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
-import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
+import {AxiosInstance, AxiosResponse} from 'axios';
+import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import config from '../config';
+import {censusEnvironments} from '../constants/censusEnvironments';
 
 @injectable()
 export default class InstanceAuthority {
     private static readonly logger = getLogger('InstanceAuthority');
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
-    private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>;
-    private readonly instanceActionFactory: InstanceActionFactory;
     private activeTimer?: NodeJS.Timeout;
     private initialized = false;
 
     constructor(
-    @inject(TYPES.instanceMetagameModelFactory) instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
-    ) {
-        this.instanceMetagameModelFactory = instanceMetagameModelFactory;
-        this.instanceActionFactory = instanceActionFactory;
-    }
+        private readonly instanceActionFactory: InstanceActionFactory,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+    ) {}
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface {
         InstanceAuthority.logger.silly(`Attempting to find an instance with ID: "${instanceId}"...`);
@@ -61,7 +57,7 @@ export default class InstanceAuthority {
         });
     }
 
-    public async startInstance(instance: PS2AlertsInstanceInterface, environment: CensusEnvironment): Promise<boolean> {
+    public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         if (!this.initialized) {
             throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
         }
@@ -69,43 +65,60 @@ export default class InstanceAuthority {
         InstanceAuthority.logger.info(`================== STARTING INSTANCE ON WORLD ${instance.world}! ==================`);
 
         if (instance instanceof MetagameTerritoryInstance) {
-            try {
-                const row = await this.instanceMetagameModelFactory.model.create({
-                    instanceId: instance.instanceId,
-                    world: instance.world,
-                    timeStarted: instance.timeStarted,
-                    timeEnded: null,
-                    result: null,
-                    zone: instance.zone,
-                    censusInstanceId: instance.censusInstanceId,
-                    censusMetagameEventType: instance.censusMetagameEventType,
-                    duration: instance.duration,
-                    state: instance.state,
-                    bracket: null,
-                    features: {
-                        captureHistory: true,
-                    },
+            const data = Object.assign(instance, {
+                features: {
+                    captureHistory: true,
+                },
+            });
+
+            InstanceAuthority.logger.info(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);
+            await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, data)
+                .then((response) => {
+                    if (!response.data) {
+                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                        throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`);
+                    }
+                })
+                .catch((err) => {
+                    if (err instanceof Error) {
+                        throw new ApplicationException(`Unable to create instance via API! E: ${err.message}`);
+                    }
                 });
-                InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${row.instanceId} ================`);
-            } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`[${instance.instanceId}] Unable to insert instance into DB! ${err}`, 'InstanceAuthority');
-            }
+
+            InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${instance.instanceId} ================`);
 
             // Execute start actions, if it fails trash the instance
             try {
-                await this.instanceActionFactory.buildStart(instance, environment).execute();
-            } catch (e) {
-                // End early if instance failed to insert so we don't add a instance to the list of actives.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${e.message}`);
+                // Nullify the bracket and hydrate the map records
+                await this.instanceActionFactory.buildStart(instance).execute();
+
+                // Now update the initial result record as we have the initial map state
+                await this.instanceActionFactory.buildTerritoryResult(instance).execute();
+            } catch (err) {
+                // End early if instance failed to insert, so we don't add an instance to the list of actives.
+                if (err instanceof Error) {
+                    InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${err.message}`);
+                }
 
                 await this.trashInstance(instance);
                 return false;
             }
 
-            this.currentInstances.push(instance); // Add instance to the in-memory data so it can be called upon rapidly without polling DB
+            // Mark in the database the alert has now properly started
+            await this.ps2AlertsApiClient.patch(
+                ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
+                {state: Ps2alertsEventState.STARTED},
+            ).catch((err: Error) => {
+                throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`);
+            });
+
+            // Mark as started in memory state
+            instance.state = Ps2alertsEventState.STARTED;
+
+            this.currentInstances.push(instance); // Add instance to the in-memory data, so it can be called upon rapidly without polling DB
             this.printActives(); // Show currently running alerts in console / log
+
+            InstanceAuthority.logger.info(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
 
             return true;
         }
@@ -113,50 +126,16 @@ export default class InstanceAuthority {
         throw new ApplicationException(`[${instance.instanceId}] Start instance ended unexpectedly!`, 'InstanceAuthority');
     }
 
-    public async endInstance(instance: PS2AlertsInstanceInterface, environment: CensusEnvironment): Promise<boolean> {
+    public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         InstanceAuthority.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
 
-        // Set instance state immediately to ended so no further stats will process
-        instance.state = Ps2alertsEventState.ENDED;
-        InstanceAuthority.logger.debug(`[${instance.instanceId}] marked as ended`);
-
-        const done = false;
+        // Remove the active instance now from memory so more messages don't get accepted
+        this.removeActiveInstance(instance);
 
         // Find Instance and update
         try {
-            // Since for some reason the connection manager doesn't throw anything when timing out, handle it here.
-            const timeout = new Promise((resolve, reject) => {
-                const id = setTimeout(() => {
-                    clearTimeout(id);
-
-                    if (!done) {
-                        reject(new Error(`[${instance.instanceId}] Instance end timeout!`));
-                    } else {
-                        resolve(true);
-                    }
-                }, 5000);
-            });
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const promise = this.instanceMetagameModelFactory.model.updateOne(
-                {instanceId: instance.instanceId},
-                {
-                    state: Ps2alertsEventState.ENDED,
-                    timeEnded: new Date(),
-                },
-            );
-
-            await Promise.race([
-                promise,
-                timeout,
-            ]).catch((err) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                throw new ApplicationException(err.message);
-            });
-
-            this.removeActiveInstance(instance);
-
-            await this.instanceActionFactory.buildEnd(instance, environment).execute();
+            // Formally end the instance
+            await this.instanceActionFactory.buildEnd(instance).execute();
 
             InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives(true);
@@ -167,6 +146,21 @@ export default class InstanceAuthority {
         }
     }
 
+    public async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
+        InstanceAuthority.logger.info(`================== TRASHING INSTANCE "${instance.instanceId}" ==================`);
+
+        this.removeActiveInstance(instance);
+
+        await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
+            .catch((err: Error) => {
+                throw new ApplicationException(`[${instance.instanceId}] UNABLE TO TRASH INSTANCE! API CALL FAILED! E: ${err.message}`, 'InstanceAuthority');
+            });
+
+        InstanceAuthority.logger.error(`================ [${instance.instanceId}] INSTANCE TRASHED! ================`);
+
+        this.printActives(true);
+    }
+
     public async init(): Promise<boolean> {
         InstanceAuthority.logger.debug('Initializing ActiveInstances...');
 
@@ -174,23 +168,32 @@ export default class InstanceAuthority {
             throw new ApplicationException('InstanceAuthority was called to be initialized more than once!', 'InstanceAuthority');
         }
 
-        let rows: InstanceMetagameTerritorySchemaInterface[] = [];
+        const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const instances: MetagameTerritoryInstance[] = apiResponse.data;
 
-        try {
-            rows = await this.instanceMetagameModelFactory.model.find({
-                state: Ps2alertsEventState.STARTED,
-            }).exec();
-        } catch (err) {
-            throw new ApplicationException('Unable to retrieve active instances!', 'InstanceAuthority');
-        }
-
-        if (!rows.length) {
-            InstanceAuthority.logger.warn('No active instances were detected in the database! This could be entirely normal however.');
+        if (!instances.length) {
+            InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
         } else {
-            rows.forEach((i) => {
+            instances.forEach((i) => {
+                const censusEnvironment = config.census.censusEnvironment;
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (censusEnvironment === censusEnvironments.pc && !pcWorldArray.includes(i.world)) {
+                    InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PC environment`);
+                    return false;
+                } else if (censusEnvironment === censusEnvironments.ps4eu && i.world !== World.CERES) {
+                    InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4EU environment`);
+                    return false;
+                } else if (censusEnvironment === censusEnvironments.ps4us && i.world !== World.GENUDINE) {
+                    InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4US environment`);
+                    return false;
+                }
+
+                // Convert the date
                 const instance = new MetagameTerritoryInstance(
                     i.world,
-                    i.timeStarted,
+                    new Date(i.timeStarted), // It's a string from the API, convert back into Date
                     null,
                     i.result,
                     i.zone,
@@ -245,21 +248,5 @@ export default class InstanceAuthority {
         });
 
         InstanceAuthority.logger.debug(`================== ${instance.instanceId} removed from actives ==================`);
-    }
-
-    private async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        await this.instanceMetagameModelFactory.model.deleteOne({
-            instanceId: instance.instanceId,
-        }).catch((e: Error) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`[${instance.instanceId}] UNABLE TO DELETE INSTANCE! E: ${e.message}`, 'InstanceAuthority');
-        });
-
-        InstanceAuthority.logger.error(`================ [${instance.instanceId}] INSTANCE DELETED! ================`);
-
-        this.removeActiveInstance(instance);
-
-        this.printActives(true);
     }
 }

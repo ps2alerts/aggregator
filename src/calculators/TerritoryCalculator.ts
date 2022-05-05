@@ -1,10 +1,6 @@
 import {CalculatorInterface} from './CalculatorInterface';
 import {Faction} from '../constants/faction';
 import {injectable} from 'inversify';
-import MongooseModelFactory from '../factories/MongooseModelFactory';
-import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
-import {rest} from 'ps2census';
-import Census from '../config/census';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
@@ -12,15 +8,20 @@ import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../constants/censusOldFacilities';
 import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import {Zone} from '../constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
+import {RestClient} from 'ps2census/dist/rest';
+import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import {AxiosInstance, AxiosResponse} from 'axios';
+import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
+    from '../interfaces/PS2AlertsInstanceEntriesInstanceFacilityResponseInterface';
+import {Redis} from 'ioredis';
 
 interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
     outOfPlay: number;
-    perBase: number;
+    perBasePercentage: number;
 }
 
 interface FacilityInterface {
@@ -40,26 +41,17 @@ interface FacilityLatticeLinkInterface {
 @injectable()
 export default class TerritoryCalculator implements CalculatorInterface<TerritoryResultInterface> {
     private static readonly logger = getLogger('TerritoryCalculator');
-    private readonly instance: MetagameTerritoryInstance;
-    private readonly environment: CensusEnvironment;
-    private readonly instanceFacilityControlFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly censusConfig: Census;
     private readonly factionParsedFacilitiesMap: Map<Faction, Set<number>> = new Map<Faction, Set<number>>();
     private readonly mapFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     private readonly cutoffFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     private readonly disabledFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
 
     constructor(
-        instance: MetagameTerritoryInstance,
-        environment: CensusEnvironment,
-        instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        censusConfig: Census,
-    ) {
-        this.instance = instance;
-        this.environment = environment;
-        this.instanceFacilityControlFactory = instanceFacilityControlModelFactory;
-        this.censusConfig = censusConfig;
-    }
+        private readonly instance: MetagameTerritoryInstance,
+        private readonly restClient: RestClient,
+        private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly cacheClient: Redis,
+    ) {}
 
     public async calculate(): Promise<TerritoryResultInterface> {
         TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
@@ -103,14 +95,14 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             for (const warpgate of facility[1]) {
                 const faction = await this.getFacilityFaction(warpgate.facilityId);
 
-                TerritoryCalculator.logger.debug(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
+                TerritoryCalculator.logger.silly(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
                 await this.traverse(
                     warpgate.facilityId,
                     faction,
                     0,
                     latticeLinks,
                 );
-                TerritoryCalculator.logger.debug(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
+                TerritoryCalculator.logger.silly(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
             }
         }
 
@@ -143,7 +135,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         const baseCount = this.mapFacilityList.size - totalWarpgates;
         const outOfPlayCount = this.disabledFacilityList.size;
 
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
+        if (TerritoryCalculator.logger.isSillyEnabled()) {
             // eslint-disable-next-line no-console
             console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
         }
@@ -165,19 +157,19 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             outOfPlay: percentages.outOfPlay,
             victor: this.instance.state === Ps2alertsEventState.ENDED ? victor.victor : null,
             draw: this.instance.state === Ps2alertsEventState.ENDED ? victor.draw : false,
-            perBasePercentage: percentages.perBase,
+            perBasePercentage: percentages.perBasePercentage,
         };
     }
 
     private calculatePercentages(baseCount: number, bases: FactionNumbersInterface, outOfPlayCount: number): PercentagesInterface {
-        const perBasePercent = 100 / baseCount;
+        const perBasePercentage = 100 / baseCount;
         const percentages = {
-            vs: Math.floor(bases.vs * perBasePercent),
-            nc: Math.floor(bases.nc * perBasePercent),
-            tr: Math.floor(bases.tr * perBasePercent),
-            cutoff: this.calculateCutoffPercentage(bases, baseCount, perBasePercent, outOfPlayCount),
-            outOfPlay: Math.floor(outOfPlayCount * perBasePercent),
-            perBase: perBasePercent,
+            vs: Math.floor(bases.vs * perBasePercentage),
+            nc: Math.floor(bases.nc * perBasePercentage),
+            tr: Math.floor(bases.tr * perBasePercentage),
+            cutoff: this.calculateCutoffPercentage(bases, baseCount, perBasePercentage, outOfPlayCount),
+            outOfPlay: Math.floor(outOfPlayCount * perBasePercentage),
+            perBasePercentage,
         };
 
         if (TerritoryCalculator.logger.isDebugEnabled()) {
@@ -226,7 +218,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         const cutoffCount = (baseCount - bases.vs - bases.nc - bases.tr) - outOfPlayCount;
         const cutoffPercent = Math.floor(cutoffCount * perBase);
 
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
+        if (TerritoryCalculator.logger.isSillyEnabled()) {
             // eslint-disable-next-line no-console
             console.log('Cutoff bases', this.cutoffFacilityList);
         }
@@ -235,14 +227,17 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     }
 
     private async getMapFacilities(): Promise<void> {
+        TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
+        // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
-            rest.getFactory(this.environment, this.censusConfig.serviceID),
+            this.restClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
+            this.cacheClient,
         ).getMapData();
 
         if (mapData.length === 0) {
-            throw new ApplicationException('Unable to properly get map data from census!');
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to properly get map data from census!`);
         }
 
         for (const row of mapData[0].Regions.Row) {
@@ -261,7 +256,10 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                 facilityFaction = await this.getFacilityFaction(id);
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                TerritoryCalculator.logger.error(`${err.message} - replacing with values from Census`);
+                if (err instanceof Error) {
+                    TerritoryCalculator.logger.error(`[${this.instance.instanceId}] Could not get facility faction! ${err.message} - replacing with values from Census`);
+                }
+
                 facilityFaction = parseInt(region.FactionId, 10);
                 TerritoryCalculator.logger.warn(`[${this.instance.instanceId}] Facility faction replaced! New value is ${facilityFaction}`);
             }
@@ -278,7 +276,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         }
     }
 
-    private transformLatticeData(zoneId: Zone): FacilityLatticeLinkInterface[] {
+    private transformLatticeData(zoneId: Zone): FacilityLatticeLinkInterface[] | undefined {
         try {
             // eslint-disable-next-line @typescript-eslint/naming-convention,@typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
             const data: Array<{ zone_id: string, facility_id_a: string, facility_id_b: string, description?: string }> = require(`${__dirname}/../constants/lattice/${zoneId}.json`);
@@ -292,10 +290,14 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                     zoneId: parseInt(link.zone_id, 10),
                 });
             });
+
+            TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Successfully parsed lattice link data`);
+
             return returnData;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to read Lattice Link data! E: ${err.message}`);
+            if (err instanceof Error) {
+                throw new ApplicationException(`[${this.instance.instanceId}] Unable to read Lattice Link data! E: ${err.message}`);
+            }
         }
     }
 
@@ -304,7 +306,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     // bases can be found that are owned by the same faction. It then adds each facility to a map, which we collate later to get the raw number of bases.
     private async traverse(facilityId: number, linkingFaction: Faction, depth: number, latticeLinks: FacilityLatticeLinkInterface[]): Promise<boolean> {
         if (!this.mapFacilityList.has(facilityId)) {
-            throw new ApplicationException(`Facility ID ${facilityId} does not exist in the facility list!`);
+            throw new ApplicationException(`[${this.instance.instanceId}] Facility ID ${facilityId} does not exist in the facility list!`);
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -376,16 +378,18 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         return true;
     }
 
-    // Gets the current status of the facility from the database
+    // Gets the current status of the facility from the API
     private async getFacilityFaction(facilityId: number): Promise<Faction> {
         TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
 
-        const result: InstanceFacilityControlSchemaInterface | null = await this.instanceFacilityControlFactory.model.findOne({
-            instance: this.instance.instanceId,
-            facility: facilityId,
-        })
-            .sort({timestamp: -1})
-            .exec();
+        const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(
+            ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
+                .replace('{instanceId}', this.instance.instanceId)
+                .replace('{facilityId}', facilityId.toString()),
+        );
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const result: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface = apiResponse.data;
 
         // This should always have a result, whether it be from the initial map capture (which will be the case for the warpgate)
         // or from a capture during the course of monitoring the instance.

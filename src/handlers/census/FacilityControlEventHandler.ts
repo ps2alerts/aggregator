@@ -4,38 +4,25 @@ import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
-import ApplicationException from '../../exceptions/ApplicationException';
 import {TYPES} from '../../constants/types';
 import FactionUtils from '../../utils/FactionUtils';
-import {InstanceFacilityControlSchemaInterface} from '../../models/instance/InstanceFacilityControlModel';
-import MongooseModelFactory from '../../factories/MongooseModelFactory';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
-import {CensusEnvironment} from '../../types/CensusEnvironment';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
+import {AxiosInstance} from 'axios';
+import {ps2AlertsApiEndpoints} from '../../constants/ps2AlertsApiEndpoints';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('FacilityControlEventHandler');
-    private readonly factory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>;
-    private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>;
-    private readonly instanceActionFactory: InstanceActionFactory;
-    private readonly instanceAuthority: InstanceAuthority;
 
-    /* eslint-disable */
     constructor(
-        @inject(TYPES.instanceFacilityControlModelFactory) instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @multiInject(TYPES.facilityControlAggregates) aggregateHandlers: EventHandlerInterface<FacilityControlEvent>[],
-        @inject(TYPES.instanceActionFactory) instanceActionFactory: InstanceActionFactory,
-        @inject(TYPES.instanceAuthority) instanceAuthority: InstanceAuthority
-    ) {
-        /* eslint-enable */
-        this.factory = instanceFacilityControlModelFactory;
-        this.aggregateHandlers = aggregateHandlers;
-        this.instanceActionFactory = instanceActionFactory;
-        this.instanceAuthority = instanceAuthority;
-    }
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @multiInject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>,
+        private readonly instanceActionFactory: InstanceActionFactory,
+        private readonly instanceAuthority: InstanceAuthority,
+    ) {}
 
-    public async handle(event: FacilityControlEvent, environment: CensusEnvironment): Promise<boolean>{
+    public async handle(event: FacilityControlEvent): Promise<boolean>{
         FacilityControlEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
@@ -44,22 +31,36 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
 
         FacilityControlEventHandler.logger.debug(`[Instance ${event.instance.instanceId}] Facility ${event.facility.id} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
 
-        let objectId = null;
+        const facilityData = {
+            instance: event.instance.instanceId,
+            facility: event.facility.id,
+            timestamp: event.timestamp,
+            oldFaction: event.oldFaction,
+            newFaction: event.newFaction,
+            durationHeld: event.durationHeld,
+            isDefence: event.isDefence,
+            outfitCaptured: event.outfitCaptured,
+            mapControl: null, // This is null intentionally because we haven't calculated the control result yet (it's done in the handlers)
+        };
 
-        try {
-            objectId = await this.storeEvent(event);
-        } catch (e) {
-            if (e instanceof Error) {
-                FacilityControlEventHandler.logger.error(`Error parsing FacilityControlEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
-            } else {
-                FacilityControlEventHandler.logger.error('UNEXPECTED ERROR parsing FacilityControlEvent!');
-            }
+        await this.ps2AlertsApiClient.post(
+            ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
+            facilityData,
+        ).catch(async (err: Error) => {
+            FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
-            return false;
-        }
+            // Try again
+            await this.ps2AlertsApiClient.post(
+                ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
+                facilityData,
+            ).catch((err: Error) => {
+                FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
+                return false;
+            });
+        });
 
         this.aggregateHandlers.map(
-            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event, environment)
+            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event)
                 .catch((e) => {
                     if (e instanceof Error) {
                         FacilityControlEventHandler.logger.error(`Error parsing AggregateHandlers for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -70,7 +71,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         );
 
         // Handle Instance Events
-        await this.instanceActionFactory.buildFacilityControlEvent(event.instance, environment, event.isDefence).execute().catch((e) => {
+        await this.instanceActionFactory.buildFacilityControlEvent(event).execute().catch((e) => {
             if (e instanceof Error) {
                 FacilityControlEventHandler.logger.error(`Error parsing Instance Action "facilityControlEvent" for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
@@ -78,71 +79,17 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             }
         });
 
-        if (!objectId) {
-            FacilityControlEventHandler.logger.error('No object ID was returned to apply the Map Control! "facilityControlEvent"!');
-            return true;
-        }
-
-        // Now handlers and everything have run, update the mapControl
-        await this.storeMapControl(event, objectId);
-        return true;
-    }
-
-    private async storeEvent(event: FacilityControlEvent): Promise<string | null> {
-        try {
-            const resultObject = await this.factory.model.create({
-                instance: event.instance.instanceId,
-                facility: event.facility.id,
-                timestamp: event.timestamp,
-                oldFaction: event.oldFaction,
-                newFaction: event.newFaction,
-                durationHeld: event.durationHeld,
-                isDefence: event.isDefence,
-                outfitCaptured: event.outfitCaptured,
-                mapControl: null,
-            });
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return resultObject._id;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert FacilityControlEvent into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
-            }
-        }
-
-        return null;
-    }
-
-    private async storeMapControl(event: FacilityControlEvent, objectId: string): Promise<boolean> {
-        // Result should be established and updated in the active instance list by the time storeMapControl is called.
+        // Now handlers and everything have run, update the mapControl record, since we now know the result values.
+        // Note: This will update the LATEST record, it is assumed it is created first.
         const result = this.instanceAuthority.getInstance(event.instance.instanceId).result;
-        const doc = {
-            mapControl: {
-                vs: result?.vs ?? 0,
-                nc: result?.nc ?? 0,
-                tr: result?.tr ?? 0,
-                cutoff: result?.cutoff ?? 0,
-                outOfPlay: result?.outOfPlay ?? 0,
-            },
-        };
-
-        try {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            await this.factory.model.updateOne({_id: objectId}, doc);
-            return true;
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const error: Error = err;
-
-            if (!error.message.includes('E11000')) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new ApplicationException(`Unable to insert FacilityControlEvent storeMapControl into DB! Instance: ${event.instance.instanceId} - ${err}\r\n${jsonLogOutput(event)}`, 'FacilityControlEventHandler');
-            }
-        }
-
-        return false;
+        await this.ps2AlertsApiClient.patch(
+            ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
+                .replace('{instanceId}', event.instance.instanceId)
+                .replace('{facilityId}', String(event.facility.id)),
+            {mapControl: result},
+        ).catch((err: Error) => {
+            FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
+        });
+        return true;
     }
 }

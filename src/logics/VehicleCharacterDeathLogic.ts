@@ -4,13 +4,11 @@ import DeathEvent from '../handlers/census/events/DeathEvent';
 
 export default class VehicleCharacterDeathLogic implements LogicInterface {
     private static readonly logger = getLogger('VehicleCharacterDeathLogic');
-    private readonly event: DeathEvent;
-    private readonly mode: string;
 
-    constructor(event: DeathEvent, mode = 'UNKNOWN') {
-        this.event = event;
-        this.mode = mode;
-    }
+    constructor(
+        private readonly event: DeathEvent,
+        private readonly mode = 'UNKNOWN',
+    ) {}
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public calculate(): {attackerDocs: any[], victimDocs: any[]} {

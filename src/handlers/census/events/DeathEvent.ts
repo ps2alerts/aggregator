@@ -31,26 +31,22 @@ import {ItemInterface} from '../../../interfaces/ItemInterface';
 
 @injectable()
 export default class DeathEvent {
-    public readonly instance: PS2AlertsInstanceInterface;
     public readonly world: World;
     public readonly zone: Zone;
     public readonly timestamp: Date;
-    public readonly character: Character;
     public readonly characterLoadoutId: Loadout;
-    public readonly attackerCharacter: Character;
     public readonly attackerFiremodeId: number;
     public readonly attackerLoadoutId: Loadout;
     public readonly attackerVehicleId: Vehicle;
-    public readonly attackerWeapon: ItemInterface;
     public readonly isHeadshot: boolean;
     public readonly killType: Kill;
 
     constructor(
         event: Death,
-        instance: PS2AlertsInstanceInterface,
-        attackerCharacter: Character,
-        character: Character,
-        attackerWeapon: ItemInterface,
+        public readonly instance: PS2AlertsInstanceInterface,
+        public readonly attackerCharacter: Character,
+        public readonly character: Character,
+        public readonly attackerWeapon: ItemInterface,
     ) {
         this.instance = instance;
 

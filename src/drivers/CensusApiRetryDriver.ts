@@ -1,45 +1,52 @@
 import {getLogger} from '../logger';
+import {CollectionNames, Conditions, Format} from 'ps2census/dist/rest/types/collection';
+import {CensusResponse} from 'ps2census/dist/rest';
+import {rest} from 'ps2census';
 
-// This class exists as Census occasionally sends us invalid responses and we must retry them.
-export class CensusApiRetryDriver<T> {
+// This class exists as Census occasionally sends us invalid responses, and we must retry them.
+export class CensusApiRetryDriver<T extends CollectionNames> {
     private static readonly logger = getLogger('CensusApiRetryDriver');
 
-    private readonly retryLimit = 6;
+    // The below with the combination of CensusClient now having a 10 second timeout (totalling 15s) means we can wait 1 minute for Census to recover.
+    private readonly retryLimit = 4;
     private readonly delayTime = 5000; // 30 seconds total for waiting for the API to recover
-    private readonly getMethod: Promise<T>;
-    private readonly caller: string;
 
-    constructor(getMethod: Promise<T>, caller: string) {
-        this.getMethod = getMethod;
-        this.caller = caller;
-    }
+    constructor(
+        private readonly query: rest.GetQuery<T>,
+        private readonly filter: Conditions<T>,
+        private readonly caller: string,
+    ) {}
 
-    public async try(attempts = 0): Promise<T | undefined> {
+    public async try(attempts = 0): Promise<CensusResponse<Format<T>> | undefined> {
         attempts++;
+
+        CensusApiRetryDriver.logger.silly(`[${this.caller}] Attempt #${attempts}...`);
 
         try {
             if (attempts > 2) {
-                CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempting to get data from Census... Attempt #${attempts}`);
+                CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempting to get ${this.query.collection} from Census... Attempt #${attempts}`);
             }
 
-            const res = await this.getMethod;
+            const res = await this.query.get(this.filter);
 
             if (attempts > 1) {
-                CensusApiRetryDriver.logger.info(`[${this.caller}] Retry for Census successful at attempt #${attempts}`);
+                CensusApiRetryDriver.logger.info(`[${this.caller}] Retry for Census ${this.query.collection} successful at attempt #${attempts}`);
             }
 
             return res;
         } catch (err) {
             if (attempts < this.retryLimit) {
-                await this.delay(this.delayTime);
+                if (err instanceof Error) {
+                    CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request ${this.query.collection} failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
+                }
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request failed! Retrying... Attempt #${attempts}. E: ${err.message}`);
+                await this.delay(this.delayTime);
 
                 return await this.try(attempts);
             } else {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
+                if (err instanceof Error) {
+                    CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request ${this.query.collection} failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
+                }
             }
         }
     }

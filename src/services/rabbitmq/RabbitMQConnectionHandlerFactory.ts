@@ -29,10 +29,12 @@ export class RabbitMQConnectionHandlerFactory {
 
         this.channelWrapper = connection.createChannel({
             json: true,
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: (channel: ConfirmChannel) => {
                 return Promise.all([
                     channel.assertQueue(queueName, options),
                     channel.bindQueue(queueName, this.config.exchange, 'create'),
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     callback ? channel.consume(queueName, callback) : null,
                 ]);
             },
@@ -83,8 +85,11 @@ export class RabbitMQConnectionHandlerFactory {
             this.channelWrapper.waitForConnect(),
             timeout,
         ]).catch((err) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            throw new ApplicationException(err.message);
+            if (err instanceof Error) {
+                throw new ApplicationException(err.message);
+            }
+
+            throw new ApplicationException('RabbitMQ Connection failure!!');
         });
     }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
@@ -13,16 +14,11 @@ import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessa
 // Note: This does NOT create a new aggregate, merely adds data to the GlobalOutfitAggregate.
 export default class GlobalOutfitCapturesAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalOutfitCapturesAggregate');
-    private readonly apiMQPublisher: ApiMQPublisher;
-    private readonly apiMQDelayPublisher: ApiMQDelayPublisher;
 
     constructor(
-    @inject(TYPES.apiMQPublisher) apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {
-        this.apiMQPublisher = apiMQPublisher;
-        this.apiMQDelayPublisher = apiMQDelayPublisher;
-    }
+        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+    ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         GlobalOutfitCapturesAggregate.logger.silly('GlobalOutfitCapturesAggregate.handle');
@@ -61,8 +57,9 @@ export default class GlobalOutfitCapturesAggregate implements AggregateHandlerIn
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            GlobalOutfitCapturesAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                GlobalOutfitCapturesAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
+            }
         }
 
         return true;

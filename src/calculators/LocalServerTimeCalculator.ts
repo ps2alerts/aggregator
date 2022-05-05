@@ -7,16 +7,11 @@ import {Moment} from 'moment';
 @injectable()
 export default class LocalServerTimeCalculator {
     private static readonly logger = getLogger('LocalServerTimeCalculator');
-    private readonly world: World;
-    private readonly timeStarted: Date;
 
     constructor(
-        world: World,
-        timeStarted: Date,
-    ) {
-        this.world = world;
-        this.timeStarted = timeStarted;
-    }
+        private readonly world: World,
+        private readonly timeStarted: Date,
+    ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public calculate(): number {

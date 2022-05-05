@@ -8,23 +8,18 @@ import {Bracket} from '../constants/bracket';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default class MetagameTerritoryInstance extends InstanceAbstract implements PS2AlertsInstanceInterface {
-    public readonly zone: Zone;
-    public readonly censusInstanceId: number;
-    public readonly censusMetagameEventType: MetagameEventType;
-    public readonly duration: number;
-    public state: Ps2alertsEventState;
     public bracket?: Bracket;
 
     constructor(
-        world: World,
-        timeStarted: Date,
-        timeEnded: Date | null,
-        result: TerritoryResultInterface | null,
-        zone: Zone,
-        censusInstanceId: number,
-        censusMetagameEventType: MetagameEventType,
-        duration: number, // Stored in Milliseconds
-        state: Ps2alertsEventState,
+        public readonly world: World,
+        public readonly timeStarted: Date,
+        public timeEnded: Date | null,
+        public result: TerritoryResultInterface | null,
+        public readonly zone: Zone,
+        public readonly censusInstanceId: number,
+        public readonly censusMetagameEventType: MetagameEventType,
+        public readonly duration: number, // Stored in Milliseconds
+        public state: Ps2alertsEventState,
         bracket?: Bracket,
     ) {
         super(
@@ -34,11 +29,6 @@ export default class MetagameTerritoryInstance extends InstanceAbstract implemen
             timeEnded,
             result,
         );
-        this.zone = zone;
-        this.censusInstanceId = censusInstanceId;
-        this.censusMetagameEventType = censusMetagameEventType;
-        this.duration = duration;
-        this.state = state;
         this.bracket = bracket ?? undefined;
     }
 

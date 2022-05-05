@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import RabbitMQ from '../../../config/rabbitmq';
 import {inject, injectable} from 'inversify';
 import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';
@@ -41,7 +42,7 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
         return true;
     }
 
-    public async send(msg: ApiMQMessage | ApiMQGlobalAggregateMessage): Promise<boolean> {
+    public async send(msg: ApiMQMessage | ApiMQGlobalAggregateMessage): Promise<boolean | undefined> {
         // Throw if we're attempting to send empty documents
         if (msg.data.docs.length === 0) {
             throw new ApplicationException(`Attempted to send 0 documents to the API, pointless! Pattern: ${msg.pattern}`);
@@ -56,8 +57,9 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
             );
             return true;
         } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-            throw new ApplicationException(`Could not publish message to API! E: ${err.message}`);
+            if (err instanceof Error) {
+                throw new ApplicationException(`Could not publish message to API! E: ${err.message}`);
+            }
         }
     }
 }

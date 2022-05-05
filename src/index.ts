@@ -1,9 +1,17 @@
 import app from './bootstrap';
 import Kernel from './bootstrap/Kernel';
 
-const kernel = app.resolve(Kernel);
+// eslint-disable-next-line @typescript-eslint/no-use-before-define
+void bootApp().then(() => {
+    // eslint-disable-next-line no-console
+    console.info('Application fully booted!');
+});
 
-void kernel.run().then(() => {
+async function bootApp(): Promise<void> {
+    const kernel = await app.getAsync(Kernel);
+
+    await kernel.run();
+
     process.on('unhandledRejection', (e) => {
         kernel.terminateWithUnhandledRejection(e);
     }).on('uncaughtException', (e) => {
@@ -15,4 +23,4 @@ void kernel.run().then(() => {
     }).on('SIGINT', () => {
         void kernel.terminate();
     });
-});
+}
