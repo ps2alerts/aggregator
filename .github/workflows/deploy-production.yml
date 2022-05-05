@@ -92,7 +92,7 @@ jobs:
             -var='census_service_id=${{ secrets.CENSUS_SERVICE_ID }}' \
             -var='redis_pass=${{ secrets.REDIS_PASS }}' \
             -var='rabbitmq_pass=${{ secrets.RABBITMQ_PS2ALERTS_PASS }}' \
-            -var='internal_api_host='https://api.ps2alerts.com' \
+            -var='internal_api_host=https://api.ps2alerts.com' \
             -var='internal_api_user=${{ secrets.INTERNAL_API_USER }}' \
             -var='internal_api_pass=${{ secrets.INTERNAL_API_PASS }}' \
             -target=module.aggregator_production -out='.tfout'
