@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "=============== STARTING AGGREGATOR (PRODUCTION) ==================="
+echo "=============== STARTING AGGREGATOR (STAGING) ==================="
 cd app && npm run start

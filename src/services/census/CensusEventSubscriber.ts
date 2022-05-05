@@ -13,7 +13,6 @@ import FacilityControlEventHandler from '../../handlers/census/FacilityControlEv
 import GainExperienceEventHandler from '../../handlers/census/GainExperienceEventHandler';
 import CharacterPresenceHandler from '../../handlers/CharacterPresenceHandler';
 // Other
-import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import VehicleDestroyEvent from '../../handlers/census/events/VehicleDestroyEvent';
 import VehicleDestroyEventHandler from '../../handlers/census/VehicleDestroyEventHandler';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
@@ -131,6 +130,12 @@ export default class CensusEventSubscriber {
 
             for (const instance of instances) {
                 CensusEventSubscriber.logger.silly(`[${this.environment}] Death: Processing instance ${instance.instanceId}`);
+
+                if (instance.overdue()) {
+                    CensusEventSubscriber.logger.warn(`[${instance.instanceId}] Ignoring Death as instance is overdue!`);
+                    return;
+                }
+
                 await this.deathEventHandler.handle(
                     new DeathEvent(
                         censusEvent,
@@ -151,21 +156,26 @@ export default class CensusEventSubscriber {
         CensusEventSubscriber.logger.silly(`[${this.environment}] Processing FacilityControl censusEvent`);
 
         for (const instance of this.getInstances(censusEvent)) {
+            // First check with the instance authority that the message is within time
+
+            if (instance.overdue()) {
+                CensusEventSubscriber.logger.warn(`[${instance.instanceId}] Ignoring FacilityControl as instance is overdue!`);
+                return;
+            }
+
             const facility = await this.facilityDataBroker.get(
                 this.environment,
                 Parser.parseNumericalArgument(censusEvent.facility_id),
                 Parser.parseNumericalArgument(censusEvent.zone_id),
             );
 
-            setTimeout(() => {
-                void this.facilityControlEventHandler.handle(
-                    new FacilityControlEvent(
-                        censusEvent,
-                        instance,
-                        facility,
-                    ),
-                );
-            }, instance instanceof MetagameTerritoryInstance ? 2000 : 1);
+            void this.facilityControlEventHandler.handle(
+                new FacilityControlEvent(
+                    censusEvent,
+                    instance,
+                    facility,
+                ),
+            );
         }
     }
 
@@ -227,6 +237,11 @@ export default class CensusEventSubscriber {
 
             // If there are no instances, this will not continue to process.
             this.getInstances(censusEvent).forEach((instance) => {
+                if (instance.overdue()) {
+                    CensusEventSubscriber.logger.warn(`[${instance.instanceId}] Ignoring VehicleDestroy as instance is overdue!`);
+                    return;
+                }
+
                 void this.vehicleDestroyEventHandler.handle(
                     new VehicleDestroyEvent(
                         censusEvent,

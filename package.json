@@ -1,11 +1,11 @@
 {
   "name": "ps2alerts-aggregator",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "The aggregator collection script that powers PS2Alerts.com.",
   "main": "./dist",
   "scripts": {
     "start": "node dist/index.js",
-    "start:dev": "ts-node src",
+    "start:dev": "ts-node-dev src/index.ts",
     "start:dev:debug": "tsc && node --inspect=0.0.0.0:9229 dist/index.js",
     "build": "tsc && cp -r src/constants/lattice dist/constants",
     "build:watch": "tsc -w",
@@ -40,9 +40,7 @@
     "logform": "^2.2.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
-    "mongoose": "^5.13.14",
-    "mysql2": "^2.1.0",
-    "ps2census": "^3.3.0",
+    "ps2census": "^3.3.2",
     "reflect-metadata": "^0.1.13",
     "utf-8-validate": "^5.0.8",
     "winston": "^3.3.3",
@@ -57,8 +55,10 @@
     "@types/node": "^16.11.7",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
+    "axios-debug-log": "^0.8.4",
     "eslint": "^8.11.0",
     "ts-node": "^9.1.1",
+    "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.2"
   }
 }

@@ -77,34 +77,6 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
             value = var.checksum_version
           }
           env {
-            name = "DB_USER"
-            value = var.database_user
-          }
-          env {
-            name = "DB_PASS"
-            value = var.database_pass
-          }
-          env {
-            name = "DB_HOST"
-            value = var.database_host
-          }
-          env {
-            name = "DB_PORT"
-            value = var.database_port
-          }
-          env {
-            name = "DB_NAME"
-            value = var.database_name
-          }
-          env {
-            name = "DB_DEBUG"
-            value = var.database_debug
-          }
-          env {
-            name = "DB_POOL_SIZE"
-            value = var.database_pool_size
-          }
-          env {
             name = "CENSUS_SERVICE_ID"
             value = var.census_service_id
           }
@@ -151,6 +123,18 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           env {
             name = "LOGGER_TRANSPORTS"
             value = var.logger_transports
+          }
+          env {
+            name = "INTERNAL_API_HOST"
+            value = var.internal_api_host
+          }
+          env {
+            name = "INTERNAL_API_USER"
+            value = var.internal_api_user
+          }
+          env {
+            name = "INTERNAL_API_PASS"
+            value = var.internal_api_pass
           }
         }
       }

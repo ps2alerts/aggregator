@@ -28,7 +28,7 @@
         recreate: yes
         restart_policy: "no"
         volumes:
-          - "{{ root_dir | realpath }}:/app:rw"
+          - "{{ root_dir }}:/app:rw"
         ports:
           - "1337"
           - "9229:9229"
@@ -40,12 +40,6 @@
           VERSION: "12345"
           CENSUS_ENVIRONMENT: "ps2"
           CENSUS_SERVICE_ID: "{{ census_service_id }}"
-          DB_USER: "root"
-          DB_PASS: "foobar"
-          DB_HOST: "ps2alerts-db"
-          DB_PORT: "27017"
-          DB_SCHEMA: "ps2alerts"
-          DB_DEBUG: "false"
           REDIS_HOST: "ps2alerts-redis"
           REDIS_DB: "0"
           API_BASE_URL: "http://ps2alerts-api:3000"
