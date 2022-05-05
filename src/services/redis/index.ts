@@ -1,18 +1,12 @@
-import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import {ContainerModule} from 'inversify';
-import {RedisConnection} from './RedisConnection';
-import RedisConnectionService from './RedisConnectionService';
+import {RedisConnectionFactory} from './RedisConnectionFactory';
 import {TYPES} from '../../constants/types';
 
 export default new ContainerModule((bind) => {
-    bind<ServiceInterface>(SERVICE).to(RedisConnectionService);
+    bind(RedisConnectionFactory).toSelf().inSingletonScope();
 
-    bind<RedisConnection>(RedisConnection)
-        .toSelf()
-        .inSingletonScope();
-
-    bind(TYPES.redis).toDynamicValue(({container}) => {
-        const cacheConnection = container.get(RedisConnection);
-        return cacheConnection.getClient();
-    }).inSingletonScope();
+    bind(TYPES.redis).toDynamicValue(async ({container}) => {
+        const factory = await container.getAsync(RedisConnectionFactory);
+        return factory.createClient();
+    });
 });

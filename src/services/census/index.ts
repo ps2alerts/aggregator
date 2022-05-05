@@ -14,13 +14,13 @@ export default new ContainerModule((bind) => {
 
     bind(CensusEventSubscriber).toSelf().inSingletonScope();
 
-    bind(RestClient).toDynamicValue(({container}) => {
-        const censusClient = container.get(CensusClient);
+    bind(RestClient).toDynamicValue(async ({container}) => {
+        const censusClient = await container.getAsync(CensusClient);
         return censusClient.rest;
     }).inSingletonScope();
 
-    bind(CharacterManager).toDynamicValue(({container}) => {
-        const censusClient = container.get(CensusClient);
+    bind(CharacterManager).toDynamicValue(async ({container}) => {
+        const censusClient = await container.getAsync(CensusClient);
         return censusClient.characterManager;
     }).inSingletonScope();
 });
