@@ -1,36 +1,36 @@
 const TYPES = {
-    redis: Symbol.for('redis'),
+    redis: Symbol('redis'),
 
     // Cache Drivers
-    censusCharacterCacheDriver: Symbol.for('censusCharacterCacheDriver'),
+    censusCharacterCacheDriver: Symbol('censusCharacterCacheDriver'),
 
     // Handler Interfaces
-    populationHandler: Symbol.for('populationHandler'),
+    populationHandler: Symbol('populationHandler'),
 
     // Instance Models
-    instanceMetagameModelFactory: Symbol.for('instanceMetagameModelFactory'),
+    instanceMetagameModelFactory: Symbol('instanceMetagameModelFactory'),
 
     // Model Factory Symbols
-    instanceFacilityControlModelFactory: Symbol.for('instanceFacilityControlModelFactory'),
+    instanceFacilityControlModelFactory: Symbol('instanceFacilityControlModelFactory'),
 
     // Aggregates
     // Aggregate Listeners
-    deathAggregates: Symbol.for('deathAggregates'),
-    facilityControlAggregates: Symbol.for('facilityControlAggregates'),
-    globalVictoryAggregate: Symbol.for('globalVictoryAggregate'),
-    populationAggregates: Symbol.for('populationAggregates'),
-    vehicleDestroyAggregates: Symbol.for('vehicleDestroyAggregates'),
+    deathAggregates: Symbol('deathAggregates'),
+    facilityControlAggregates: Symbol('facilityControlAggregates'),
+    globalVictoryAggregate: Symbol('globalVictoryAggregate'),
+    populationAggregates: Symbol('populationAggregates'),
+    vehicleDestroyAggregates: Symbol('vehicleDestroyAggregates'),
 
     // Message Queue
-    rabbitMqConnectionHandlerFactory: Symbol.for('rabbitMqConnectionHandlerFactory'),
+    rabbitMqConnectionHandlerFactory: Symbol('rabbitMqConnectionHandlerFactory'),
     // Subscribers
-    rabbitMQSubscribers: Symbol.for('rabbitMQSubscribers'),
+    rabbitMQSubscribers: Symbol('rabbitMQSubscribers'),
     // Publishers
-    rabbitMQPublishers: Symbol.for('rabbitMQPublishers'),
-    apiMQPublisher: Symbol.for('apiMQPublisher'),
-    apiMQDelayPublisher: Symbol.for('apiMQDelayPublisher'),
+    rabbitMQPublishers: Symbol('rabbitMQPublishers'),
+    apiMQPublisher: Symbol('apiMQPublisher'),
+    apiMQDelayPublisher: Symbol('apiMQDelayPublisher'),
     // Handlers
-    adminMessageHandlers: Symbol.for('adminMessageHandlers'),
+    adminMessageHandlers: Symbol('adminMessageHandlers'),
 };
 
 export {TYPES};
