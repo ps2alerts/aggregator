@@ -7,7 +7,7 @@ module "aggregator_production" {
   redis_host               = "ps2alerts-redis-master"
   redis_pass               = var.redis_pass
   redis_db                 = 0
-  rabbitmq_host            = "rabbit.ps2alerts.com"
+  rabbitmq_host            = "ps2alerts-rabbitmq"
   rabbitmq_user            = "ps2alerts"
   rabbitmq_pass            = var.rabbitmq_pass
   rabbitmq_api_queue       = "api-queue-production"
