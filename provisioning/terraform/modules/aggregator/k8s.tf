@@ -53,7 +53,7 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           name = "regcred"
         }
         container {
-          name = join("-", var.identifier, "pc")
+          name = join("", [var.identifier, "-", "pc"])
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
@@ -82,7 +82,7 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           }
           env {
             name = "CENSUS_ENVIRONMENT"
-            value = 'ps2'
+            value = "ps2"
           }
           env {
             name = "REDIS_HOST"
@@ -142,7 +142,7 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           }
         }
         container {
-          name = join("-", var.identifier, "ps2ps4eu")
+          name = join("", [var.identifier, "-", "ps2ps4eu"])
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
@@ -171,7 +171,7 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           }
           env {
             name = "CENSUS_ENVIRONMENT"
-            value = 'ps2ps4eu'
+            value = "ps2ps4eu"
           }
           env {
             name = "REDIS_HOST"
@@ -231,7 +231,7 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           }
         }
         container {
-          name = join("-", var.identifier, "ps2ps4us")
+          name = join("", [var.identifier, "-", "ps2ps4us"])
           image = join("", ["maelstromeous/applications:", var.identifier, "-", var.checksum_version])
           resources {
             limits = {
@@ -260,7 +260,7 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment" {
           }
           env {
             name = "CENSUS_ENVIRONMENT"
-            value = 'ps2ps4us'
+            value = "ps2ps4us"
           }
           env {
             name = "REDIS_HOST"
