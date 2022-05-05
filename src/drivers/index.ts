@@ -13,8 +13,8 @@ export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(CensusStreamService).inSingletonScope();
 
     bind<CensusCacheDriver>(TYPES.censusCharacterCacheDriver)
-        .toDynamicValue(({container}) => new CensusCacheDriver(
-            container.get(TYPES.redis),
+        .toDynamicValue(async ({container}) => new CensusCacheDriver(
+            await container.getAsync(TYPES.redis),
             'character',
             86400,
         )).inSingletonScope();
@@ -22,7 +22,6 @@ export default new ContainerModule((bind) => {
     bind(CensusClient)
         .toDynamicValue(({container}) => {
             const clientConfig = {...config.census.clientOptions};
-
             clientConfig.characterManager = {
                 ...clientConfig.characterManager,
                 cache: container.get(TYPES.censusCharacterCacheDriver),
