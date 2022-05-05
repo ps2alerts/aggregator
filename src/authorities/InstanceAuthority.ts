@@ -62,6 +62,12 @@ export default class InstanceAuthority {
             throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
         }
 
+        // If SolTech, chuck. Websocket is massively broken for SolTech at the moment.
+        if (instance.world === World.SOLTECH) {
+            InstanceAuthority.logger.info('SolTech instance detected. Ignoring.');
+            return false;
+        }
+
         InstanceAuthority.logger.info(`================== STARTING INSTANCE ON WORLD ${instance.world}! ==================`);
 
         if (instance instanceof MetagameTerritoryInstance) {
