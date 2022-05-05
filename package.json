@@ -56,7 +56,7 @@
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "axios-debug-log": "^0.8.4",
-    "eslint": "^8.11.0",
+    "eslint": "^8.14.0",
     "ts-node": "^9.1.1",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.2"
