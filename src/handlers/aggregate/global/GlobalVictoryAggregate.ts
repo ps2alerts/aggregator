@@ -40,7 +40,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 docs.push({$inc: {tr: 1}});
                 break;
             default:
-                throw new ApplicationException(`[${event.instanceId} undetermined victor path`, 'GlobalVictoryAggregate');
+                throw new ApplicationException(`[${event.instanceId}] undetermined victor path!`, 'GlobalVictoryAggregate');
         }
 
         try {

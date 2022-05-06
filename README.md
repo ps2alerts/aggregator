@@ -88,7 +88,7 @@ Where our custom exceptions will exist. Currently has ApplicationException which
 
 ### `/src/factories`
 
-Contains the MongooseModelFactory, which is where each of our MongoDB collections are dependant upon.
+Contains various factories which create instantiated classes based on context. For example, Territory Calculator is finite, and this factory creates a new class for each scenario.
 
 ### `/src/handlers`
 

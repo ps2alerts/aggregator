@@ -11,7 +11,8 @@ export function getAndTest<T extends string>(key: string, test: (value: string) 
         return value;
     }
 
-    throw new Error('Nope');
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    throw new Error(`Environment variable ${key} didn't match test ${test}`);
 }
 
 export function getBool(key: string, def = false): boolean {

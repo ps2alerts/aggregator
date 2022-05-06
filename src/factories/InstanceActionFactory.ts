@@ -4,9 +4,6 @@ import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
-import MongooseModelFactory from './MongooseModelFactory';
-import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
-import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTerritoryStartAction';
 import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
@@ -14,28 +11,32 @@ import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameI
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {RestClient} from 'ps2census/dist/rest';
+import {AxiosInstance} from 'axios';
+import FacilityControlEvent from '../handlers/census/events/FacilityControlEvent';
+import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
+import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
+import {Redis} from 'ioredis';
 
 @injectable()
 export default class InstanceActionFactory {
     constructor(
-        @inject(TYPES.instanceFacilityControlModelFactory) private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        @inject(TYPES.instanceMetagameModelFactory) private readonly instanceMetagameModelFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
         private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.globalVictoryAggregate) private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
         private readonly restClient: RestClient,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @inject(TYPES.redis) private readonly cacheClient: Redis,
     ) {}
 
     public buildStart(
         instance: PS2AlertsInstanceInterface,
-    ): ActionInterface {
+    ): ActionInterface<boolean> {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameInstanceTerritoryStartAction(
                 instance,
-                this.instanceMetagameModelFactory,
-                this.instanceFacilityControlModelFactory,
-                this.buildFacilityControlEvent(instance, false),
+                this.ps2AlertsApiClient,
                 this.restClient,
+                this.cacheClient,
             );
         }
 
@@ -44,12 +45,12 @@ export default class InstanceActionFactory {
 
     public buildEnd(
         instance: PS2AlertsInstanceInterface,
-    ): ActionInterface {
+    ): ActionInterface<boolean> {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameTerritoryInstanceEndAction(
                 instance,
-                this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory.build(instance, this.restClient),
+                this.buildTerritoryResult(instance),
+                this.ps2AlertsApiClient,
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
             );
@@ -59,18 +60,30 @@ export default class InstanceActionFactory {
     }
 
     public buildFacilityControlEvent(
-        instance: PS2AlertsInstanceInterface,
-        isDefence: boolean,
-    ): ActionInterface {
-        if (instance instanceof MetagameTerritoryInstance) {
+        event: FacilityControlEvent,
+    ): ActionInterface<boolean> {
+        if (event.instance instanceof MetagameTerritoryInstance) {
             return new MetagameInstanceTerritoryFacilityControlAction(
-                instance,
-                this.instanceMetagameModelFactory,
-                this.territoryCalculatorFactory.build(instance, this.restClient),
-                isDefence,
+                event,
+                this.buildTerritoryResult(event.instance),
             );
         }
 
         throw new ApplicationException('Unable to determine facilityControlEventAction!', 'InstanceActionFactory');
+    }
+
+    public buildTerritoryResult(
+        instance: PS2AlertsInstanceInterface,
+    ): ActionInterface<TerritoryResultInterface> {
+        if (instance instanceof MetagameTerritoryInstance) {
+            return new MetagameInstanceTerritoryResultAction(
+                instance,
+                this.territoryCalculatorFactory.build(instance, this.restClient),
+                this.ps2AlertsApiClient,
+            );
+        }
+
+        throw new ApplicationException('Unable to determine territoryResultAction!', 'InstanceActionFactory');
+
     }
 }

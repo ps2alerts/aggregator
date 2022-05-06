@@ -3,11 +3,12 @@ import {CollectionNames, Conditions, Format} from 'ps2census/dist/rest/types/col
 import {CensusResponse} from 'ps2census/dist/rest';
 import {rest} from 'ps2census';
 
-// This class exists as Census occasionally sends us invalid responses and we must retry them.
+// This class exists as Census occasionally sends us invalid responses, and we must retry them.
 export class CensusApiRetryDriver<T extends CollectionNames> {
     private static readonly logger = getLogger('CensusApiRetryDriver');
 
-    private readonly retryLimit = 6;
+    // The below with the combination of CensusClient now having a 10 second timeout (totalling 15s) means we can wait 1 minute for Census to recover.
+    private readonly retryLimit = 4;
     private readonly delayTime = 5000; // 30 seconds total for waiting for the API to recover
 
     constructor(
@@ -18,6 +19,8 @@ export class CensusApiRetryDriver<T extends CollectionNames> {
 
     public async try(attempts = 0): Promise<CensusResponse<Format<T>> | undefined> {
         attempts++;
+
+        CensusApiRetryDriver.logger.silly(`[${this.caller}] Attempt #${attempts}...`);
 
         try {
             if (attempts > 2) {
@@ -33,11 +36,11 @@ export class CensusApiRetryDriver<T extends CollectionNames> {
             return res;
         } catch (err) {
             if (attempts < this.retryLimit) {
-                await this.delay(this.delayTime);
-
                 if (err instanceof Error) {
-                    CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request ${this.query.collection} failed! Retrying... Attempt #${attempts}. E: ${err.message}`);
+                    CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request ${this.query.collection} failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
                 }
+
+                await this.delay(this.delayTime);
 
                 return await this.try(attempts);
             } else {

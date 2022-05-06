@@ -31,6 +31,8 @@ const TYPES = {
     apiMQDelayPublisher: Symbol('apiMQDelayPublisher'),
     // Handlers
     adminMessageHandlers: Symbol('adminMessageHandlers'),
+
+    ps2AlertsApiClient: Symbol('ps2AlertsApiClient'),
 };
 
 export {TYPES};

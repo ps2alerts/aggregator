@@ -4,13 +4,6 @@ module "aggregator_production" {
   environment              = "production"
   identifier               = "ps2alerts-aggregator-production"
   checksum_version         = var.checksum_version
-  database_user            = var.db_user
-  database_pass            = var.db_pass
-  database_host            = "ps2alerts-db"
-  database_port            = 27017
-  database_name            = "ps2alerts"
-  database_pool_size       = 20
-  database_debug           = false
   redis_host               = "ps2alerts-redis-master"
   redis_pass               = var.redis_pass
   redis_db                 = 0
@@ -26,6 +19,9 @@ module "aggregator_production" {
   mem_request              = "0.25Gi"
   discord_webhook          = var.discord_webhook
   logger_transports        = "console"
-  dd_api_key               = var.dd_api_key
-  dd_app_key               = var.dd_app_key
+  internal_api_host        = var.internal_api_host
+  internal_api_user        = var.internal_api_user
+  internal_api_pass        = var.internal_api_pass
+  #  dd_api_key               = var.dd_api_key
+  #  dd_app_key               = var.dd_app_key
 }

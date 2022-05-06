@@ -1,5 +1,7 @@
 import {get, getAndTest} from '../utils/env';
 import {CharacterManagerOptions, ClientOptions, PS2Environment} from 'ps2census';
+import {censusEnvironments} from '../constants/censusEnvironments';
+import {RestClientOptions} from 'ps2census/dist/rest';
 
 export default class Census {
     public static readonly streamManagerConfig = {
@@ -21,8 +23,14 @@ export default class Census {
         retries: 3,
     };
 
+    public static readonly restClientOptions: RestClientOptions = {
+        axios: {
+            timeout: 10000,
+        },
+    };
+
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
-    public readonly censusEnvironment: PS2Environment = getAndTest('CENSUS_ENVIRONMENT', (v) => ['ps2', 'ps2ps4eu', 'ps2ps4us'].includes(v));
+    public readonly censusEnvironment: PS2Environment = getAndTest('CENSUS_ENVIRONMENT', (v) => [censusEnvironments.pc, censusEnvironments.ps4eu, censusEnvironments.ps4us].includes(v));
 
     /**
      * @type {ClientOptions} Configuration for PS2 Census aggregator client
@@ -31,9 +39,10 @@ export default class Census {
         streamManager: {
             subscription: {
                 ...Census.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'GainExperience', 'VehicleDestroy'],
+                eventNames: ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'],
             },
         },
         characterManager: Census.characterManagerConfig,
+        rest: Census.restClientOptions,
     };
 }

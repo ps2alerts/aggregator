@@ -5,7 +5,7 @@ export default interface MapDataInterface {
     oldFaction: number;
     newFaction: number;
     durationHeld: 0;
-    isDefence: 0;
+    isDefence: boolean;
     isInitial: boolean;
     outfitCaptured: null;
 }

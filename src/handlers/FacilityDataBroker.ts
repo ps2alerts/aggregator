@@ -58,7 +58,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
                     return facilityData;
                 }
 
-                FacilityDataBroker.logger.silly(`[${environment}] Facility ID ${facilityId} successfully retrieved from Census`);
+                FacilityDataBroker.logger.debug(`[${environment}] Facility ID ${facilityId} successfully retrieved from Census`);
 
                 // Cache the response for 24h then return
                 await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(facility[0]));
