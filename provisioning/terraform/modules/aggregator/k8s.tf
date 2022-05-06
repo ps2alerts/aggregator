@@ -36,11 +36,11 @@ resource "kubernetes_deployment" "ps2alerts_aggregator_deployment_pc" {
           resources {
             limits = {
               cpu = "400m"
-              memory = "0.5Gi"
+              memory = "0.75Gi"
             }
             requests = {
               cpu = "250m"
-              memory = "0.5Gi"
+              memory = "0.75Gi"
             }
           }
           env {
