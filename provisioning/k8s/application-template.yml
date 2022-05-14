@@ -10,7 +10,7 @@ metadata:
   namespace: ps2alerts
 spec:
   selector:
-    app: {{ application }}-{{ census_environment }}-{{ environment }}
+    app: {{ application }}-{{ environment }}
   ports:
       - protocol: TCP
         port: {{ port }}
@@ -19,20 +19,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ application }}-{{ census_environment }}-{{ environment }}
+  name: {{ application }}-{{ environment }}
   namespace: ps2alerts
   labels:
-    app: {{ application }}-{{ census_environment }}-{{ environment }}
+    app: {{ application }}-{{ environment }}
 spec:
   replicas: 1 # And there will always only be 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ application }}-{{ census_environment }}-{{ environment }}
+      app: {{ application }}-{{ environment }}
   template:
     metadata:
       labels:
-        app: {{ application }}-{{ census_environment }}-{{ environment }}
+        app: {{ application }}-{{ environment }}
         version: {{ version }}
     spec:
       containers:
