@@ -1,4 +1,6 @@
 #!/bin/sh
 
 echo "=============== STARTING AGGREGATOR (STAGING) ==================="
-cd app && npm run start
+cd app
+echo "starting" >> ready.file
+yarn run start
