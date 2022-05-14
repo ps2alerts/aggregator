@@ -68,7 +68,7 @@ jobs:
         working-directory: provisioning/k8s
         env:
           FILES: application-pc.yml application-ps4eu.yml application-ps4us.yml
-        run: for f in $FILES; do cp application-template $f
+        run: for f in $FILES; do cp application-template.yml $f; done
 
       # Inject the application template with the correct variables. {{ version }} refers to the Git SHA and is what changes the container version.
       - name: Update the K8s application resource file (PC)
