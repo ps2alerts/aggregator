@@ -1,6 +1,6 @@
 {
   "name": "ps2alerts-aggregator",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "The aggregator collection script that powers PS2Alerts.com.",
   "main": "./dist",
   "scripts": {
