@@ -57,7 +57,7 @@ jobs:
             VERSION=${{ steps.latesttag.outputs.tag }}
 
   deploy-to-k8s:
-    #    needs: build-docker-images
+    needs: build-docker-images
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
