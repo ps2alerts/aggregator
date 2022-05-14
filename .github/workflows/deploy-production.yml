@@ -98,7 +98,7 @@ jobs:
           -e 's|{{ version }}|${{ github.sha }}|' \
           -e 's|{{ port }}|3000|' \
           -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
-          -e 's|{{ census_environment }}|ps2|' \
+          -e 's|{{ census_environment }}|ps2ps4eu|' \
           -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
           -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
           -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
@@ -118,7 +118,7 @@ jobs:
           -e 's|{{ version }}|${{ github.sha }}|' \
           -e 's|{{ port }}|3000|' \
           -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
-          -e 's|{{ census_environment }}|ps2|' \
+          -e 's|{{ census_environment }}|ps2ps4us|' \
           -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
           -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
           -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
