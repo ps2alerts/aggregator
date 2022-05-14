@@ -100,8 +100,6 @@ spec:
               value: "{{ redis_pass }}"
             - name: REDIS_DB
               value: "{{ redis_db }}"
-            - name: LOGGER_DISCORD_WEBHOOK
-              value: ""
             - name: LOGGER_TRANSPORTS
               value: "console"
             - name: INTERNAL_API_HOST
