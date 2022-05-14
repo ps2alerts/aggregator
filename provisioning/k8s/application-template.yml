@@ -105,7 +105,7 @@ spec:
             - name: LOGGER_TRANSPORTS
               value: "console"
             - name: INTERNAL_API_HOST
-              value: "ps2alerts-api-production"
+              value: "http://ps2alerts-api-production:3000"
             - name: INTERNAL_API_USER
               value: "{{ internal_api_user }}"
             - name: INTERNAL_API_PASS
