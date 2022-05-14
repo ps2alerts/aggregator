@@ -69,7 +69,7 @@ spec:
               command:
                 - /bin/bash
                 - -c
-                - ps -ef | grep "yarn run start" | grep -v grep
+                - ps -ef | grep "run start" | grep -v grep
             periodSeconds: 10
             successThreshold: 1
             failureThreshold: 1
