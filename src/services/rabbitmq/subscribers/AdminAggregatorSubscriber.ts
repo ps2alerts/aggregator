@@ -25,7 +25,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
         @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,
         @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
     ) {
-        AdminAggregatorSubscriber.queueName = `adminAggregator-${get('NODE_ENV', 'development')}`;
+        AdminAggregatorSubscriber.queueName = `adminAggregator-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
         AdminAggregatorSubscriber.adminMessageHandlers = mqAdminMessageSubscribers;
         this.connectionHandlerFactory = connectionHandlerFactory;
     }
