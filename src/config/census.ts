@@ -1,7 +1,6 @@
 import {get, getAndTest} from '../utils/env';
-import {CharacterManagerOptions, ClientOptions, PS2Environment} from 'ps2census';
+import {CharacterManagerOptions, ClientOptions, PS2Environment, Rest} from 'ps2census';
 import {censusEnvironments} from '../constants/censusEnvironments';
-import {RestClientOptions} from 'ps2census/dist/rest';
 
 export default class Census {
     public static readonly streamManagerConfig = {
@@ -23,7 +22,7 @@ export default class Census {
         retries: 3,
     };
 
-    public static readonly restClientOptions: RestClientOptions = {
+    public static readonly restClientOptions: Rest.ClientOptions = {
         axios: {
             timeout: 10000,
         },

@@ -8,7 +8,7 @@ import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
-import {RestClient} from 'ps2census/dist/rest';
+import {Rest} from 'ps2census';
 import {TYPES} from '../constants/types';
 
 @injectable()
@@ -17,7 +17,7 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
 
     constructor(
         @inject(TYPES.redis) private readonly cacheClient: Redis,
-        private readonly restClient: RestClient,
+        private readonly restClient: Rest.Client,
     ) {}
 
     public async get(

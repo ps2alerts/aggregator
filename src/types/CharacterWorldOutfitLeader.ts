@@ -1,8 +1,8 @@
-import {Format} from 'ps2census/dist/rest/types/collection';
+import {Rest} from "ps2census";
 
-export type CharacterWorldOutfitLeader = Format<'character'> & {
+export type CharacterWorldOutfitLeader = Rest.Format<'character'> & {
     /* eslint-disable */
     world_id: string;
-    outfit_member: Format<'outfit_member_extended'>;
+    outfit_member: Rest.Format<'outfit_member_extended'>;
     /* eslint-enable */
 };

@@ -11,7 +11,7 @@ import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
 import {Zone} from '../constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
-import {RestClient} from 'ps2census/dist/rest';
+import {Rest} from 'ps2census';
 import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
 import {AxiosInstance, AxiosResponse} from 'axios';
 import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
@@ -48,7 +48,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly restClient: RestClient,
+        private readonly restClient: Rest.Client,
         private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
     ) {}

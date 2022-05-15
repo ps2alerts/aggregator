@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
-import {RestClient} from 'ps2census/dist/rest';
+import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import {Redis} from 'ioredis';
 
@@ -15,7 +15,7 @@ export default class TerritoryCalculatorFactory {
 
     public build(
         instance: MetagameTerritoryInstance,
-        restClient: RestClient,
+        restClient: Rest.Client,
     ): TerritoryCalculator {
         return new TerritoryCalculator(
             instance,
