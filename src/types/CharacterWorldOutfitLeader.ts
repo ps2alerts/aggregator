@@ -1,4 +1,4 @@
-import {Rest} from "ps2census";
+import {Rest} from 'ps2census';
 
 export type CharacterWorldOutfitLeader = Rest.Format<'character'> & {
     /* eslint-disable */

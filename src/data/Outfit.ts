@@ -2,7 +2,7 @@ import {Faction} from '../constants/faction';
 import {World} from '../constants/world';
 import {OutfitInterface} from '../interfaces/OutfitInterface';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
-import {Rest} from "ps2census";
+import {Rest} from 'ps2census';
 
 export default class Outfit implements OutfitInterface {
     public id: string;
