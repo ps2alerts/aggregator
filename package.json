@@ -55,7 +55,7 @@
     "@types/lodash": "^4.14.168",
     "@types/node": "^16.11.7",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
-    "@typescript-eslint/parser": "^5.15.0",
+    "@typescript-eslint/parser": "^5.24.0",
     "axios-debug-log": "^0.8.4",
     "eslint": "^8.11.0",
     "husky": "^8.0.1",
