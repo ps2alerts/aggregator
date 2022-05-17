@@ -57,7 +57,7 @@ jobs:
             VERSION=${{ steps.latesttag.outputs.tag }}
 
   deploy-to-k8s:
-    #    needs: build-docker-images
+    needs: build-docker-images
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -68,7 +68,7 @@ jobs:
         working-directory: provisioning/k8s
         env:
           FILES: application-pc.yml application-ps4eu.yml application-ps4us.yml
-        run: for f in $FILES; do cp application-template $f
+        run: for f in $FILES; do cp application-template.yml $f; done
 
       # Inject the application template with the correct variables. {{ version }} refers to the Git SHA and is what changes the container version.
       - name: Update the K8s application resource file (PC)
@@ -98,16 +98,16 @@ jobs:
           -e 's|{{ version }}|${{ github.sha }}|' \
           -e 's|{{ port }}|3000|' \
           -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
-          -e 's|{{ census_environment }}|ps2|' \
+          -e 's|{{ census_environment }}|ps2ps4eu|' \
           -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
           -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
           -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|50m|' \
+          -e 's|{{ request_cpu }}|100m|' \
           -e 's|{{ request_mem }}|0.25Gi|' \
-          -e 's|{{ limit_cpu }}|100m|' \
+          -e 's|{{ limit_cpu }}|200m|' \
           -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-ps4eu.yml
 
@@ -118,16 +118,16 @@ jobs:
           -e 's|{{ version }}|${{ github.sha }}|' \
           -e 's|{{ port }}|3000|' \
           -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
-          -e 's|{{ census_environment }}|ps2|' \
+          -e 's|{{ census_environment }}|ps2ps4us|' \
           -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
           -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
           -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|50m|' \
+          -e 's|{{ request_cpu }}|100m|' \
           -e 's|{{ request_mem }}|0.25Gi|' \
-          -e 's|{{ limit_cpu }}|100m|' \
+          -e 's|{{ limit_cpu }}|200m|' \
           -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-ps4us.yml
 
@@ -137,7 +137,7 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
-          args: apply -f provisioning/k8s/application-pc.yml provisioning/k8s/application-ps4eu.yml
+          args: apply -f provisioning/k8s/application-pc.yml -f provisioning/k8s/application-ps4eu.yml -f provisioning/k8s/application-ps4us.yml
 
       # Outputs the rollout status and returns a 0 signal (thus completing the workflow) once it's rolled out.
       - uses: actions-hub/kubectl@master
