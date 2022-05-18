@@ -45,6 +45,7 @@ export default class Census {
             },
         },
         characterManager: Census.characterManagerConfig,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         rest: Census.restClientOptions,
     };
 }
