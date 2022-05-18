@@ -27,7 +27,7 @@ export default class Census {
     public readonly streamManagerConfig = {
         worlds: this.getWorldsForEnvironment(),
         characters: ['all'],
-        logicalAndCharactersWithWorlds: false,
+        logicalAndCharactersWithWorlds: true,
     };
 
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
