@@ -73,7 +73,7 @@ export default class CensusStream {
         this.censusClient.on('ps2Event', (event: PS2Event) => {
             const worldId = parseInt(event.world_id, 10);
 
-            if ([World.JAEGER, World.EMERALD].includes(worldId)) {
+            if ([World.JAEGER].includes(worldId)) {
                 return true;
             }
 
