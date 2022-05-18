@@ -3,7 +3,7 @@ import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../constants/zone';
-import {RestClient} from 'ps2census/dist/rest';
+import {Rest} from 'ps2census';
 import {getLogger} from '../logger';
 import {Redis} from 'ioredis';
 
@@ -45,7 +45,7 @@ export default class CensusMapRegionQueryParser {
     private readonly oshurData: ReverseEngineeredOshurDataInterface[];
 
     constructor(
-        private readonly restClient: RestClient,
+        private readonly restClient: Rest.Client,
         private readonly caller: string,
         private readonly instance: MetagameTerritoryInstance,
         private readonly cacheClient: Redis,

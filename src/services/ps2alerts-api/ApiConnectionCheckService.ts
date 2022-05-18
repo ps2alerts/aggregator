@@ -23,14 +23,6 @@ export default class ApiConnectionCheckService implements ServiceInterface {
         ApiConnectionCheckService.logger.info('ApiConnectivityBootService booted!');
     }
 
-    // Not implemented
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async start(): Promise<void> {}
-
-    // Not implemented
-    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
-    public async terminate(): Promise<void> {}
-
     private async tryConnection(attempts = 0): Promise<boolean> {
         attempts++;
 

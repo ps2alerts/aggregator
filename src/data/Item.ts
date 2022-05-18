@@ -1,6 +1,6 @@
 import {Faction} from '../constants/faction';
 import {ItemInterface} from '../interfaces/ItemInterface';
-import {Format} from 'ps2census/dist/rest/types/collection';
+import {CensusItem} from '../types/CensusItem';
 
 class Item implements ItemInterface {
     public readonly id: number;
@@ -10,7 +10,7 @@ class Item implements ItemInterface {
     public readonly categoryId: number;
     public readonly isVehicleWeapon: boolean;
 
-    constructor(censusItem: Format<'item'>) {
+    constructor(censusItem: CensusItem) {
         this.id = parseInt(censusItem.item_id, 10);
         this.name = censusItem.name.en;
         this.faction = parseInt(censusItem.faction_id, 10);

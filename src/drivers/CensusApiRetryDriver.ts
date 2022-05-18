@@ -1,10 +1,8 @@
 import {getLogger} from '../logger';
-import {CollectionNames, Conditions, Format} from 'ps2census/dist/rest/types/collection';
-import {CensusResponse} from 'ps2census/dist/rest';
-import {rest} from 'ps2census';
+import {Rest} from 'ps2census';
 
 // This class exists as Census occasionally sends us invalid responses, and we must retry them.
-export class CensusApiRetryDriver<T extends CollectionNames> {
+export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
     private static readonly logger = getLogger('CensusApiRetryDriver');
 
     // The below with the combination of CensusClient now having a 10 second timeout (totalling 15s) means we can wait 1 minute for Census to recover.
@@ -12,12 +10,12 @@ export class CensusApiRetryDriver<T extends CollectionNames> {
     private readonly delayTime = 10000; // 1 minute - gives Census 60 seconds of wait time to respond correctly
 
     constructor(
-        private readonly query: rest.GetQuery<T>,
-        private readonly filter: Conditions<T>,
+        private readonly query: Rest.GetQuery<T>,
+        private readonly filter: Rest.Conditions<T>,
         private readonly caller: string,
     ) {}
 
-    public async try(attempts = 0): Promise<CensusResponse<Format<T>> | undefined> {
+    public async try(attempts = 0): Promise<Rest.CensusResponse<Rest.Format<T>> | undefined> {
         attempts++;
 
         CensusApiRetryDriver.logger.silly(`[${this.caller}] Attempt #${attempts}...`);

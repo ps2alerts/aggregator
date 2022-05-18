@@ -2,7 +2,7 @@ import {Faction} from '../constants/faction';
 import {World} from '../constants/world';
 import {OutfitInterface} from '../interfaces/OutfitInterface';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
-import {Format} from 'ps2census/dist/rest/types/collection';
+import {Rest} from 'ps2census';
 
 export default class Outfit implements OutfitInterface {
     public id: string;
@@ -12,7 +12,7 @@ export default class Outfit implements OutfitInterface {
     public leader: string;
     public tag?: string | null;
 
-    constructor(outfitData: Format<'outfit_member_extended'>, character: CharacterWorldOutfitLeader) {
+    constructor(outfitData: Rest.Format<'outfit_member_extended'>, character: CharacterWorldOutfitLeader) {
         this.id = outfitData.outfit_id;
         this.name = outfitData.name;
         this.faction = parseInt(character.faction_id, 10);
