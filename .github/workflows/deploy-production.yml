@@ -85,9 +85,9 @@ jobs:
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|250m|' \
+          -e 's|{{ request_cpu }}|500m|' \
           -e 's|{{ request_mem }}|0.5Gi|' \
-          -e 's|{{ limit_cpu }}|1000m|' \
+          -e 's|{{ limit_cpu }}|1250m|' \
           -e 's|{{ limit_mem }}|0.5Gi|' \
           provisioning/k8s/application-pc.yml
 
