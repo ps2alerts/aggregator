@@ -2,10 +2,13 @@ import {get, getAndTest} from '../utils/env';
 import {CharacterManagerOptions, ClientOptions, PS2Environment} from 'ps2census';
 import {censusEnvironments} from '../constants/censusEnvironments';
 import {RestClientOptions} from 'ps2census/dist/rest';
+import {worldArray} from '../constants/world';
 
 export default class Census {
     public static readonly streamManagerConfig = {
-        worlds: ['all'],
+        worlds: worldArray.map((v) => {
+            return v.toString();
+        }),
         characters: ['all'],
         logicalAndCharactersWithWorlds: true,
     };
