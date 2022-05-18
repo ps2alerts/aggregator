@@ -41,7 +41,7 @@
     "logform": "^2.2.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
-    "ps2census": "^4.0.2",
+    "ps2census": "^4.0.3",
     "reflect-metadata": "^0.1.13",
     "utf-8-validate": "^5.0.8",
     "winston": "^3.3.3",
