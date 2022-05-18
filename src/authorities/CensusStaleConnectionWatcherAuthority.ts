@@ -12,9 +12,13 @@ export default class CensusStaleConnectionWatcherAuthority {
     private readonly environment: CensusEnvironment;
     private deathMessageTimer?: NodeJS.Timeout;
     private experienceMessageTimer?: NodeJS.Timeout;
+    private killConnectionTimer?: NodeJS.Timeout;
+    private refreshConnectionTimer?: NodeJS.Timeout;
     private readonly checkInterval = 15000;
+    private readonly refreshInterval = (60 * 15) * 1000;
     private readonly lastMessagesDeathMap: Map<World, number> = new Map<World, number>();
     private readonly lastMessagesExperienceMap: Map<World, number> = new Map<World, number>();
+    private needToResub = false;
 
     constructor(
         private readonly censusClient: CensusClient,
@@ -23,6 +27,8 @@ export default class CensusStaleConnectionWatcherAuthority {
     }
 
     public run(): void {
+        this.needToResub = false;
+
         if (this.deathMessageTimer || this.experienceMessageTimer) {
             CensusStaleConnectionWatcherAuthority.logger.warn(`[${this.environment}] Attempted to run CensusStaleConnectionWatcherAuthority timers when already defined!`);
             this.stop();
@@ -39,6 +45,22 @@ export default class CensusStaleConnectionWatcherAuthority {
             CensusStaleConnectionWatcherAuthority.logger.silly(`[${this.environment}] Census Experience message timeout check running...`);
             this.checkMap(this.lastMessagesExperienceMap, this.censusClient.environment === 'ps2' ? 30000 : 60000, 'Experience');
         }, this.checkInterval);
+
+        this.killConnectionTimer = setInterval(() => {
+            if (this.needToResub) {
+                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment} Census connection was marked to be restarted, doing so now...`);
+
+                void this.censusClient.resubscribe();
+            }
+        }, 5000);
+
+        this.refreshConnectionTimer = setInterval(() => {
+            if (this.needToResub) {
+                CensusStaleConnectionWatcherAuthority.logger.info(`[${this.environment} Refreshing Census connection...`);
+
+                void this.censusClient.resubscribe();
+            }
+        }, this.refreshInterval);
     }
 
     public stop(): void {
@@ -50,6 +72,14 @@ export default class CensusStaleConnectionWatcherAuthority {
 
         if (this.experienceMessageTimer) {
             clearInterval(this.experienceMessageTimer);
+        }
+
+        if (this.killConnectionTimer) {
+            clearInterval(this.killConnectionTimer);
+        }
+
+        if (this.refreshConnectionTimer) {
+            clearInterval(this.refreshConnectionTimer);
         }
 
         this.lastMessagesDeathMap.clear();
@@ -72,8 +102,9 @@ export default class CensusStaleConnectionWatcherAuthority {
 
     private checkMap(map: Map<World, number>, thresholdLimit: number, type: string): void {
         if (map.size === 0) {
-            CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] ZERO census messages have come through for type ${type}! Killing connection!`);
-            void this.censusClient.resubscribe();
+            CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] ZERO census messages have come through for type ${type}! Marking connection for reboot.`);
+            this.needToResub = true;
+            return;
         }
 
         map.forEach((lastTime: number, world: World) => {
@@ -87,8 +118,8 @@ export default class CensusStaleConnectionWatcherAuthority {
 
             // If between 09:00-23:59
             if (localServerHour >= 9 && lastTime < threshold) {
-                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] No Census ${type} messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Rebooting Connection.`);
-                void this.censusClient.resubscribe();
+                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] No Census ${type} messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Marking connection for reboot.`);
+                this.needToResub = true;
             }
         });
     }
