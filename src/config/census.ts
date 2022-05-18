@@ -28,7 +28,7 @@ export default class Census {
 
     public static readonly restClientOptions: RestClientOptions = {
         axios: {
-            timeout: 10000,
+            timeout: 10005,
         },
     };
 
