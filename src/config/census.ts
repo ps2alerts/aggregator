@@ -10,7 +10,7 @@ export default class Census {
             return v.toString();
         }),
         characters: ['all'],
-        logicalAndCharactersWithWorlds: true,
+        // logicalAndCharactersWithWorlds: true,
     };
 
     public static readonly characterManagerConfig: CharacterManagerOptions = {
