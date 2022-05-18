@@ -29,7 +29,7 @@ export default class CensusStaleConnectionWatcherAuthority {
     public run(): void {
         this.needToResub = false;
 
-        if (this.deathMessageTimer || this.experienceMessageTimer) {
+        if (this.deathMessageTimer || this.experienceMessageTimer || this.killConnectionTimer || this.refreshConnectionTimer) {
             CensusStaleConnectionWatcherAuthority.logger.warn(`[${this.environment}] Attempted to run CensusStaleConnectionWatcherAuthority timers when already defined!`);
             this.stop();
         }
