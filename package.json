@@ -59,7 +59,7 @@
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "axios-debug-log": "^0.8.4",
-    "eslint": "^8.11.0",
+    "eslint": "^8.15.0",
     "husky": "^8.0.1",
     "lint-staged": "^12.4.1",
     "ts-node": "^9.1.1",
