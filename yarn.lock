@@ -123,15 +123,10 @@
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
 
-"@types/node@*":
-  version "17.0.23"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.23.tgz#3b41a6e643589ac6442bdbd7a4a3ded62f33f7da"
-  integrity sha512-UxDxWn7dl97rKVeVS61vErvw086aCYhDLyvRQZ5Rk65rZKepaFdm53GeqXaKBuOhED4e9uWq34IC3TdSdJJ2Gw==
-
-"@types/node@^16.11.7":
-  version "16.11.26"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.26.tgz#63d204d136c9916fb4dcd1b50f9740fe86884e47"
-  integrity sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ==
+"@types/node@*", "@types/node@^17.0.36":
+  version "17.0.36"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.36.tgz#c0d5f2fe76b47b63e0e0efc3d2049a9970d68794"
+  integrity sha512-V3orv+ggDsWVHP99K3JlwtH20R7J4IhI1Kksgc+64q5VxgfRkQG8Ws3MFm/FZOKDYGy9feGFlZ70/HpCNe9QaA==
 
 "@types/strip-bom@^3.0.0":
   version "3.0.0"
@@ -1747,10 +1742,10 @@ proxy-addr@~2.0.7:
     forwarded "0.2.0"
     ipaddr.js "1.9.1"
 
-ps2census@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.0.2.tgz#b632a8bad5fb5e903107ef48d99f0e253d6b25a6"
-  integrity sha512-7PSQyeF5wtVEpc252eSti+p5AECrTb+KQbBp85MhvLNH23C1os/uOQQWied3SwzlHCl7tVhTkHeNmC3pI0E1HA==
+ps2census@^4.0.3:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.0.5.tgz#181f38aba5c1a8b017b1cdd3df84a1ad77a7be37"
+  integrity sha512-AKTAHNsA7MeCG0fYSzZbGy9NndVR1RGuWl38T9mVA4MgO18iMiKX8NkPq5JAc9vaWmn/k6DGYk4mQdtXTIe21A==
   dependencies:
     axios "0.27.2"
     eventemitter3 "^4.0.7"
