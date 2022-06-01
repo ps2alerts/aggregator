@@ -74,6 +74,7 @@ export default class InstanceAuthority {
             const data = Object.assign(instance, {
                 features: {
                     captureHistory: true,
+                    kpm: true,
                 },
             });
 

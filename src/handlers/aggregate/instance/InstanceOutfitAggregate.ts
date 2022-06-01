@@ -32,6 +32,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
         if (event.attackerCharacter.outfit) {
             attackerDocs.push({$setOnInsert: {
                 outfit: event.attackerCharacter.outfit,
+                durationFirstSeen: event.instance.currentDuration(),
             }});
 
             // Ensure outfit information is always up to date
@@ -45,6 +46,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
         if (event.character.outfit) {
             victimDocs.push({$setOnInsert: {
                 outfit: event.character.outfit,
+                durationFirstSeen: event.instance.currentDuration(),
             }});
 
             // Ensure outfit information is always up to date
