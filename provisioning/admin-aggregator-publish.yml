@@ -3,7 +3,6 @@
 
 - hosts: localhost
   vars:
-    queue_name: "adminAggregator-development"
     environment: ""
     hostname: "localhost"
     user: "guest"
@@ -50,9 +49,14 @@
       private: no
 
     - name: env
-      prompt: "Select environment to send message to [dev, staging, production]"
+      prompt: "Select environment to send message to [development, staging, production]"
       private: no
-      default: "dev"
+      default: "development"
+
+    - name: census_env
+      prompt: "Select Census Environment [ps2, ps2ps4eu, ps2ps4us]"
+      private: no
+      default: "ps2"
   tasks:
     - name: Ensure world is valid if start type
       fail:
@@ -108,12 +112,15 @@
             foo: "bar"
       when: type == "activeInstances"
 
+    - name: Set up queue name
+      set_fact:
+        queue_name: "aggregator-admin-{{ env }}-{{ census_env }}"
+
     - name: Set hostname if staging or production, set correct hostname and password
       set_fact:
-        hostname: "rabbit.ps2alerts.com"
+        hostname: "queues.ps2alerts.com"
         user: "{{ rabbit.user }}"
         password: "{{ rabbit.password }}"
-        queue_name: "adminAggregator-{{ env }}"
         vhost: "ps2alerts"
       when: env == "staging" or env == "production"
 
