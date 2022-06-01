@@ -29,20 +29,15 @@
       private: no
       default: 2
 
+    - name: duration
+      prompt: '[start] Specify duration in minutes. Default is 90 for 1:30 hours'
+      private: no
+      default: 90
+
     - name: faction
       prompt: "[start] Select triggering faction {{ valid_factions }} "
       private: no
       default: 1
-
-    - name: meltdown
-      prompt: "[start] Meltdown? [true/false]"
-      private: no
-      default: false
-
-    - name: duration
-      prompt: '[start] Specify duration in seconds. Default is "5400" for 1:30 hours'
-      private: no
-      default: 5400
 
     - name: instanceId
       prompt: "[end] Specify PS2Alerts Instance ID to end"
@@ -82,10 +77,10 @@
             world: "{{ world }}"
             zone: "{{ zone }}"
             faction: "{{ faction }}"
-            meltdown: "{{ meltdown }}"
+            meltdown: "false"
             type: "metagame"
             start: "{{ ansible_date_time.epoch }}"
-            duration: "{{ duration }}"
+            duration: "{{ duration|int * 60 }}"
       when: type == "start"
 
     - name: Create end message body
