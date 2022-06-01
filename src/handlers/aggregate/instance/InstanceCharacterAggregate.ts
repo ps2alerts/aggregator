@@ -27,9 +27,11 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
 
         attackerDocs.push({$setOnInsert: {
             character: event.attackerCharacter,
+            durationFirstSeen: event.instance.currentDuration(),
         }});
         victimDocs.push({$setOnInsert: {
             character: event.character,
+            durationFirstSeen: event.instance.currentDuration(),
         }});
 
         // Victim deaths always counted in every case
