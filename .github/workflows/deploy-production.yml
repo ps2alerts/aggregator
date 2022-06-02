@@ -85,10 +85,10 @@ jobs:
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|900m|' \
-          -e 's|{{ request_mem }}|0.3Gi|' \
-          -e 's|{{ limit_cpu }}|1250m|' \
-          -e 's|{{ limit_mem }}|0.3Gi|' \
+          -e 's|{{ request_cpu }}|1100m|' \
+          -e 's|{{ request_mem }}|0.25Gi|' \
+          -e 's|{{ limit_cpu }}|1500m|' \
+          -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-pc.yml
 
       - name: Update the K8s application resource file (PS4EU)
@@ -105,9 +105,9 @@ jobs:
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|50m|' \
+          -e 's|{{ request_cpu }}|100m|' \
           -e 's|{{ request_mem }}|0.15Gi|' \
-          -e 's|{{ limit_cpu }}|150m|' \
+          -e 's|{{ limit_cpu }}|200m|' \
           -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-ps4eu.yml
 
@@ -125,9 +125,9 @@ jobs:
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|100m|' \
+          -e 's|{{ request_cpu }}|250m|' \
           -e 's|{{ request_mem }}|0.15Gi|' \
-          -e 's|{{ limit_cpu }}|200m|' \
+          -e 's|{{ limit_cpu }}|400m|' \
           -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-ps4us.yml
 
