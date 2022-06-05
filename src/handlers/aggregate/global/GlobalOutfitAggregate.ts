@@ -2,8 +2,7 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {Kill} from 'ps2census';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
@@ -17,8 +16,8 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
     private static readonly logger = getLogger('GlobalOutfitAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {

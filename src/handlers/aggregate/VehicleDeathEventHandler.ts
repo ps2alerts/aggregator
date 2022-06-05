@@ -1,9 +1,8 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import ApiMQMessage from '../../data/ApiMQMessage';
 import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
-import {TYPES} from '../../constants/types';
 import DeathEvent from '../census/events/DeathEvent';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import VehicleCharacterDeathLogic from '../../logics/VehicleCharacterDeathLogic';
@@ -16,8 +15,8 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
     private static readonly logger = getLogger('VehicleDeathEventHandler');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     /**

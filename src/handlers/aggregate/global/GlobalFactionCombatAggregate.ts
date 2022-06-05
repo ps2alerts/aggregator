@@ -1,8 +1,7 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../census/events/DeathEvent';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
@@ -17,8 +16,8 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
     private static readonly logger = getLogger('GlobalFactionCombatAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {

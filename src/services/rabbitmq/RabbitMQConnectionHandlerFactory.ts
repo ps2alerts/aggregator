@@ -1,42 +1,48 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {ChannelWrapper, connect} from 'amqp-connection-manager';
 import {ConfirmChannel} from 'amqplib';
 import {getLogger} from '../../logger';
-import RabbitMQ from '../../config/rabbitmq';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {injectable} from 'inversify';
+import config from '../../config';
 
 @injectable()
 export class RabbitMQConnectionHandlerFactory {
     private static readonly logger = getLogger('RabbitMQConnectionHandler');
-    private readonly config: RabbitMQ;
     private connected = false;
     private channelWrapper: ChannelWrapper;
 
-    constructor(rabbitMQConfig: RabbitMQ) {
-        this.config = rabbitMQConfig;
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
     public async setupQueue(queueName: string, callback: any | null, overrideOptions = {}): Promise<ChannelWrapper> {
-        const vhost = this.config.vhost ? `/${this.config.vhost}` : '';
-        const connectionString = `amqp://${this.config.user}:${this.config.pass}@${this.config.host}:${this.config.port}${vhost}?heartbeat=${this.config.heartbeat}&connection_timeout=${this.config.timeout}`;
+        const vhost = config.rabbitmq.vhost ? `/${config.rabbitmq.vhost}` : '';
+        const connectionString = `amqp://${config.rabbitmq.user}:${config.rabbitmq.pass}@${config.rabbitmq.host}:${config.rabbitmq.port}${vhost}?heartbeat=${config.rabbitmq.heartbeat}&connection_timeout=${config.rabbitmq.timeout}`;
 
-        RabbitMQConnectionHandlerFactory.logger.debug(`[${queueName}] Setting up queue...`);
+        RabbitMQConnectionHandlerFactory.logger.silly(`[${queueName}] Setting up queue...`);
         RabbitMQConnectionHandlerFactory.logger.silly(connectionString);
 
         const connection = connect([connectionString]);
-        const options = {durable: true, ...overrideOptions};
+        const options = {
+            durable: true,
+            arguments: {
+                'x-max-priority': 0, // No priority
+                'x-queue-mode': 'lazy',
+            },
+            prefetch: config.rabbitmq.aggregatorPrefetch, // Overridable
+            ...overrideOptions,
+        };
 
         this.channelWrapper = connection.createChannel({
             json: true,
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: (channel: ConfirmChannel) => {
-                return Promise.all([
-                    channel.assertQueue(queueName, options),
-                    channel.bindQueue(queueName, this.config.exchange, 'create'),
+                void channel.assertQueue(queueName, options);
+                void channel.bindQueue(queueName, config.rabbitmq.exchange, 'create');
+
+                if (callback) {
+                    void channel.prefetch(options.prefetch); // Why this isn't in the options array I'll never know
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    callback ? channel.consume(queueName, callback) : null,
-                ]);
+                    void channel.consume(queueName, callback);
+                }
             },
         });
 
@@ -59,7 +65,7 @@ export class RabbitMQConnectionHandlerFactory {
             RabbitMQConnectionHandlerFactory.logger.error(`[${queueName}] error! ${error}`);
         });
 
-        RabbitMQConnectionHandlerFactory.logger.debug(`[${queueName}] Connecting queue...`);
+        RabbitMQConnectionHandlerFactory.logger.silly(`[${queueName}] Connecting queue...`);
 
         await this.connect();
 
@@ -78,7 +84,7 @@ export class RabbitMQConnectionHandlerFactory {
                     this.connected = true;
                     resolve(true);
                 }
-            }, this.config.timeout);
+            }, config.rabbitmq.timeout);
         });
 
         await Promise.race([

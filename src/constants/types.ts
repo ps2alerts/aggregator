@@ -18,6 +18,7 @@ const TYPES = {
     deathAggregates: Symbol.for('deathAggregates'),
     facilityControlAggregates: Symbol.for('facilityControlAggregates'),
     globalVictoryAggregate: Symbol.for('globalVictoryAggregate'),
+    playerFacilityAggregates: Symbol.for('playerFacilityAggregates'),
     populationAggregates: Symbol.for('populationAggregates'),
     vehicleDestroyAggregates: Symbol.for('vehicleDestroyAggregates'),
 
@@ -27,8 +28,6 @@ const TYPES = {
     rabbitMQSubscribers: Symbol.for('rabbitMQSubscribers'),
     // Publishers
     rabbitMQPublishers: Symbol.for('rabbitMQPublishers'),
-    apiMQPublisher: Symbol.for('apiMQPublisher'),
-    apiMQDelayPublisher: Symbol.for('apiMQDelayPublisher'),
     // Handlers
     adminMessageHandlers: Symbol.for('adminMessageHandlers'),
 

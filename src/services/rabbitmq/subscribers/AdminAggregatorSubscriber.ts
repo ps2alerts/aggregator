@@ -1,4 +1,4 @@
-import {inject, injectable, multiInject} from 'inversify';
+import {injectable, multiInject} from 'inversify';
 import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';
 import {ConsumeMessage} from 'amqplib';
 import {jsonLogOutput} from '../../../utils/json';
@@ -8,68 +8,30 @@ import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConn
 import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
 import {TYPES} from '../../../constants/types';
 import {MessageQueueHandlerInterface} from '../../../interfaces/MessageQueueHandlerInterface';
-import RabbitMQ from '../../../config/rabbitmq';
-import {get} from '../../../utils/env';
 import ApplicationException from '../../../exceptions/ApplicationException';
+import config from '../../../config';
+import AggregatorQueueMessage from '../../../data/AggregatorQueueMessage';
 
 @injectable()
 export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwareInterface {
     private static readonly logger = getLogger('AdminAggregatorSubscriber');
-    private static channelWrapper: ChannelWrapper;
-    private static queueName = '';
-    private static adminMessageHandlers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
+    private channelWrapper: ChannelWrapper;
+    private readonly queueName = `aggregator-admin-${config.app.environment}-${config.census.censusEnvironment}`;
+    private readonly adminMessageHandlers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
     private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
 
     constructor(
     @multiInject(TYPES.adminMessageHandlers) mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>,
-        @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,
-        @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
+                                             connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
     ) {
-        AdminAggregatorSubscriber.queueName = `aggregator-admin-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
-        AdminAggregatorSubscriber.adminMessageHandlers = mqAdminMessageSubscribers;
+        this.adminMessageHandlers = mqAdminMessageSubscribers;
         this.connectionHandlerFactory = connectionHandlerFactory;
     }
 
-    // We call subscribe now rather than in the constructor so we don't have multiple connections open, and it's called as and when it's required
-    // from the subscriber itself.
     public async connect(): Promise<boolean> {
-        AdminAggregatorSubscriber.logger.info('Subscribing...');
-        AdminAggregatorSubscriber.channelWrapper = await this.connectionHandlerFactory.setupQueue(AdminAggregatorSubscriber.queueName, this.handleMessage);
-        AdminAggregatorSubscriber.logger.info('Subscribed!');
+        this.channelWrapper = await this.connectionHandlerFactory.setupQueue(this.queueName, this.handleMessage, {prefetch: 5, arguments: null});
 
         return true;
-    }
-
-    private static parseMessage(
-        envelope: ConsumeMessage|null,
-        queueName: string,
-    ): ParsedQueueMessage {
-        if (!envelope) {
-            throw new ApplicationException(`[${queueName}] Got empty message!`, 'RabbitMQConnectionHandlerFactory.parseMessage');
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let data: {type: string, body: any};
-
-        try {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            data = JSON.parse(envelope.content.toString());
-        } catch (e) {
-            throw new ApplicationException(`[${queueName}] Unable to JSON parse message! Message: "${envelope.content.toString()}"`, 'RabbitMQConnectionHandlerFactory.parseMessage');
-        }
-
-        if (!data.type) {
-            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'RabbitMQConnectionHandlerFactory.parseMessage');
-        }
-
-        if (!data.body) {
-            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'RabbitMQConnectionHandlerFactory.parseMessage');
-        }
-
-        AdminAggregatorSubscriber.logger.info(`[${queueName}] successfully parsed message! ${jsonLogOutput(data)}`);
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return new ParsedQueueMessage(data.type, data.body);
     }
 
     private readonly handleMessage = (msg: ConsumeMessage|null): boolean => {
@@ -77,29 +39,60 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
 
         if (!msg) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Got empty message!`);
+            AdminAggregatorSubscriber.logger.error(`[${this.queueName}] Got empty message!`);
             return false;
         }
 
         try {
-            message = AdminAggregatorSubscriber.parseMessage(msg, AdminAggregatorSubscriber.queueName);
+            message = this.parseMessage(msg);
         } catch (err) {
             if (err instanceof Error) {
-                AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Unable to handle message! Probably invalid format. E: ${err.message}`);
+                AdminAggregatorSubscriber.logger.error(`[${this.queueName}] Unable to handle message! Probably invalid format. E: ${err.message}`);
             }
 
-            AdminAggregatorSubscriber.channelWrapper.ack(msg);
-            AdminAggregatorSubscriber.logger.debug(`Acked failed message for ${AdminAggregatorSubscriber.queueName}`);
+            this.channelWrapper.ack(msg);
+            AdminAggregatorSubscriber.logger.debug(`Acked failed message for ${this.queueName}`);
             return false;
         }
 
         // For some reason this does **NOT** catch exceptions, so we must ack in every case and not throw any exceptions within.
-        AdminAggregatorSubscriber.adminMessageHandlers.map(
+        this.adminMessageHandlers.map(
             (handler: MessageQueueHandlerInterface<ParsedQueueMessage>) => void handler.handle(message),
         );
-        AdminAggregatorSubscriber.channelWrapper.ack(msg);
-        AdminAggregatorSubscriber.logger.debug(`Acked message for ${AdminAggregatorSubscriber.queueName}`);
+        this.channelWrapper.ack(msg);
+        AdminAggregatorSubscriber.logger.debug(`Acked message for ${this.queueName}`);
 
         return true;
     };
+
+    private parseMessage(
+        envelope: ConsumeMessage|null,
+    ): ParsedQueueMessage {
+        if (!envelope) {
+            throw new ApplicationException(`[${this.queueName}] Got empty message!`, 'AdminAggregatorSubscriber.parseMessage');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let payload: AggregatorQueueMessage;
+
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            payload = JSON.parse(envelope.content.toString());
+        } catch (e) {
+            throw new ApplicationException(`[${this.queueName}] Unable to JSON parseMig message! Message: "${envelope.content.toString()}"`, 'AdminAggregatorSubscriber.parseMessage');
+        }
+
+        if (payload.type === undefined || payload.type.length === 0) {
+            throw new ApplicationException(`[${this.queueName}] Missing message body! ${jsonLogOutput(payload)}`, 'AdminAggregatorSubscriber.parseMessage');
+        }
+
+        if (payload.data === undefined) {
+            throw new ApplicationException(`[${this.queueName}] Missing message body! ${jsonLogOutput(payload)}`, 'AdminAggregatorSubscriber.parseMessage');
+        }
+
+        AdminAggregatorSubscriber.logger.info(`[${this.queueName}] successfully parsed message! ${jsonLogOutput(payload)}`);
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        return new ParsedQueueMessage(payload.type, payload.data);
+    }
 }

@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
@@ -16,8 +15,8 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {

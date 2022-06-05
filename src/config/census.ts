@@ -3,6 +3,7 @@ import {CharacterManagerOptions, ClientOptions, Rest} from 'ps2census';
 import {censusEnvironments} from '../constants/censusEnvironments';
 import {pcWorldArray, WorldPC, WorldPS4EU, WorldPS4US} from '../constants/world';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import {TestCharacters} from '../constants/testCharacters';
 
 export default class Census {
     public static readonly characterManagerConfig: CharacterManagerOptions = {
@@ -25,13 +26,15 @@ export default class Census {
     };
 
     public readonly streamManagerConfig = {
-        worlds: this.getWorldsForEnvironment(),
-        characters: ['all'],
+        // worlds: this.getWorldsForEnvironment(),
+        worlds: ['19'],
+        characters: [TestCharacters.MAELSTROME26_JAEGER_VS],
         logicalAndCharactersWithWorlds: true,
     };
 
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
     public readonly censusEnvironment = this.getCensusEnvironment();
+    public readonly staleConnectionWatcherEnabled = false; // Turn off for debugging / development otherwise you'll get constantly rebooted.
 
     /**
      * @type {ClientOptions} Configuration for PS2 Census aggregator client
@@ -40,7 +43,8 @@ export default class Census {
         streamManager: {
             subscription: {
                 ...this.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'],
+                // eventNames: ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'],
+                eventNames: ['FacilityControl', 'PlayerFacilityCapture', 'PlayerFacilityDefend'],
             },
         },
         characterManager: Census.characterManagerConfig,

@@ -1,6 +1,15 @@
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
-import {CensusClient, Death, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
+import {
+    CensusClient,
+    Death,
+    FacilityControl,
+    GainExperience,
+    MetagameEvent,
+    PlayerFacilityCapture,
+    PlayerFacilityDefend,
+    VehicleDestroy,
+} from 'ps2census';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
@@ -65,6 +74,7 @@ export default class CensusEventSubscriber {
         });
 
         this.censusClient.on('facilityControl', (censusEvent: FacilityControl) => {
+            console.log('Received FacilityControlEvent', censusEvent.facility_id);
             void this.processFacilityControl(censusEvent);
         });
 
@@ -74,6 +84,16 @@ export default class CensusEventSubscriber {
 
         this.censusClient.on('metagameEvent', (censusEvent: MetagameEvent) => {
             void this.processMetagameEvent(censusEvent);
+        });
+
+        this.censusClient.on('playerFacilityCapture', (censusEvent: PlayerFacilityCapture) => {
+            console.log('Received playerFacilityCapture', censusEvent.facility_id, censusEvent.character_id);
+            void this.processPlayerFacilityEvent(censusEvent);
+        });
+
+        this.censusClient.on('playerFacilityDefend', (censusEvent: PlayerFacilityDefend) => {
+            console.log('Received playerFacilityDefend', censusEvent.facility_id, censusEvent.character_id);
+            void this.processPlayerFacilityEvent(censusEvent);
         });
 
         this.censusClient.on('vehicleDestroy', (censusEvent) => {
@@ -214,6 +234,20 @@ export default class CensusEventSubscriber {
         } else {
             CensusEventSubscriber.logger.warn(`Unknown / unsupported metagame_event_id: ${censusEvent.metagame_event_id}`);
         }
+    }
+
+    private async processPlayerFacilityEvent(censusEvent: PlayerFacilityCapture|PlayerFacilityDefend): Promise<void> {
+        CensusEventSubscriber.logger.silly(`[${this.environment}] Processing PlayerFacility censusEvent`);
+
+        await Promise.all([
+            this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
+        ]).then(([character]) => {
+            if (!character) {
+                throw new ApplicationException('A Character did not return! Cannot complete processPlayerFacilityEvent!', 'CensusEventSubscriber:processPlayerFacilityEvent');
+            }
+
+            console.log(`Received PlayerFacilityEvent for ${character.name}`);
+        });
     }
 
     private async processVehicleDestroy(censusEvent: VehicleDestroy): Promise<void> {

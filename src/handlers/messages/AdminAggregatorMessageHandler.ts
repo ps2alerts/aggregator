@@ -40,7 +40,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
 
     // Collect the required information from the message in order to generate an PS2AlertsMetagameInstance, then trigger it.
     private async startInstance(message: ParsedQueueMessage): Promise<boolean> {
-        const adminAggregatorInstanceStart = new AdminAggregatorInstanceStartMessage(message.body);
+        const adminAggregatorInstanceStart = new AdminAggregatorInstanceStartMessage(message.data);
 
         const censusEventId = EventId.zoneFactionMeltdownToEventId(
             adminAggregatorInstanceStart.zone,
@@ -91,7 +91,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
     }
 
     private async endInstance(message: ParsedQueueMessage): Promise<boolean> {
-        const aggregatorMessage = new AdminAggregatorInstanceEndMessage(message.body);
+        const aggregatorMessage = new AdminAggregatorInstanceEndMessage(message.data);
 
         try {
             const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
@@ -137,7 +137,7 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
     }
 
     private async trashInstance(message: ParsedQueueMessage): Promise<boolean> {
-        const aggregatorMessage = new AdminAggregatorInstanceTrashMessage(message.body);
+        const aggregatorMessage = new AdminAggregatorInstanceTrashMessage(message.data);
 
         try {
             const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);

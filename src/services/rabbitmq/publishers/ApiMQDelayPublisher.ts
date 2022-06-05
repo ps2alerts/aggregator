@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import RabbitMQ from '../../../config/rabbitmq';
-import {inject, injectable} from 'inversify';
 import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';
-import {TYPES} from '../../../constants/types';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
 import ApplicationException from '../../../exceptions/ApplicationException';
@@ -10,54 +7,44 @@ import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConn
 import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import {shortAlert} from '../../../constants/metagameEventType';
+import {injectable} from 'inversify';
+import config from '../../../config';
 
 @injectable()
 export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
-    private readonly config: RabbitMQ;
     private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
     private channelWrapperLong: ChannelWrapper;
     private channelWrapperShort: ChannelWrapper;
     private readonly shortQueue: string;
     private readonly longQueue: string;
 
-    constructor(
-    @inject('rabbitMQConfig') config: RabbitMQ,
-        @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
-    ) {
-        this.config = config;
+    constructor(connectionHandlerFactory: RabbitMQConnectionHandlerFactory) {
         this.connectionHandlerFactory = connectionHandlerFactory;
-        this.shortQueue = `${this.config.apiDelayQueueName}-46min`;
-        this.longQueue = `${this.config.apiDelayQueueName}-91min`;
+        this.shortQueue = `${config.rabbitmq.apiDelayQueueName}-46min`;
+        this.longQueue = `${config.rabbitmq.apiDelayQueueName}-91min`;
     }
 
     public async connect(): Promise<boolean> {
-        ApiMQDelayPublisher.logger.info('Connecting to queues...');
         this.channelWrapperLong = await this.connectionHandlerFactory.setupQueue(
             this.longQueue,
             null,
             {
-                messageTtl: 5460000, // 91 minutes
+                messageTtl: (91 * 60) * 1000, // 91 minutes in milliseconds
                 deadLetterExchange: '',
-                deadLetterRoutingKey: this.config.apiQueueName,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
+                deadLetterRoutingKey: config.rabbitmq.apiQueueName,
             });
 
         this.channelWrapperShort = await this.connectionHandlerFactory.setupQueue(
             this.shortQueue,
             null,
             {
-                messageTtl: 2760000, // 46 minutes
+                messageTtl: (46 * 60) * 1000,
                 deadLetterExchange: '',
-                deadLetterRoutingKey: this.config.apiQueueName,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
+                deadLetterRoutingKey: config.rabbitmq.apiQueueName,
             });
 
-        ApiMQDelayPublisher.logger.info('Connected!');
+        ApiMQDelayPublisher.logger.info('Connected to all queues!');
 
         return true;
     }
@@ -68,18 +55,11 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
             throw new ApplicationException(`Attempted to send 0 documents to the API, pointless! Pattern: ${msg.pattern}`);
         }
 
-        let wrapper = this.channelWrapperLong;
-        let queue = this.longQueue;
-
-        switch (duration) {
-            case shortAlert:
-                wrapper = this.channelWrapperShort;
-                queue = this.shortQueue;
-                break;
-        }
+        const wrapper = duration === shortAlert ? this.channelWrapperShort : this.channelWrapperLong;
+        const queue = duration === shortAlert ? this.shortQueue : this.longQueue;
 
         try {
-            ApiMQDelayPublisher.logger.silly(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
+            ApiMQDelayPublisher.logger.debug(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
             await wrapper.sendToQueue(
                 queue,
                 msg,

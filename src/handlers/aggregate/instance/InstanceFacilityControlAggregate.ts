@@ -1,7 +1,6 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import FactionUtils from '../../../utils/FactionUtils';
 import ApiMQMessage from '../../../data/ApiMQMessage';
@@ -12,7 +11,7 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 export default class InstanceFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('InstanceFacilityControlAggregate');
 
-    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
+    constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         InstanceFacilityControlAggregate.logger.silly('InstanceFacilityControlAggregate.handle');

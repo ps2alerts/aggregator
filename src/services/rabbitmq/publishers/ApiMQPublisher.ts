@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import RabbitMQ from '../../../config/rabbitmq';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';
-import {TYPES} from '../../../constants/types';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
 import ApiMQMessage from '../../../data/ApiMQMessage';
@@ -10,32 +8,24 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
 import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import config from '../../../config';
 
 @injectable()
 export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface {
     private static readonly logger = getLogger('ApiMQPublisher');
-    private readonly config: RabbitMQ;
     private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
     private channelWrapper: ChannelWrapper;
 
-    constructor(
-    @inject('rabbitMQConfig') config: RabbitMQ,
-        @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
-    ) {
-        this.config = config;
+    constructor(connectionHandlerFactory: RabbitMQConnectionHandlerFactory) {
         this.connectionHandlerFactory = connectionHandlerFactory;
     }
 
     public async connect(): Promise<boolean> {
-        ApiMQPublisher.logger.info('Connecting to queue...');
         this.channelWrapper = await this.connectionHandlerFactory.setupQueue(
-            this.config.apiQueueName,
+            config.rabbitmq.apiQueueName,
             null,
             {
-                messageTtl: 10800000,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
+                messageTtl: (180 * 60) * 1000,
             });
         ApiMQPublisher.logger.info('Connected!');
 
@@ -51,7 +41,7 @@ export default class ApiMQPublisher implements RabbitMQConnectionAwareInterface 
         try {
             ApiMQPublisher.logger.silly(`Sending message to queue: ${jsonLogOutput(msg)}`);
             await this.channelWrapper.sendToQueue(
-                this.config.apiQueueName,
+                config.rabbitmq.apiQueueName,
                 msg,
                 {persistent: true},
             );

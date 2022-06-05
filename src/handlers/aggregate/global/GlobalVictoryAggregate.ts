@@ -1,14 +1,12 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import {Faction} from '../../../constants/faction';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import moment from 'moment/moment';
-import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../constants/bracket';
 
@@ -16,10 +14,7 @@ import {Bracket} from '../../../constants/bracket';
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
     private static readonly logger = getLogger('GlobalVictoryAggregate');
 
-    constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
-    ) {}
+    constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: MetagameTerritoryInstance): Promise<boolean> {
         GlobalVictoryAggregate.logger.debug('GlobalVictoryAggregate.handle');

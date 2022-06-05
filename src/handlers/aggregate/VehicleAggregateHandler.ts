@@ -1,9 +1,8 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import VehicleDestroyEvent from '../census/events/VehicleDestroyEvent';
 import {getLogger} from '../../logger';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
-import {TYPES} from '../../constants/types';
 import VehicleDestroyLogic from '../../logics/VehicleDestroyLogic';
 import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
 import ApiMQMessage from '../../data/ApiMQMessage';
@@ -16,8 +15,8 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
     private static readonly logger = getLogger('VehicleAggregateHandler');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {

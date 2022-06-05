@@ -28,13 +28,19 @@ export default class CensusStream {
         this.censusClient.on('subscribed', (subscriptions) => {
             CensusStream.logger.info(`[${this.environment}] Census stream subscribed! Subscriptions:`);
             CensusStream.logger.info(jsonLogOutput(subscriptions));
-            this.censusStaleConnectionWatcherAuthority.run();
+
+            if (config.census.staleConnectionWatcherEnabled) {
+                this.censusStaleConnectionWatcherAuthority.run();
+            } else {
+                CensusStream.logger.debug('Census stale connection watcher is DISABLED!');
+            }
+
             this.censusEventSubscriber.constructListeners();
         });
 
         this.censusClient.on('reconnecting', () => {
             this.censusStaleConnectionWatcherAuthority.stop();
-            CensusStream.logger.warn(`[${this.environment}] Census stream connection lost... reconnecting...`);
+            CensusStream.logger.warn(`[${this.environment}] Census stream connection reconnecting...`);
         });
 
         this.censusClient.on('disconnected', () => {
@@ -47,7 +53,7 @@ export default class CensusStream {
         });
 
         this.censusClient.on('warn', (error: Error) => {
-            CensusStream.logger.warn(`[${this.environment}] Census stream warn! ${error.message}`);
+            CensusStream.logger.warn(`[${this.environment}] Census stream warning! ${error.message}`);
         });
 
         this.censusClient.on('debug', (message: string) => {

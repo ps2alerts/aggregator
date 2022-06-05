@@ -8,10 +8,12 @@ export default class RabbitMQ {
     public readonly user = get('RABBITMQ_USER', 'guest');
     public readonly pass = get('RABBITMQ_PASS', 'guest');
     public readonly exchange = get('RABBITMQ_EXCHANGE', 'ps2alerts');
-    public readonly delayExchange = get('RABBITMQ_DELAY_EXCHANGE', 'ps2alerts-delay');
     public readonly vhost = get('RABBITMQ_VHOST', '');
     public readonly heartbeat = 10;
     public readonly timeout = 5000;
-    public readonly apiQueueName = get('RABBITMQ_API_QUEUE', 'api-queue');
-    public readonly apiDelayQueueName = get('RABBITMQ_API_QUEUE_DELAY', 'api-queue-delay');
+    public readonly apiQueueName = `api-queue-${get('NODE_ENV')}`;
+    public readonly apiDelayQueueName = `api-queue-${get('NODE_ENV')}-delay`;
+    public readonly aggregatorQueueName = `aggregator-queue-${get('CENSUS_ENVIRONMENT')}`;
+    public readonly aggregatorDelayQueueName = `aggregator-queue-${get('CENSUS_ENVIRONMENT')}-delay`;
+    public readonly aggregatorPrefetch = 200;
 }

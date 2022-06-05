@@ -1,5 +1,4 @@
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {getLogger} from '../../../logger';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import PopulationData from '../../../data/PopulationData';
@@ -16,7 +15,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
     constructor(
         private readonly characterPresenceHandler: CharacterPresenceHandler,
         private readonly instanceAuthority: InstanceAuthority,
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
     ) {}
 
     public async handle(event: PopulationData): Promise<boolean> {

@@ -72,7 +72,7 @@
       set_fact:
         message:
           type: "instanceStart"
-          body:
+          data:
             instanceId: "{{ 100000 | random }}"
             world: "{{ world }}"
             zone: "{{ zone }}"
@@ -87,7 +87,7 @@
       set_fact:
         message:
           type: "instanceEnd"
-          body:
+          data:
             instanceId: "{{ instanceId }}"
       when: type == "end"
 
@@ -95,7 +95,7 @@
       set_fact:
         message:
           type: "endAll"
-          body:
+          data:
             foo: "bar"
       when: type == "endAll"
 
@@ -103,7 +103,7 @@
       set_fact:
         message:
           type: "{{ type }}"
-          body:
+          data:
             foo: "bar"
       when: type == "activeInstances"
 
@@ -126,7 +126,7 @@
         msg: "{{ message }}"
 
     - name: Publish Instance message
-      rabbitmq_publish:
+      community.rabbitmq.rabbitmq_publish:
         queue: "{{ queue_name }}"
         body: "{{ message | to_json }}"
         proto: amqp

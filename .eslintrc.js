@@ -195,7 +195,7 @@ module.exports = {
         ],
 
         // eslint: Possible Errors
-        "no-console": "error",
+        "no-console": "warn",
 
         // eslint: Best Practices
         "curly": "error",

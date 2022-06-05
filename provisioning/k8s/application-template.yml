@@ -85,10 +85,6 @@ spec:
               value: "{{ rabbitmq_pass }}"
             - name: RABBITMQ_VHOST
               value: "ps2alerts"
-            - name: RABBITMQ_API_QUEUE
-              value: "api-queue-production"
-            - name: RABBITMQ_API_QUEUE_DELAY
-              value: "api-queue-delay-production"
             - name: REDIS_HOST
               value: "{{ redis_host }}"
             - name: REDIS_PASS
