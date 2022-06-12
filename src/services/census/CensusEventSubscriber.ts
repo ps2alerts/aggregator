@@ -74,7 +74,6 @@ export default class CensusEventSubscriber {
         });
 
         this.censusClient.on('facilityControl', (censusEvent: FacilityControl) => {
-            console.log('Received FacilityControlEvent', censusEvent.facility_id);
             void this.processFacilityControl(censusEvent);
         });
 
@@ -87,12 +86,10 @@ export default class CensusEventSubscriber {
         });
 
         this.censusClient.on('playerFacilityCapture', (censusEvent: PlayerFacilityCapture) => {
-            console.log('Received playerFacilityCapture', censusEvent.facility_id, censusEvent.character_id);
             void this.processPlayerFacilityEvent(censusEvent);
         });
 
         this.censusClient.on('playerFacilityDefend', (censusEvent: PlayerFacilityDefend) => {
-            console.log('Received playerFacilityDefend', censusEvent.facility_id, censusEvent.character_id);
             void this.processPlayerFacilityEvent(censusEvent);
         });
 
@@ -239,15 +236,24 @@ export default class CensusEventSubscriber {
     private async processPlayerFacilityEvent(censusEvent: PlayerFacilityCapture|PlayerFacilityDefend): Promise<void> {
         CensusEventSubscriber.logger.silly(`[${this.environment}] Processing PlayerFacility censusEvent`);
 
-        await Promise.all([
-            this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
-        ]).then(([character]) => {
-            if (!character) {
-                throw new ApplicationException('A Character did not return! Cannot complete processPlayerFacilityEvent!', 'CensusEventSubscriber:processPlayerFacilityEvent');
+        for (const instance of this.getInstances(censusEvent)) {
+            // First check with the instance authority that the message is within time
+
+            if (instance.overdue()) {
+                CensusEventSubscriber.logger.warn(`[${instance.instanceId}] Ignoring PlayerFacilityXEvent as instance is overdue!`);
+                return;
             }
 
-            console.log(`Received PlayerFacilityEvent for ${character.name}`);
-        });
+            await Promise.all([
+                this.characterBroker.get(censusEvent.character_id, parseInt(censusEvent.world_id, 10)),
+            ]).then(([character]) => {
+                if (!character) {
+                    throw new ApplicationException('A Character did not return! Cannot complete processPlayerFacilityEvent!', 'CensusEventSubscriber:processPlayerFacilityEvent');
+                }
+
+                console.log(`Received ${censusEvent.event_name} for ${character.name} (${character.faction})`);
+            });
+        }
     }
 
     private async processVehicleDestroy(censusEvent: VehicleDestroy): Promise<void> {
@@ -290,7 +296,7 @@ export default class CensusEventSubscriber {
         });
     }
 
-    private getInstances(censusEvent: Death | FacilityControl | GainExperience | VehicleDestroy): PS2AlertsInstanceInterface[] {
+    private getInstances(censusEvent: Death | FacilityControl | GainExperience |PlayerFacilityCapture | PlayerFacilityDefend | VehicleDestroy): PS2AlertsInstanceInterface[] {
         return this.instanceAuthority.getInstances(
             parseInt(censusEvent.world_id, 10),
             parseInt(censusEvent.zone_id, 10),

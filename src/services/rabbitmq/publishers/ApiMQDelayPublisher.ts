@@ -59,7 +59,7 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
         const queue = duration === shortAlert ? this.shortQueue : this.longQueue;
 
         try {
-            ApiMQDelayPublisher.logger.debug(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
+            ApiMQDelayPublisher.logger.silly(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
             await wrapper.sendToQueue(
                 queue,
                 msg,

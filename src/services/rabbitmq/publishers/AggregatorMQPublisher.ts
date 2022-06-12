@@ -34,9 +34,8 @@ export default class AggregatorMQPublisher implements RabbitMQConnectionAwareInt
     }
 
     public async send(msg: ApiMQGlobalAggregateMessage, type = ps2alertsAggregatorQueueEvents, priority = false): Promise<boolean | undefined> {
-
         try {
-            AggregatorMQPublisher.logger.debug(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
+            AggregatorMQPublisher.logger.silly(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
             await this.channelWrapper.sendToQueue(
                 config.rabbitmq.aggregatorQueueName,
                 {

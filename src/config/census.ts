@@ -3,7 +3,6 @@ import {CharacterManagerOptions, ClientOptions, Rest} from 'ps2census';
 import {censusEnvironments} from '../constants/censusEnvironments';
 import {pcWorldArray, WorldPC, WorldPS4EU, WorldPS4US} from '../constants/world';
 import {CensusEnvironment} from '../types/CensusEnvironment';
-import {TestCharacters} from '../constants/testCharacters';
 
 export default class Census {
     public static readonly characterManagerConfig: CharacterManagerOptions = {
@@ -26,9 +25,10 @@ export default class Census {
     };
 
     public readonly streamManagerConfig = {
-        // worlds: this.getWorldsForEnvironment(),
-        worlds: ['19'],
-        characters: [TestCharacters.MAELSTROME26_JAEGER_VS],
+        worlds: this.getWorldsForEnvironment(),
+        // worlds: ['19'],
+        characters: ['all'],
+        // characters: [TestCharacters.MAELSTROME26],
         logicalAndCharactersWithWorlds: true,
     };
 
