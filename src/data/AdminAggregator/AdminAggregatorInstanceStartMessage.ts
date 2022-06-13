@@ -62,6 +62,7 @@ export default class AdminAggregatorInstanceStartMessage {
             throw new ApplicationException('Failed to parse AdminAggregatorInstanceStartMessage missing field start', 'AdminAggregatorInstanceStartMessage');
         }
 
+        // Default this to full duration unless otherwise specified
         this.duration = (60 * 90) * 1000;
 
         // We expect this in seconds, we convert this to milliseconds
