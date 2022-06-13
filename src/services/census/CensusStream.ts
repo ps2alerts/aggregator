@@ -26,6 +26,10 @@ export default class CensusStream {
         await this.censusClient.watch();
 
         this.censusClient.on('subscribed', (subscriptions) => {
+            if (this.censusStaleConnectionWatcherAuthority.checking()) {
+                return;
+            }
+
             CensusStream.logger.info(`[${this.environment}] Census stream subscribed! Subscriptions:`);
             CensusStream.logger.info(jsonLogOutput(subscriptions));
 
@@ -56,15 +60,19 @@ export default class CensusStream {
             CensusStream.logger.warn(`[${this.environment}] Census stream warning! ${error.message}`);
         });
 
-        this.censusClient.on('debug', (message: string) => {
-            if (
-                !message.includes('Reset heartbeat') &&
-                !message.includes('Heartbeat acknowledged') &&
-                !message.includes('CharacterManager')
-            ) {
-                CensusStream.logger.silly(`[${this.environment}] Census stream debug: ${message}`);
-            }
-        });
+        // If debug isn't possible (as in it's production) ignore this completely as it's pointless and it's done on EVERY message
+        if (CensusStream.logger.isDebugEnabled()) {
+            this.censusClient.on('debug', (message: string) => {
+                if (
+                    !message.includes('Reset heartbeat') &&
+                    !message.includes('Heartbeat acknowledged') &&
+                    !message.includes('CharacterManager') &&
+                    !message.includes('from Census')
+                ) {
+                    CensusStream.logger.debug(`[${this.environment}] Census stream debug: ${message}`);
+                }
+            });
+        }
 
         this.censusClient.on('duplicate', (event: PS2Event) => {
             if (
