@@ -227,7 +227,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     }
 
     private async getMapFacilities(): Promise<void> {
-        TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
+        TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
             this.restClient,
@@ -291,7 +291,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                 });
             });
 
-            TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Successfully parsed lattice link data`);
+            TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Successfully parsed lattice link data`);
 
             return returnData;
         } catch (err) {

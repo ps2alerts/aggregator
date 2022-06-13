@@ -68,7 +68,6 @@ export default class CensusMapRegionQueryParser {
             }
         }
 
-        CensusMapRegionQueryParser.logger.debug(`${cacheKey} MISS`);
         CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
         const query = this.restClient.getQueryBuilder('map')

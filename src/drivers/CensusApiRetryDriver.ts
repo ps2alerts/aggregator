@@ -5,9 +5,9 @@ import {Rest} from 'ps2census';
 export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
     private static readonly logger = getLogger('CensusApiRetryDriver');
 
-    // The below with the combination of CensusClient now having a 10 second timeout (totalling 15s) means we can wait 1 minute for Census to recover.
-    private readonly retryLimit = 6;
-    private readonly delayTime = 10000; // 1 minute - gives Census 60 seconds of wait time to respond correctly
+    // The below with the combination gives Census 30 seconds to recover before we abort a query.
+    private readonly retryLimit = 12;
+    private readonly delayTime = 2500;
 
     constructor(
         private readonly query: Rest.GetQuery<T>,
@@ -34,9 +34,9 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
 
             return res;
         } catch (err) {
-            if (attempts === this.retryLimit) {
+            if (attempts < this.retryLimit) {
                 if (err instanceof Error) {
-                    CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request ${this.query.collection} failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
+                    CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request "${this.query.collection}" failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
                 }
 
                 await this.delay(this.delayTime);
@@ -44,7 +44,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
                 return await this.try(attempts);
             } else {
                 if (err instanceof Error) {
-                    CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request ${this.query.collection} failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
+                    CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request "${this.query.collection}" failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
                 }
             }
         }

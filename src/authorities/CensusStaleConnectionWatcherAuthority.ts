@@ -12,13 +12,17 @@ export default class CensusStaleConnectionWatcherAuthority {
     private readonly environment: CensusEnvironment;
     private deathMessageTimer?: NodeJS.Timeout;
     private experienceMessageTimer?: NodeJS.Timeout;
-    private killConnectionTimer?: NodeJS.Timeout;
-    private refreshConnectionTimer?: NodeJS.Timeout;
+    private connectionTimer?: NodeJS.Timeout;
+    private subscriptionCheckTimer?: NodeJS.Timeout;
     private readonly checkInterval = 15000;
-    private readonly refreshInterval = (60 * 15) * 1000;
+    private readonly subscriptionCheckInterval = 15 * 1000;
     private readonly lastMessagesDeathMap: Map<World, number> = new Map<World, number>();
     private readonly lastMessagesExperienceMap: Map<World, number> = new Map<World, number>();
     private needToResub = false;
+    private needToReconnect = false;
+    private resubCount = 0;
+    private checkingSubscription = false;
+    private skipVerification = false;
 
     constructor(
         private readonly censusClient: CensusClient,
@@ -29,12 +33,12 @@ export default class CensusStaleConnectionWatcherAuthority {
     public run(): void {
         this.needToResub = false;
 
-        if (this.deathMessageTimer || this.experienceMessageTimer || this.killConnectionTimer || this.refreshConnectionTimer) {
+        if (this.deathMessageTimer || this.experienceMessageTimer || this.connectionTimer || this.subscriptionCheckTimer) {
             CensusStaleConnectionWatcherAuthority.logger.warn(`[${this.environment}] Attempted to run CensusStaleConnectionWatcherAuthority timers when already defined!`);
             this.stop();
         }
 
-        CensusStaleConnectionWatcherAuthority.logger.debug(`[${this.environment}] Creating CensusStaleConnectionWatcherAuthority timer`);
+        CensusStaleConnectionWatcherAuthority.logger.debug(`[${this.environment}] Creating CensusStaleConnectionWatcherAuthority timers`);
 
         this.deathMessageTimer = setInterval(() => {
             CensusStaleConnectionWatcherAuthority.logger.silly(`[${this.environment}] Census Death message timeout check running...`);
@@ -46,21 +50,64 @@ export default class CensusStaleConnectionWatcherAuthority {
             this.checkMap(this.lastMessagesExperienceMap, this.censusClient.environment === 'ps2' ? 30000 : 60000, 'Experience');
         }, this.checkInterval);
 
-        this.killConnectionTimer = setInterval(() => {
-            if (this.needToResub) {
-                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment} Census connection was marked to be restarted, doing so now...`);
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.connectionTimer = setInterval(async () => {
+            if (this.resubCount === 3) {
+                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment} Census Connection was marked for resub 3 times, forcing a reconnect!`);
 
-                void this.censusClient.resubscribe();
+                this.needToReconnect = true;
             }
-        }, 5000);
 
-        this.refreshConnectionTimer = setInterval(() => {
-            if (this.needToResub) {
-                CensusStaleConnectionWatcherAuthority.logger.info(`[${this.environment} Refreshing Census connection...`);
+            if (this.needToReconnect) {
+                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment} Census connection was marked to be reconnected, doing so now...`);
+                this.needToResub = false;
+                this.needToReconnect = false;
+                this.skipVerification = true;
 
-                void this.censusClient.resubscribe();
+                this.censusClient.destroy();
+
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                setTimeout(async () => {
+                    await this.censusClient.watch();
+                    this.resubCount = 0;
+                    this.skipVerification = false;
+
+                }, 500);
             }
-        }, this.refreshInterval);
+
+            if (this.needToResub) {
+                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment} Census connection was marked to be resubscribed, doing so now...`);
+
+                await this.censusClient.resubscribe(true);
+                this.needToResub = false;
+                this.resubCount++;
+            }
+        }, 1000);
+
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.subscriptionCheckTimer = setInterval(async () => {
+            if (this.skipVerification) {
+                return;
+            }
+
+            CensusStaleConnectionWatcherAuthority.logger.silly(`[${this.environment}] Census Subscription Check running...`);
+            this.checkingSubscription = true;
+            const validConnection = await this.censusClient.verifySubscription();
+
+            if (!validConnection) {
+                if (this.resubCount < 3) {
+                    CensusStaleConnectionWatcherAuthority.logger.error('Census subscription is invalid, marking connection for resubbing!');
+                    this.needToResub = true;
+                } else {
+                    CensusStaleConnectionWatcherAuthority.logger.error('Census subscription is invalid AND has happened 3 times.. Marking connection for reconnect!');
+                    this.needToReconnect = true;
+                }
+            }
+
+            setTimeout(() => {
+                this.checkingSubscription = false;
+            }, 1000);
+        }, this.subscriptionCheckInterval);
     }
 
     public stop(): void {
@@ -74,12 +121,12 @@ export default class CensusStaleConnectionWatcherAuthority {
             clearInterval(this.experienceMessageTimer);
         }
 
-        if (this.killConnectionTimer) {
-            clearInterval(this.killConnectionTimer);
+        if (this.connectionTimer) {
+            clearInterval(this.connectionTimer);
         }
 
-        if (this.refreshConnectionTimer) {
-            clearInterval(this.refreshConnectionTimer);
+        if (this.subscriptionCheckTimer) {
+            clearInterval(this.subscriptionCheckTimer);
         }
 
         this.lastMessagesDeathMap.clear();
@@ -100,9 +147,13 @@ export default class CensusStaleConnectionWatcherAuthority {
         map.set(parseInt(event.world_id, 10), Date.now());
     }
 
+    public checking(): boolean {
+        return this.checkingSubscription;
+    }
+
     private checkMap(map: Map<World, number>, thresholdLimit: number, type: string): void {
         if (map.size === 0) {
-            CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] ZERO census messages have come through for type ${type}! Marking connection for reboot.`);
+            CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] ZERO census messages have come through for type ${type}! Marking connection for resub.`);
             this.needToResub = true;
             return;
         }
@@ -118,7 +169,7 @@ export default class CensusStaleConnectionWatcherAuthority {
 
             // If between 09:00-23:59
             if (localServerHour >= 9 && lastTime < threshold) {
-                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] No Census ${type} messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Marking connection for reboot.`);
+                CensusStaleConnectionWatcherAuthority.logger.error(`[${this.environment}] No Census ${type} messages received on world ${world} within expected threshold of ${thresholdLimit / 1000} seconds. Assuming dead subscription. Marking connection for resub.`);
                 this.needToResub = true;
             }
         });
