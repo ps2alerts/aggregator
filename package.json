@@ -57,7 +57,7 @@
     "@types/node": "^16.11.7",
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
-    "@typescript-eslint/parser": "^5.15.0",
+    "@typescript-eslint/parser": "^5.30.3",
     "axios-debug-log": "^0.8.4",
     "eslint": "^8.11.0",
     "husky": "^8.0.1",
