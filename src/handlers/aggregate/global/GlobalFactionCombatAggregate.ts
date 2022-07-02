@@ -5,11 +5,11 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import {Bracket} from '../../../constants/bracket';
+import {Bracket} from '../../../ps2alerts-constants/bracket';
 import moment from 'moment/moment';
 
 @injectable()
@@ -101,7 +101,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
 
         try {
             await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{
@@ -112,7 +112,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
 
             // Total bracket aggregation
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_FACTION_COMBAT_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{
