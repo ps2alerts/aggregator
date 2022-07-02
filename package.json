@@ -42,10 +42,10 @@
     "logform": "^2.2.0",
     "moment": "^2.29.3",
     "moment-timezone": "^0.5.33",
-    "ps2census": "^4.2.1",
+    "ps2census": "^4.2.2",
     "reflect-metadata": "^0.1.13",
     "utf-8-validate": "^5.0.8",
-    "winston": "^3.3.3",
+    "winston": "^3.8.1",
     "winston-transport": "^4.4.0",
     "ws": "^7.4.3"
   },
