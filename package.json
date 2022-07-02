@@ -45,7 +45,7 @@
     "ps2census": "^4.2.1",
     "reflect-metadata": "^0.1.13",
     "utf-8-validate": "^5.0.8",
-    "winston": "^3.3.3",
+    "winston": "^3.8.1",
     "winston-transport": "^4.4.0",
     "ws": "^7.4.3"
   },
@@ -59,7 +59,7 @@
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "axios-debug-log": "^0.8.4",
-    "eslint": "^8.11.0",
+    "eslint": "^8.19.0",
     "husky": "^8.0.1",
     "lint-staged": "^12.4.1",
     "ts-node": "^9.1.1",
