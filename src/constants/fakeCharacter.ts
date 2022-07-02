@@ -1,6 +1,6 @@
 import Character from '../data/Character';
-import {World} from './world';
-import {Faction} from './faction';
+import {World} from '../ps2alerts-constants/world';
+import {Faction} from '../ps2alerts-constants/faction';
 
 /* eslint-disable */
 export const fakeCharacterCensusData = {

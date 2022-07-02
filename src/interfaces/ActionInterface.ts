@@ -1,3 +1,3 @@
-export interface ActionInterface {
-    execute(): Promise<boolean>;
+export interface ActionInterface<T> {
+    execute(): Promise<T>;
 }

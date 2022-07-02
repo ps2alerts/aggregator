@@ -7,7 +7,7 @@ import InstanceAuthority from '../../authorities/InstanceAuthority';
 
 @injectable()
 export default class AuthorityService implements ServiceInterface {
-    public readonly bootPriority = 2;
+    public readonly bootPriority = 50;
     private static readonly logger = getLogger('AuthorityService');
 
     constructor(
@@ -19,11 +19,12 @@ export default class AuthorityService implements ServiceInterface {
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
         AuthorityService.logger.debug('Booting Authority Services...');
-        await this.instanceAuthority.init();
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async start(): Promise<void> {
+        await this.instanceAuthority.init();
+
         AuthorityService.logger.debug('Starting Authority Services...');
         this.overdueInstanceAuthority.run();
         this.populationAuthority.run();

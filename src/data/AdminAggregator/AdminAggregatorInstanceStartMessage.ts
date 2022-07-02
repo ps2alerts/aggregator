@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import {World} from '../../constants/world';
-import {Zone} from '../../constants/zone';
+import {World} from '../../ps2alerts-constants/world';
+import {Zone} from '../../ps2alerts-constants/zone';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {Faction} from '../../constants/faction';
-import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
+import {Faction} from '../../ps2alerts-constants/faction';
+import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
 
 export enum AdminAggregatorInstanceTypes {
     METAGAME = 'metagame',
@@ -27,7 +27,7 @@ export default class AdminAggregatorInstanceStartMessage {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.instanceId = body.instanceId;
+        this.instanceId = parseInt(body.instanceId, 10);
 
         if (!body.world) {
             throw new ApplicationException('Failed to parse AdminAggregatorInstanceStartMessage missing field world', 'AdminAggregatorInstanceStartMessage');
@@ -62,6 +62,7 @@ export default class AdminAggregatorInstanceStartMessage {
             throw new ApplicationException('Failed to parse AdminAggregatorInstanceStartMessage missing field start', 'AdminAggregatorInstanceStartMessage');
         }
 
+        // Default this to full duration unless otherwise specified
         this.duration = (60 * 90) * 1000;
 
         // We expect this in seconds, we convert this to milliseconds

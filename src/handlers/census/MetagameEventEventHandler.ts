@@ -5,11 +5,12 @@ import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import MetagameEventEvent from './events/MetagameEventEvent';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {MetagameEventState} from '../../constants/metagameEventState';
-import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
+import {MetagameEventState} from '../../ps2alerts-constants/metagameEventState';
+import {metagameEventTypeDetailsMap} from '../../ps2alerts-constants/metagameEventType';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
-import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
+import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
+import {Bracket} from '../../ps2alerts-constants/bracket';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
@@ -52,7 +53,8 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
                 event.instanceId,
                 event.eventType,
                 metagameDetails.duration,
-                Ps2alertsEventState.STARTED,
+                Ps2alertsEventState.STARTING,
+                Bracket.UNKNOWN, // Force the bracket to be unknown as it is incalculable at the beginning
             );
 
             try {

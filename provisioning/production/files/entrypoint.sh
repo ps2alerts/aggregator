@@ -1,4 +1,4 @@
 #!/bin/sh
 
 echo "=============== STARTING AGGREGATOR (PRODUCTION) ==================="
-cd app && npm run start
+cd app && yarn run start

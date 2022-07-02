@@ -6,7 +6,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import FactionUtils from '../../../utils/FactionUtils';
 
@@ -27,9 +27,11 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
 
         attackerDocs.push({$setOnInsert: {
             character: event.attackerCharacter,
+            durationFirstSeen: event.instance.currentDuration(),
         }});
         victimDocs.push({$setOnInsert: {
             character: event.character,
+            durationFirstSeen: event.instance.currentDuration(),
         }});
 
         // Victim deaths always counted in every case
@@ -71,7 +73,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
         if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_CHARACTER_AGGREGATE,
                     attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -87,7 +89,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                MQAcceptedPatterns.INSTANCE_CHARACTER_AGGREGATE,
+                MqAcceptedPatterns.INSTANCE_CHARACTER_AGGREGATE,
                 victimDocs,
                 [{
                     instance: event.instance.instanceId,

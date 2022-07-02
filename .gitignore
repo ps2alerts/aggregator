@@ -17,3 +17,5 @@ vars.local.yml
 # NodeJS Debugging
 /Aggregator*
 /isolate*
+
+ready.file

@@ -2,8 +2,10 @@
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {Zone} from '../constants/zone';
-import {RestClient} from 'ps2census/dist/rest';
+import {Zone} from '../ps2alerts-constants/zone';
+import {Rest} from 'ps2census';
+import {getLogger} from '../logger';
+import {Redis} from 'ioredis';
 
 /* eslint-disable */
 interface ReverseEngineeredOshurDataInterface {
@@ -38,18 +40,36 @@ interface RegionMapJoinQueryRowInterface {
 /* eslint-enable */
 
 export default class CensusMapRegionQueryParser {
+    private static readonly logger = getLogger('CensusMapRegionQueryParser');
+
     private readonly oshurData: ReverseEngineeredOshurDataInterface[];
 
     constructor(
-        private readonly restClient: RestClient,
+        private readonly restClient: Rest.Client,
         private readonly caller: string,
         private readonly instance: MetagameTerritoryInstance,
+        private readonly cacheClient: Redis,
     ) {
         this.oshurData = this.initOshurData();
     }
 
     // Returns
     public async getMapData(): Promise<RegionMapJoinQueryInterface[]> {
+        const cacheKey = `census-map-w:${this.instance.world}-z:${this.instance.zone}`;
+
+        // If in cache, grab it
+        if (await this.cacheClient.exists(cacheKey)) {
+            CensusMapRegionQueryParser.logger.debug(`${cacheKey} HIT`);
+            const data = await this.cacheClient.get(cacheKey);
+
+            if (data) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return JSON.parse(data);
+            }
+        }
+
+        CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
+
         const query = this.restClient.getQueryBuilder('map')
             .join({
                 type: 'map_region',
@@ -72,6 +92,8 @@ export default class CensusMapRegionQueryParser {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await apiRequest.try().then((mapData: RegionMapJoinQueryInterface[]) => {
+            CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Census returned map_region data`);
+
             if (!mapData || mapData.length === 0) {
                 throw new ApplicationException(`[${this.instance.instanceId}] No map data was returned from Census! Cannot start alert properly!`);
             }
@@ -100,6 +122,10 @@ export default class CensusMapRegionQueryParser {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new ApplicationException(`Unable to query Census for Map Region data! E: ${e.message}`);
         });
+
+        // Cache the data
+        await this.cacheClient.setex(cacheKey, 5, JSON.stringify(mapDataFinal));
+
         // Return the patched data. We have to do it outside of the last .then as there's some weird execution path stuff going on...
         return mapDataFinal;
     }
@@ -107,7 +133,7 @@ export default class CensusMapRegionQueryParser {
     // noinspection JSMethodCanBeStatic
     private initOshurData(): ReverseEngineeredOshurDataInterface[] {
         // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-return
-        return require(`${__dirname}/../constants/lattice/344-reverse-engineered.json`);
+        return require(`${__dirname}/../ps2alerts-constants/lattice/344-reverse-engineered.json`);
     }
 
     // Grabs the data from Oshur and filters exactly what is required

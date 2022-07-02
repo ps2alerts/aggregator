@@ -13,6 +13,11 @@
         name: docker
         state: present
 
+    - name: Install docker-compose
+      pip:
+        name: docker-compose
+        state: present
+
     - name: Install pika package to ensure devs can send messages to the queue
       pip:
         name: pika

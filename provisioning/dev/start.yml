@@ -7,14 +7,19 @@
     - ../../vars.local.yml
   tasks:
     - debug:
-        msg: "========= 📡 Starting Aggregator Module(s) 📡  ========="
+        msg: "========= 📡 Starting Aggregator Module - PC ONLY 📡 ========="
 
     - name: Delete dist folder
       file:
         path: "{{ root_dir }}/dist"
         state: absent
 
-    - name: Start Aggregator Dev Image (ps2 PC)
+    - name: Stop aggregator if running
+      docker_container:
+        name: ps2alerts-aggregator-pc
+        state: absent
+
+    - name: Start Aggregator Dev Image (ps2 PC ONLY)
       docker_container:
         name: ps2alerts-aggregator-pc
         image: ps2alerts/aggregator:dev
@@ -23,7 +28,7 @@
         recreate: yes
         restart_policy: "no"
         volumes:
-          - "{{ root_dir | realpath }}:/app:rw"
+          - "{{ root_dir }}:/app:rw"
         ports:
           - "1337"
           - "9229:9229"
@@ -35,15 +40,9 @@
           VERSION: "12345"
           CENSUS_ENVIRONMENT: "ps2"
           CENSUS_SERVICE_ID: "{{ census_service_id }}"
-          DB_USER: "root"
-          DB_PASS: "foobar"
-          DB_HOST: "ps2alerts-db"
-          DB_PORT: "27017"
-          DB_SCHEMA: "ps2alerts"
-          DB_DEBUG: "false"
           REDIS_HOST: "ps2alerts-redis"
           REDIS_DB: "0"
-          API_BASE_URL: "http://dev.api.ps2alerts.com"
+          API_BASE_URL: "http://ps2alerts-api:3000"
           LOGGER_TRANSPORTS: "console"
           NODE_DEBUG: "{{ debug }}"
         labels:

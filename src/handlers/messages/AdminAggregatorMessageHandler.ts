@@ -3,14 +3,16 @@ import ParsedQueueMessage from '../../data/ParsedQueueMessage';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {injectable} from 'inversify';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
-import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
+import {metagameEventTypeDetailsMap} from '../../ps2alerts-constants/metagameEventType';
 import EventId from '../../utils/eventId';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
-import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
+import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
 import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/AdminAggregatorInstanceStartMessage';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
+import {Bracket} from '../../ps2alerts-constants/bracket';
+import AdminAggregatorInstanceTrashMessage from '../../data/AdminAggregator/AdminAggregatorInstanceTrashMessage';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements MessageQueueHandlerInterface<ParsedQueueMessage> {
@@ -26,6 +28,8 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 return await this.endInstance(message);
             case 'endAll':
                 return await this.endAllInstances();
+            case 'trashInstance':
+                return await this.trashInstance(message);
             case 'activeInstances':
                 void this.activeInstances();
                 return true;
@@ -59,7 +63,8 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
             adminAggregatorInstanceStart.instanceId,
             censusEventId,
             adminAggregatorInstanceStart.duration,
-            Ps2alertsEventState.STARTED,
+            Ps2alertsEventState.STARTING,
+            Bracket.UNKNOWN,
         );
 
         try {
@@ -69,17 +74,17 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
                 AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message! Error: ${err.message}. Retrying...`);
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            setTimeout(async () => {
-                try {
-                    return await this.instanceAuthority.startInstance(instance);
-                } catch (err) {
-                    if (err instanceof Error) {
-                        // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
-                        AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
-                    }
-                }
-            }, 5000);
+            // // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            // setTimeout(async () => {
+            //     try {
+            //         return await this.instanceAuthority.startInstance(instance);
+            //     } catch (err) {
+            //         if (err instanceof Error) {
+            //             // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+            //             AdminAggregatorMessageHandler.logger.error(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message (2nd try)! Error: ${err.message}.`);
+            //         }
+            //     }
+            // }, 5000);
         }
 
         return false;
@@ -129,6 +134,28 @@ export default class AdminAggregatorMessageHandler implements MessageQueueHandle
         }
 
         return false;
+    }
+
+    private async trashInstance(message: ParsedQueueMessage): Promise<boolean> {
+        const aggregatorMessage = new AdminAggregatorInstanceTrashMessage(message.body);
+
+        try {
+            const instance = this.instanceAuthority.getInstance(aggregatorMessage.instanceId);
+
+            if (!instance) {
+                // While normally we would throw an exception here, it is not possible due to the containing .map call from AdminAggregatorSubscriber.
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! No instance found!`);
+                return false;
+            }
+
+            await this.instanceAuthority.trashInstance(instance);
+        } catch (err) {
+            if (err instanceof Error) {
+                AdminAggregatorMessageHandler.logger.error(`Failed ending instance #${aggregatorMessage.instanceId} via adminAggregator message! E: ${err.message}`);
+            }
+        }
+
+        return true;
     }
 
     private activeInstances(): void {

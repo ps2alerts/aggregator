@@ -1,39 +1,27 @@
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
-import MongooseModelFactory from '../factories/MongooseModelFactory';
-import {InstanceFacilityControlSchemaInterface} from '../models/instance/InstanceFacilityControlModel';
 import ApplicationException from '../exceptions/ApplicationException';
-import {InstanceMetagameTerritorySchemaInterface} from '../models/instance/InstanceMetagameTerritory';
-import {Bracket} from '../constants/bracket';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MapDataInterface from '../interfaces/MapDataInterface';
-import {censusOldFacilities} from '../constants/censusOldFacilities';
-import {RestClient} from 'ps2census/dist/rest';
+import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
+import {Rest} from 'ps2census';
+import {AxiosInstance} from 'axios';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
+import {Redis} from 'ioredis';
 
-export default class MetagameInstanceTerritoryStartAction implements ActionInterface {
+export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly instanceMetagameFactory: MongooseModelFactory<InstanceMetagameTerritorySchemaInterface>,
-        private readonly instanceFacilityControlModelFactory: MongooseModelFactory<InstanceFacilityControlSchemaInterface>,
-        private readonly facilityControlAction: ActionInterface,
-        private readonly restClient: RestClient,
+        private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly restClient: Rest.Client,
+        private readonly cacheClient: Redis,
     ) {}
 
     public async execute(): Promise<boolean> {
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()`);
-
-        this.instance.bracket = Bracket.UNKNOWN;
-
-        await this.instanceMetagameFactory.model.updateOne(
-            {instanceId: this.instance.instanceId},
-            {bracket: this.instance.bracket},
-        ).catch((err: Error) => {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'MetagameInstanceTerritoryFacilityControlAction');
-        });
-
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Trying to get initial map state`);
 
         const docs = await this.getInitialMap();
@@ -42,19 +30,14 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             throw new ApplicationException(`[${this.instance.instanceId}] Map state was empty!`, 'MetagameInstanceTerritoryStartAction');
         }
 
-        // Insert the map data into the instance facility control collection
-        void this.instanceFacilityControlModelFactory.model.insertMany(docs)
-            .catch((err: Error) => {
-                if (!err.message.includes('E11000')) {
-                    throw new ApplicationException(`[${this.instance.instanceId}] Error inserting initial map state! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
-                }
-            });
+        await this.ps2alertsApiClient.post(
+            ps2AlertsApiEndpoints.instanceEntriesFacilityBatch,
+            docs,
+        ).catch((err: Error) => {
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
+        });
 
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
-
-        // Also update the result of the instance now we have hydrated the territory info
-        await this.facilityControlAction.execute();
-
         return true;
     }
 
@@ -64,6 +47,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.restClient,
             'MetagameInstanceTerritoryStartAction',
             this.instance,
+            this.cacheClient,
         ).getMapData();
 
         if (mapData.length === 0) {
@@ -88,7 +72,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                     oldFaction: parseInt(row.RowData.FactionId, 10),
                     newFaction: parseInt(row.RowData.FactionId, 10),
                     durationHeld: 0,
-                    isDefence: 0,
+                    isDefence: false,
                     isInitial: true,
                     outfitCaptured: null,
                 });

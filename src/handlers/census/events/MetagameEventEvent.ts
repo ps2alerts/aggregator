@@ -15,11 +15,11 @@
 import {injectable} from 'inversify';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
-import {Zone} from '../../../constants/zone';
+import {Zone} from '../../../ps2alerts-constants/zone';
 import {MetagameEvent} from 'ps2census';
-import {MetagameEventState} from '../../../constants/metagameEventState';
-import {World} from '../../../constants/world';
-import {MetagameEventType, metagameEventTypeDetailsMap} from '../../../constants/metagameEventType';
+import {MetagameEventState} from '../../../ps2alerts-constants/metagameEventState';
+import {World} from '../../../ps2alerts-constants/world';
+import {MetagameEventType, metagameEventTypeDetailsMap} from '../../../ps2alerts-constants/metagameEventType';
 import ApplicationException from '../../../exceptions/ApplicationException';
 
 @injectable()

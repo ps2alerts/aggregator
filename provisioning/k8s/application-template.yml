@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ application }}-{{ environment }}
+  namespace: ps2alerts
+spec:
+  selector:
+    app: {{ application }}-{{ environment }}
+  ports:
+      - protocol: TCP
+        port: {{ port }}
+        targetPort: {{ port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ application }}-{{ environment }}
+  namespace: ps2alerts
+  labels:
+    app: {{ application }}-{{ environment }}
+spec:
+  replicas: 1 # And there will always only be 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ application }}-{{ environment }}
+  template:
+    metadata:
+      labels:
+        app: {{ application }}-{{ environment }}
+        version: {{ version }}
+    spec:
+      containers:
+        - name: application
+          image: maelstromeous/applications:ps2alerts-aggregator-{{ environment }}-{{ version }}
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "{{ request_cpu }}"
+              memory: "{{ request_mem }}"
+            limits:
+              cpu: "{{ limit_cpu }}"
+              memory: "{{ limit_mem }}"
+          startupProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - cat /app/ready.file | grep -i "ready"
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6 # 30s
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - cat /app/ready.file | grep -i "ready"
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3 # 30s
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - ps -ef | grep "run start" | grep -v grep
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 1
+          env:
+            - name: NODE_ENV
+              value: "{{ environment }}"
+            - name: VERSION
+              value: "{{ version }}"
+            - name: CENSUS_SERVICE_ID
+              value: "{{ census_service_id }}"
+            - name: CENSUS_ENVIRONMENT
+              value: "{{ census_environment }}"
+            - name: RABBITMQ_HOST
+              value: "ps2alerts-rabbitmq"
+            - name: RABBITMQ_USER
+              value: "ps2alerts"
+            - name: RABBITMQ_PASS
+              value: "{{ rabbitmq_pass }}"
+            - name: RABBITMQ_VHOST
+              value: "ps2alerts"
+            - name: RABBITMQ_API_QUEUE
+              value: "api-queue-production"
+            - name: RABBITMQ_API_QUEUE_DELAY
+              value: "api-queue-delay-production"
+            - name: REDIS_HOST
+              value: "{{ redis_host }}"
+            - name: REDIS_PASS
+              value: "{{ redis_pass }}"
+            - name: REDIS_DB
+              value: "{{ redis_db }}"
+            - name: LOGGER_TRANSPORTS
+              value: "console"
+            - name: INTERNAL_API_HOST
+              value: "http://ps2alerts-api-production:3000"
+            - name: INTERNAL_API_USER
+              value: "{{ internal_api_user }}"
+            - name: INTERNAL_API_PASS
+              value: "{{ internal_api_pass }}"
