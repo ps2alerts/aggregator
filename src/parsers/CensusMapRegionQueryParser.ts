@@ -2,7 +2,7 @@
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {Zone} from '../constants/zone';
+import {Zone} from '../ps2alerts-constants/zone';
 import {Rest} from 'ps2census';
 import {getLogger} from '../logger';
 import {Redis} from 'ioredis';
@@ -133,7 +133,7 @@ export default class CensusMapRegionQueryParser {
     // noinspection JSMethodCanBeStatic
     private initOshurData(): ReverseEngineeredOshurDataInterface[] {
         // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-return
-        return require(`${__dirname}/../constants/lattice/344-reverse-engineered.json`);
+        return require(`${__dirname}/../ps2alerts-constants/lattice/344-reverse-engineered.json`);
     }
 
     // Grabs the data from Oshur and filters exactly what is required

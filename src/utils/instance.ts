@@ -1,5 +1,5 @@
-import {World} from '../constants/world';
-import {Zone} from '../constants/zone';
+import {World} from '../ps2alerts-constants/world';
+import {Zone} from '../ps2alerts-constants/zone';
 
 // eslint-disable-next-line no-shadow
 export function instanceId(world: World, zone: Zone, identifer: number): string {

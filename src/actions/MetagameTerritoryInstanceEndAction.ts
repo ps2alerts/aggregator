@@ -6,9 +6,9 @@ import FactionUtils from '../utils/FactionUtils';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
-import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
-import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
+import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');

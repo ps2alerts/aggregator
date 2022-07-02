@@ -1,7 +1,7 @@
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
 import {CensusClient, PS2Event} from 'ps2census';
-import {World} from '../../constants/world';
+import {World} from '../../ps2alerts-constants/world';
 import CensusEventSubscriber from './CensusEventSubscriber';
 import CensusStaleConnectionWatcherAuthority from '../../authorities/CensusStaleConnectionWatcherAuthority';
 import {jsonLogOutput} from '../../utils/json';

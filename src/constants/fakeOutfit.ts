@@ -1,4 +1,4 @@
-import {Faction} from './faction';
+import {Faction} from '../ps2alerts-constants/faction';
 import Outfit from '../data/Outfit';
 import {fakeCharacterCensusData} from './fakeCharacter';
 

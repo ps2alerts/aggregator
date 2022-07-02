@@ -1,10 +1,10 @@
 import InstanceAbstract from './InstanceAbstract';
-import {MetagameEventType} from '../constants/metagameEventType';
-import {World} from '../constants/world';
-import {Zone} from '../constants/zone';
+import {MetagameEventType} from '../ps2alerts-constants/metagameEventType';
+import {World} from '../ps2alerts-constants/world';
+import {Zone} from '../ps2alerts-constants/zone';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
-import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
-import {Bracket} from '../constants/bracket';
+import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Bracket} from '../ps2alerts-constants/bracket';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import moment from 'moment/moment';
 

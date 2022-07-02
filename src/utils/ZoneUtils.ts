@@ -1,5 +1,5 @@
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
-import {Zone} from '../constants/zone';
+import {Zone} from '../ps2alerts-constants/zone';
 
 export default class ZoneUtils {
     public static parse(value: number): Zone {

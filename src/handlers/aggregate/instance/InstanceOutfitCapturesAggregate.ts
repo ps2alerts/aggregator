@@ -5,7 +5,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 
 @injectable()
@@ -33,7 +33,7 @@ export default class InstanceOutfitCapturesAggregate implements AggregateHandler
             // However, the InstanceOutfitAggregate will fill in the blanks as it's set to keep the outfit constantly
             // updated upon a kill / death.
             await this.apiMQPublisher.send(new ApiMQMessage(
-                MQAcceptedPatterns.INSTANCE_OUTFIT_AGGREGATE,
+                MqAcceptedPatterns.INSTANCE_OUTFIT_AGGREGATE,
                 documents,
                 [{
                     instance: event.instance.instanceId,
