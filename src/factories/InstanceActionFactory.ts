@@ -10,7 +10,7 @@ import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
 import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameInstanceTerritoryFacilityControlAction';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
-import {RestClient} from 'ps2census/dist/rest';
+import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import FacilityControlEvent from '../handlers/census/events/FacilityControlEvent';
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
@@ -23,7 +23,7 @@ export default class InstanceActionFactory {
         private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
         @inject(TYPES.globalVictoryAggregate) private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-        private readonly restClient: RestClient,
+        private readonly restClient: Rest.Client,
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @inject(TYPES.redis) private readonly cacheClient: Redis,
     ) {}

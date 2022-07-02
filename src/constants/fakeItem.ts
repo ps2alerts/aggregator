@@ -1,5 +1,3 @@
-import Item from '../data/Item';
-
 /* eslint-disable */
 export const fakeItemData = {
     item_id: "-1",
@@ -67,13 +65,3 @@ export const fakeVehicleItemData = {
     skill_set_id: "0"
 }
 /* eslint-enable */
-
-export default class FakeItemFactory {
-    public build(vehicle = false): Item {
-        if (vehicle) {
-            return new Item(fakeVehicleItemData);
-        }
-
-        return new Item(fakeItemData);
-    }
-}

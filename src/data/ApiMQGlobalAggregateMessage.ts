@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any */
-import {Bracket} from '../constants/bracket';
+import {Bracket} from '../ps2alerts-constants/bracket';
 
 export default class ApiMQGlobalAggregateMessage {
     public readonly pattern: string;

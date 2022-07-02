@@ -20,13 +20,13 @@ import {injectable} from 'inversify';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {World} from '../../../constants/world';
-import {Zone} from '../../../constants/zone';
+import {World} from '../../../ps2alerts-constants/world';
+import {Zone} from '../../../ps2alerts-constants/zone';
 import {Death, Kill} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import Character from '../../../data/Character';
-import {Vehicle} from '../../../constants/vehicle';
-import {Loadout} from '../../../constants/loadout';
+import {Vehicle} from '../../../ps2alerts-constants/vehicle';
+import {Loadout} from '../../../ps2alerts-constants/loadout';
 import {ItemInterface} from '../../../interfaces/ItemInterface';
 
 @injectable()

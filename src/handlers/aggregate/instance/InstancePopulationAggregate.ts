@@ -5,7 +5,7 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import PopulationData from '../../../data/PopulationData';
 import InstanceAuthority from '../../../authorities/InstanceAuthority';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import CharacterPresenceHandler from '../../CharacterPresenceHandler';
 
@@ -50,7 +50,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                MQAcceptedPatterns.INSTANCE_POPULATION_AGGREGATE,
+                MqAcceptedPatterns.INSTANCE_POPULATION_AGGREGATE,
                 documents,
             ));
         } catch (err) {

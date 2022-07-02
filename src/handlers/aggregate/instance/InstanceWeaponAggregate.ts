@@ -6,7 +6,7 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import FactionUtils from '../../../utils/FactionUtils';
 
@@ -52,7 +52,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                MQAcceptedPatterns.INSTANCE_WEAPON_AGGREGATE,
+                MqAcceptedPatterns.INSTANCE_WEAPON_AGGREGATE,
                 documents,
                 [{
                     instance: event.instance.instanceId,

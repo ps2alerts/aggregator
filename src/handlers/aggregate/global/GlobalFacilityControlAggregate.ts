@@ -5,11 +5,11 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import FactionUtils from '../../../utils/FactionUtils';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import {Bracket} from '../../../constants/bracket';
+import {Bracket} from '../../../ps2alerts-constants/bracket';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -54,7 +54,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
 
         try {
             await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{
@@ -65,7 +65,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
 
             // Total bracket aggregation
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_FACILITY_CONTROL_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{

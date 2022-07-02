@@ -3,7 +3,6 @@
 
 - hosts: localhost
   vars:
-    queue_name: "adminAggregator-development"
     environment: ""
     hostname: "localhost"
     user: "guest"
@@ -30,29 +29,29 @@
       private: no
       default: 2
 
+    - name: duration
+      prompt: '[start] Specify duration in minutes. Default is 90 for 1:30 hours'
+      private: no
+      default: 90
+
     - name: faction
       prompt: "[start] Select triggering faction {{ valid_factions }} "
       private: no
       default: 1
-
-    - name: meltdown
-      prompt: "[start] Meltdown? [true/false]"
-      private: no
-      default: false
-
-    - name: duration
-      prompt: '[start] Specify duration in seconds. Default is "5400" for 1:30 hours'
-      private: no
-      default: 5400
 
     - name: instanceId
       prompt: "[end] Specify PS2Alerts Instance ID to end"
       private: no
 
     - name: env
-      prompt: "Select environment to send message to [dev, staging, production]"
+      prompt: "Select environment to send message to [development, staging, production]"
       private: no
-      default: "dev"
+      default: "development"
+
+    - name: census_env
+      prompt: "Select Census Environment [ps2, ps2ps4eu, ps2ps4us]"
+      private: no
+      default: "ps2"
   tasks:
     - name: Ensure world is valid if start type
       fail:
@@ -78,10 +77,10 @@
             world: "{{ world }}"
             zone: "{{ zone }}"
             faction: "{{ faction }}"
-            meltdown: "{{ meltdown }}"
+            meltdown: "false"
             type: "metagame"
             start: "{{ ansible_date_time.epoch }}"
-            duration: "{{ duration }}"
+            duration: "{{ duration|int * 60 }}"
       when: type == "start"
 
     - name: Create end message body
@@ -108,12 +107,15 @@
             foo: "bar"
       when: type == "activeInstances"
 
+    - name: Set up queue name
+      set_fact:
+        queue_name: "aggregator-admin-{{ env }}-{{ census_env }}"
+
     - name: Set hostname if staging or production, set correct hostname and password
       set_fact:
-        hostname: "rabbit.ps2alerts.com"
+        hostname: "queues.ps2alerts.com"
         user: "{{ rabbit.user }}"
         password: "{{ rabbit.password }}"
-        queue_name: "adminAggregator-{{ env }}"
         vhost: "ps2alerts"
       when: env == "staging" or env == "production"
 
