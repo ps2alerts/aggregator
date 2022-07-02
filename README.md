@@ -1,16 +1,22 @@
 # PS2Alerts Aggregator
 
-![Discord](https://img.shields.io/discord/708061542649954315?label=Discord) ![Ansible Linter](https://github.com/ps2alerts/aggregator/workflows/Ansible%20Linter/badge.svg) ![ESLint](https://github.com/ps2alerts/aggregator/workflows/ESLint/badge.svg) ![Yaml Linter](https://github.com/ps2alerts/aggregator/workflows/Yaml%20Linter/badge.svg)
+![Discord](https://img.shields.io/discord/708061542649954315?label=Discord)  ![ESLint](https://github.com/ps2alerts/aggregator/workflows/ESLint/badge.svg) 
 
 The aggregator collection script that powers PS2Alerts.com.
 
-**This project is undergoing a full rewrite**. If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
+If you wish to contribute, please join our Discord located at: https://discord.gg/7xF65ap
 
 ## Preface
 
 This project powers the PS2Alerts website. Its primary purpose is to act as a Data Collector, which listens in on events coming in from the [Census Stremaing Service](https://census.daybreakgames.com) and formats that data into a legible format, commits it to a database, which in turn the [API](https://github.com/PS2Alerts/api) will serve to the [frontend website](https://github.com/PS2Alerts/website).
 
 ## Installation
+
+NOTE: After you have cloned this repository, you also need to install the git submodules which contain various constants used across the PS2Alerts repositories. Simply execute 
+```
+git submodule init
+git submodule update
+```
 
 For first time runs, you must run `ps2alerts-aggregator-init`, which goes ahead and builds the base image required for the dev Docker image to run.
 
@@ -29,7 +35,7 @@ On Mac OS X, [gyp has a hard dependency on XCode](https://medium.com/@Harry_1408
 
 For local development, you're recommended to have the following installed:
 
-* [Node v12+](https://nodejs.org/en/download) recommend using NVM (Node Version Manager)
+* [Node v16+](https://nodejs.org/en/download) recommend using NVM (Node Version Manager)
 * [NPM](https://www.npmjs.com/get-npm)
 
 ## Contributions

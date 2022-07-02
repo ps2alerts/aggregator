@@ -1,10 +1,12 @@
 import app from './bootstrap';
 import Kernel from './bootstrap/Kernel';
+import {promises as fsPromises} from 'fs';
 
 // eslint-disable-next-line @typescript-eslint/no-use-before-define
-void bootApp().then(() => {
+void bootApp().then(async () => {
     // eslint-disable-next-line no-console
-    console.info('Application fully booted!');
+    console.info('Application fully booted! Writing ready file...');
+    await fsPromises.writeFile('ready.file', 'ready');
 });
 
 async function bootApp(): Promise<void> {

@@ -1,10 +1,9 @@
 import {ContainerModule} from 'inversify';
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
-import {CensusClient, CharacterManager} from 'ps2census';
+import {CensusClient, CharacterManager, Rest} from 'ps2census';
 import CensusStreamService from './CensusStreamService';
 import CensusStream from './CensusStream';
 import CensusEventSubscriber from './CensusEventSubscriber';
-import {RestClient} from 'ps2census/dist/rest';
 
 export default new ContainerModule((bind) => {
     // Boot the Census Stream services
@@ -14,7 +13,7 @@ export default new ContainerModule((bind) => {
 
     bind(CensusEventSubscriber).toSelf().inSingletonScope();
 
-    bind(RestClient).toDynamicValue(async ({container}) => {
+    bind(Rest.Client).toDynamicValue(async ({container}) => {
         const censusClient = await container.getAsync(CensusClient);
         return censusClient.rest;
     }).inSingletonScope();

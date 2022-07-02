@@ -3,12 +3,12 @@ import {getLogger} from '../logger';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
-import FakeItemFactory from '../constants/fakeItem';
-import {Vehicle} from '../constants/vehicle';
+import FakeItemFactory from '../factories/FakeItemFactory';
+import {Vehicle} from '../ps2alerts-constants/vehicle';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {Redis} from 'ioredis';
-import {RestClient} from 'ps2census/dist/rest';
+import {Rest} from 'ps2census';
 import {TYPES} from '../constants/types';
 
 @injectable()
@@ -16,7 +16,7 @@ export default class ItemBroker implements ItemBrokerInterface {
     private static readonly logger = getLogger('ItemBroker');
 
     constructor(
-        private readonly restClient: RestClient,
+        private readonly restClient: Rest.Client,
         @inject(TYPES.redis) private readonly cacheClient: Redis,
     ) {}
 

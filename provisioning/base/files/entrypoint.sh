@@ -6,4 +6,6 @@ case "$NODE_DEBUG" in
 esac
 
 echo "=============== STARTING AGGREGATOR (DEV) [DEBUG: $NODE_DEBUG] ==================="
-cd /app && $COMMAND
+cd app
+echo "starting" >> ready.file
+$COMMAND

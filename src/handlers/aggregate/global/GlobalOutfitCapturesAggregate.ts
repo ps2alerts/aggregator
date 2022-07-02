@@ -4,10 +4,10 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import FacilityControlEvent from '../../census/events/FacilityControlEvent';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
-import {Bracket} from '../../../constants/bracket';
+import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 
 @injectable()
@@ -36,7 +36,7 @@ export default class GlobalOutfitCapturesAggregate implements AggregateHandlerIn
             // However, the GlobalOutfitAggregate will fill in the blanks as it's set to keep the outfit constantly
             // updated upon a kill / death.
             await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{
@@ -47,7 +47,7 @@ export default class GlobalOutfitCapturesAggregate implements AggregateHandlerIn
 
             // Total bracket aggregation
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_OUTFIT_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{
