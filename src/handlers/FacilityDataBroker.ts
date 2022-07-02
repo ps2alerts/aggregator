@@ -3,7 +3,7 @@ import {getLogger} from '../logger';
 import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
 import {Redis} from 'ioredis';
 import {CensusEnvironment} from '../types/CensusEnvironment';
-import {Zone} from '../constants/zone';
+import {Zone} from '../ps2alerts-constants/zone';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';

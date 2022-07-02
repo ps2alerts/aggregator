@@ -1,6 +1,6 @@
-import {World} from '../constants/world';
-import {Zone} from '../constants/zone';
-import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
+import {World} from '../ps2alerts-constants/world';
+import {Zone} from '../ps2alerts-constants/zone';
+import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import TerritoryResultInterface from './TerritoryResultInterface';
 import {PS2AlertsInstanceFeaturesInterface} from './PS2AlertsInstanceFeaturesInterface';
 

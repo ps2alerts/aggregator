@@ -1,6 +1,6 @@
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import {ItemInterface} from './ItemInterface';
-import {Vehicle} from '../constants/vehicle';
+import {Vehicle} from '../ps2alerts-constants/vehicle';
 
 export interface ItemBrokerInterface {
     get(
