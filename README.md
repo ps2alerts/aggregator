@@ -12,11 +12,17 @@ This project powers the PS2Alerts website. Its primary purpose is to act as a Da
 
 ## Installation
 
-NOTE: After you have cloned this repository, you also need to install the git submodules which contain various constants used across the PS2Alerts repositories. Simply execute 
+### Repo submodules
+
+NOTE: After you have cloned this repository, you also need to install the git submodule which contain various constants used across the PS2Alerts repositories. Simply execute
+
 ```
-git submodule init
-git submodule update
+git submodule update --init --recursive
 ```
+
+If in the future your application is performing weird saying it can't find references to things, pull the latest modules in via running `./module-update.sh`.
+
+### Installing and running the app
 
 For first time runs, you must run `ps2alerts-aggregator-init`, which goes ahead and builds the base image required for the dev Docker image to run.
 
