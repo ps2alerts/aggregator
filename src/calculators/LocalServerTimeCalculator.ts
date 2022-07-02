@@ -1,6 +1,6 @@
 import {injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {World} from '../constants/world';
+import {World} from '../ps2alerts-constants/world';
 import moment from 'moment-timezone';
 import {Moment} from 'moment';
 

@@ -10,7 +10,7 @@ export class RedisConnectionFactory {
     private static readonly logger = getLogger('RedisConnectionFactory');
     private readonly config: RedisOptions = config.redis;
     private readonly maxAttempts = 3;
-    private readonly retryTime = 10000;
+    private readonly retryTime = 7500;
 
     constructor() {
         RedisConnectionFactory.logger.debug('Redis Connection Constructor');

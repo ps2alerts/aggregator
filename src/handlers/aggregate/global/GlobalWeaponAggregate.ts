@@ -5,11 +5,11 @@ import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import {Bracket} from '../../../constants/bracket';
+import {Bracket} from '../../../ps2alerts-constants/bracket';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
@@ -57,7 +57,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
 
         try {
             await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_WEAPON_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_WEAPON_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{
@@ -67,7 +67,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
             ), event.instance.duration);
 
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_WEAPON_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_WEAPON_AGGREGATE,
                 event.instance.instanceId,
                 documents,
                 [{

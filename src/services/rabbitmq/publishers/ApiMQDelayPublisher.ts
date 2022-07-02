@@ -9,7 +9,7 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
 import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import {shortAlert} from '../../../constants/metagameEventType';
+import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
 
 @injectable()
 export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInterface {
