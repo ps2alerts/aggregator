@@ -38,6 +38,7 @@ export default class Census {
      */
     public readonly clientOptions: ClientOptions = {
         streamManager: {
+            endpoint: 'wss://push.nanite-systems.net/streaming',
             subscription: {
                 ...this.streamManagerConfig,
                 eventNames: ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'],
