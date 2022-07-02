@@ -4,7 +4,7 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
-import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 
 // This class takes care of calculating the result of an instance and updating it via both the API and in memory

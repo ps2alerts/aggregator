@@ -15,7 +15,7 @@ import {injectable} from 'inversify';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import FactionUtils from '../../../utils/FactionUtils';
-import {Faction} from '../../../constants/faction';
+import {Faction} from '../../../ps2alerts-constants/faction';
 import {FacilityControl} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import {FacilityDataInterface} from '../../../interfaces/FacilityDataInterface';

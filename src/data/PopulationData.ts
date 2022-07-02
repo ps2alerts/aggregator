@@ -1,5 +1,5 @@
-import {World} from '../constants/world';
-import {Zone} from '../constants/zone';
+import {World} from '../ps2alerts-constants/world';
+import {Zone} from '../ps2alerts-constants/zone';
 
 export default class PopulationData {
     constructor(

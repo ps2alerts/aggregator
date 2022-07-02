@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import ApiMQMessage from '../../data/ApiMQMessage';
-import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import {TYPES} from '../../constants/types';
 import DeathEvent from '../census/events/DeathEvent';
@@ -9,7 +9,7 @@ import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterfac
 import VehicleCharacterDeathLogic from '../../logics/VehicleCharacterDeathLogic';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
-import {Bracket} from '../../constants/bracket';
+import {Bracket} from '../../ps2alerts-constants/bracket';
 
 @injectable()
 export default class VehicleDeathEventHandler implements AggregateHandlerInterface<DeathEvent> {
@@ -43,7 +43,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -52,7 +52,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                 ));
 
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -76,7 +76,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{
@@ -86,7 +86,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                 ), event.instance.duration);
 
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{
@@ -97,7 +97,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                 ));
 
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{
@@ -108,7 +108,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                 ), event.instance.duration);
 
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{

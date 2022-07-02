@@ -1,6 +1,6 @@
 import {injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {World} from '../constants/world';
+import {World} from '../ps2alerts-constants/world';
 import {CensusClient, PS2Event} from 'ps2census';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import LocalServerTimeCalculator from '../calculators/LocalServerTimeCalculator';

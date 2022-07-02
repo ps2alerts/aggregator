@@ -3,15 +3,15 @@ import ParsedQueueMessage from '../../data/ParsedQueueMessage';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {injectable} from 'inversify';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
-import {metagameEventTypeDetailsMap} from '../../constants/metagameEventType';
+import {metagameEventTypeDetailsMap} from '../../ps2alerts-constants/metagameEventType';
 import EventId from '../../utils/eventId';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
-import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
+import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
 import AdminAggregatorInstanceStartMessage from '../../data/AdminAggregator/AdminAggregatorInstanceStartMessage';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import AdminAggregatorInstanceEndMessage from '../../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
-import {Bracket} from '../../constants/bracket';
+import {Bracket} from '../../ps2alerts-constants/bracket';
 import AdminAggregatorInstanceTrashMessage from '../../data/AdminAggregator/AdminAggregatorInstanceTrashMessage';
 
 @injectable()
