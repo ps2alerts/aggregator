@@ -1,6 +1,6 @@
-import {Zone} from '../constants/zone';
-import {Faction} from '../constants/faction';
-import {MetagameEventType} from '../constants/metagameEventType';
+import {Zone} from '../ps2alerts-constants/zone';
+import {Faction} from '../ps2alerts-constants/faction';
+import {MetagameEventType} from '../ps2alerts-constants/metagameEventType';
 
 export default class EventId {
     // FML

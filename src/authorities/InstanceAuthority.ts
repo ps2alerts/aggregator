@@ -2,19 +2,19 @@ import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
 import {TYPES} from '../constants/types';
-import {pcWorldArray, World} from '../constants/world';
+import {pcWorldArray, World} from '../ps2alerts-constants/world';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {Zone} from '../constants/zone';
-import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
+import {Zone} from '../ps2alerts-constants/zone';
+import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
 import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
 import {AxiosInstance, AxiosResponse} from 'axios';
-import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import config from '../config';
-import {censusEnvironments} from '../constants/censusEnvironments';
+import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 
 @injectable()
 export default class InstanceAuthority {
