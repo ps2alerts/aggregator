@@ -1,16 +1,11 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: ps2alerts
----
-apiVersion: v1
 kind: Service
 metadata:
   name: {{ application }}-{{ environment }}
   namespace: ps2alerts
 spec:
   selector:
-    app: {{ application }}-{{ census_environment }}-{{ environment }}
+    app: {{ application }}-{{ environment }}
   ports:
       - protocol: TCP
         port: {{ port }}
@@ -19,25 +14,25 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ application }}-{{ census_environment }}-{{ environment }}
+  name: {{ application }}-{{ environment }}
   namespace: ps2alerts
   labels:
-    app: {{ application }}-{{ census_environment }}-{{ environment }}
+    app: {{ application }}-{{ environment }}
 spec:
   replicas: 1 # And there will always only be 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ application }}-{{ census_environment }}-{{ environment }}
+      app: {{ application }}-{{ environment }}
   template:
     metadata:
       labels:
-        app: {{ application }}-{{ census_environment }}-{{ environment }}
+        app: {{ application }}-{{ environment }}
         version: {{ version }}
     spec:
       containers:
         - name: application
-          image: maelstromeous/applications:{{ application }}-{{ environment }}-{{ version }}
+          image: maelstromeous/applications:ps2alerts-aggregator-{{ environment }}-{{ version }}
           imagePullPolicy: IfNotPresent
           resources:
             requests:
@@ -69,7 +64,7 @@ spec:
               command:
                 - /bin/bash
                 - -c
-                - ps -ef | grep "yarn run start" | grep -v grep
+                - ps -ef | grep "run start" | grep -v grep
             periodSeconds: 10
             successThreshold: 1
             failureThreshold: 1
@@ -100,12 +95,10 @@ spec:
               value: "{{ redis_pass }}"
             - name: REDIS_DB
               value: "{{ redis_db }}"
-            - name: LOGGER_DISCORD_WEBHOOK
-              value: ""
             - name: LOGGER_TRANSPORTS
               value: "console"
             - name: INTERNAL_API_HOST
-              value: "http://ps2alerts-api-production"
+              value: "http://ps2alerts-api-production:3000"
             - name: INTERNAL_API_USER
               value: "{{ internal_api_user }}"
             - name: INTERNAL_API_PASS

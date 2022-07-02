@@ -1,5 +1,5 @@
 import {CensusEnvironment} from '../types/CensusEnvironment';
-import {Zone} from '../constants/zone';
+import {Zone} from '../ps2alerts-constants/zone';
 import {FacilityDataInterface} from './FacilityDataInterface';
 
 export interface FacilityDataBrokerInterface {

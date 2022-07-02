@@ -56,7 +56,7 @@ export default class DeathEventHandler implements EventHandlerInterface<DeathEve
     // private async storeEvent(event: DeathEvent): Promise<boolean> {
     //     try {
     //         await this.apiMQPublisher.send(new ApiMQMessage(
-    //             MQAcceptedPatterns.INSTANCE_DEATH,
+    //             MqAcceptedPatterns.INSTANCE_DEATH,
     //             [{
     //                 instance: event.instance.instanceId,
     //                 attacker: event.attackerCharacter ? event.attackerCharacter : undefined,

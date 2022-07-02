@@ -11,7 +11,7 @@ export class Ps2AlertsApiDriver {
         const apiConfig = config.internalApi;
         this.httpClient = axios.create({
             baseURL: apiConfig.host,
-            timeout: 10000,
+            timeout: 15000,
             headers: {
                 'Content-Type': 'application/json',
             },

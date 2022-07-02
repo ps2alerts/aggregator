@@ -1,6 +1,4 @@
 import {ContainerModule} from 'inversify';
-import ServiceInterface, {SERVICE} from '../interfaces/ServiceInterface';
-import CensusStreamService from '../services/census/CensusStreamService';
 import CensusCacheDriver from './CensusCacheDriver';
 import {TYPES} from '../constants/types';
 import {CensusClient} from 'ps2census';
@@ -8,8 +6,6 @@ import config from '../config';
 
 export default new ContainerModule((bind) => {
     // Boot the Census Stream services
-    bind<ServiceInterface>(SERVICE).to(CensusStreamService).inSingletonScope();
-
     bind<CensusCacheDriver>(TYPES.censusCharacterCacheDriver)
         .toDynamicValue(async ({container}) => new CensusCacheDriver(
             await container.getAsync(TYPES.redis),

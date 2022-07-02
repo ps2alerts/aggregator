@@ -5,11 +5,11 @@ import {getLogger} from '../../logger';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import {TYPES} from '../../constants/types';
 import VehicleDestroyLogic from '../../logics/VehicleDestroyLogic';
-import {MQAcceptedPatterns} from '../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQMessage from '../../data/ApiMQMessage';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
-import {Bracket} from '../../constants/bracket';
+import {Bracket} from '../../ps2alerts-constants/bracket';
 
 @injectable()
 export default class VehicleAggregateHandler implements AggregateHandlerInterface<VehicleDestroyEvent> {
@@ -39,7 +39,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -48,7 +48,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                 ));
 
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
                     documents.attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -66,7 +66,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.victimDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_VEHICLE_AGGREGATE,
                     documents.victimDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -75,7 +75,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                 ));
 
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_VEHICLE_CHARACTER_AGGREGATE,
                     documents.victimDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -99,7 +99,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.attackerDocs.length > 0) {
             try {
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{
@@ -110,7 +110,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
 
                 // Total bracket aggregation
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{
@@ -121,7 +121,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                 ));
 
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{
@@ -133,7 +133,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
 
                 // Total bracket aggregation
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     documents.attackerDocs,
                     [{
@@ -153,7 +153,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
         if (documents.victimDocs.length > 0) {
             try {
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     event.instance.instanceId,
                     documents.victimDocs,
                     [{
@@ -163,7 +163,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                 ), event.instance.duration);
 
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_AGGREGATE,
                     event.instance.instanceId,
                     documents.victimDocs,
                     [{
@@ -174,7 +174,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                 ));
 
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     documents.victimDocs,
                     [{
@@ -185,7 +185,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                 ), event.instance.duration);
 
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_VEHICLE_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     documents.victimDocs,
                     [{

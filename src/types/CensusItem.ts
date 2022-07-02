@@ -1,3 +1,3 @@
-import {Format} from 'ps2census/dist/rest/types/collection';
+import {Rest} from 'ps2census';
 
-export type CensusItem = Format<'item'>;
+export type CensusItem = Rest.Format<'item'>;
