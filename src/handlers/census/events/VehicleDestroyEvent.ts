@@ -2,12 +2,12 @@ import {injectable} from 'inversify';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {World} from '../../../constants/world';
-import {Zone} from '../../../constants/zone';
+import {World} from '../../../ps2alerts-constants/world';
+import {Zone} from '../../../ps2alerts-constants/zone';
 import {Destroy, VehicleDestroy} from 'ps2census';
 import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import Character from '../../../data/Character';
-import {Faction} from '../../../constants/faction';
+import {Faction} from '../../../ps2alerts-constants/faction';
 
 @injectable()
 export default class VehicleDestroyEvent {

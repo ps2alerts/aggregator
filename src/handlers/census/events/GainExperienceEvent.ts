@@ -16,10 +16,10 @@ import {injectable} from 'inversify';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import ZoneUtils from '../../../utils/ZoneUtils';
-import {Zone} from '../../../constants/zone';
+import {Zone} from '../../../ps2alerts-constants/zone';
 import {GainExperience} from 'ps2census';
-import {World} from '../../../constants/world';
-import {Loadout} from '../../../constants/loadout';
+import {World} from '../../../ps2alerts-constants/world';
+import {Loadout} from '../../../ps2alerts-constants/loadout';
 import Character from '../../../data/Character';
 
 @injectable()

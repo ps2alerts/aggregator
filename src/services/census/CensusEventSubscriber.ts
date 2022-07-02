@@ -18,7 +18,7 @@ import VehicleDestroyEventHandler from '../../handlers/census/VehicleDestroyEven
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import Parser from '../../utils/parser';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
-import {metagameEventTypeArray} from '../../constants/metagameEventType';
+import {metagameEventTypeArray} from '../../ps2alerts-constants/metagameEventType';
 import ApplicationException from '../../exceptions/ApplicationException';
 import config from '../../config';
 import ItemBroker from '../../handlers/ItemBroker';

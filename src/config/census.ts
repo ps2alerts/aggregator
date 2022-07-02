@@ -1,7 +1,7 @@
 import {get, getAndTest} from '../utils/env';
 import {CharacterManagerOptions, ClientOptions, Rest} from 'ps2census';
-import {censusEnvironments} from '../constants/censusEnvironments';
-import {pcWorldArray, WorldPC, WorldPS4EU, WorldPS4US} from '../constants/world';
+import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
+import {pcWorldArray, WorldPC, WorldPS4EU, WorldPS4US} from '../ps2alerts-constants/world';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 
 export default class Census {
@@ -38,6 +38,7 @@ export default class Census {
      */
     public readonly clientOptions: ClientOptions = {
         streamManager: {
+            endpoint: 'wss://push.nanite-systems.net/streaming',
             subscription: {
                 ...this.streamManagerConfig,
                 eventNames: ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'],

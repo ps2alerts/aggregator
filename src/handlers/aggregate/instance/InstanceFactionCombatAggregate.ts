@@ -6,7 +6,7 @@ import {TYPES} from '../../../constants/types';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 
 @injectable()
@@ -95,7 +95,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                MQAcceptedPatterns.INSTANCE_FACTION_COMBAT_AGGREGATE,
+                MqAcceptedPatterns.INSTANCE_FACTION_COMBAT_AGGREGATE,
                 documents,
                 [{instance: event.instance.instanceId}],
             ));

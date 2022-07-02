@@ -1,18 +1,18 @@
 import {CalculatorInterface} from './CalculatorInterface';
-import {Faction} from '../constants/faction';
+import {Faction} from '../ps2alerts-constants/faction';
 import {injectable} from 'inversify';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
-import {censusOldFacilities} from '../constants/censusOldFacilities';
-import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
+import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
+import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
-import {Zone} from '../constants/zone';
+import {Zone} from '../ps2alerts-constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import {Rest} from 'ps2census';
-import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance, AxiosResponse} from 'axios';
 import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
     from '../interfaces/PS2AlertsInstanceEntriesInstanceFacilityResponseInterface';
@@ -227,7 +227,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     }
 
     private async getMapFacilities(): Promise<void> {
-        TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
+        TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
             this.restClient,
@@ -279,7 +279,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
     private transformLatticeData(zoneId: Zone): FacilityLatticeLinkInterface[] | undefined {
         try {
             // eslint-disable-next-line @typescript-eslint/naming-convention,@typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
-            const data: Array<{ zone_id: string, facility_id_a: string, facility_id_b: string, description?: string }> = require(`${__dirname}/../constants/lattice/${zoneId}.json`);
+            const data: Array<{ zone_id: string, facility_id_a: string, facility_id_b: string, description?: string }> = require(`${__dirname}/../ps2alerts-constants/lattice/${zoneId}.json`);
 
             const returnData: FacilityLatticeLinkInterface[] = [];
 
@@ -291,7 +291,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                 });
             });
 
-            TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Successfully parsed lattice link data`);
+            TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Successfully parsed lattice link data`);
 
             return returnData;
         } catch (err) {

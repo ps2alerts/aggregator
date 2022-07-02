@@ -4,10 +4,10 @@ import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MapDataInterface from '../interfaces/MapDataInterface';
-import {censusOldFacilities} from '../constants/censusOldFacilities';
+import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
-import {ps2AlertsApiEndpoints} from '../constants/ps2AlertsApiEndpoints';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {Redis} from 'ioredis';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
