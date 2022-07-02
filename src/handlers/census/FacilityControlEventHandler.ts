@@ -9,7 +9,7 @@ import FactionUtils from '../../utils/FactionUtils';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 import {AxiosInstance} from 'axios';
-import {ps2AlertsApiEndpoints} from '../../constants/ps2AlertsApiEndpoints';
+import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 
 @injectable()
 export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {

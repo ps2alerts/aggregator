@@ -2,15 +2,15 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import {getLogger} from '../../../logger';
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
-import {Faction} from '../../../constants/faction';
+import {Faction} from '../../../ps2alerts-constants/faction';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import moment from 'moment/moment';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import {Bracket} from '../../../constants/bracket';
+import {Bracket} from '../../../ps2alerts-constants/bracket';
 
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
@@ -45,7 +45,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
 
         try {
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
                 event.instanceId,
                 docs,
                 [{
@@ -56,7 +56,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
             ));
 
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_VICTORY_AGGREGATE,
                 event.instanceId,
                 docs,
                 [{

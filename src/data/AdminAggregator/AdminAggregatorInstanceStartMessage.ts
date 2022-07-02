@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import {World} from '../../constants/world';
-import {Zone} from '../../constants/zone';
+import {World} from '../../ps2alerts-constants/world';
+import {Zone} from '../../ps2alerts-constants/zone';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {Faction} from '../../constants/faction';
-import {Ps2alertsEventState} from '../../constants/ps2alertsEventState';
+import {Faction} from '../../ps2alerts-constants/faction';
+import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
 
 export enum AdminAggregatorInstanceTypes {
     METAGAME = 'metagame',

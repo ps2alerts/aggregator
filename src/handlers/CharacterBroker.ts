@@ -5,7 +5,7 @@ import Character from '../data/Character';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
 import {CharacterBrokerInterface} from '../interfaces/CharacterBrokerInterface';
 import ApplicationException from '../exceptions/ApplicationException';
-import {World} from '../constants/world';
+import {World} from '../ps2alerts-constants/world';
 import FakeCharacterFactory from '../constants/fakeCharacter';
 
 @injectable()

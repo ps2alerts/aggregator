@@ -1,4 +1,4 @@
-import {Faction} from '../constants/faction';
+import {Faction} from '../ps2alerts-constants/faction';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 
 export default class FactionUtils {

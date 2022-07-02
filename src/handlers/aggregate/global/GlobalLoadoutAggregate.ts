@@ -4,11 +4,11 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {Kill} from 'ps2census';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import {Bracket} from '../../../constants/bracket';
+import {Bracket} from '../../../ps2alerts-constants/bracket';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
@@ -59,7 +59,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
         if (attackerDocs.length > 0) {
             try {
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
                     event.instance.instanceId,
                     attackerDocs,
                     [{
@@ -70,7 +70,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
                 // Total bracket aggregation
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
                     event.instance.instanceId,
                     attackerDocs,
                     [{
@@ -89,7 +89,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
         if (victimDocs.length > 0) {
             try {
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
                     event.instance.instanceId,
                     victimDocs,
                     [{
@@ -100,7 +100,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
                 // Total Bracket aggregation
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_LOADOUT_AGGREGATE,
                     event.instance.instanceId,
                     victimDocs,
                     [{

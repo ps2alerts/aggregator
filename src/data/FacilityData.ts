@@ -1,5 +1,5 @@
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
-import {Zone} from '../constants/zone';
+import {Zone} from '../ps2alerts-constants/zone';
 import {Rest} from 'ps2census';
 
 class FacilityData implements FacilityDataInterface {

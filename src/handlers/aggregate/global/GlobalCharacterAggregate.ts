@@ -6,10 +6,10 @@ import {inject, injectable} from 'inversify';
 import {TYPES} from '../../../constants/types';
 import {Kill} from 'ps2census';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
-import {Bracket} from '../../../constants/bracket';
+import {Bracket} from '../../../ps2alerts-constants/bracket';
 import FactionUtils from '../../../utils/FactionUtils';
 
 @injectable()
@@ -98,7 +98,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
                 await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     attackerDocs,
                     [{
@@ -109,7 +109,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
                 // Total bracket aggregation
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                    MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                     event.instance.instanceId,
                     attackerDocs,
                     [{
@@ -128,7 +128,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         try {
             await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                 event.instance.instanceId,
                 victimDocs,
                 [{
@@ -139,7 +139,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
             // Total bracket aggregation
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
-                MQAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
                 event.instance.instanceId,
                 victimDocs,
                 [{
