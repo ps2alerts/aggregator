@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@types/amqp-connection-manager": "^2.0.10",
-    "@types/amqplib": "^0.5.17",
+    "@types/amqplib": "^0.8.2",
     "@types/ioredis": "^4.28.8",
     "@types/lodash": "^4.14.182",
     "@types/node": "^16.11.7",
