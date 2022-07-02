@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
-import {Zone, zoneArray} from '../constants/zone';
+import {Zone, zoneArray} from '../ps2alerts-constants/zone';
 import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
-import {Faction, factionArray} from '../constants/faction';
+import {Faction, factionArray} from '../ps2alerts-constants/faction';
 import Character from '../data/Character';
 import {Redis} from 'ioredis';
-import {World, worldArray} from '../constants/world';
+import {World, worldArray} from '../ps2alerts-constants/world';
 import FactionUtils from '../utils/FactionUtils';
 import {TYPES} from '../constants/types';
 

@@ -1,4 +1,4 @@
-import {World} from '../constants/world';
+import {World} from '../ps2alerts-constants/world';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 
 export default abstract class InstanceAbstract {

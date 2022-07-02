@@ -5,7 +5,7 @@ import {TYPES} from '../../../constants/types';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
-import {MQAcceptedPatterns} from '../../../constants/MQAcceptedPatterns';
+import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import FactionUtils from '../../../utils/FactionUtils';
 
@@ -54,7 +54,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
         if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
                 await this.apiMQPublisher.send(new ApiMQMessage(
-                    MQAcceptedPatterns.INSTANCE_LOADOUT_AGGREGATE,
+                    MqAcceptedPatterns.INSTANCE_LOADOUT_AGGREGATE,
                     attackerDocs,
                     [{
                         instance: event.instance.instanceId,
@@ -70,7 +70,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
 
         try {
             await this.apiMQPublisher.send(new ApiMQMessage(
-                MQAcceptedPatterns.INSTANCE_LOADOUT_AGGREGATE,
+                MqAcceptedPatterns.INSTANCE_LOADOUT_AGGREGATE,
                 victimDocs,
                 [{
                     instance: event.instance.instanceId,

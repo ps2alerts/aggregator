@@ -11,7 +11,7 @@ export default class RabbitMQ {
     public readonly delayExchange = get('RABBITMQ_DELAY_EXCHANGE', 'ps2alerts-delay');
     public readonly vhost = get('RABBITMQ_VHOST', '');
     public readonly heartbeat = 10;
-    public readonly timeout = 10000;
+    public readonly timeout = 5000;
     public readonly apiQueueName = get('RABBITMQ_API_QUEUE', 'api-queue');
     public readonly apiDelayQueueName = get('RABBITMQ_API_QUEUE_DELAY', 'api-queue-delay');
 }

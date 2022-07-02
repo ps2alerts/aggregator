@@ -1,11 +1,12 @@
 import InstanceAbstract from './InstanceAbstract';
-import {MetagameEventType} from '../constants/metagameEventType';
-import {World} from '../constants/world';
-import {Zone} from '../constants/zone';
+import {MetagameEventType} from '../ps2alerts-constants/metagameEventType';
+import {World} from '../ps2alerts-constants/world';
+import {Zone} from '../ps2alerts-constants/zone';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
-import {Ps2alertsEventState} from '../constants/ps2alertsEventState';
-import {Bracket} from '../constants/bracket';
+import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Bracket} from '../ps2alerts-constants/bracket';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
+import moment from 'moment/moment';
 
 export default class MetagameTerritoryInstance extends InstanceAbstract implements PS2AlertsInstanceInterface {
     public bracket?: Bracket;
@@ -39,5 +40,13 @@ export default class MetagameTerritoryInstance extends InstanceAbstract implemen
     public overdue(): boolean {
         // If now in milliseconds is greater than start time + duration
         return Date.now() > (this.timeStarted.getTime() + this.duration);
+    }
+
+    // Returns the current second tick of the alert
+    public currentDuration(): number {
+        // Return current difference in seconds between start and now
+        const nowUnix = moment().unix() * 1000;
+        // Holy mother of brackets batman!
+        return parseInt(((nowUnix - this.timeStarted.getTime()) / 1000).toFixed(0), 10);
     }
 }

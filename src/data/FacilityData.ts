@@ -1,6 +1,6 @@
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
-import {Zone} from '../constants/zone';
-import {Format} from 'ps2census/dist/rest/types/collection';
+import {Zone} from '../ps2alerts-constants/zone';
+import {Rest} from 'ps2census';
 
 class FacilityData implements FacilityDataInterface {
     public readonly id: number;
@@ -9,7 +9,7 @@ class FacilityData implements FacilityDataInterface {
     public readonly zone: Zone;
     public readonly region: number;
 
-    constructor(censusMapRegion: Format<'map_region'>, zone: Zone) {
+    constructor(censusMapRegion: Rest.Format<'map_region'>, zone: Zone) {
         this.id = parseInt(censusMapRegion.facility_id, 10);
         this.name = censusMapRegion.facility_name;
         this.type = parseInt(censusMapRegion.facility_type_id, 10);

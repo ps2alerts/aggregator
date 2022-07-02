@@ -23,7 +23,7 @@ export default class PopulationAuthority {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {
-            PopulationAuthority.logger.debug('Running PopulationAuthority presence collection');
+            PopulationAuthority.logger.silly('Running PopulationAuthority presence collection');
 
             // Collect current population metrics from CharacterPresenceHandler
             const populationData = await this.characterPresenceHandler.collate();

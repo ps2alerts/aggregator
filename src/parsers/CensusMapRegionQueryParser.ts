@@ -2,8 +2,8 @@
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {Zone} from '../constants/zone';
-import {RestClient} from 'ps2census/dist/rest';
+import {Zone} from '../ps2alerts-constants/zone';
+import {Rest} from 'ps2census';
 import {getLogger} from '../logger';
 import {Redis} from 'ioredis';
 
@@ -45,7 +45,7 @@ export default class CensusMapRegionQueryParser {
     private readonly oshurData: ReverseEngineeredOshurDataInterface[];
 
     constructor(
-        private readonly restClient: RestClient,
+        private readonly restClient: Rest.Client,
         private readonly caller: string,
         private readonly instance: MetagameTerritoryInstance,
         private readonly cacheClient: Redis,
@@ -68,7 +68,6 @@ export default class CensusMapRegionQueryParser {
             }
         }
 
-        CensusMapRegionQueryParser.logger.debug(`${cacheKey} MISS`);
         CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
         const query = this.restClient.getQueryBuilder('map')
@@ -134,7 +133,7 @@ export default class CensusMapRegionQueryParser {
     // noinspection JSMethodCanBeStatic
     private initOshurData(): ReverseEngineeredOshurDataInterface[] {
         // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-return
-        return require(`${__dirname}/../constants/lattice/344-reverse-engineered.json`);
+        return require(`${__dirname}/../ps2alerts-constants/lattice/344-reverse-engineered.json`);
     }
 
     // Grabs the data from Oshur and filters exactly what is required

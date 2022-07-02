@@ -1,6 +1,6 @@
 import {getLogger} from '../../logger';
 import {injectable} from 'inversify';
-import {CensusClient, Death, Events, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
+import {CensusClient, Death, FacilityControl, GainExperience, MetagameEvent, VehicleDestroy} from 'ps2census';
 // Events
 import DeathEvent from '../../handlers/census/events/DeathEvent';
 import MetagameEventEvent from '../../handlers/census/events/MetagameEventEvent';
@@ -18,7 +18,7 @@ import VehicleDestroyEventHandler from '../../handlers/census/VehicleDestroyEven
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import Parser from '../../utils/parser';
 import {CensusEnvironment} from '../../types/CensusEnvironment';
-import {metagameEventTypeArray} from '../../constants/metagameEventType';
+import {metagameEventTypeArray} from '../../ps2alerts-constants/metagameEventType';
 import ApplicationException from '../../exceptions/ApplicationException';
 import config from '../../config';
 import ItemBroker from '../../handlers/ItemBroker';
@@ -53,30 +53,30 @@ export default class CensusEventSubscriber {
             return;
         }
 
-        this.censusClient.on(Events.PS2_SERVICE_STATE, (server, status) => {
+        this.censusClient.on('serviceState', (server, status) => {
             if (!status) {
                 CensusEventSubscriber.logger.error(`[${this.environment}] Server Instability! ${server} reported as down!`);
             }
         });
 
         // Set up event handlers
-        this.censusClient.on(Events.PS2_DEATH, (censusEvent: Death) => {
+        this.censusClient.on('death', (censusEvent: Death) => {
             void this.processDeath(censusEvent);
         });
 
-        this.censusClient.on(Events.PS2_CONTROL, (censusEvent: FacilityControl) => {
+        this.censusClient.on('facilityControl', (censusEvent: FacilityControl) => {
             void this.processFacilityControl(censusEvent);
         });
 
-        this.censusClient.on(Events.PS2_EXPERIENCE, (censusEvent: GainExperience) => {
+        this.censusClient.on('gainExperience', (censusEvent: GainExperience) => {
             void this.processGainExperience(censusEvent);
         });
 
-        this.censusClient.on(Events.PS2_META_EVENT, (censusEvent: MetagameEvent) => {
+        this.censusClient.on('metagameEvent', (censusEvent: MetagameEvent) => {
             void this.processMetagameEvent(censusEvent);
         });
 
-        this.censusClient.on(Events.PS2_VEHICLE_DESTROYED, (censusEvent) => {
+        this.censusClient.on('vehicleDestroy', (censusEvent) => {
             void this.processVehicleDestroy(censusEvent);
         });
 
