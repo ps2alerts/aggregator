@@ -41,13 +41,24 @@ export default class Census {
             endpoint: 'wss://push.nanite-systems.net/streaming',
             subscription: {
                 ...this.streamManagerConfig,
-                eventNames: ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'],
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                eventNames: this.getCensusEventNames() as never,
             },
         },
         characterManager: Census.characterManagerConfig,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         rest: Census.restClientOptions,
     };
+
+    public getCensusEventNames(): string[] {
+        const eventNamesEnv = get('CENSUS_EVENTS');
+
+        if (!eventNamesEnv) {
+            return ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'PlayerLogin', 'PlayerLogout', 'VehicleDestroy'];
+        } else {
+            return eventNamesEnv.split(',');
+        }
+    }
 
     public getWorldsForEnvironment(): string[] {
         switch (this.getCensusEnvironment()) {
