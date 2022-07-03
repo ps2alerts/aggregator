@@ -49,9 +49,11 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           file: provisioning/production/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: maelstromeous/applications:ps2alerts-aggregator-production-${{ github.sha }}
+          tags: |
+            maelstromeous/ps2alerts:ps2alerts-aggregator-production-${{ github.sha }}
+            maelstromeous/ps2alerts:ps2alerts-aggregator-production-latest
           build-args: |
             BUILD_SHA=${{ env.SHORT_SHA }}
             BUILT=${{ env.NOW }}

@@ -4,6 +4,7 @@ on:
   schedule:
     # Runs 6am on Mondays (see https://crontab.guru)
     - cron: '0 6 * * 1'
+  workflow_dispatch:
 jobs:
   build-docker-images:
     runs-on: ${{ matrix.os }}
@@ -39,6 +40,6 @@ jobs:
         with:
           context: provisioning/base
           file: provisioning/base/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: maelstromeous/applications:ps2alerts-aggregator-base
+          tags: maelstromeous/ps2alerts:ps2alerts-aggregator-base

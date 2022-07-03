@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: application
-          image: maelstromeous/applications:ps2alerts-aggregator-{{ environment }}-{{ version }}
+          image: maelstromeous/ps2alerts:ps2alerts-aggregator-{{ environment }}-{{ version }}
           imagePullPolicy: IfNotPresent
           resources:
             requests:

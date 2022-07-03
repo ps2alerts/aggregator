@@ -1,4 +1,4 @@
-FROM maelstromeous/applications:ps2alerts-aggregator-base
+FROM maelstromeous/ps2alerts:ps2alerts-aggregator-base
 
 USER root
 
