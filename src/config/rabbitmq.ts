@@ -8,8 +8,8 @@ export default class RabbitMQ {
     public readonly user = get('RABBITMQ_USER', 'guest');
     public readonly pass = get('RABBITMQ_PASS', 'guest');
     public readonly exchange = get('RABBITMQ_EXCHANGE', 'ps2alerts');
-    public readonly delayExchange = get('RABBITMQ_DELAY_EXCHANGE', 'ps2alerts-delay');
-    public readonly vhost = get('RABBITMQ_VHOST', '');
+    public readonly topicExchange = get('RABBITMQ_TOPIC_EXCHANGE', 'ps2alerts-topic');
+    public readonly vhost = get('RABBITMQ_VHOST', '/');
     public readonly heartbeat = 10;
     public readonly timeout = 5000;
     public readonly apiQueueName = get('RABBITMQ_API_QUEUE', 'api-queue');

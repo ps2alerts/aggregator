@@ -45,7 +45,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
         queueName: string,
     ): ParsedQueueMessage {
         if (!envelope) {
-            throw new ApplicationException(`[${queueName}] Got empty message!`, 'RabbitMQConnectionHandlerFactory.parseMessage');
+            throw new ApplicationException(`[${queueName}] Got empty message!`, 'AdminAggregatorSubscriber.parseMessage');
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,15 +55,15 @@ export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwar
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             data = JSON.parse(envelope.content.toString());
         } catch (e) {
-            throw new ApplicationException(`[${queueName}] Unable to JSON parse message! Message: "${envelope.content.toString()}"`, 'RabbitMQConnectionHandlerFactory.parseMessage');
+            throw new ApplicationException(`[${queueName}] Unable to JSON parse message! Message: "${envelope.content.toString()}"`, 'AdminAggregatorSubscriber.parseMessage');
         }
 
         if (!data.type) {
-            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'RabbitMQConnectionHandlerFactory.parseMessage');
+            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'AdminAggregatorSubscriber.parseMessage');
         }
 
         if (!data.body) {
-            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'RabbitMQConnectionHandlerFactory.parseMessage');
+            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'AdminAggregatorSubscriber.parseMessage');
         }
 
         AdminAggregatorSubscriber.logger.info(`[${queueName}] successfully parsed message! ${jsonLogOutput(data)}`);

@@ -23,9 +23,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
         InstancePopulationAggregate.logger.silly('InstancePopulationAggregate.handle');
 
         // Figure out running instances and generate new InstancePopulationData object
-        const activeInstances = this.instanceAuthority.getAllInstances().filter((instance) => {
-            return instance.match(event.world, event.zone);
-        });
+        const activeInstances = this.instanceAuthority.getInstances(event.world, event.zone);
 
         // If no instances running, bail.
         if (activeInstances.length === 0) {
