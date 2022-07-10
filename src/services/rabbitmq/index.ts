@@ -4,7 +4,6 @@ import config from '../../config';
 import RabbitMQConnectionService from './RabbitMQConnectionService';
 import AdminAggregatorSubscriber from './subscribers/AdminAggregatorSubscriber';
 import {TYPES} from '../../constants/types';
-import AdminAggregatorMessageHandler from '../../handlers/AdminAggregatorMessageHandler';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 import MetagameSubscriber from './subscribers/MetagameSubscriber';
@@ -26,7 +25,4 @@ export default new ContainerModule((bind) => {
     // RabbitMQ Publishers
     bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher);
     bind<ApiMQDelayPublisher>(TYPES.rabbitMQPublishers).to(ApiMQDelayPublisher);
-
-    // Message Handlers (which actually do the things with data)
-    bind<AdminAggregatorMessageHandler>(TYPES.adminMessageHandlers).to(AdminAggregatorMessageHandler).inSingletonScope();
 });

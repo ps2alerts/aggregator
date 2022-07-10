@@ -26,8 +26,6 @@ const TYPES = {
     rabbitMQSubscribers: Symbol('rabbitMQSubscribers'),
     // Publishers
     rabbitMQPublishers: Symbol('rabbitMQPublishers'),
-    // Handlers
-    adminMessageHandlers: Symbol('adminMessageHandlers'),
 
     ps2AlertsApiClient: Symbol('ps2AlertsApiClient'),
 
