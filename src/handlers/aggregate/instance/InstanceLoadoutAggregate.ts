@@ -7,6 +7,7 @@ import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import FactionUtils from '../../../utils/FactionUtils';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstanceLoadoutAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -61,9 +62,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    InstanceLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish message to API!', err, 'InstanceLoadoutAggregate.handle.attacker');
             }
         }
 
@@ -77,9 +76,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
                 }],
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstanceLoadoutAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstanceLoadoutAggregate.handle.character');
         }
 
         return true;

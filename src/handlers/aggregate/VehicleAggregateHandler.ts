@@ -9,6 +9,7 @@ import ApiMQMessage from '../../data/ApiMQMessage';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
 import {Bracket} from '../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../system/ExceptionHandler';
 
 @injectable()
 export default class VehicleAggregateHandler implements AggregateHandlerInterface<VehicleDestroyEvent> {
@@ -56,9 +57,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character attacker message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish instance vehicle aggregate attacker message to API!', err, 'VehicleAggregateHandler.processInstanceAggregates.attacker');
             }
         }
 
@@ -83,9 +82,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character victim message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish instance vehicle aggregate victim message to API!', err, 'VehicleAggregateHandler.processInstanceAggregates.victim');
             }
         }
     }
@@ -143,9 +140,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish global vehicle / character attacker message to API!', err, 'VehicleAggregateHandler.processInstanceAggregates.processGlobalAggregates');
             }
         }
 
@@ -195,9 +190,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish global vehicle / character victim message to API! ', err, 'VehicleAggregateHandler.processInstanceAggregates.processGlobalAggregates');
             }
         }
     }

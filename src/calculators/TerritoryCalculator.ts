@@ -295,6 +295,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
 
             return returnData;
         } catch (err) {
+            // Don't be tempted to change this exception... it likely won't go well...
             if (err instanceof Error) {
                 throw new ApplicationException(`[${this.instance.instanceId}] Unable to read Lattice Link data! E: ${err.message}`);
             }

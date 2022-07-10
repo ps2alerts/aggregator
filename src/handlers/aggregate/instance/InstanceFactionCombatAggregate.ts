@@ -7,6 +7,7 @@ import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstanceFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -99,9 +100,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
                 [{instance: event.instance.instanceId}],
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstanceFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstanceFactionCombatAggregate.handle');
         }
 
         return true;

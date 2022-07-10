@@ -9,6 +9,7 @@ import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';
 import FactionUtils from '../../../utils/FactionUtils';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -112,9 +113,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish message to API!', err, 'InstanceOutfitAggregate.handle.attacker');
             }
         }
 
@@ -128,9 +127,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 }],
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstanceOutfitAggregate.handle.character');
         }
 
         return true;

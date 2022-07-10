@@ -1,17 +1,3 @@
-/**
- *  ### CENSUS RESPONSE ATTRIBUTES ####
- "amount":"",
- "character_id":"",
- "event_name":"GainExperience",
- "experience_id":"",
- "loadout_id":"",
- "other_id":"",
- "timestamp":"",
- "world_id":"",
- "zone_id":""
- * ### END ###
- **/
-
 import {injectable} from 'inversify';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';

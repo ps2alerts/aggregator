@@ -68,7 +68,7 @@ export default class ApiMQDelayPublisher implements RabbitMQSubscriberInterface 
         }
 
         try {
-            ApiMQDelayPublisher.logger.silly(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
+            ApiMQDelayPublisher.logger.debug(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
             await wrapper.sendToQueue(
                 queue,
                 msg,

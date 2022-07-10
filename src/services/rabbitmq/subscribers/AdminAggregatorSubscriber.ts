@@ -21,10 +21,7 @@ export default class AdminAggregatorSubscriber implements RabbitMQSubscriberInte
         AdminAggregatorSubscriber.channelWrapper = this.channelFactory.create(
             config.rabbitmq.exchange,
             queueName,
-            {
-                messageTtl: 5 * 60 * 1000,
-                maxPriority: 10,
-            },
+            {},
             '#',
             this.adminMessageHandler,
         );

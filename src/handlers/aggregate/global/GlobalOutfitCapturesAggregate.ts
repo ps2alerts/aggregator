@@ -8,6 +8,7 @@ import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 // Note: This does NOT create a new aggregate, merely adds data to the GlobalOutfitAggregate.
@@ -56,9 +57,7 @@ export default class GlobalOutfitCapturesAggregate implements AggregateHandlerIn
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                GlobalOutfitCapturesAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'GlobalOutfitCaptures.handle');
         }
 
         return true;

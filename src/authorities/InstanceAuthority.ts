@@ -16,6 +16,7 @@ import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoint
 import config from '../config';
 import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 import QueueAuthority from './QueueAuthority';
+import ExceptionHandler from '../handlers/system/ExceptionHandler';
 
 @injectable()
 export default class InstanceAuthority {
@@ -90,9 +91,7 @@ export default class InstanceAuthority {
                     }
                 })
                 .catch((err) => {
-                    if (err instanceof Error) {
-                        throw new ApplicationException(`Unable to create instance via API! E: ${err.message}`);
-                    }
+                    new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority');
                 });
 
             InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${instance.instanceId} ================`);

@@ -7,6 +7,7 @@ import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import CharacterPresenceHandler from '../../CharacterPresenceHandler';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
@@ -51,9 +52,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
                 documents,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstancePopulationAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstancePopulationAggregate.handle');
         }
 
         return true;

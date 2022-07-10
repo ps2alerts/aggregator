@@ -9,6 +9,7 @@ import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import config from '../../../config';
 import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
+import ExceptionHandler from '../../../handlers/system/ExceptionHandler';
 
 @injectable()
 export default class ApiMQPublisher implements RabbitMQSubscriberInterface {
@@ -38,7 +39,7 @@ export default class ApiMQPublisher implements RabbitMQSubscriberInterface {
         }
 
         try {
-            ApiMQPublisher.logger.silly(`Sending message to queue: ${jsonLogOutput(msg)}`);
+            ApiMQPublisher.logger.debug(`Sending message to queue "${config.rabbitmq.apiQueueName}": ${jsonLogOutput(msg)}`);
             await this.channelWrapper.sendToQueue(
                 config.rabbitmq.apiQueueName,
                 msg,
@@ -46,9 +47,7 @@ export default class ApiMQPublisher implements RabbitMQSubscriberInterface {
             );
             return true;
         } catch (err) {
-            if (err instanceof Error) {
-                throw new ApplicationException(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Unable to send to API queue properly!', err, 'ApiMQPublisher');
         }
     }
 }

@@ -45,7 +45,7 @@ export default class QueueAuthority {
         for (const [eventName, handlers] of this.handlerMap) {
             const channel = this.channelFactory.create(
                 config.rabbitmq.topicExchange,
-                `${instance.world}-${eventName}`,
+                `aggregator-${instance.world}-${eventName}`,
                 {
                     maxPriority: 10,
                     messageTtl: 15 * 60 * 1000,

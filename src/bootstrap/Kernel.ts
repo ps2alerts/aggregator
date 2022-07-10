@@ -5,6 +5,7 @@ import KernelInterface from '../interfaces/KernelInterface';
 import ServiceInterface, {SERVICE} from '../interfaces/ServiceInterface';
 import config from '../config';
 import ApplicationException from '../exceptions/ApplicationException';
+import ExceptionHandler from '../handlers/system/ExceptionHandler';
 
 /**
  * Denotes the running states of the application.
@@ -87,13 +88,7 @@ export default class Kernel implements KernelInterface {
             }
 
             if (err instanceof Error) {
-                Kernel.logger.error(`====== UNKNOWN ERROR HAS OCCURRED! "${err.name}" MESSAGE AS FOLLOWS:`);
-                Kernel.logger.error(err.message);
-
-                if (err.stack) {
-                    Kernel.logger.error('Trace: ');
-                    Kernel.logger.error(err.stack);
-                }
+                new ExceptionHandler('ERROR THROWN!', err, 'Kernel');
             }
 
             // Fucked

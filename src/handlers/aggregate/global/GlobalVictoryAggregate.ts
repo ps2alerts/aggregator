@@ -9,6 +9,7 @@ import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessa
 import moment from 'moment/moment';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
@@ -37,7 +38,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 docs.push({$inc: {tr: 1}});
                 break;
             default:
-                throw new ApplicationException(`[${event.instanceId}] undetermined victor path!`, 'GlobalVictoryAggregate');
+                throw new ApplicationException(`[${event.instanceId}] undetermined victor path!`, 'GlobalVictoryAggregate.handle');
         }
 
         try {
@@ -64,9 +65,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'GlobalVictoryAggregate.handle');
         }
 
         return true;

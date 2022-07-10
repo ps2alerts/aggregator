@@ -5,6 +5,7 @@ import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstanceFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -51,9 +52,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
                 }],
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstanceFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstanceFacilityControlAggregate.handle');
         }
 
         return true;

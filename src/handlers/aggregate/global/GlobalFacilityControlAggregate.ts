@@ -8,6 +8,7 @@ import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDela
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
@@ -70,9 +71,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'GlobalFacilityControlAggregate.handle');
         }
 
         return true;

@@ -21,10 +21,12 @@ import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
 import {QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import {Options} from 'amqplib/properties';
+import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
+import ExceptionHandler from '../handlers/system/ExceptionHandler';
 
 @injectable()
 export default class RabbitMQChannelFactory {
-    private static readonly logger = getLogger('RabbitMQStreamFactory');
+    private static readonly logger = getLogger('RabbitMQChannelFactory');
     private channel: ChannelWrapper;
 
     constructor(
@@ -90,10 +92,8 @@ export default class RabbitMQChannelFactory {
                                 // requeue: () => return , // DL Requeue
                             });
                         } catch (err) {
-                            if (err instanceof Error) {
-                                RabbitMQChannelFactory.logger.error(`Unable to properly handle message! E: ${err.message}`);
-                                channel.ack(message); // Critical error, probably unprocessable so we're chucking
-                            }
+                            new ExceptionHandler('Unable to properly handle message!', err, 'RabbitMQChannelFactory.consume');
+                            channel.ack(message); // Critical error, probably unprocessable so we're chucking
                         }
                     }, consumerOptions);
                 }
@@ -128,7 +128,7 @@ export default class RabbitMQChannelFactory {
         }
     }
 
-    private parseMessage(msg: ConsumeMessage): PS2Event {
+    private parseMessage(msg: ConsumeMessage): PS2Event | AdminQueueMessage {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let data: {eventName: string, worldId: string, payload: Stream.PS2Event};
 
@@ -139,7 +139,11 @@ export default class RabbitMQChannelFactory {
             throw new ApplicationException(`Unable to JSON parse message! Message: "${msg.content.toString()}"`, 'RabbitMQCensusStreamFactory');
         }
 
-        const censusClass = this.createCensusClass(data.payload);
+        if (data.eventName === 'AdminMessage') {
+            return new AdminQueueMessage(data.payload);
+        }
+
+        const censusClass = this.createMessageClass(data.payload);
 
         if (!censusClass) {
             throw new ApplicationException('Unknown message type received!');
@@ -148,7 +152,7 @@ export default class RabbitMQChannelFactory {
         return censusClass;
     }
 
-    private createCensusClass(payload: Stream.PS2Event): PS2Event {
+    private createMessageClass(payload: Stream.PS2Event): PS2Event {
         switch (payload.event_name) {
             case 'Death':
                 return new Death(this.censusClient, payload);

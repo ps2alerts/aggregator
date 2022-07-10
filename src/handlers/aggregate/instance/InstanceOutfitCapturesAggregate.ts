@@ -6,6 +6,7 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 // Note: This does NOT create a new aggregate, merely adds data to the InstanceOutfitAggregate.
@@ -40,9 +41,7 @@ export default class InstanceOutfitCapturesAggregate implements AggregateHandler
                 }],
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstanceOutfitCapturesAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstanceOutfitCapturesAggregate.handle');
         }
 
         return true;

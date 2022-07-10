@@ -10,6 +10,7 @@ import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessa
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import FactionUtils from '../../../utils/FactionUtils';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -118,10 +119,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                if (err instanceof Error) {
-                    GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish message to API!', err, 'GlobalCharacterAggregate.handle.attacker');
             }
         }
 
@@ -148,9 +146,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                GlobalCharacterAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'GlobalCharacterAggregate.handle.character');
         }
 
         return true;

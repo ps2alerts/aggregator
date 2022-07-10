@@ -9,6 +9,7 @@ import VehicleCharacterDeathLogic from '../../logics/VehicleCharacterDeathLogic'
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
 import {Bracket} from '../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../system/ExceptionHandler';
 
 @injectable()
 export default class VehicleDeathEventHandler implements AggregateHandlerInterface<DeathEvent> {
@@ -60,9 +61,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleDeathEventHandler.logger.error(`Could not publish INSTANCE_VEHICLE_AGGREGATE message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish instance vehicle aggregate message to API!', err, 'VehicleDeathEventHandler.processInstanceAggregates');
             }
         }
     }
@@ -118,9 +117,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleDeathEventHandler.logger.error(`Could not publish message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish global vehicle aggregate message to API!', err, 'VehicleDeathEventHandler.processGlobalAggregates');
             }
         }
     }

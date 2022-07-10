@@ -4,6 +4,7 @@ import Character from '../data/Character';
 import {Death, GainExperience, MaxRetryException, VehicleDestroy} from 'ps2census';
 import ApplicationException from '../exceptions/ApplicationException';
 import {injectable} from 'inversify';
+import ExceptionHandler from '../handlers/system/ExceptionHandler';
 
 @injectable()
 export default class CharacterBroker {
@@ -28,8 +29,10 @@ export default class CharacterBroker {
             return {character, attacker};
         } catch (err) {
             if (err instanceof MaxRetryException) {
-                throw new ApplicationException('Census failed to return character data after maximum retries');
+                new ExceptionHandler('Census failed to return character data after maximum retries', err, 'CharacterBroker');
             }
+
+            new ExceptionHandler('Census failed to return character data not due to retries!', err, 'CharacterBroker');
         }
 
         throw new ApplicationException('UNEXPECTED EXECUTION PATH!', 'CharacterBroker');
