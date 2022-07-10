@@ -108,26 +108,6 @@ export default class RabbitMQChannelFactory {
         await this.channel.close();
     }
 
-    private parseMessage(msg: ConsumeMessage): PS2Event {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let data: {eventName: string, worldId: string, payload: Stream.PS2Event};
-
-        try {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            data = JSON.parse(msg.content.toString());
-        } catch (e) {
-            throw new ApplicationException(`Unable to JSON parse message! Message: "${msg.content.toString()}"`, 'RabbitMQCensusStreamFactory');
-        }
-
-        const censusClass = this.createCensusClass(data.payload);
-
-        if (!censusClass) {
-            throw new ApplicationException('Unknown message type received!');
-        }
-
-        return censusClass;
-    }
-
     private getMessagePriority(queueEventName: Stream.PS2EventNames): number {
         switch (queueEventName) {
             case 'MetagameEvent':
@@ -146,6 +126,26 @@ export default class RabbitMQChannelFactory {
             default:
                 return 10;
         }
+    }
+
+    private parseMessage(msg: ConsumeMessage): PS2Event {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let data: {eventName: string, worldId: string, payload: Stream.PS2Event};
+
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            data = JSON.parse(msg.content.toString());
+        } catch (e) {
+            throw new ApplicationException(`Unable to JSON parse message! Message: "${msg.content.toString()}"`, 'RabbitMQCensusStreamFactory');
+        }
+
+        const censusClass = this.createCensusClass(data.payload);
+
+        if (!censusClass) {
+            throw new ApplicationException('Unknown message type received!');
+        }
+
+        return censusClass;
     }
 
     private createCensusClass(payload: Stream.PS2Event): PS2Event {
