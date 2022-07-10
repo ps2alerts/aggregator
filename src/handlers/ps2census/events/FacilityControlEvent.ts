@@ -14,46 +14,48 @@
 import {injectable} from 'inversify';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
-import FactionUtils from '../../../utils/FactionUtils';
+import FactionUtils, {FactionName} from '../../../utils/FactionUtils';
 import {Faction} from '../../../ps2alerts-constants/faction';
 import {FacilityControl} from 'ps2census';
-import PS2AlertsInstanceInterface from '../../../interfaces/PS2AlertsInstanceInterface';
 import {FacilityDataInterface} from '../../../interfaces/FacilityDataInterface';
 import {MapControlInterface} from '../../../interfaces/MapControlInterface';
+import InstanceEvent from './InstanceEvent';
+import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
 
 @injectable()
-export default class FacilityControlEvent {
-    public readonly timestamp: Date;
+export default class FacilityControlEvent extends InstanceEvent {
     public readonly oldFaction: Faction;
+    public readonly oldFactionName: FactionName;
     public readonly newFaction: Faction;
+    public readonly newFactionName: FactionName;
     public readonly durationHeld: number;
     public readonly isDefence: boolean;
     public readonly outfitCaptured: string | null;
     public readonly mapControl: MapControlInterface | null;
 
     constructor(
-        event: FacilityControl,
-        public readonly instance: PS2AlertsInstanceInterface,
+        event: PS2EventQueueMessage<FacilityControl>,
         public readonly facility: FacilityDataInterface,
     ) {
-        this.instance = instance;
+        super(event.payload.timestamp, event.instance);
 
         this.facility = facility;
 
-        this.timestamp = event.timestamp;
-
-        this.durationHeld = Parser.parseNumericalArgument(event.duration_held);
+        this.durationHeld = Parser.parseNumericalArgument(event.payload.duration_held);
 
         if (isNaN(this.durationHeld)) {
             throw new IllegalArgumentException('durationHeld', 'FacilityControlEvent');
         }
 
-        this.oldFaction = FactionUtils.parse(Parser.parseNumericalArgument(event.old_faction_id));
-        this.newFaction = FactionUtils.parse(Parser.parseNumericalArgument(event.new_faction_id));
+        this.oldFaction = FactionUtils.parse(Parser.parseNumericalArgument(event.payload.old_faction_id));
+        this.newFaction = FactionUtils.parse(Parser.parseNumericalArgument(event.payload.new_faction_id));
+
+        this.newFactionName = FactionUtils.parseFactionIdToShortName(this.newFaction);
+        this.oldFactionName = FactionUtils.parseFactionIdToShortName(this.oldFaction);
 
         this.isDefence = this.oldFaction === this.newFaction;
 
-        this.outfitCaptured = event.outfit_id ? event.outfit_id : null;
+        this.outfitCaptured = event.payload.outfit_id ? event.payload.outfit_id : null;
 
         // Used to render capture histories on the website
         this.mapControl = {

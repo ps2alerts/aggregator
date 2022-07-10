@@ -1,5 +1,3 @@
-import EventHandlerInterface from './EventHandlerInterface';
-
-export default interface AggregateHandlerInterface<I> extends EventHandlerInterface<I> {
-    handle(event: I): Promise<boolean>;
+export default interface AggregateHandlerInterface<T> {
+    handle(event: T): Promise<boolean>;
 }

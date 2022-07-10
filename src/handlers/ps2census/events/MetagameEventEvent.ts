@@ -19,7 +19,11 @@ import {Zone} from '../../../ps2alerts-constants/zone';
 import {MetagameEvent} from 'ps2census';
 import {MetagameEventState} from '../../../ps2alerts-constants/metagameEventState';
 import {World} from '../../../ps2alerts-constants/world';
-import {MetagameEventType, metagameEventTypeDetailsMap} from '../../../ps2alerts-constants/metagameEventType';
+import {
+    MetagameDetailsInterface,
+    MetagameEventType,
+    metagameEventTypeDetailsMap,
+} from '../../../ps2alerts-constants/metagameEventType';
 import ApplicationException from '../../../exceptions/ApplicationException';
 
 @injectable()
@@ -33,6 +37,7 @@ export default class MetagameEventEvent {
     public readonly timestamp: Date;
     public readonly instanceId: number;
     public readonly zone: Zone;
+    public readonly details: MetagameDetailsInterface;
 
     constructor(event: MetagameEvent) {
         this.world = Parser.parseNumericalArgument(event.world_id);
@@ -86,6 +91,8 @@ export default class MetagameEventEvent {
         if (!details) {
             throw new ApplicationException(`Unable to determine event details / zone for event type ${this.eventType}`);
         }
+
+        this.details = details;
 
         this.zone = details.zone;
     }

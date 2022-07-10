@@ -1,105 +1,32 @@
-import {inject, injectable, multiInject} from 'inversify';
-import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';
-import {ConsumeMessage} from 'amqplib';
-import {jsonLogOutput} from '../../../utils/json';
-import {getLogger} from '../../../logger';
+import {injectable} from 'inversify';
 import {ChannelWrapper} from 'amqp-connection-manager';
-import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
-import ParsedQueueMessage from '../../../data/ParsedQueueMessage';
-import {TYPES} from '../../../constants/types';
-import {MessageQueueHandlerInterface} from '../../../interfaces/MessageQueueHandlerInterface';
-import RabbitMQ from '../../../config/rabbitmq';
+import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
 import {get} from '../../../utils/env';
-import ApplicationException from '../../../exceptions/ApplicationException';
+import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
+import config from '../../../config';
+import AdminAggregatorMessageHandler from '../../../handlers/AdminAggregatorMessageHandler';
 
 @injectable()
-export default class AdminAggregatorSubscriber implements RabbitMQConnectionAwareInterface {
-    private static readonly logger = getLogger('AdminAggregatorSubscriber');
+export default class AdminAggregatorSubscriber implements RabbitMQSubscriberInterface {
     private static channelWrapper: ChannelWrapper;
-    private static queueName = '';
-    private static adminMessageHandlers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>;
-    private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
 
     constructor(
-    @multiInject(TYPES.adminMessageHandlers) mqAdminMessageSubscribers: Array<MessageQueueHandlerInterface<ParsedQueueMessage>>,
-        @inject('rabbitMQConfig') rabbitMQConfig: RabbitMQ,
-        @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
-    ) {
-        AdminAggregatorSubscriber.queueName = `aggregator-admin-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
-        AdminAggregatorSubscriber.adminMessageHandlers = mqAdminMessageSubscribers;
-        this.connectionHandlerFactory = connectionHandlerFactory;
-    }
+        private readonly channelFactory: RabbitMQChannelFactory,
+        private readonly adminMessageHandler: AdminAggregatorMessageHandler,
+    ) {}
 
-    // We call subscribe now rather than in the constructor so we don't have multiple connections open, and it's called as and when it's required
-    // from the subscriber itself.
-    public async connect(): Promise<boolean> {
-        AdminAggregatorSubscriber.logger.info('Subscribing...');
-        AdminAggregatorSubscriber.channelWrapper = await this.connectionHandlerFactory.setupQueue(AdminAggregatorSubscriber.queueName, this.handleMessage);
-        AdminAggregatorSubscriber.logger.info('Subscribed!');
+    public connect(): void {
+        const queueName = `aggregator-admin-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
 
-        return true;
-    }
-
-    private static parseMessage(
-        envelope: ConsumeMessage|null,
-        queueName: string,
-    ): ParsedQueueMessage {
-        if (!envelope) {
-            throw new ApplicationException(`[${queueName}] Got empty message!`, 'AdminAggregatorSubscriber.parseMessage');
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let data: {type: string, body: any};
-
-        try {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            data = JSON.parse(envelope.content.toString());
-        } catch (e) {
-            throw new ApplicationException(`[${queueName}] Unable to JSON parse message! Message: "${envelope.content.toString()}"`, 'AdminAggregatorSubscriber.parseMessage');
-        }
-
-        if (!data.type) {
-            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'AdminAggregatorSubscriber.parseMessage');
-        }
-
-        if (!data.body) {
-            throw new ApplicationException(`[${queueName}] Missing message body! ${jsonLogOutput(data)}`, 'AdminAggregatorSubscriber.parseMessage');
-        }
-
-        AdminAggregatorSubscriber.logger.info(`[${queueName}] successfully parsed message! ${jsonLogOutput(data)}`);
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return new ParsedQueueMessage(data.type, data.body);
-    }
-
-    private readonly handleMessage = (msg: ConsumeMessage|null): boolean => {
-        let message: ParsedQueueMessage;
-
-        if (!msg) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Got empty message!`);
-            return false;
-        }
-
-        try {
-            message = AdminAggregatorSubscriber.parseMessage(msg, AdminAggregatorSubscriber.queueName);
-        } catch (err) {
-            if (err instanceof Error) {
-                AdminAggregatorSubscriber.logger.error(`[${AdminAggregatorSubscriber.queueName}] Unable to handle message! Probably invalid format. E: ${err.message}`);
-            }
-
-            AdminAggregatorSubscriber.channelWrapper.ack(msg);
-            AdminAggregatorSubscriber.logger.debug(`Acked failed message for ${AdminAggregatorSubscriber.queueName}`);
-            return false;
-        }
-
-        // For some reason this does **NOT** catch exceptions, so we must ack in every case and not throw any exceptions within.
-        AdminAggregatorSubscriber.adminMessageHandlers.map(
-            (handler: MessageQueueHandlerInterface<ParsedQueueMessage>) => void handler.handle(message),
+        AdminAggregatorSubscriber.channelWrapper = this.channelFactory.create(
+            config.rabbitmq.exchange,
+            queueName,
+            {
+                messageTtl: 5 * 60 * 1000,
+                maxPriority: 10,
+            },
+            '#',
+            this.adminMessageHandler,
         );
-        AdminAggregatorSubscriber.channelWrapper.ack(msg);
-        AdminAggregatorSubscriber.logger.debug(`Acked message for ${AdminAggregatorSubscriber.queueName}`);
-
-        return true;
-    };
+    }
 }

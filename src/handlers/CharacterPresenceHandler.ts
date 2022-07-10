@@ -9,6 +9,7 @@ import {Redis} from 'ioredis';
 import {World, worldArray} from '../ps2alerts-constants/world';
 import FactionUtils from '../utils/FactionUtils';
 import {TYPES} from '../constants/types';
+import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
@@ -17,10 +18,10 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
     constructor(@inject(TYPES.redis) private readonly cacheClient: Redis) {}
 
     // Updates / adds characters presence, setting a Redis key with expiry.
-    public async update(character: Character, zone: number): Promise<boolean> {
+    public async update(character: Character, instance: PS2AlertsInstanceInterface): Promise<boolean> {
         // Handle Sanctuary / unrecognised zones here
-        if (!Object.values(Zone).includes(zone)) {
-            CharacterPresenceHandler.logger.silly(`Discarding CharacterPresence update, unrecognized zone: ${zone}`);
+        if (!Object.values(Zone).includes(instance.zone)) {
+            CharacterPresenceHandler.logger.silly(`Discarding CharacterPresence update, unrecognized zone: ${instance.zone}`);
             return true;
         }
 
@@ -28,7 +29,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         await this.cacheClient.setex(`CharacterPresence-${character.id}`, 60 * 5, 'foo');
 
         // Add character to Redis set based on World, Zone and Faction.
-        await this.cacheClient.sadd(`CharacterPresencePops-${character.world}-${zone}-${character.faction}`, character.id);
+        await this.cacheClient.sadd(`CharacterPresencePops-${instance.world}-${instance.world}-${character.faction}`, character.id);
 
         return true;
     }

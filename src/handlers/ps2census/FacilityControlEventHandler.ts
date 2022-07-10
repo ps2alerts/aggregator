@@ -1,45 +1,50 @@
 import {inject, injectable, multiInject} from 'inversify';
-import EventHandlerInterface from '../../interfaces/EventHandlerInterface';
 import {getLogger} from '../../logger';
-import config from '../../config';
-import {jsonLogOutput} from '../../utils/json';
 import FacilityControlEvent from './events/FacilityControlEvent';
 import {TYPES} from '../../constants/types';
-import FactionUtils from '../../utils/FactionUtils';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
-import InstanceAuthority from '../../authorities/InstanceAuthority';
 import {AxiosInstance} from 'axios';
+import {FacilityControl} from 'ps2census';
+import {PS2EventInstanceHandlerContract} from '../../interfaces/PS2EventInstanceHandlerContract';
+import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
+import config from '../../config';
+import {jsonLogOutput} from '../../utils/json';
+import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
+import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 
 @injectable()
-export default class FacilityControlEventHandler implements EventHandlerInterface<FacilityControlEvent> {
+export default class FacilityControlEventHandler implements PS2EventInstanceHandlerContract<FacilityControl> {
+    public readonly eventName = 'FacilityControl';
     private static readonly logger = getLogger('FacilityControlEventHandler');
 
     constructor(
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-        @multiInject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<EventHandlerInterface<FacilityControlEvent>>,
+        private readonly facilityDataBroker: FacilityDataBroker,
         private readonly instanceActionFactory: InstanceActionFactory,
-        private readonly instanceAuthority: InstanceAuthority,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @multiInject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
     ) {}
 
-    public async handle(event: FacilityControlEvent): Promise<boolean>{
+    public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean>{
         FacilityControlEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
-        FacilityControlEventHandler.logger.debug(`[Instance ${event.instance.instanceId}] Facility ${event.facility.id} ${event.isDefence ? 'defended' : 'captured'} by ${FactionUtils.parseFactionIdToShortName(event.newFaction).toUpperCase()} ${event.isDefence ? '' : `from ${FactionUtils.parseFactionIdToShortName(event.oldFaction).toUpperCase()}`}`);
+        const facilityEvent = new FacilityControlEvent(event, await this.facilityDataBroker.get(event));
+
+        FacilityControlEventHandler.logger.debug(`[Instance ${facilityEvent.instance.instanceId}] Facility ${facilityEvent.facility.id} ${facilityEvent.isDefence ? 'defended' : 'captured'} by ${facilityEvent.newFactionName.toUpperCase()} ${facilityEvent.isDefence ? '' : `from  ${facilityEvent.oldFactionName.toUpperCase()}`}`);
 
         const facilityData = {
-            instance: event.instance.instanceId,
-            facility: event.facility.id,
-            timestamp: event.timestamp,
-            oldFaction: event.oldFaction,
-            newFaction: event.newFaction,
-            durationHeld: event.durationHeld,
-            isDefence: event.isDefence,
-            outfitCaptured: event.outfitCaptured,
+            instance: facilityEvent.instance.instanceId,
+            facility: facilityEvent.facility.id,
+            timestamp: facilityEvent.timestamp,
+            oldFaction: facilityEvent.oldFaction,
+            newFaction: facilityEvent.newFaction,
+            durationHeld: facilityEvent.durationHeld,
+            isDefence: facilityEvent.isDefence,
+            outfitCaptured: facilityEvent.outfitCaptured,
             mapControl: null, // This is null intentionally because we haven't calculated the control result yet (it's done in the handlers)
         };
 
@@ -60,7 +65,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         });
 
         this.aggregateHandlers.map(
-            (handler: EventHandlerInterface<FacilityControlEvent>) => void handler.handle(event)
+            (handler: AggregateHandlerInterface<FacilityControlEvent>) => void handler.handle(facilityEvent)
                 .catch((e) => {
                     if (e instanceof Error) {
                         FacilityControlEventHandler.logger.error(`Error parsing AggregateHandlers for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
@@ -71,7 +76,7 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
         );
 
         // Handle Instance Events
-        await this.instanceActionFactory.buildFacilityControlEvent(event).execute().catch((e) => {
+        await this.instanceActionFactory.buildFacilityControlEvent(facilityEvent).execute().catch((e) => {
             if (e instanceof Error) {
                 FacilityControlEventHandler.logger.error(`Error parsing Instance Action "facilityControlEvent" for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
             } else {
@@ -79,17 +84,6 @@ export default class FacilityControlEventHandler implements EventHandlerInterfac
             }
         });
 
-        // Now handlers and everything have run, update the mapControl record, since we now know the result values.
-        // Note: This will update the LATEST record, it is assumed it is created first.
-        const result = this.instanceAuthority.getInstance(event.instance.instanceId).result;
-        await this.ps2AlertsApiClient.patch(
-            ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
-                .replace('{instanceId}', event.instance.instanceId)
-                .replace('{facilityId}', String(event.facility.id)),
-            {mapControl: result},
-        ).catch((err: Error) => {
-            FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
-        });
         return true;
     }
 }

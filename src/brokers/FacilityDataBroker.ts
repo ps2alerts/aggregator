@@ -1,18 +1,18 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {FacilityDataBrokerInterface} from '../interfaces/FacilityDataBrokerInterface';
 import {Redis} from 'ioredis';
-import {CensusEnvironment} from '../types/CensusEnvironment';
-import {Zone} from '../ps2alerts-constants/zone';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
-import {Rest} from 'ps2census';
+import {FacilityControl, Rest} from 'ps2census';
 import {TYPES} from '../constants/types';
+import config from '../config';
+import PS2EventQueueMessage from '../handlers/messages/PS2EventQueueMessage';
+import Parser from '../utils/parser';
 
 @injectable()
-export default class FacilityDataBroker implements FacilityDataBrokerInterface {
+export default class FacilityDataBroker {
     private static readonly logger = getLogger('FacilityDataBroker');
 
     constructor(
@@ -20,11 +20,10 @@ export default class FacilityDataBroker implements FacilityDataBrokerInterface {
         private readonly restClient: Rest.Client,
     ) {}
 
-    public async get(
-        environment: CensusEnvironment,
-        facilityId: number,
-        zone: Zone,
-    ): Promise<FacilityDataInterface> {
+    public async get(event: PS2EventQueueMessage<FacilityControl>): Promise<FacilityDataInterface> {
+        const environment = config.census.censusEnvironment;
+        const facilityId = Parser.parseNumericalArgument(event.payload.facility_id);
+        const zone = Parser.parseNumericalArgument(event.payload.zone_id);
         const cacheKey = `facility-${facilityId}-${environment}`;
 
         let facilityData = new FakeMapRegionFactory().build(facilityId);

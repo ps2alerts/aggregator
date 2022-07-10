@@ -1,65 +1,54 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import RabbitMQ from '../../../config/rabbitmq';
-import {inject, injectable} from 'inversify';
-import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
+import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
 import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
+import config from '../../../config';
+import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
 
 @injectable()
-export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInterface {
+export default class ApiMQDelayPublisher implements RabbitMQSubscriberInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
-    private readonly config: RabbitMQ;
-    private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
     private channelWrapperLong: ChannelWrapper;
     private channelWrapperShort: ChannelWrapper;
-    private readonly shortQueue: string;
-    private readonly longQueue: string;
+    private readonly shortQueueName: string;
+    private readonly longQueueName: string;
 
     constructor(
-    @inject('rabbitMQConfig') config: RabbitMQ,
-        @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
+        private readonly channelFactory: RabbitMQChannelFactory,
     ) {
-        this.config = config;
-        this.connectionHandlerFactory = connectionHandlerFactory;
-        this.shortQueue = `${this.config.apiDelayQueueName}-46min`;
-        this.longQueue = `${this.config.apiDelayQueueName}-91min`;
+        this.shortQueueName = `${config.rabbitmq.apiDelayQueueName}-46min`;
+        this.longQueueName = `${config.rabbitmq.apiDelayQueueName}-91min`;
     }
 
-    public async connect(): Promise<boolean> {
-        ApiMQDelayPublisher.logger.info('Connecting to queues...');
-        this.channelWrapperLong = await this.connectionHandlerFactory.setupQueue(
-            this.longQueue,
-            null,
+    public connect(): void{
+        this.channelWrapperLong = this.channelFactory.create(
+            config.rabbitmq.exchange,
+            this.longQueueName,
             {
                 messageTtl: 5460000, // 91 minutes
                 deadLetterExchange: '',
-                deadLetterRoutingKey: this.config.apiQueueName,
+                deadLetterRoutingKey: config.rabbitmq.apiQueueName,
                 arguments: {
                     'x-queue-mode': 'lazy',
                 },
             });
 
-        this.channelWrapperShort = await this.connectionHandlerFactory.setupQueue(
-            this.shortQueue,
-            null,
+        this.channelWrapperShort = this.channelFactory.create(
+            config.rabbitmq.exchange,
+            this.shortQueueName,
             {
                 messageTtl: 2760000, // 46 minutes
                 deadLetterExchange: '',
-                deadLetterRoutingKey: this.config.apiQueueName,
+                deadLetterRoutingKey: config.rabbitmq.apiQueueName,
                 arguments: {
                     'x-queue-mode': 'lazy',
                 },
             });
-
-        ApiMQDelayPublisher.logger.info('Connected!');
-
-        return true;
     }
 
     public async send(msg: ApiMQGlobalAggregateMessage, duration: number): Promise<boolean | undefined> {
@@ -69,12 +58,12 @@ export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInter
         }
 
         let wrapper = this.channelWrapperLong;
-        let queue = this.longQueue;
+        let queue = this.longQueueName;
 
         switch (duration) {
             case shortAlert:
                 wrapper = this.channelWrapperShort;
-                queue = this.shortQueue;
+                queue = this.shortQueueName;
                 break;
         }
 

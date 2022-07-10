@@ -49,7 +49,7 @@ export default class Kernel implements KernelInterface {
 
         this.state = RunningStates.BOOTING;
 
-        Kernel.logger.info(`Starting! == VERSION: ${config.app.version}, ENV: ${config.app.environment} ==`);
+        Kernel.logger.info(`Starting! == VERSION: ${config.app.version}, ENV: ${config.app.environment ?? 'false'} ==`);
 
         try {
             // @See config/app/.ts
@@ -89,6 +89,11 @@ export default class Kernel implements KernelInterface {
             if (err instanceof Error) {
                 Kernel.logger.error(`====== UNKNOWN ERROR HAS OCCURRED! "${err.name}" MESSAGE AS FOLLOWS:`);
                 Kernel.logger.error(err.message);
+
+                if (err.stack) {
+                    Kernel.logger.error('Trace: ');
+                    Kernel.logger.error(err.stack);
+                }
             }
 
             // Fucked
@@ -112,7 +117,7 @@ export default class Kernel implements KernelInterface {
         // Set app as terminating!
         this.state = RunningStates.TERMINATING;
 
-        Kernel.logger.error(`TERMINATING! CODE: ${code}`);
+        Kernel.logger.error('TERMINATING!!');
 
         // Give the services a chance to terminate safely
         await Promise.all(
@@ -123,6 +128,8 @@ export default class Kernel implements KernelInterface {
                     }),
             ),
         );
+
+        Kernel.logger.error(`All services terminated, emitting exit code! CODE: ${code}`);
 
         process.exit(code);
     }

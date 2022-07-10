@@ -1,8 +1,9 @@
 import PopulationData from '../data/PopulationData';
 import Character from '../data/Character';
+import PS2AlertsInstanceInterface from './PS2AlertsInstanceInterface';
 
 export default interface CharacterPresenceHandlerInterface {
-    update(character: Character, zone: number): Promise<boolean>;
+    update(character: Character, instance: PS2AlertsInstanceInterface): Promise<boolean>;
 
     delete(character: Character): Promise<boolean>;
 

@@ -12,7 +12,7 @@ import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAg
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
-import FacilityControlEvent from '../handlers/census/events/FacilityControlEvent';
+import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import {Redis} from 'ioredis';
@@ -66,6 +66,7 @@ export default class InstanceActionFactory {
             return new MetagameInstanceTerritoryFacilityControlAction(
                 event,
                 this.buildTerritoryResult(event.instance),
+                this.ps2AlertsApiClient,
             );
         }
 
@@ -84,6 +85,5 @@ export default class InstanceActionFactory {
         }
 
         throw new ApplicationException('Unable to determine territoryResultAction!', 'InstanceActionFactory');
-
     }
 }

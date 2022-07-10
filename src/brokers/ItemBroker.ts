@@ -5,11 +5,11 @@ import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
 import FakeItemFactory from '../factories/FakeItemFactory';
 import {Vehicle} from '../ps2alerts-constants/vehicle';
-import {CensusEnvironment} from '../types/CensusEnvironment';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {Redis} from 'ioredis';
 import {Rest} from 'ps2census';
 import {TYPES} from '../constants/types';
+import config from '../config';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -21,10 +21,11 @@ export default class ItemBroker implements ItemBrokerInterface {
     ) {}
 
     public async get(
-        environment: CensusEnvironment,
         itemId: number,
         vehicleId: Vehicle,
     ): Promise<ItemInterface> {
+        const environment = config.census.censusEnvironment;
+
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             if (!vehicleId) {
                 ItemBroker.logger.silly(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);

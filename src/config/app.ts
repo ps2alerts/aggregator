@@ -16,6 +16,7 @@ export default class App {
             require('../factories').default,
             require('../handlers').default,
             require('../handlers/aggregate').default,
+            require('../handlers/ps2census').default,
             require('../services/authorities').default,
             require('../services/census').default,
             require('../services/ps2alerts-api').default,

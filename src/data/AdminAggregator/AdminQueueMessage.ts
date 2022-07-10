@@ -1,4 +1,4 @@
-export default class ParsedQueueMessage {
+export default class AdminQueueMessage {
     public readonly type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public readonly body: Record<string, any>;

@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import DeathEvent from '../../census/events/DeathEvent';
+import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
@@ -14,7 +13,7 @@ import FactionUtils from '../../../utils/FactionUtils';
 export default class InstanceCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceCharacterAggregate');
 
-    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
+    constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceCharacterAggregate.logger.silly('InstanceCharacterAggregate.handle');

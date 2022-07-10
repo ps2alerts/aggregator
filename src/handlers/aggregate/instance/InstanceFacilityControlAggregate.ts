@@ -1,9 +1,7 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
-import FacilityControlEvent from '../../census/events/FacilityControlEvent';
-import FactionUtils from '../../../utils/FactionUtils';
+import {injectable} from 'inversify';
+import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
@@ -12,13 +10,10 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 export default class InstanceFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('InstanceFacilityControlAggregate');
 
-    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
+    constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         InstanceFacilityControlAggregate.logger.silly('InstanceFacilityControlAggregate.handle');
-
-        const newFactionName = FactionUtils.parseFactionIdToShortName(event.newFaction);
-        const oldFactionName = FactionUtils.parseFactionIdToShortName(event.oldFaction);
 
         const documents = [];
 
@@ -28,16 +23,16 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
 
         if (event.isDefence) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const defenceKey = `${newFactionName}.defences`;
+            const defenceKey = `${event.newFactionName}.defences`;
             documents.push(
                 {$inc: {[defenceKey]: 1}},
                 {$inc: {['totals.defences']: 1}},
             );
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const captureKey = `${newFactionName}.captures`;
-            const captureTakenKey = `${newFactionName}.takenFrom.${oldFactionName}`;
-            const captureLostKey = `${oldFactionName}.lostTo.${newFactionName}`;
+            const captureKey = `${event.newFactionName}.captures`;
+            const captureTakenKey = `${event.newFactionName}.takenFrom.${event.oldFactionName}`;
+            const captureLostKey = `${event.oldFactionName}.lostTo.${event.newFactionName}`;
             documents.push(
                 {$inc: {[captureKey]: 1}},
                 {$inc: {[captureTakenKey]: 1}},

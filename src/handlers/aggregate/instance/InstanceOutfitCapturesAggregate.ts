@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
-import FacilityControlEvent from '../../census/events/FacilityControlEvent';
+import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 
 @injectable()
 // Note: This does NOT create a new aggregate, merely adds data to the InstanceOutfitAggregate.
@@ -14,7 +13,7 @@ export default class InstanceOutfitCapturesAggregate implements AggregateHandler
     private static readonly logger = getLogger('InstanceOutfitCapturesAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {

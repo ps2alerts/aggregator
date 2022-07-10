@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import DeathEvent from '../../census/events/DeathEvent';
+import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {Kill} from 'ps2census';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
@@ -17,8 +16,8 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
     private static readonly logger = getLogger('GlobalCharacterAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {

@@ -25,7 +25,7 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
             this.instance.result = result;
         }
 
-        // Call API to patch the record
+        // Call API to patch the instance record
         await this.ps2alertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance
                 .replace('{instanceId}', this.instance.instanceId),

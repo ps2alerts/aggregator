@@ -15,6 +15,7 @@ import {AxiosInstance, AxiosResponse} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import config from '../config';
 import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
+import QueueAuthority from './QueueAuthority';
 
 @injectable()
 export default class InstanceAuthority {
@@ -26,17 +27,19 @@ export default class InstanceAuthority {
     constructor(
         private readonly instanceActionFactory: InstanceActionFactory,
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly queueAuthority: QueueAuthority,
     ) {}
 
-    public getInstance(instanceId: string): PS2AlertsInstanceInterface {
+    public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
         InstanceAuthority.logger.silly(`Attempting to find an instance with ID: "${instanceId}"...`);
 
-        const instance = this.currentInstances.find((i) => {
+        const instance = this.currentInstances.find((i: PS2AlertsInstanceInterface) => {
             return i.instanceId === instanceId;
         });
 
         if (!instance) {
-            throw new ApplicationException(`Unable to find InstanceID "${instanceId}"!`, 'InstanceAuthority');
+            InstanceAuthority.logger.error(`Unable to find InstanceID "${instanceId}"!`, 'InstanceAuthority');
+            return null;
         }
 
         InstanceAuthority.logger.silly(`Found instance with ID: "${instanceId}"!`);
@@ -124,6 +127,9 @@ export default class InstanceAuthority {
 
             this.currentInstances.push(instance); // Add instance to the in-memory data, so it can be called upon rapidly without polling DB
             this.printActives(); // Show currently running alerts in console / log
+
+            // Subscribe to world rabbit queues to listen to messages
+            this.queueAuthority.startQueuesForInstance(instance);
 
             InstanceAuthority.logger.info(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
 

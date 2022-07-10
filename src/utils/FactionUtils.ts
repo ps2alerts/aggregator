@@ -1,6 +1,8 @@
 import {Faction} from '../ps2alerts-constants/faction';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 
+export type FactionName = 'vs' | 'nc' | 'tr' | 'nso' | 'none';
+
 export default class FactionUtils {
     public static parse(value: number): Faction {
         switch (value) {
@@ -19,7 +21,7 @@ export default class FactionUtils {
         throw new IllegalArgumentException(`Unknown faction: ${value}`, 'FactionUtils.parse');
     }
 
-    public static parseFactionIdToShortName(value: Faction | null): string {
+    public static parseFactionIdToShortName(value: Faction | null): FactionName {
         if (value === null) {
             return 'none';
         }
