@@ -22,7 +22,6 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import {Options} from 'amqplib/properties';
 import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
-import ExceptionHandler from '../handlers/system/ExceptionHandler';
 
 @injectable()
 export default class RabbitMQChannelFactory {
@@ -69,9 +68,9 @@ export default class RabbitMQChannelFactory {
                     RabbitMQChannelFactory.logger.info(`[${queueName}] reconnected!`);
                 });
 
-                this.channel.on('error', (error) => {
-                    if (error instanceof Error) {
-                        RabbitMQChannelFactory.logger.error(`[${queueName}] rabbit error! ${error.message}`);
+                this.channel.on('error', (err) => {
+                    if (err instanceof Error) {
+                        RabbitMQChannelFactory.logger.error(`[${queueName}] rabbit error! ${err.message}`);
                     }
                 });
 
@@ -92,7 +91,11 @@ export default class RabbitMQChannelFactory {
                                 // requeue: () => return , // DL Requeue
                             });
                         } catch (err) {
-                            new ExceptionHandler('Unable to properly handle message!', err, 'RabbitMQChannelFactory.consume');
+                            // Do not throw an exception or the app will terminate!
+                            if (err instanceof Error) {
+                                RabbitMQChannelFactory.logger.error(`[${queueName}] Unable to properly handle message! ${err.message}`);
+                            }
+
                             channel.ack(message); // Critical error, probably unprocessable so we're chucking
                         }
                     }, consumerOptions);

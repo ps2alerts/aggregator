@@ -25,7 +25,7 @@ export default class ApiMQPublisher implements RabbitMQSubscriberInterface {
             config.rabbitmq.exchange,
             config.rabbitmq.apiQueueName,
             {
-                messageTtl: 10800000,
+                messageTtl: 180 * 60 * 1000,
                 arguments: {
                     'x-queue-mode': 'lazy',
                 },
