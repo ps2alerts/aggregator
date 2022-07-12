@@ -10,14 +10,11 @@ export default class RabbitMQConnectionService implements ServiceInterface {
     public readonly bootPriority = 4;
     private static readonly logger = getLogger('RabbitMQSubscriptionService');
     private readonly messageQueueSubscribers: RabbitMQQueueInterface[];
-    private readonly messageQueuePublishers: RabbitMQQueueInterface[];
 
     constructor(
     @multiInject(TYPES.rabbitMQSubscribers) messageQueueSubscribers: RabbitMQQueueInterface[],
-        @multiInject(TYPES.rabbitMQPublishers) messageQueuePublishers: RabbitMQQueueInterface[],
     ) {
         this.messageQueueSubscribers = messageQueueSubscribers;
-        this.messageQueuePublishers = messageQueuePublishers;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -27,6 +24,7 @@ export default class RabbitMQConnectionService implements ServiceInterface {
         const connect = (queue: RabbitMQQueueInterface): void => {
             try {
                 queue.connect();
+
             } catch (err) {
                 if (err instanceof Error) {
                     throw new ApplicationException(`Error subscribing to RabbitMQ! E: ${err.message}`, 'RabbitMQConnectionService', 1);
@@ -38,10 +36,6 @@ export default class RabbitMQConnectionService implements ServiceInterface {
 
         await Promise.all(this.messageQueueSubscribers.map(
             (subscriber: RabbitMQQueueInterface) => connect(subscriber),
-        ));
-
-        await Promise.all(this.messageQueuePublishers.map(
-            (publisher: RabbitMQQueueInterface) => connect(publisher),
         ));
     }
 

@@ -8,6 +8,7 @@ import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 import MetagameSubscriber from './subscribers/MetagameSubscriber';
 import {AmqpConnectionManager, connect} from 'amqp-connection-manager';
+import RabbitMQChannelFactory from '../../factories/RabbitMQChannelFactory';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(RabbitMQConnectionService);
@@ -23,6 +24,14 @@ export default new ContainerModule((bind) => {
     bind<MetagameSubscriber>(TYPES.rabbitMQSubscribers).to(MetagameSubscriber).inSingletonScope();
 
     // RabbitMQ Publishers
-    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher).inSingletonScope();
-    bind<ApiMQDelayPublisher>(TYPES.rabbitMQPublishers).to(ApiMQDelayPublisher).inSingletonScope();
+    bind(ApiMQPublisher).toDynamicValue(async (context) => {
+        const publisher = new ApiMQPublisher(await context.container.getAsync(RabbitMQChannelFactory));
+        publisher.connect();
+        return publisher;
+    }).inSingletonScope();
+    bind(ApiMQDelayPublisher).toDynamicValue(async (context) => {
+        const publisher = new ApiMQDelayPublisher(await context.container.getAsync(RabbitMQChannelFactory));
+        publisher.connect();
+        return publisher;
+    }).inSingletonScope();
 });

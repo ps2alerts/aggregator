@@ -40,6 +40,7 @@ export default class RabbitMQChannelFactory {
         handler: QueueMessageHandlerInterface<any> | null = null,
     ): ChannelWrapper {
         this.channel = this.rabbit.createChannel({
+            json: true,
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: async (channel: ConfirmChannel) => {
                 pattern = pattern ?? '#'; // Default to all messages if a pattern isn't supplied
