@@ -23,6 +23,6 @@ export default new ContainerModule((bind) => {
     bind<MetagameSubscriber>(TYPES.rabbitMQSubscribers).to(MetagameSubscriber).inSingletonScope();
 
     // RabbitMQ Publishers
-    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher);
-    bind<ApiMQDelayPublisher>(TYPES.rabbitMQPublishers).to(ApiMQDelayPublisher);
+    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher).inSingletonScope();
+    bind<ApiMQDelayPublisher>(TYPES.rabbitMQPublishers).to(ApiMQDelayPublisher).inSingletonScope();
 });

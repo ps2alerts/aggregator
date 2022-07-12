@@ -24,9 +24,9 @@ export default class RabbitMQConnectionService implements ServiceInterface {
     public async boot(): Promise<void> {
         RabbitMQConnectionService.logger.debug('Booting RabbitMQSubscriptionService...');
 
-        const connect = (subscriber: RabbitMQQueueInterface): void => {
+        const connect = (queue: RabbitMQQueueInterface): void => {
             try {
-                subscriber.connect();
+                queue.connect();
             } catch (err) {
                 if (err instanceof Error) {
                     throw new ApplicationException(`Error subscribing to RabbitMQ! E: ${err.message}`, 'RabbitMQConnectionService', 1);
