@@ -34,7 +34,7 @@ export default class QueueAuthority {
         }
     }
 
-    public startQueuesForInstance(instance: PS2AlertsInstanceInterface): void {
+    public async startQueuesForInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
         // Check if we're already monitoring the instance, if we are, do nothing
         if (this.instanceChannelMap.has(instance.instanceId)) {
             return;
@@ -43,7 +43,7 @@ export default class QueueAuthority {
         const channels: ChannelWrapper[] = [];
 
         for (const [eventName, handlers] of this.handlerMap) {
-            const channel = this.channelFactory.create(
+            const channel = await this.channelFactory.create(
                 config.rabbitmq.topicExchange,
                 `aggregator-${instance.world}-${eventName}`,
                 {

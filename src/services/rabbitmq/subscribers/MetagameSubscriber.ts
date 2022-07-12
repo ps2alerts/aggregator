@@ -18,7 +18,7 @@ export default class MetagameSubscriber implements RabbitMQQueueInterface {
     ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    public async connect(): Promise<boolean> {
+    public async connect(): Promise<void> {
         MetagameSubscriber.logger.info('Creating world MetagameEvent queues...');
 
         // Subscribe only to worlds that make sense for the environment
@@ -32,7 +32,7 @@ export default class MetagameSubscriber implements RabbitMQQueueInterface {
 
         // Registers queues by world and event type, enabling us to fine-tune the priorities of each queue and monitor for statistics.
         for (const world of worlds) {
-            this.channelFactory.create(
+            await this.channelFactory.create(
                 config.rabbitmq.topicExchange,
                 `aggregator-${world}-MetagameEvent`,
                 {
@@ -45,6 +45,5 @@ export default class MetagameSubscriber implements RabbitMQQueueInterface {
         }
 
         MetagameSubscriber.logger.info('Successfully subscribed MetagameEvent queues!');
-        return true;
     }
 }

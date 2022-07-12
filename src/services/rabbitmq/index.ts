@@ -24,14 +24,18 @@ export default new ContainerModule((bind) => {
     bind<MetagameSubscriber>(TYPES.rabbitMQSubscribers).to(MetagameSubscriber).inSingletonScope();
 
     // RabbitMQ Publishers
+    // For some reason this method no longer works, so we have to instantiate the publishers manually.
+    // bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher).inSingletonScope();
+    // bind<ApiMQDelayPublisher>(TYPES.rabbitMQPublishers).to(ApiMQDelayPublisher).inSingletonScope();
+
     bind(ApiMQPublisher).toDynamicValue(async (context) => {
         const publisher = new ApiMQPublisher(await context.container.getAsync(RabbitMQChannelFactory));
-        publisher.connect();
+        await publisher.connect();
         return publisher;
     }).inSingletonScope();
     bind(ApiMQDelayPublisher).toDynamicValue(async (context) => {
         const publisher = new ApiMQDelayPublisher(await context.container.getAsync(RabbitMQChannelFactory));
-        publisher.connect();
+        await publisher.connect();
         return publisher;
     }).inSingletonScope();
 });

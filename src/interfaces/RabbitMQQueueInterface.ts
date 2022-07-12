@@ -1,3 +1,3 @@
 export interface RabbitMQQueueInterface {
-    connect(): void;
+    connect(): Promise<void>;
 }

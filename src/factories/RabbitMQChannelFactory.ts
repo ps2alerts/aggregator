@@ -32,14 +32,14 @@ export default class RabbitMQChannelFactory {
     ) {}
 
     // Above this, QueueAuthority creates these streams
-    public create(
+    public async create(
         exchange: string,
         queueName: string,
         queueOptions: Options.AssertQueue = {},
         pattern: string | null = null,
         handler: QueueMessageHandlerInterface<any> | null = null,
-    ): ChannelWrapper {
-        this.channel = this.rabbit.createChannel({
+    ): Promise<ChannelWrapper> {
+        const channel = this.rabbit.createChannel({
             json: true,
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: async (channel: ConfirmChannel) => {
@@ -51,27 +51,6 @@ export default class RabbitMQChannelFactory {
                     channel.assertQueue(queueName, queueOptions),
                 ]);
                 await channel.bindQueue(queueName, exchange, pattern);
-
-                this.channel.on('connect', () => {
-                    RabbitMQChannelFactory.logger.info(`[${queueName}] connected!`);
-                });
-
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                this.channel.on('close', async () => {
-                    RabbitMQChannelFactory.logger.error(`[${queueName}] closed!`);
-
-                    RabbitMQChannelFactory.logger.info(`[${queueName}] attempting reconnect...`);
-                    await this.destroy();
-                    this.channel = this.create(exchange, queueName, queueOptions, pattern, handler);
-
-                    RabbitMQChannelFactory.logger.info(`[${queueName}] reconnected!`);
-                });
-
-                this.channel.on('error', (err) => {
-                    if (err instanceof Error) {
-                        RabbitMQChannelFactory.logger.error(`[${queueName}] rabbit error! ${err.message}`);
-                    }
-                });
 
                 // If the queue requires a consumer
                 if (handler) {
@@ -102,6 +81,30 @@ export default class RabbitMQChannelFactory {
             },
         });
 
+        channel.on('connect', () => {
+            RabbitMQChannelFactory.logger.info(`[${queueName}] connected!`);
+        });
+
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        channel.on('close', async () => {
+            RabbitMQChannelFactory.logger.error(`[${queueName}] closed!`);
+
+            RabbitMQChannelFactory.logger.info(`[${queueName}] attempting reconnect...`);
+            await this.destroy();
+            this.channel = await this.create(exchange, queueName, queueOptions, pattern, handler);
+
+            RabbitMQChannelFactory.logger.info(`[${queueName}] reconnected!`);
+        });
+
+        channel.on('error', (err) => {
+            if (err instanceof Error) {
+                RabbitMQChannelFactory.logger.error(`[${queueName}] rabbit error! ${err.message}`);
+            }
+        });
+
+        // Ensure the connection is actually there
+        await channel.waitForConnect();
+        this.channel = channel;
         return this.channel;
     }
 

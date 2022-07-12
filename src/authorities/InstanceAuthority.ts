@@ -128,7 +128,7 @@ export default class InstanceAuthority {
             this.printActives(); // Show currently running alerts in console / log
 
             // Subscribe to world rabbit queues to listen to messages
-            this.queueAuthority.startQueuesForInstance(instance);
+            await this.queueAuthority.startQueuesForInstance(instance);
 
             InstanceAuthority.logger.info(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
 

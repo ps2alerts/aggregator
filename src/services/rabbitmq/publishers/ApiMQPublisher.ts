@@ -16,12 +16,10 @@ export default class ApiMQPublisher implements RabbitMQQueueInterface {
     private static readonly logger = getLogger('ApiMQPublisher');
     private channelWrapper: ChannelWrapper;
 
-    constructor(
-        private readonly channelFactory: RabbitMQChannelFactory,
-    ) {}
+    constructor(private readonly channelFactory: RabbitMQChannelFactory) {}
 
-    public connect(): void {
-        this.channelWrapper = this.channelFactory.create(
+    public async connect(): Promise<void> {
+        this.channelWrapper = await this.channelFactory.create(
             config.rabbitmq.exchange,
             config.rabbitmq.apiQueueName,
             {

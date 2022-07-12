@@ -18,15 +18,13 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueInterface {
     private readonly shortQueueName: string;
     private readonly longQueueName: string;
 
-    constructor(
-        private readonly channelFactory: RabbitMQChannelFactory,
-    ) {
+    constructor(private readonly channelFactory: RabbitMQChannelFactory) {
         this.shortQueueName = `${config.rabbitmq.apiDelayQueueName}-46min`;
         this.longQueueName = `${config.rabbitmq.apiDelayQueueName}-91min`;
     }
 
-    public connect(): void{
-        this.channelWrapperLong = this.channelFactory.create(
+    public async connect(): Promise<void> {
+        this.channelWrapperLong = await this.channelFactory.create(
             config.rabbitmq.exchange,
             this.longQueueName,
             {
@@ -38,7 +36,7 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueInterface {
                 },
             });
 
-        this.channelWrapperShort = this.channelFactory.create(
+        this.channelWrapperShort = await this.channelFactory.create(
             config.rabbitmq.exchange,
             this.shortQueueName,
             {

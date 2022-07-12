@@ -15,10 +15,10 @@ export default class AdminAggregatorSubscriber implements RabbitMQQueueInterface
         private readonly adminMessageHandler: AdminAggregatorMessageHandler,
     ) {}
 
-    public connect(): void {
+    public async connect(): Promise<void> {
         const queueName = `aggregator-admin-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
 
-        AdminAggregatorSubscriber.channelWrapper = this.channelFactory.create(
+        AdminAggregatorSubscriber.channelWrapper = await this.channelFactory.create(
             config.rabbitmq.exchange,
             queueName,
             {},

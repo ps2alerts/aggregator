@@ -11,13 +11,11 @@ export default class AggregatorDelayPublisher implements RabbitMQQueueInterface 
     private static readonly logger = getLogger('ApiMQDelayPublisher');
     private channelWrapper: ChannelWrapper;
 
-    constructor(
-        private readonly channelFactory: RabbitMQChannelFactory,
-    ) {}
+    constructor(private readonly channelFactory: RabbitMQChannelFactory) {}
 
-    public connect(): void {
+    public async connect(): Promise<void> {
         AggregatorDelayPublisher.logger.info('Connecting to queues...');
-        this.channelWrapper = this.channelFactory.create(
+        this.channelWrapper = await this.channelFactory.create(
             config.rabbitmq.exchange,
             'aggregator-retry',
             {
