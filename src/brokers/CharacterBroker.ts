@@ -1,14 +1,15 @@
 // This broker is responsible for grabbing the requested character data using the built in PS2Census event methods, but handling exceptions.
 
 import Character from '../data/Character';
-import {Death, GainExperience, MaxRetryException, VehicleDestroy} from 'ps2census';
+import {AttackerEvent, MaxRetryException} from 'ps2census';
 import ApplicationException from '../exceptions/ApplicationException';
 import {injectable} from 'inversify';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
+import {CharacterEvent} from 'ps2census/dist/client/events/base/character.event';
 
 @injectable()
 export default class CharacterBroker {
-    public async get(payload: Death | GainExperience | VehicleDestroy): Promise<{ character: Character, attacker: Character | undefined }> {
+    public async get(payload: CharacterEvent): Promise<{ character: Character, attacker: Character | undefined }> {
         let character: Character,
             attacker: Character | undefined;
 
@@ -18,7 +19,8 @@ export default class CharacterBroker {
             promises.push(payload.character());
         }
 
-        if (payload instanceof Death || payload instanceof VehicleDestroy) {
+        if (payload instanceof AttackerEvent) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             promises.push(payload.attacker());
         }
 

@@ -11,8 +11,6 @@ import {
     FacilityControl,
     GainExperience,
     MetagameEvent,
-    PlayerFacilityCapture,
-    PlayerFacilityDefend,
     PS2Event,
     Stream,
     VehicleDestroy,
@@ -155,23 +153,38 @@ export default class RabbitMQChannelFactory {
         return censusClass;
     }
 
-    private createMessageClass(payload: Stream.PS2Event): PS2Event {
+    private createMessageClass(payload: Stream.PS2Event): PS2Event | undefined {
         switch (payload.event_name) {
+            case 'AchievementEarned':
+                return;
+            case 'BattleRankUp':
+                return;
+            case 'ContinentLock':
+                return;
+            case 'ContinentUnlock':
+                return;
             case 'Death':
                 return new Death(this.censusClient, payload);
             case 'FacilityControl':
                 return new FacilityControl(this.censusClient, payload);
             case 'GainExperience':
                 return new GainExperience(this.censusClient, payload);
+            case 'ItemAdded':
+                return;
             case 'MetagameEvent':
                 return new MetagameEvent(this.censusClient, payload);
             case 'PlayerFacilityCapture':
-                return new PlayerFacilityCapture(this.censusClient, payload);
+                return;
             case 'PlayerFacilityDefend':
-                return new PlayerFacilityDefend(this.censusClient, payload);
+                return;
+            case 'PlayerLogin':
+                return;
+            case 'PlayerLogout':
+                return;
+            case 'SkillAdded':
+                return;
             case 'VehicleDestroy':
                 return new VehicleDestroy(this.censusClient, payload);
-            default: { throw new Error(`Unknown message received - ${payload.event_name}`); }
         }
     }
 }

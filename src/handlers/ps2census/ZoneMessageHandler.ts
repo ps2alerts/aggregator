@@ -1,7 +1,7 @@
 // This handler is responsible for requeues and building the PS2EventQueueMessage with has various helpful data included.
 
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
-import {MaxRetryException, PS2Event} from 'ps2census';
+import {MaxRetryException, ZoneEvent} from 'ps2census';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../../interfaces/QueueMessageHandlerInterface';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import {getLogger} from '../../logger';
@@ -11,7 +11,7 @@ import {injectable} from 'inversify';
 
 @injectable()
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export default class ZoneMessageHandler<T extends PS2Event & {zone_id: string}> implements QueueMessageHandlerInterface<T>{
+export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMessageHandlerInterface<T>{
     private static readonly logger = getLogger('ZoneMessageHandler');
 
     constructor(
