@@ -3,7 +3,7 @@ import {injectable} from 'inversify';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
+import {RabbitMQQueueInterface} from '../../../interfaces/RabbitMQQueueInterface';
 import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
@@ -11,7 +11,7 @@ import config from '../../../config';
 import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
 
 @injectable()
-export default class ApiMQDelayPublisher implements RabbitMQSubscriberInterface {
+export default class ApiMQDelayPublisher implements RabbitMQQueueInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
     private channelWrapperLong: ChannelWrapper;
     private channelWrapperShort: ChannelWrapper;

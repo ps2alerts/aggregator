@@ -4,12 +4,12 @@ import {injectable} from 'inversify';
 import {getLogger} from '../../../logger';
 import {pcWorldArray, World} from '../../../ps2alerts-constants/world';
 import config from '../../../config';
-import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
+import {RabbitMQQueueInterface} from '../../../interfaces/RabbitMQQueueInterface';
 import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
 import MetagameEventEventHandler from '../../../handlers/ps2census/MetagameEventEventHandler';
 
 @injectable()
-export default class MetagameSubscriber implements RabbitMQSubscriberInterface {
+export default class MetagameSubscriber implements RabbitMQQueueInterface {
     private static readonly logger = getLogger('MetagameSubscriber');
 
     constructor(

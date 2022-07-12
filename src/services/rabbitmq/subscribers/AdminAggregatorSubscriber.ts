@@ -1,13 +1,13 @@
 import {injectable} from 'inversify';
 import {ChannelWrapper} from 'amqp-connection-manager';
-import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
+import {RabbitMQQueueInterface} from '../../../interfaces/RabbitMQQueueInterface';
 import {get} from '../../../utils/env';
 import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
 import config from '../../../config';
 import AdminAggregatorMessageHandler from '../../../handlers/AdminAggregatorMessageHandler';
 
 @injectable()
-export default class AdminAggregatorSubscriber implements RabbitMQSubscriberInterface {
+export default class AdminAggregatorSubscriber implements RabbitMQQueueInterface {
     private static channelWrapper: ChannelWrapper;
 
     constructor(

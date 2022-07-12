@@ -2,12 +2,12 @@
 import {injectable} from 'inversify';
 import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
-import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
+import {RabbitMQQueueInterface} from '../../../interfaces/RabbitMQQueueInterface';
 import config from '../../../config';
 import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
 
 @injectable()
-export default class AggregatorDelayPublisher implements RabbitMQSubscriberInterface {
+export default class AggregatorDelayPublisher implements RabbitMQQueueInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
     private channelWrapper: ChannelWrapper;
 

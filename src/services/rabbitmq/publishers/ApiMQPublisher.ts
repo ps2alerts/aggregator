@@ -4,7 +4,7 @@ import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {RabbitMQSubscriberInterface} from '../../../interfaces/RabbitMQSubscriberInterface';
+import {RabbitMQQueueInterface} from '../../../interfaces/RabbitMQQueueInterface';
 import {jsonLogOutput} from '../../../utils/json';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import config from '../../../config';
@@ -12,7 +12,7 @@ import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
 import ExceptionHandler from '../../../handlers/system/ExceptionHandler';
 
 @injectable()
-export default class ApiMQPublisher implements RabbitMQSubscriberInterface {
+export default class ApiMQPublisher implements RabbitMQQueueInterface {
     private static readonly logger = getLogger('ApiMQPublisher');
     private channelWrapper: ChannelWrapper;
 
