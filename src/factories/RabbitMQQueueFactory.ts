@@ -97,11 +97,6 @@ export default class RabbitMQQueueFactory {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         channel.on('close', async () => {
             RabbitMQQueueFactory.logger.error(`[${queueName}] closed!`);
-
-            RabbitMQQueueFactory.logger.info(`[${queueName}] attempting reconnect...`);
-            await channel.waitForConnect();
-
-            RabbitMQQueueFactory.logger.info(`[${queueName}] reconnected!`);
         });
 
         channel.on('error', (err) => {
