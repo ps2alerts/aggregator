@@ -8,7 +8,6 @@ import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 import MetagameSubscriber from './subscribers/MetagameSubscriber';
 import {AmqpConnectionManager, connect} from 'amqp-connection-manager';
-import RabbitMQChannelFactory from '../../factories/RabbitMQChannelFactory';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(RabbitMQConnectionService);
@@ -20,22 +19,28 @@ export default new ContainerModule((bind) => {
     });
 
     // RabbitMQ Subscribers / Consumers
-    bind<AdminAggregatorSubscriber>(TYPES.rabbitMQSubscribers).to(AdminAggregatorSubscriber).inSingletonScope();
-    bind<MetagameSubscriber>(TYPES.rabbitMQSubscribers).to(MetagameSubscriber).inSingletonScope();
+    // bind<AdminAggregatorSubscriber>(TYPES.rabbitMQSubscribers).to(AdminAggregatorSubscriber).inSingletonScope();
+    // bind<MetagameSubscriber>(TYPES.rabbitMQSubscribers).to(MetagameSubscriber).inSingletonScope();
+
+    bind(AdminAggregatorSubscriber).toSelf().inSingletonScope();
+    bind(MetagameSubscriber).toSelf().inSingletonScope();
 
     // RabbitMQ Publishers
     // For some reason this method no longer works, so we have to instantiate the publishers manually.
     // bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher).inSingletonScope();
     // bind<ApiMQDelayPublisher>(TYPES.rabbitMQPublishers).to(ApiMQDelayPublisher).inSingletonScope();
 
-    bind(ApiMQPublisher).toDynamicValue(async (context) => {
-        const publisher = new ApiMQPublisher(await context.container.getAsync(RabbitMQChannelFactory));
-        await publisher.connect();
-        return publisher;
-    }).inSingletonScope();
-    bind(ApiMQDelayPublisher).toDynamicValue(async (context) => {
-        const publisher = new ApiMQDelayPublisher(await context.container.getAsync(RabbitMQChannelFactory));
-        await publisher.connect();
-        return publisher;
-    }).inSingletonScope();
+    bind(ApiMQPublisher).toSelf().inSingletonScope();
+    bind(ApiMQDelayPublisher).toSelf().inSingletonScope();
+
+    // bind(ApiMQPublisher).toDynamicValue(async (context) => {
+    //     const publisher = new ApiMQPublisher(await context.container.getAsync(RabbitMQQueueFactory));
+    //     await publisher.connect();
+    //     return publisher;
+    // }).inSingletonScope();
+    // bind(ApiMQDelayPublisher).toDynamicValue(async (context) => {
+    //     const publisher = new ApiMQDelayPublisher(await context.container.getAsync(RabbitMQQueueFactory));
+    //     await publisher.connect();
+    //     return publisher;
+    // }).inSingletonScope();
 });

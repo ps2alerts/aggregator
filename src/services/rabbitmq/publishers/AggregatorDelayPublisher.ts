@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {injectable} from 'inversify';
-import {ChannelWrapper} from 'amqp-connection-manager';
 import {getLogger} from '../../../logger';
-import {RabbitMQQueueInterface} from '../../../interfaces/RabbitMQQueueInterface';
+import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import config from '../../../config';
-import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
+import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
+import RabbitMQQueue from '../RabbitMQQueue';
 
 @injectable()
-export default class AggregatorDelayPublisher implements RabbitMQQueueInterface {
+export default class AggregatorDelayPublisher implements RabbitMQQueueWrapperInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
-    private channelWrapper: ChannelWrapper;
+    private queue: RabbitMQQueue;
 
-    constructor(private readonly channelFactory: RabbitMQChannelFactory) {}
+    constructor(private readonly queueFactory: RabbitMQQueueFactory) {}
 
     public async connect(): Promise<void> {
         AggregatorDelayPublisher.logger.info('Connecting to queues...');
-        this.channelWrapper = await this.channelFactory.create(
+        this.queue = await this.queueFactory.create(
             config.rabbitmq.exchange,
             'aggregator-retry',
             {

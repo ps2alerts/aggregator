@@ -20,11 +20,11 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import {Options} from 'amqplib/properties';
 import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
+import RabbitMQQueue from '../services/rabbitmq/RabbitMQQueue';
 
 @injectable()
-export default class RabbitMQChannelFactory {
+export default class RabbitMQQueueFactory {
     private static readonly logger = getLogger('RabbitMQChannelFactory');
-    private channel: ChannelWrapper;
 
     constructor(
         @inject(TYPES.rabbitMqConnection) private readonly rabbit: AmqpConnectionManager,
@@ -38,7 +38,7 @@ export default class RabbitMQChannelFactory {
         queueOptions: Options.AssertQueue = {},
         pattern: string | null = null,
         handler: QueueMessageHandlerInterface<any> | null = null,
-    ): Promise<ChannelWrapper> {
+    ): Promise<RabbitMQQueue> {
         const channel = this.rabbit.createChannel({
             json: true,
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -71,7 +71,7 @@ export default class RabbitMQChannelFactory {
                         } catch (err) {
                             // Do not throw an exception or the app will terminate!
                             if (err instanceof Error) {
-                                RabbitMQChannelFactory.logger.error(`[${queueName}] Unable to properly handle message! ${err.message}`);
+                                RabbitMQQueueFactory.logger.error(`[${queueName}] Unable to properly handle message! ${err.message}`);
                             }
 
                             channel.ack(message); // Critical error, probably unprocessable so we're chucking
@@ -81,36 +81,34 @@ export default class RabbitMQChannelFactory {
             },
         });
 
+        this.registerListeners(channel, queueName);
+
+        // Ensure the connection is actually there
+        await channel.waitForConnect();
+
+        return new RabbitMQQueue(queueName, channel);
+    }
+
+    private registerListeners(channel: ChannelWrapper, queueName: string): void {
         channel.on('connect', () => {
-            RabbitMQChannelFactory.logger.info(`[${queueName}] connected!`);
+            RabbitMQQueueFactory.logger.info(`[${queueName}] connected!`);
         });
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         channel.on('close', async () => {
-            RabbitMQChannelFactory.logger.error(`[${queueName}] closed!`);
+            RabbitMQQueueFactory.logger.error(`[${queueName}] closed!`);
 
-            RabbitMQChannelFactory.logger.info(`[${queueName}] attempting reconnect...`);
-            await this.destroy();
-            this.channel = await this.create(exchange, queueName, queueOptions, pattern, handler);
+            RabbitMQQueueFactory.logger.info(`[${queueName}] attempting reconnect...`);
+            await channel.waitForConnect();
 
-            RabbitMQChannelFactory.logger.info(`[${queueName}] reconnected!`);
+            RabbitMQQueueFactory.logger.info(`[${queueName}] reconnected!`);
         });
 
         channel.on('error', (err) => {
             if (err instanceof Error) {
-                RabbitMQChannelFactory.logger.error(`[${queueName}] rabbit error! ${err.message}`);
+                RabbitMQQueueFactory.logger.error(`[${queueName}] rabbit error! ${err.message}`);
             }
         });
-
-        // Ensure the connection is actually there
-        await channel.waitForConnect();
-        this.channel = channel;
-        return this.channel;
-    }
-
-    public async destroy(): Promise<void> {
-        this.channel.removeAllListeners();
-        await this.channel.close();
     }
 
     private getMessagePriority(queueEventName: Stream.PS2EventNames): number {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // This class is responsible for managing queue state based on instances running
 
-import RabbitMQChannelFactory from '../factories/RabbitMQChannelFactory';
+import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import {getLogger} from '../logger';
 import config from '../config';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
@@ -9,17 +9,17 @@ import {PS2EventInstanceHandlerContract} from '../interfaces/PS2EventInstanceHan
 import {TYPES} from '../constants/types';
 import {injectable, multiInject} from 'inversify';
 import ZoneMessageHandler from '../handlers/ps2census/ZoneMessageHandler';
-import {ChannelWrapper} from 'amqp-connection-manager';
 import InstanceAbstract from '../instances/InstanceAbstract';
+import RabbitMQQueue from '../services/rabbitmq/RabbitMQQueue';
 
 @injectable()
 export default class QueueAuthority {
     private static readonly logger = getLogger('QueueAuthority');
-    private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], ChannelWrapper[]>();
+    private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], RabbitMQQueue[]>();
     private readonly handlerMap = new Map<string, Array<PS2EventInstanceHandlerContract<any>>>();
 
     constructor(
-        private readonly channelFactory: RabbitMQChannelFactory,
+        private readonly queueFactory: RabbitMQQueueFactory,
         @multiInject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventInstanceHandlerContract<any>>,
     ) {
         for (const handler of eventInstanceHandlers) {
@@ -40,10 +40,10 @@ export default class QueueAuthority {
             return;
         }
 
-        const channels: ChannelWrapper[] = [];
+        const queues: RabbitMQQueue[] = [];
 
         for (const [eventName, handlers] of this.handlerMap) {
-            const channel = await this.channelFactory.create(
+            const queue = await this.queueFactory.create(
                 config.rabbitmq.topicExchange,
                 `aggregator-${instance.world}-${eventName}`,
                 {
@@ -54,10 +54,10 @@ export default class QueueAuthority {
                 new ZoneMessageHandler(instance, handlers),
             );
 
-            channels.push(channel);
+            queues.push(queue);
         }
 
-        this.instanceChannelMap.set(instance.instanceId, channels);
+        this.instanceChannelMap.set(instance.instanceId, queues);
 
         QueueAuthority.logger.info(`Successfully subscribed queues to world ${instance.world}!`);
     }

@@ -1,24 +1,24 @@
 import {injectable} from 'inversify';
-import {ChannelWrapper} from 'amqp-connection-manager';
-import {RabbitMQQueueInterface} from '../../../interfaces/RabbitMQQueueInterface';
+import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import {get} from '../../../utils/env';
-import RabbitMQChannelFactory from '../../../factories/RabbitMQChannelFactory';
+import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
 import config from '../../../config';
 import AdminAggregatorMessageHandler from '../../../handlers/AdminAggregatorMessageHandler';
+import RabbitMQQueue from '../RabbitMQQueue';
 
 @injectable()
-export default class AdminAggregatorSubscriber implements RabbitMQQueueInterface {
-    private static channelWrapper: ChannelWrapper;
+export default class AdminAggregatorSubscriber implements RabbitMQQueueWrapperInterface {
+    private queue: RabbitMQQueue;
 
     constructor(
-        private readonly channelFactory: RabbitMQChannelFactory,
+        private readonly queueFactory: RabbitMQQueueFactory,
         private readonly adminMessageHandler: AdminAggregatorMessageHandler,
     ) {}
 
     public async connect(): Promise<void> {
         const queueName = `aggregator-admin-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
 
-        AdminAggregatorSubscriber.channelWrapper = await this.channelFactory.create(
+        this.queue = await this.queueFactory.create(
             config.rabbitmq.exchange,
             queueName,
             {},
