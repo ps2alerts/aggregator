@@ -11,7 +11,6 @@ import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance
 import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 import {Bracket} from '../../ps2alerts-constants/bracket';
-import {Zone} from '../../ps2alerts-constants/zone';
 
 @injectable()
 export default class MetagameEventEventHandler implements EventHandlerInterface<MetagameEventEvent> {
@@ -24,11 +23,6 @@ export default class MetagameEventEventHandler implements EventHandlerInterface<
 
         if (config.features.logging.censusEventContent.metagame) {
             MetagameEventEventHandler.logger.info(jsonLogOutput(event), {message: 'eventData'});
-        }
-
-        // Temporary removal of Oshur while we catch the map up and version etc
-        if (event.zone === Zone.OSHUR) {
-            return false;
         }
 
         const instances = this.instanceAuthority.getInstances(event.world, event.zone);
