@@ -5,12 +5,14 @@ import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import {Redis} from 'ioredis';
+import ZoneDataParser from '../parsers/ZoneDataParser';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
     constructor(
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @inject(TYPES.redis) private readonly cacheClient: Redis,
+        private readonly zoneDataParser: ZoneDataParser,
     ) {}
 
     public build(
@@ -22,6 +24,7 @@ export default class TerritoryCalculatorFactory {
             restClient,
             this.ps2AlertsApiClient,
             this.cacheClient,
+            this.zoneDataParser,
         );
     }
 }

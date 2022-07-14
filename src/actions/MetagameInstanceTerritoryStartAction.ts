@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
@@ -9,6 +10,7 @@ import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {Redis} from 'ioredis';
+import ZoneDataParser from '../parsers/ZoneDataParser';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
@@ -18,6 +20,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         private readonly ps2alertsApiClient: AxiosInstance,
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
+        private readonly zoneDataParser: ZoneDataParser,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -48,6 +51,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             'MetagameInstanceTerritoryStartAction',
             this.instance,
             this.cacheClient,
+            this.zoneDataParser,
         ).getMapData();
 
         if (mapData.length === 0) {
@@ -65,8 +69,8 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (row.RowData.map_region.facility_type_id && facilityId && !censusOldFacilities.includes(facilityId)) {
                 docs.push({
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     instance: this.instance.instanceId,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     facility: facilityId,
                     timestamp: date,
                     oldFaction: parseInt(row.RowData.FactionId, 10),
