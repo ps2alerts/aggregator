@@ -14,6 +14,7 @@ export default interface PS2AlertsInstanceInterface {
     duration: number;
     state: Ps2alertsEventState;
     features?: PS2AlertsInstanceFeaturesInterface;
+    mapVersion?: string;
 
     overdue(): boolean;
 
