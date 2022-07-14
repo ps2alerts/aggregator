@@ -38,7 +38,7 @@ export default class Census {
      */
     public readonly clientOptions: ClientOptions = {
         streamManager: {
-            endpoint: 'wss://push.nanite-systems.net/streaming',
+            // endpoint: 'wss://push.nanite-systems.net/streaming',
             subscription: {
                 ...this.streamManagerConfig,
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
