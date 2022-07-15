@@ -15,6 +15,7 @@ export default class App {
             require('../drivers').default,
             require('../factories').default,
             require('../handlers').default,
+            require('../parsers').default,
             require('../handlers/aggregate').default,
             require('../handlers/ps2census').default,
             require('../services/authorities').default,

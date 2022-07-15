@@ -6,55 +6,30 @@ import {Zone} from '../ps2alerts-constants/zone';
 import {Rest} from 'ps2census';
 import {getLogger} from '../logger';
 import {Redis} from 'ioredis';
-
-/* eslint-disable */
-interface ReverseEngineeredOshurDataInterface {
-    map_region_id: string;
-    facility_id: string;
-    facility_name: string;
-    facility_type_id: string;
-}
-
-interface RegionMapJoinQueryInterface {
-    ZoneId: string;
-    Regions: {
-        IsList: string;
-        Row: RegionMapJoinQueryRowInterface[];
-        [prop: string]: any;
-    }
-    [prop: string]: any;
-}
-
-interface RegionMapJoinQueryRowInterface {
-    RowData: {
-        [prop: string]: any;
-        RegionId: string;
-        FactionId: string;
-        map_region: {
-            facility_id: string
-            facility_type_id: string
-            facility_name: string
-        }
-    };
-}
-/* eslint-enable */
+import {
+    CensusFacilityRegion,
+    CensusRegionMapJoinQueryInterface,
+    CensusRegionMapJoinQueryRowInterface,
+} from '../interfaces/CensusRegionEndpointInterfaces';
+import ZoneDataParser from './ZoneDataParser';
 
 export default class CensusMapRegionQueryParser {
     private static readonly logger = getLogger('CensusMapRegionQueryParser');
 
-    private readonly oshurData: ReverseEngineeredOshurDataInterface[];
+    private readonly oshurData: CensusFacilityRegion[];
 
     constructor(
         private readonly restClient: Rest.Client,
         private readonly caller: string,
         private readonly instance: MetagameTerritoryInstance,
         private readonly cacheClient: Redis,
+        private readonly zoneDataParser: ZoneDataParser,
     ) {
         this.oshurData = this.initOshurData();
     }
 
     // Returns
-    public async getMapData(): Promise<RegionMapJoinQueryInterface[]> {
+    public async getMapData(): Promise<CensusRegionMapJoinQueryInterface[]> {
         const cacheKey = `census-map-w:${this.instance.world}-z:${this.instance.zone}`;
 
         // If in cache, grab it
@@ -68,6 +43,7 @@ export default class CensusMapRegionQueryParser {
             }
         }
 
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
         const query = this.restClient.getQueryBuilder('map')
@@ -87,14 +63,16 @@ export default class CensusMapRegionQueryParser {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const apiRequest = new CensusApiRetryDriver(query, filter, 'MetagameInstanceTerritoryStartAction');
-        let mapDataFinal: RegionMapJoinQueryInterface[] = [];
+        let mapDataFinal: CensusRegionMapJoinQueryInterface[] = [];
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        await apiRequest.try().then((mapData: RegionMapJoinQueryInterface[]) => {
+        await apiRequest.try().then((mapData: CensusRegionMapJoinQueryInterface[]) => {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Census returned map_region data`);
 
             if (!mapData || mapData.length === 0) {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`[${this.instance.instanceId}] No map data was returned from Census! Cannot start alert properly!`);
             }
 
@@ -131,16 +109,15 @@ export default class CensusMapRegionQueryParser {
     }
 
     // noinspection JSMethodCanBeStatic
-    private initOshurData(): ReverseEngineeredOshurDataInterface[] {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-return
-        return require(`${__dirname}/../ps2alerts-constants/lattice/344-reverse-engineered.json`);
+    private initOshurData(): CensusFacilityRegion[] {
+        return this.zoneDataParser.getRegions(Zone.OSHUR);
     }
 
     // Grabs the data from Oshur and filters exactly what is required
     private getOshurRegionData(
-        row: RegionMapJoinQueryRowInterface,
-    ): ReverseEngineeredOshurDataInterface {
-        const foundRegion: ReverseEngineeredOshurDataInterface[] = this.oshurData.filter((oshurRow) => {
+        row: CensusRegionMapJoinQueryRowInterface,
+    ): CensusFacilityRegion {
+        const foundRegion: CensusFacilityRegion[] = this.oshurData.filter((oshurRow) => {
             return row.RowData.RegionId === oshurRow.map_region_id;
         });
 

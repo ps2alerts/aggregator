@@ -16,6 +16,7 @@ import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEv
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import {Redis} from 'ioredis';
+import ZoneDataParser from '../parsers/ZoneDataParser';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -26,6 +27,7 @@ export default class InstanceActionFactory {
         private readonly restClient: Rest.Client,
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @inject(TYPES.redis) private readonly cacheClient: Redis,
+        private readonly zoneDataParser: ZoneDataParser,
     ) {}
 
     public buildStart(
@@ -37,6 +39,7 @@ export default class InstanceActionFactory {
                 this.ps2AlertsApiClient,
                 this.restClient,
                 this.cacheClient,
+                this.zoneDataParser,
             );
         }
 

@@ -80,6 +80,7 @@ export default class InstanceAuthority {
                     captureHistory: true,
                     xpm: true,
                 },
+                mapVersion: instance.zone === Zone.OSHUR ? '1.1' : '1.0', // As of 13th July Oshur uses a new map
             });
 
             InstanceAuthority.logger.info(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import {CalculatorInterface} from './CalculatorInterface';
 import {Faction} from '../ps2alerts-constants/faction';
 import {injectable} from 'inversify';
@@ -8,7 +9,6 @@ import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
-import {Zone} from '../ps2alerts-constants/zone';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import {Rest} from 'ps2census';
@@ -17,6 +17,7 @@ import {AxiosInstance, AxiosResponse} from 'axios';
 import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
     from '../interfaces/PS2AlertsInstanceEntriesInstanceFacilityResponseInterface';
 import {Redis} from 'ioredis';
+import ZoneDataParser from '../parsers/ZoneDataParser';
 
 interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -29,13 +30,6 @@ interface FacilityInterface {
     facilityName: string;
     facilityType: number;
     facilityFaction: Faction;
-}
-
-interface FacilityLatticeLinkInterface {
-    facilityA: number;
-    facilityB: number;
-    zoneId: Zone;
-    description?: string;
 }
 
 @injectable()
@@ -51,18 +45,12 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         private readonly restClient: Rest.Client,
         private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
+        private readonly zoneDataParser: ZoneDataParser,
     ) {}
 
     public async calculate(): Promise<TerritoryResultInterface> {
         TerritoryCalculator.logger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
         const warpgates: Map<Faction, FacilityInterface[]> = new Map<Faction, FacilityInterface[]>();
-
-        // Get the lattice links for the zone
-        const latticeLinks = this.transformLatticeData(this.instance.zone);
-
-        if (!latticeLinks) {
-            throw new ApplicationException(`Lattice links weren't generated correctly for ${this.instance.zone}!`);
-        }
 
         // Get the map's facilities, allowing us to grab warpgates for starting the traversal and facility names for debug
         await this.getMapFacilities();
@@ -90,6 +78,8 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             }
         });
 
+        const zoneLattices = this.zoneDataParser.getLattices(this.instance.zone);
+
         // For each warpgate returned, execute the lattice traversal
         for (const facility of warpgates) {
             for (const warpgate of facility[1]) {
@@ -98,9 +88,10 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
                 TerritoryCalculator.logger.silly(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
                 await this.traverse(
                     warpgate.facilityId,
+                    0,
                     faction,
                     0,
-                    latticeLinks,
+                    zoneLattices,
                 );
                 TerritoryCalculator.logger.silly(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
             }
@@ -234,6 +225,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             'MetagameInstanceTerritoryStartAction',
             this.instance,
             this.cacheClient,
+            this.zoneDataParser,
         ).getMapData();
 
         if (mapData.length === 0) {
@@ -276,100 +268,73 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         }
     }
 
-    private transformLatticeData(zoneId: Zone): FacilityLatticeLinkInterface[] | undefined {
-        try {
-            // eslint-disable-next-line @typescript-eslint/naming-convention,@typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
-            const data: Array<{ zone_id: string, facility_id_a: string, facility_id_b: string, description?: string }> = require(`${__dirname}/../ps2alerts-constants/lattice/${zoneId}.json`);
-
-            const returnData: FacilityLatticeLinkInterface[] = [];
-
-            data.forEach((link) => {
-                returnData.push({
-                    facilityA: parseInt(link.facility_id_a, 10),
-                    facilityB: parseInt(link.facility_id_b, 10),
-                    zoneId: parseInt(link.zone_id, 10),
-                });
-            });
-
-            TerritoryCalculator.logger.silly(`[${this.instance.instanceId}] Successfully parsed lattice link data`);
-
-            return returnData;
-        } catch (err) {
-            // Don't be tempted to change this exception... it likely won't go well...
-            if (err instanceof Error) {
-                throw new ApplicationException(`[${this.instance.instanceId}] Unable to read Lattice Link data! E: ${err.message}`);
-            }
-        }
-    }
-
     // Oh boi, it's graph time! https://github.com/ps2alerts/aggregator/issues/125#issuecomment-689070901
     // This function traverses the lattice links for each base, starting at the warpgate. It traverses each link until no other
     // bases can be found that are owned by the same faction. It then adds each facility to a map, which we collate later to get the raw number of bases.
-    private async traverse(facilityId: number, linkingFaction: Faction, depth: number, latticeLinks: FacilityLatticeLinkInterface[]): Promise<boolean> {
+    private async traverse(
+        facilityId: number,
+        callingFacilityId: number,
+        faction: Faction,
+        depth: number,
+        latticeLinks: Map<string, Set<string>>, // Map<facilityId, Set<facilityId>>
+    ): Promise<boolean> {
         if (!this.mapFacilityList.has(facilityId)) {
             throw new ApplicationException(`[${this.instance.instanceId}] Facility ID ${facilityId} does not exist in the facility list!`);
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const facilityName = this.mapFacilityList.get(facilityId).facilityName;
+        const facilityName = this.mapFacilityList.get(facilityId)?.facilityName ?? 'UNKNOWN';
 
         depth++;
         const formatDepth = '|'.repeat(depth);
 
         // Get the owner of the facility so we know which faction this is
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore this is already defined
-        const faction = this.mapFacilityList.get(facilityId).facilityFaction;
+        const ownerFaction = this.mapFacilityList.get(facilityId)?.facilityFaction ?? Faction.NONE;
 
         // Check if the faction facility set is initialized, if not do so and add the value (sets don't allow duplicates so the one below will be ignored)
-        if (!this.factionParsedFacilitiesMap.has(faction)) {
-            this.factionParsedFacilitiesMap.set(faction, new Set<number>());
+        if (!this.factionParsedFacilitiesMap.has(ownerFaction)) {
+            this.factionParsedFacilitiesMap.set(ownerFaction, new Set<number>());
         }
 
         // If we have already parsed this base for this faction, ignore it
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore bruh
-        if (this.factionParsedFacilitiesMap.get(faction).has(facilityId)) {
+        if (this.factionParsedFacilitiesMap.get(ownerFaction)?.has(facilityId)) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             TerritoryCalculator.logger.silly(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
             return true;
         }
 
         // Perform a check here to see if the faction of the base belongs to the previous base's faction, if it does not, stop!
-        if (faction !== linkingFaction) {
-            TerritoryCalculator.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${linkingFaction} - ${faction}`);
+        if (ownerFaction !== faction) {
+            TerritoryCalculator.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${faction} - ${ownerFaction}`);
             return true;
         }
 
         // Record the facility ID and faction ownership - this will eventually contain all linked bases for the particular faction.
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore bruh
-        this.factionParsedFacilitiesMap.get(faction).add(facilityId);
+        this.factionParsedFacilitiesMap.get(ownerFaction)?.add(facilityId);
         this.cutoffFacilityList.delete(facilityId); // Remove the facility from the list of cutoffs as it is linked
 
         // First, get a list of links associated with the facility
-        const connectedLinks = latticeLinks.filter((latticeLink: FacilityLatticeLinkInterface) => {
-            return latticeLink.facilityA === facilityId || latticeLink.facilityB === facilityId;
-        });
-
+        const connectedLinks = latticeLinks.get(facilityId.toString());
         const nextHops: number[] = [];
 
-        // Then reduce this down to a singular list of the next hops
-        connectedLinks.forEach((link) => {
-            if (facilityId === link.facilityA) {
-                nextHops.push(link.facilityB);
-            } else {
-                nextHops.push(link.facilityA);
-            }
-        });
+        if (connectedLinks) {
+            // Then reduce this down to a singular list of the next hops based off if they've already been scanned or not
+            connectedLinks.forEach((link) => {
+                const linkFacilityId = parseInt(link, 10);
 
-        TerritoryCalculator.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
+                if (!this.factionParsedFacilitiesMap.get(ownerFaction)?.has(linkFacilityId)) {
+                    nextHops.push(linkFacilityId);
+                }
+            });
+        }
+
+        TerritoryCalculator.logger.silly(`${formatDepth} [${callingFacilityId} > ${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
 
         // RE RE RECURSION
         // Promise of a promise of a promise until we're happy!
         for (const link of nextHops) {
             await this.traverse(
                 link,
+                facilityId,
                 faction,
                 depth,
                 latticeLinks,
