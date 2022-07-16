@@ -196,7 +196,14 @@ export default class InstanceAuthority {
             throw new ApplicationException('InstanceAuthority was called to be initialized more than once!', 'InstanceAuthority');
         }
 
-        const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive);
+        let apiResponse: AxiosResponse;
+
+        try {
+            apiResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive);
+        } catch (err) {
+            throw new ApplicationException('Unable to get Active Instances from PS2Alerts API! Crashing the app...', 'InstanceAuthority', 1);
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const instances: MetagameTerritoryInstance[] = apiResponse.data;
 
