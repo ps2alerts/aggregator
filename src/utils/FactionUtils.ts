@@ -22,7 +22,7 @@ export default class FactionUtils {
     }
 
     public static parseFactionIdToShortName(value: Faction | null): FactionName {
-        if (value === null) {
+        if (!value) {
             return 'none';
         }
 
@@ -35,8 +35,6 @@ export default class FactionUtils {
                 return 'tr';
             case Faction.NS_OPERATIVES:
                 return 'nso';
-            case Faction.NONE:
-                return 'none';
         }
 
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

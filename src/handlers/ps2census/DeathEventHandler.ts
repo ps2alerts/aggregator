@@ -44,12 +44,6 @@ export default class DeathEventHandler implements PS2EventInstanceHandlerContrac
             ),
         );
 
-        // This should always return instances as it's filtered at the Ps2CensusMessageHandler level.
-        if (event.instance.overdue()) {
-            DeathEventHandler.logger.warn(`[${event.instance.instanceId}] Ignoring Death as instance is overdue!`);
-            return false;
-        }
-
         // Ensure the players are counted in the presence
         await Promise.all([
             this.characterPresenceHandler.update(deathEvent.character, deathEvent.instance),
@@ -62,7 +56,7 @@ export default class DeathEventHandler implements PS2EventInstanceHandlerContrac
             (handler: AggregateHandlerInterface<DeathEvent>) => void handler.handle(deathEvent)
                 .catch((err) => {
                     if (err instanceof Error) {
-                        new ExceptionHandler(`Error parsing AggregateHandlers for DeathEventHandler: ${err.message}\r\n${jsonLogOutput(event)}`, err, 'DeathEventHandler.agregates');
+                        new ExceptionHandler(`Error parsing AggregateHandlers for DeathEventHandler: ${err.message}\r\n${jsonLogOutput(event)}`, err, 'DeathEventHandler.aggregates');
                     } else {
                         DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent AggregateHandlers!');
                     }

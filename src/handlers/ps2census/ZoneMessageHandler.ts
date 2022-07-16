@@ -22,6 +22,12 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
     public async handle(event: T, actions: ChannelActionsInterface): Promise<void> {
         // Send to handlers
         try {
+            // If the message came after the alert ended, chuck
+            if (this.instance.messageOverdue(event.timestamp)) {
+                ZoneMessageHandler.logger.warn(`[${this.instance.instanceId}] Ignoring message as instance ended before this event came in!`);
+                return;
+            }
+
             await Promise.all(
                 this.handlers.map((handler) => handler.handle(
                     new PS2EventQueueMessage(event, this.instance),
@@ -32,17 +38,17 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`Maximum Census retries reached! Err: ${err.message}`);
-                actions.nack(); // TODO: Requeue
+                return actions.nack(); // TODO: Requeue
             }
 
             if (err instanceof ApplicationException) {
                 ZoneMessageHandler.logger.error(`Unable to properly process ZoneMessage! Err: ${err.message}`);
-                actions.nack(); // TODO: Requeue
+                return actions.nack(); // TODO: Requeue
             }
 
             if (err instanceof Error) {
-                ZoneMessageHandler.logger.error(`Unresolvable error occurred! Chucking message! Err: ${err.message}`);
-                actions.nack(); // Do not requeue
+                ZoneMessageHandler.logger.error(`Unknown error occurred! Chucking message! Err: ${err.message}`);
+                return actions.ack(); // Do not requeue
             }
         }
 
