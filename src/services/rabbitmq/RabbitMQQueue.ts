@@ -25,7 +25,7 @@ export default class RabbitMQQueue {
         }
 
         try {
-            RabbitMQQueue.logger.debug(`${this.queueName}] Sending message: ${jsonLogOutput(msg)}`);
+            RabbitMQQueue.logger.silly(`${this.queueName}] Sending message: ${jsonLogOutput(msg)}`);
             await this.channel.sendToQueue(
                 this.queueName,
                 msg,
@@ -39,6 +39,7 @@ export default class RabbitMQQueue {
 
     public async destroy(): Promise<void> {
         this.channel.removeAllListeners();
+        await this.channel.deleteQueue(this.queueName);
         await this.channel.close();
         this.isConnected = false;
         RabbitMQQueue.logger.info(`[${this.queueName}] connection closed!`);

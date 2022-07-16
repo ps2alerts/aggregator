@@ -24,7 +24,7 @@ import RabbitMQQueue from '../services/rabbitmq/RabbitMQQueue';
 
 @injectable()
 export default class RabbitMQQueueFactory {
-    private static readonly logger = getLogger('RabbitMQChannelFactory');
+    private static readonly logger = getLogger('RabbitMQQueueFactory');
 
     constructor(
         @inject(TYPES.rabbitMqConnection) private readonly rabbit: AmqpConnectionManager,
@@ -95,7 +95,7 @@ export default class RabbitMQQueueFactory {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        channel.on('close', async () => {
+        channel.on('close', () => {
             RabbitMQQueueFactory.logger.error(`[${queueName}] closed!`);
         });
 

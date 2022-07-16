@@ -12,6 +12,7 @@ import {PS2EventInstanceHandlerContract} from '../../interfaces/PS2EventInstance
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
+import ExceptionHandler from '../system/ExceptionHandler';
 
 @injectable()
 export default class DeathEventHandler implements PS2EventInstanceHandlerContract<Death> {
@@ -61,7 +62,7 @@ export default class DeathEventHandler implements PS2EventInstanceHandlerContrac
             (handler: AggregateHandlerInterface<DeathEvent>) => void handler.handle(deathEvent)
                 .catch((err) => {
                     if (err instanceof Error) {
-                        DeathEventHandler.logger.error(`Error parsing AggregateHandlers for DeathEventHandler: ${err.message}\r\n${jsonLogOutput(event)}`);
+                        new ExceptionHandler(`Error parsing AggregateHandlers for DeathEventHandler: ${err.message}\r\n${jsonLogOutput(event)}`, err, 'DeathEventHandler.agregates');
                     } else {
                         DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent AggregateHandlers!');
                     }

@@ -24,7 +24,7 @@ export default class GainExperienceEventHandler implements PS2EventInstanceHandl
         GainExperienceEventHandler.logger.silly('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
-            GainExperienceEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
+            GainExperienceEventHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
         }
 
         const characters = await this.characterBroker.get(event.payload);

@@ -49,9 +49,21 @@ export default class InstanceAuthority {
         return instance;
     }
 
-    public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
+    public getInstances(world: World | null = null, zone: Zone | null = null): PS2AlertsInstanceInterface[] {
+        if (world && zone) {
+            return this.currentInstances.filter((instance) => {
+                return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
+            });
+        }
+
+        if (world) {
+            return this.currentInstances.filter((instance) => {
+                return instance.match(world, null) && instance.state === Ps2alertsEventState.STARTED;
+            });
+        }
+
         return this.currentInstances.filter((instance) => {
-            return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
+            return instance.match(null, zone) && instance.state === Ps2alertsEventState.STARTED;
         });
     }
 
@@ -129,6 +141,7 @@ export default class InstanceAuthority {
             this.printActives(); // Show currently running alerts in console / log
 
             // Subscribe to world rabbit queues to listen to messages
+            this.queueAuthority.syncActiveInstances(this.currentInstances);
             await this.queueAuthority.startQueuesForInstance(instance);
 
             InstanceAuthority.logger.info(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
@@ -149,6 +162,8 @@ export default class InstanceAuthority {
         try {
             // Formally end the instance
             await this.instanceActionFactory.buildEnd(instance).execute();
+            this.queueAuthority.syncActiveInstances(this.currentInstances);
+            await this.queueAuthority.stopQueuesForInstance(instance);
 
             InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives(true);
@@ -224,6 +239,10 @@ export default class InstanceAuthority {
         this.activeTimer = setInterval(() => {
             this.printActives();
         }, 60000);
+
+        InstanceAuthority.logger.info('Subscribing to message queues...');
+        this.queueAuthority.syncActiveInstances(this.currentInstances);
+        await this.queueAuthority.subscribeToActives();
 
         this.printActives(true);
         InstanceAuthority.logger.debug('Initializing ActiveInstances FINISHED');

@@ -33,8 +33,11 @@ export default class MetagameTerritoryInstance extends InstanceAbstract implemen
         this.bracket = bracket ?? undefined;
     }
 
-    public match(world: World, zone: Zone): boolean {
-        return world === this.world && zone === this.zone;
+    public match(world: World | null = null, zone: Zone | null = null): boolean {
+        return world && zone
+            ? world === this.world && zone === this.zone
+            : world ? world === this.world
+            : zone === this.zone;
     }
 
     public overdue(): boolean {

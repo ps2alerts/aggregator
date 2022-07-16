@@ -28,6 +28,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
                 )),
             );
             actions.ack();
+            return;
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`Maximum Census retries reached! Err: ${err.message}`);
