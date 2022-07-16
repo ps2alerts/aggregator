@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "start:dev": "ts-node-dev src/index.ts",
-    "start:dev:debug": "tsc && node --inspect=0.0.0.0:9229 dist/index.js",
+    "start:dev:debug": "tsc && cp -r src/ps2alerts-constants/maps dist/ps2alerts-constants && node --inspect=0.0.0.0:9229 dist/index.js",
     "build": "tsc && cp -r src/ps2alerts-constants/maps dist/ps2alerts-constants",
     "build:watch": "tsc -w",
     "wipe": "rm -rf dist",
