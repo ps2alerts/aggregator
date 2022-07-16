@@ -1,6 +1,7 @@
 import {Zone} from '../ps2alerts-constants/zone';
 import {Faction} from '../ps2alerts-constants/faction';
 import {MetagameEventType} from '../ps2alerts-constants/metagameEventType';
+import ApplicationException from '../exceptions/ApplicationException';
 
 export default class EventId {
     // FML
@@ -74,11 +75,7 @@ export default class EventId {
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_ESAMIR_UNSTABLE_MELTDOWN],
                 ],
             )],
-            [Zone.OSHUR, new Map(
-                [
-                    // We don't know these yet :-/
-                ],
-            )],
+            // Oshut does not have unstable meltdown alerts.
         ],
     );
 
@@ -226,10 +223,13 @@ export default class EventId {
 
     public static zoneFactionMeltdownToEventId(zone: Zone, faction: Faction, meltdown: boolean): MetagameEventType {
         if (!meltdown) {
-
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return EventId.normalStateZoneFactionMap.get(zone).get(faction);
+        }
+
+        if (zone === Zone.OSHUR) {
+            throw new ApplicationException('Oshur does not have meltdown alerts');
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
