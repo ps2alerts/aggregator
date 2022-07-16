@@ -20,7 +20,6 @@ export default class CharacterBroker {
         }
 
         if (payload instanceof AttackerEvent && payload.attacker_character_id && payload.attacker_character_id !== '0') {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             promises.push(payload.attacker());
         }
 
