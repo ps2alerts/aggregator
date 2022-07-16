@@ -36,19 +36,38 @@ export default class ItemBroker implements ItemBrokerInterface {
             }
         }
 
-        let returnItem = new FakeItemFactory().build();
-
         const cacheKey = `item-${itemId}-${environment}`;
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.silly(`item ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return new Item(JSON.parse(<string>data));
+
+            // Check if we've actually got valid JSON in the key
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                return new Item(JSON.parse(<string>data));
+            } catch (err) {
+                // Json didn't parse, chuck the data
+                ItemBroker.logger.warn(`Item cache ${cacheKey} was invalid JSON, flushing cache`);
+
+                await this.cacheClient.del(cacheKey);
+                // Fall through to the rest of the method to get the item
+            }
         }
 
         ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
+
+        const item = await this.getItem(itemId, environment);
+
+        // Cache the response for 24h then return
+        await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(item));
+
+        return item;
+    }
+
+    private async getItem(itemId: number, environment: string): Promise<ItemInterface> {
+        let returnItem = new FakeItemFactory().build();
 
         const query = this.restClient.getQueryBuilder('item')
             .limit(1);
@@ -60,18 +79,12 @@ export default class ItemBroker implements ItemBrokerInterface {
         // Grab the item data from Census
         try {
             const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker');
-            await apiRequest.try().then(async (items) => {
-                if (!items) {
-                    ItemBroker.logger.error(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
+            await apiRequest.try().then((items) => {
+                if (!items || !items.length) {
+                    ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
                     return new FakeItemFactory().build();
                 }
 
-                ItemBroker.logger.silly(`[${environment}] Item ID ${itemId} successfully retrieved from Census`);
-
-                // Cache the response for 24h then return
-                await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(items[0]));
-
-                ItemBroker.logger.silly(`[${environment}] Item ID ${itemId} successfully stored in cache`);
                 returnItem = new Item(items[0]);
             });
         } catch (err) {
@@ -80,6 +93,8 @@ export default class ItemBroker implements ItemBrokerInterface {
             }
         }
 
+        // Returns fake
+        ItemBroker.logger.warn(`[${environment}] Returning fake item in response for item ${itemId}`);
         return returnItem;
     }
 }
