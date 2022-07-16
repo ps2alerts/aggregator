@@ -8,7 +8,7 @@ import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 
 @injectable()
 export default class RabbitMQConnectionService implements ServiceInterface {
-    public readonly bootPriority = 4;
+    public readonly bootPriority = 5;
     private static readonly logger = getLogger('RabbitMQSubscriptionService');
 
     constructor(
