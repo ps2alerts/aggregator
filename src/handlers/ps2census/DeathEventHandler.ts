@@ -4,7 +4,6 @@ import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
 import CharacterPresenceHandler from '../CharacterPresenceHandler';
-import ApplicationException from '../../exceptions/ApplicationException';
 import {Death} from 'ps2census';
 import Parser from '../../utils/parser';
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
@@ -31,18 +30,10 @@ export default class DeathEventHandler implements PS2EventInstanceHandlerContrac
         // This should always return instances as it's filtered at the Ps2CensusMessageHandler level.
         const characters = await this.characterBroker.get(event.payload);
 
-        if (!characters.character) {
-            throw new ApplicationException('Character did not return!');
-        }
-
-        if (!characters.attacker) {
-            throw new ApplicationException('Attacker character did not return!');
-        }
-
         const deathEvent = new DeathEvent(
             event,
-            characters.character,
             characters.attacker,
+            characters.character,
             await this.itemBroker.get(
                 Parser.parseNumericalArgument(event.payload.attacker_weapon_id),
                 Parser.parseNumericalArgument(event.payload.attacker_vehicle_id),

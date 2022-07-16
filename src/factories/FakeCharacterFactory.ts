@@ -1,6 +1,7 @@
 import Character from '../data/Character';
 import {World} from '../ps2alerts-constants/world';
 import {Faction} from '../ps2alerts-constants/faction';
+import {injectable} from 'inversify';
 
 /* eslint-disable */
 export const fakeCharacterCensusData = {
@@ -60,16 +61,14 @@ export const fakeCharacterCensusData = {
 };
 /* eslint-enable */
 
+@injectable()
 export default class FakeCharacterFactory {
     private readonly faction: Faction = Faction.NONE;
-    private readonly world: World;
-    constructor(world: World) {
-        this.world = world;
-    }
 
-    public build(): Character {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    public async build(world: World): Promise<Character> {
         const character = new Character(fakeCharacterCensusData);
-        character.world = this.world;
+        character.world = world;
         character.faction = this.faction;
 
         return character;
