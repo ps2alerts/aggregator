@@ -19,12 +19,6 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
     // Updates / adds characters presence, setting a Redis key with expiry.
     public async update(character: Character, instance: PS2AlertsInstanceInterface): Promise<boolean> {
-        // Handle Sanctuary / unrecognised zones here
-        if (!Object.values(Zone).includes(instance.zone)) {
-            CharacterPresenceHandler.logger.silly(`Discarding CharacterPresence update, unrecognized zone: ${instance.zone}`);
-            return true;
-        }
-
         // Add character to overall Redis collection to control expiry.
         await this.cacheClient.setex(`CharacterPresence-${character.id}`, 60 * 5, 'foo');
 
