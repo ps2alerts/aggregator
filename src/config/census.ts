@@ -31,7 +31,6 @@ export default class Census {
      */
     public readonly clientOptions: ClientOptions = {
         characterManager: Census.characterManagerConfig,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         rest: Census.restClientOptions,
     };
 
