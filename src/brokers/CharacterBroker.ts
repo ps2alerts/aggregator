@@ -15,11 +15,11 @@ export default class CharacterBroker {
 
         const promises = [];
 
-        if (payload.character_id) {
+        if (payload.character_id && payload.character_id !== '0') {
             promises.push(payload.character());
         }
 
-        if (payload instanceof AttackerEvent) {
+        if (payload instanceof AttackerEvent && payload.attacker_character_id && payload.attacker_character_id !== '0') {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             promises.push(payload.attacker());
         }

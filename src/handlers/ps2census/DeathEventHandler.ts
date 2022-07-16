@@ -28,7 +28,12 @@ export default class DeathEventHandler implements PS2EventInstanceHandlerContrac
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async handle(event: PS2EventQueueMessage<Death>): Promise<boolean> {
+        // This should always return instances as it's filtered at the Ps2CensusMessageHandler level.
         const characters = await this.characterBroker.get(event.payload);
+
+        if (!characters.character) {
+            throw new ApplicationException('Character did not return!');
+        }
 
         if (!characters.attacker) {
             throw new ApplicationException('Attacker character did not return!');
