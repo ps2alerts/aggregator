@@ -51,6 +51,9 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
         const metagameDetails = metagameEventTypeDetailsMap.get(censusEventId);
 
         if (!metagameDetails) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            AdminAggregatorMessageHandler.logger.error(`Zone: ${adminAggregatorInstanceStart.zone} - Faction: ${adminAggregatorInstanceStart.faction} - Meltdown: ${adminAggregatorInstanceStart.meltdown}`);
+
             throw new ApplicationException(`Unknown metagame event id ${censusEventId}`, 'AdminAggregatorMessageHandler');
         }
 

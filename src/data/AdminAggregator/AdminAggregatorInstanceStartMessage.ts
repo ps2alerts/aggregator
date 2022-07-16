@@ -11,7 +11,7 @@ export default class AdminAggregatorInstanceStartMessage {
     public readonly zone: Zone;
     public readonly state: Ps2alertsEventState;
     public readonly faction: Faction;
-    public readonly meltdown = true;
+    public readonly meltdown = false;
     public readonly start: Date;
     public readonly duration: number;
 
