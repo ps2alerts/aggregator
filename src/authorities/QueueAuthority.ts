@@ -18,6 +18,7 @@ export default class QueueAuthority {
     private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], RabbitMQQueue[]>();
     private readonly handlerMap = new Map<string, Array<PS2EventInstanceHandlerContract<any>>>();
     private currentInstances: PS2AlertsInstanceInterface[] = [];
+    private readonly emptyQueueTimer?: NodeJS.Timeout;
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
@@ -32,6 +33,16 @@ export default class QueueAuthority {
             }
 
             handlerList.push(handler);
+        }
+
+        if (this.emptyQueueTimer) {
+            QueueAuthority.logger.warn('Attempted to start empty queue timer when already defined!');
+        } else {
+            this.emptyQueueTimer = setInterval(() => {
+                QueueAuthority.logger.debug('Running empty queue timer');
+
+                this.checkForEmptyQueues();
+            }, 60000);
         }
     }
 
@@ -82,7 +93,7 @@ export default class QueueAuthority {
         }
 
         for (const queue of queues) {
-            await queue.destroy();
+            await queue.unbind();
         }
     }
 
@@ -93,5 +104,44 @@ export default class QueueAuthority {
         }
 
         QueueAuthority.logger.info('All queues started for active alerts');
+    }
+
+    // The purpose of this method is to scan each queue and check if they're all empty, if they are then delete the queues and the instance entry.
+    // All queues have a TTL of 5 minutes, so this will mean eventually the messages will be deleted, and thus after 5 minutes of the alert ending, the queues too.
+    private checkForEmptyQueues(): void {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.instanceChannelMap.forEach(async (queues, instance) => {
+            QueueAuthority.logger.debug(`Checking ${instance} for empty queues...`);
+
+            // If there's an active instance, we never want to destroy the queue.
+            let instanceFound = false;
+            this.currentInstances.map((activeInstance) => {
+                if (activeInstance.instanceId === instance) {
+                    instanceFound = true;
+                }
+            });
+
+            if (instanceFound) {
+                QueueAuthority.logger.debug(`Instance ${instance} found for the queue, not destroying`);
+                return;
+            }
+
+            let markToDestroy = true;
+
+            queues.forEach((queue) => {
+                if (!queue.queueEmpty()) {
+                    markToDestroy = false;
+                }
+            });
+
+            if (markToDestroy) {
+                for (const queue of queues) {
+                    await queue.destroy();
+                }
+
+                this.instanceChannelMap.delete(instance);
+
+            }
+        });
     }
 }

@@ -11,7 +11,9 @@ export default class RabbitMQQueue {
     private isConnected = true;
 
     constructor(
+        private readonly exchange: string,
         private readonly queueName: string,
+        private readonly pattern: string,
         private readonly channel: ChannelWrapper,
     ) {}
 
@@ -35,6 +37,15 @@ export default class RabbitMQQueue {
         } catch (err) {
             new ExceptionHandler(`${this.queueName}] Unable to send message to queue!`, err, 'RabbitMQQueue');
         }
+    }
+
+    public queueEmpty(): boolean {
+        return this.channel.queueLength() === 0;
+    }
+
+    public async unbind(): Promise<void> {
+        await this.channel.unbindExchange(this.queueName, this.exchange, this.pattern);
+        RabbitMQQueue.logger.info(`[${this.queueName}] exchange "${this.exchange}" unbound!`);
     }
 
     public async destroy(): Promise<void> {
