@@ -2,7 +2,6 @@
 import config from '../../config';
 import Transport from 'winston-transport';
 import {TransportConfig} from '../../config/logger';
-import DiscordTransport from '../DiscordTransport';
 import {transports} from 'winston';
 import {default as logFilter} from '../filter';
 
@@ -23,10 +22,6 @@ export function transportFactory(transportList: TransportConfig[]): Transport[] 
         switch (t.name) {
             case 'console':
                 return new transports.Console(options);
-            case 'discord':
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                return new DiscordTransport(options);
         }
 
         throw new Error();
