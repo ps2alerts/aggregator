@@ -34,7 +34,7 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
 
         const facilityEvent = new FacilityControlEvent(event, await this.facilityDataBroker.get(event));
 
-        FacilityControlEventHandler.logger.debug(`[Instance ${facilityEvent.instance.instanceId}] Facility ${facilityEvent.facility.id} ${facilityEvent.isDefence ? 'defended' : 'captured'} by ${facilityEvent.newFactionName.toUpperCase()} ${facilityEvent.isDefence ? '' : `from ${facilityEvent.oldFactionName.toUpperCase()}`}`);
+        FacilityControlEventHandler.logger.debug(`[${facilityEvent.instance.instanceId}] Facility ${facilityEvent.facility.id} (${facilityEvent.facility.name}) ${facilityEvent.isDefence ? 'defended' : 'captured'} by ${facilityEvent.newFactionName.toUpperCase()} ${facilityEvent.isDefence ? '' : `from ${facilityEvent.oldFactionName.toUpperCase()}`}`);
 
         const facilityData = {
             instance: facilityEvent.instance.instanceId,

@@ -30,7 +30,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
 
         // If the message came after the alert ended, chuck
         if (this.instance.messageOverdue(event.timestamp)) {
-            ZoneMessageHandler.logger.warn(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
+            ZoneMessageHandler.logger.silly(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
             return actions.ack();
         }
 

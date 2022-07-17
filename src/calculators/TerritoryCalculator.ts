@@ -163,10 +163,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             perBasePercentage,
         };
 
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
-            // eslint-disable-next-line no-console
-            console.log(`[${this.instance.instanceId}] percentages`, percentages);
-        }
+        TerritoryCalculator.logger.info(`[${this.instance.instanceId}] updated score: VS: ${percentages.vs} | NC: ${percentages.nc} | TR: ${percentages.tr} | Cutoff: ${percentages.cutoff}`);
 
         return percentages;
     }
