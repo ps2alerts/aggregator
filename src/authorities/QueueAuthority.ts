@@ -62,14 +62,14 @@ export default class QueueAuthority {
                 `aggregator-${instance.instanceId}-${eventName}`,
                 {
                     maxPriority: 10,
-                    messageTtl: 20 * 60 * 1000, // Grace period for the aggregator to process the message
-                    expires: 15 * 60 * 1000, // Auto deletes the queue if not consumed
+                    messageTtl: eventName === 'FacilityControl' ? 60000 : 20 * 60 * 1000, // Grace period for the aggregator to process the message. FacilityControl is set to 60s as it's time urgent
+                    expires: 15 * 60 * 1000, // Auto deletes the queue after alert finish
                     deadLetterExchange: '',
                     deadLetterRoutingKey: dlqName,
                 },
                 `${instance.world}.${eventName}.*`,
                 new ZoneMessageHandler(instance, handlers),
-                eventName === 'GainExperience' ? 100 : 50,
+                eventName === 'GainExperience' ? 100 : 50, // GainExp events are much ligher to process and more numerous
             );
 
             queues.push(queue);
