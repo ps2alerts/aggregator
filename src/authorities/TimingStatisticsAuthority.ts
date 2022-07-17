@@ -17,26 +17,43 @@ export default class TimingStatisticsAuthority {
     private static readonly logger = getLogger('TimingStatisticsAuthority');
     private readonly runId = config.app.runId;
     private timer?: NodeJS.Timeout;
+    private readonly eventTypes = ['Death', 'FacilityControl', 'GainExperience', 'VehicleDestroy'];
 
     constructor(
         private readonly cacheClient: Redis,
     ) {}
 
-    public run(): void {
+    public async run(): Promise<void> {
         if (this.timer) {
             TimingStatisticsAuthority.logger.warn('Attempted to run TimingStatisticsAuthority timer when already defined!');
             this.stop();
         }
 
+        // Wipe all metrics lists so 1) we don't have any dangling lists from previous runs and 2) stats are wiped
+        const keys = await this.cacheClient.smembers(config.redis.metricsListKey);
+
+        if (keys.length) {
+            for (const key of keys) {
+                await this.cacheClient.del(key);
+                await this.cacheClient.srem(config.redis.metricsListKey, key);
+            }
+        }
+
+        // Add this run's keys in so the next run can flush them
+        for (const eventType of this.eventTypes) {
+            const listKey = `metrics-messages-${eventType}-${this.runId}`;
+            await this.cacheClient.sadd(config.redis.metricsListKey, listKey);
+        }
+
+        TimingStatisticsAuthority.logger.debug(`${keys.length} metrics keys cleared!`);
+
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {
             TimingStatisticsAuthority.logger.debug('Message Metrics:');
 
-            const eventTypes = ['Death', 'FacilityControl', 'GainExperience', 'MetagameEvent', 'VehicleDestroy'];
-
             const tableData: TableDisplayInterface[] = [];
 
-            for (const eventType of eventTypes) {
+            for (const eventType of this.eventTypes) {
                 const key = `metrics-messages-${eventType}-${this.runId}`;
                 const length = await this.cacheClient.llen(key);
                 const timings = await this.cacheClient.lrange(key, 0, length);

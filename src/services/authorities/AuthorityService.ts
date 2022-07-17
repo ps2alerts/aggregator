@@ -30,7 +30,7 @@ export default class AuthorityService implements ServiceInterface {
         AuthorityService.logger.debug('Starting Authority Services...');
         this.overdueInstanceAuthority.run();
         this.populationAuthority.run();
-        this.timingStatisticsAuthority.run();
+        await this.timingStatisticsAuthority.run();
     }
 
     // This isn't implemented as it appears to do it automatically
