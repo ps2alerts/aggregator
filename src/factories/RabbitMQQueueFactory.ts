@@ -38,6 +38,7 @@ export default class RabbitMQQueueFactory {
         queueOptions: Options.AssertQueue = {},
         pattern: string | null = null,
         handler: QueueMessageHandlerInterface<any> | null = null,
+        prefetch = 50,
     ): Promise<RabbitMQQueue> {
         pattern = pattern ?? '#'; // Default to all messages if a pattern isn't supplied
 
@@ -56,7 +57,11 @@ export default class RabbitMQQueueFactory {
 
                 // If the queue requires a consumer
                 if (handler) {
-                    const consumerOptions = {priority: this.getMessagePriority(pattern.split('.')[1] as never)};
+                    const consumerOptions: Options.Consume = {
+                        priority: this.getMessagePriority(pattern.split('.')[1] as never),
+                    };
+
+                    await channel.prefetch(prefetch);
 
                     // eslint-disable-next-line @typescript-eslint/no-misused-promises
                     await channel.consume(queueName, async (message) => {
