@@ -21,6 +21,7 @@ export default class AuthorityService implements ServiceInterface {
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
         AuthorityService.logger.debug('Booting Authority Services...');
+        await this.timingStatisticsAuthority.run();
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -30,7 +31,6 @@ export default class AuthorityService implements ServiceInterface {
         AuthorityService.logger.debug('Starting Authority Services...');
         this.overdueInstanceAuthority.run();
         this.populationAuthority.run();
-        await this.timingStatisticsAuthority.run();
     }
 
     // This isn't implemented as it appears to do it automatically
