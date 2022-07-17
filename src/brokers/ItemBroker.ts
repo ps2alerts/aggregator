@@ -1,5 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
+import {TYPES} from '../constants/types';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
@@ -8,7 +9,6 @@ import {Vehicle} from '../ps2alerts-constants/vehicle';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {Redis} from 'ioredis';
 import {Rest} from 'ps2census';
-import {TYPES} from '../constants/types';
 import config from '../config';
 
 @injectable()
@@ -92,6 +92,10 @@ export default class ItemBroker implements ItemBrokerInterface {
                 ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${err.message}`);
             }
         }
+
+        // Log the unknown item so we can investigate
+        await this.cacheClient.sadd(config.redis.unknownItemKey, itemId);
+        ItemBroker.logger.debug(`Unknown item ${itemId} logged`);
 
         // Returns fake
         ItemBroker.logger.warn(`[${environment}] Returning fake item in response for item ${itemId}`);

@@ -11,4 +11,6 @@ export default class Redis implements RedisOptions {
     public readonly db = getInt('REDIS_DB', 0);
     public readonly keyPrefix = 'ps2alerts-';
     public readonly metricsListKey = 'metrics-list';
+    public readonly unknownFacilityKey = 'unknown-facilities';
+    public readonly unknownItemKey = 'unknown-items';
 }

@@ -54,6 +54,11 @@ export default class FacilityDataBroker {
             await apiRequest.try().then(async (facility) => {
                 if (!facility || !facility[0] || !facility[0].facility_id) {
                     FacilityDataBroker.logger.error(`[${environment}] Could not find facility ${facilityId} (Zone ${zone}) in Census, or they returned garbage.`);
+
+                    // Log the unknown item so we can investigate
+                    await this.cacheClient.sadd(config.redis.unknownFacilityKey, `${facilityId}-${zone}`);
+                    FacilityDataBroker.logger.debug(`Unknown facility ${facilityId}-${zone} logged`);
+
                     return facilityData;
                 }
 
