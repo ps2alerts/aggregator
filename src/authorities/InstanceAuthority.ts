@@ -282,7 +282,7 @@ export default class InstanceAuthority {
                     instanceId: instance.instanceId,
                     world: instance.world,
                     zone: instance.zone,
-                    timeRemaining: `${displayDate.toISOString().substr(11, 8)} remaining`,
+                    timeRemaining: `${displayDate.toISOString().substr(11, 8)}`,
                     vs: instance.result?.vs ?? '???',
                     nc: instance.result?.nc ?? '???',
                     tr: instance.result?.tr ?? '???',
