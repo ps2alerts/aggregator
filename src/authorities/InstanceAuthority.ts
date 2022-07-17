@@ -18,6 +18,17 @@ import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 import QueueAuthority from './QueueAuthority';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
 
+interface TableDisplayInterface {
+    instanceId: string;
+    world: World;
+    zone: Zone;
+    timeRemaining: string;
+    vs: number | string;
+    nc: number | string;
+    tr: number |string;
+    cutoff: number | string;
+}
+
 @injectable()
 export default class InstanceAuthority {
     private static readonly logger = getLogger('InstanceAuthority');
@@ -260,20 +271,27 @@ export default class InstanceAuthority {
     public printActives(mustShow = false): void {
         if (this.currentInstances.length) {
             InstanceAuthority.logger.info('==== Current actives =====');
+            const tableRows: TableDisplayInterface[] = [];
+
             this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
-                let output = `I: ${instance.instanceId} | W: ${instance.world}`;
-
-                if (instance instanceof MetagameTerritoryInstance) {
-                    output = `${output} | Z: ${instance.zone}`;
-                }
-
                 // Display expected time left
                 const displayDate = new Date(0);
                 displayDate.setSeconds(calculateRemainingTime(instance) / 1000);
-                output = `${output} | ${displayDate.toISOString().substr(11, 8)} remaining`;
 
-                InstanceAuthority.logger.info(output);
+                const object: TableDisplayInterface = {
+                    instanceId: instance.instanceId,
+                    world: instance.world,
+                    zone: instance.zone,
+                    timeRemaining: `${displayDate.toISOString().substr(11, 8)} remaining`,
+                    vs: instance.result?.vs ?? '???',
+                    nc: instance.result?.nc ?? '???',
+                    tr: instance.result?.tr ?? '???',
+                    cutoff: instance.result?.cutoff ?? '???',
+                };
+                tableRows.push(object);
             });
+            // eslint-disable-next-line no-console
+            console.table(tableRows);
 
             InstanceAuthority.logger.info('==== Current actives end =====');
         } else if (mustShow) {
