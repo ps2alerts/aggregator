@@ -43,6 +43,17 @@ export default class QueueAuthority {
 
         const queues: RabbitMQQueue[] = [];
 
+        // Create dead letter queue
+        await this.queueFactory.create(
+            config.rabbitmq.exchange,
+            `aggregator-${instance.instanceId}-deadletter`,
+            {
+                maxPriority: 10,
+                expires: 90 * 60 * 1000,
+                messageTtl: 20 * 60 * 1000,
+            },
+        );
+
         for (const [eventName, handlers] of this.handlerMap) {
             const queue = await this.queueFactory.create(
                 config.rabbitmq.topicExchange,
@@ -51,10 +62,12 @@ export default class QueueAuthority {
                     maxPriority: 10,
                     messageTtl: 10 * 60 * 1000, // Grace period for the aggregator to process the message
                     expires: 20 * 60 * 1000, // Auto deletes the queue if not consumed
+                    deadLetterExchange: config.rabbitmq.exchange,
+                    deadLetterRoutingKey: `aggregator-${instance.instanceId}-deadletter`,
                 },
                 `${instance.world}.${eventName}.*`,
                 new ZoneMessageHandler(instance, handlers),
-                eventName === 'GainExperience' ? 200 : 100,
+                eventName === 'GainExperience' ? 2000 : 500,
             );
 
             queues.push(queue);

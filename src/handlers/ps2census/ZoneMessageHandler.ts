@@ -28,7 +28,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
 
         // If the message came after the alert ended, chuck
         if (this.instance.messageOverdue(event.timestamp)) {
-            ZoneMessageHandler.logger.warn(`[${this.instance.instanceId}] Ignoring message as instance ended before this event came in!`);
+            ZoneMessageHandler.logger.warn(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
             return actions.ack();
         }
 
@@ -42,18 +42,18 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
             return actions.ack();
         } catch (err) {
             if (err instanceof MaxRetryException) {
-                ZoneMessageHandler.logger.error(`Maximum Census retries reached! Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.ack(); // TODO: Requeue
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Type: ${event.event_name} - Err: ${err.message}`);
+                return actions.reject(); // TODO: Requeue
             }
 
             if (err instanceof ApplicationException) {
-                ZoneMessageHandler.logger.error(`Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.ack(); // TODO: Requeue
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
+                return actions.reject(); // TODO: Requeue
             }
 
             if (err instanceof Error) {
-                new ExceptionHandler(`Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
-                return actions.ack(); // Do not requeue
+                new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
+                return actions.reject(); // Do not requeue
             }
         }
 

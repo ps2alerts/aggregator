@@ -73,7 +73,7 @@ export default class RabbitMQQueueFactory {
                             await handler.handle(this.parseMessage(message), {
                                 ack: () => this.handleMessageConfirm(channel, message, 'ack'),
                                 nack: () => this.handleMessageConfirm(channel, message, 'nack'),
-                                // requeue: () => return , // DL Requeue
+                                reject: () => this.handleMessageConfirm(channel, message, 'reject'),
                             });
                         } catch (err) {
                             // Do not throw an exception or the app will terminate!
@@ -192,12 +192,15 @@ export default class RabbitMQQueueFactory {
         }
     }
 
-    private handleMessageConfirm(channel: ConfirmChannel, message: ConsumeMessage, action: 'ack' | 'nack'): void {
+    private handleMessageConfirm(channel: ConfirmChannel, message: ConsumeMessage, action: 'ack' | 'nack' | 'reject'): void {
         try {
             if (action === 'ack') {
                 channel.ack(message);
-            } else {
+            } else if (action === 'nack') {
                 channel.nack(message);
+            } else if (action === 'reject') {
+                channel.reject(message, false);
+                RabbitMQQueueFactory.logger.warn('Message rejected!');
             }
         } catch (err) {
             // Handle the channel closed first, before processing anything else
