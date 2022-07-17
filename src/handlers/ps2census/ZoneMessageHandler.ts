@@ -42,17 +42,17 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
             return actions.ack();
         } catch (err) {
             if (err instanceof MaxRetryException) {
-                ZoneMessageHandler.logger.error(`Maximum Census retries reached! Err: ${err.message}`);
+                ZoneMessageHandler.logger.error(`Maximum Census retries reached! Type: ${event.event_name} - Err: ${err.message}`);
                 return actions.ack(); // TODO: Requeue
             }
 
             if (err instanceof ApplicationException) {
-                ZoneMessageHandler.logger.error(`Unable to properly process ZoneMessage! Err: ${err.message}`);
+                ZoneMessageHandler.logger.error(`Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
                 return actions.ack(); // TODO: Requeue
             }
 
             if (err instanceof Error) {
-                new ExceptionHandler('Unexpected error occurred processing ZoneMessage!', err, 'ZoneMessageHandler');
+                new ExceptionHandler(`Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
                 return actions.ack(); // Do not requeue
             }
         }
