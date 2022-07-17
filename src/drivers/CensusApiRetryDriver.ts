@@ -1,5 +1,6 @@
 import {getLogger} from '../logger';
 import {Rest} from 'ps2census';
+import {promiseTimeout} from '../utils/PromiseTimeout';
 
 // This class exists as Census occasionally sends us invalid responses, and we must retry them.
 export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
@@ -26,7 +27,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
             }
 
             // Annoyingly Census does respond initially, tricking Axios into thinking it's not timing out. This forces it to time out.
-            const res = await this.promiseWithTimeout(this.query.get(this.filter), 10000);
+            const res = await promiseTimeout(this.query.get(this.filter), 10000);
 
             if (attempts > 1) {
                 CensusApiRetryDriver.logger.info(`[${this.caller}] Retry for Census ${this.query.collection} successful at attempt #${attempts}`);
@@ -52,21 +53,5 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
 
     private delay(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    private promiseWithTimeout<T>(
-        promise: Promise<T>,
-        ms: number,
-        timeoutError = new Error('Promise timed out'),
-    ): Promise<T> {
-        // create a promise that rejects in milliseconds
-        const timeout = new Promise<never>((_, reject) => {
-            setTimeout(() => {
-                reject(timeoutError);
-            }, ms);
-        });
-
-        // returns a race between timeout and the passed promise
-        return Promise.race<T>([promise, timeout]);
     }
 }

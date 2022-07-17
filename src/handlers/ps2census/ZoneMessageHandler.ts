@@ -9,6 +9,8 @@ import ApplicationException from '../../exceptions/ApplicationException';
 import {injectable} from 'inversify';
 import ExceptionHandler from '../system/ExceptionHandler';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
+import TimeoutException from '../../exceptions/TimeoutException';
+import {promiseTimeout} from '../../utils/PromiseTimeout';
 
 @injectable()
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -34,29 +36,36 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
 
         // Send to handlers
         try {
-            await Promise.all(
+            const promise = await promiseTimeout(Promise.all(
                 this.handlers.map((handler) => handler.handle(
                     new PS2EventQueueMessage(event, this.instance),
                 )),
-            );
+            ), 45000);
+            await Promise.race(promise);
+
             return actions.ack();
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.reject(); // TODO: Requeue
+                // return actions.reject(); // TODO: Requeue
             }
 
             if (err instanceof ApplicationException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.reject(); // TODO: Requeue
+                // return actions.reject(); // TODO: Requeue
+            }
+
+            if (err instanceof TimeoutException) {
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Type: ${event.event_name} - Err: ${err.message}`);
+                return actions.reject(); // Redeliver
             }
 
             if (err instanceof Error) {
                 new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
-                return actions.reject(); // Do not requeue
+                // return actions.reject(); // Do not requeue
             }
-        }
 
-        throw new ApplicationException('UNEXPECTED EXECUTION PATH REACHED!', 'ZoneMessageHandler');
+            return actions.reject();
+        }
     }
 }

@@ -278,13 +278,14 @@ export default class RabbitMQQueueFactory {
     private handleMessageConfirm(channel: ConfirmChannel, message: ConsumeMessage, action: 'ack' | 'nack' | 'reject'): void {
         try {
             if (action === 'ack') {
-                channel.ack(message);
+                return channel.ack(message);
             } else if (action === 'nack') {
-                channel.nack(message);
+                return channel.nack(message, false, true);
             } else if (action === 'reject') {
-                channel.reject(message, false);
-                RabbitMQQueueFactory.logger.warn('Message rejected!');
+                return channel.reject(message, false);
             }
+
+            throw new ApplicationException('Channel Confirm action was not handled correctly!');
         } catch (err) {
             // Handle the channel closed first, before processing anything else
             if (err instanceof Error) {
