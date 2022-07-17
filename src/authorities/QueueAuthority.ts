@@ -69,7 +69,7 @@ export default class QueueAuthority {
                 },
                 `${instance.world}.${eventName}.*`,
                 new ZoneMessageHandler(instance, handlers),
-                eventName === 'GainExperience' ? 100 : 50, // GainExp events are much ligher to process and more numerous
+                eventName === 'GainExperience' ? 100 : 50, // GainExp events are much lighter to process and more numerous
             );
 
             queues.push(queue);
