@@ -17,7 +17,7 @@ export default class ApiMQPublisher implements RabbitMQQueueWrapperInterface {
     constructor(private readonly queueFactory: RabbitMQQueueFactory) {}
 
     public async connect(): Promise<void> {
-        this.queue = await this.queueFactory.create(
+        this.queue = await this.queueFactory.createEventQueue(
             config.rabbitmq.exchange,
             config.rabbitmq.apiQueueName,
             {

@@ -5,7 +5,7 @@ import {TYPES} from '../../constants/types';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
 import {AxiosInstance} from 'axios';
 import {FacilityControl} from 'ps2census';
-import {PS2EventInstanceHandlerContract} from '../../interfaces/PS2EventInstanceHandlerContract';
+import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
@@ -14,7 +14,7 @@ import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpo
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 
 @injectable()
-export default class FacilityControlEventHandler implements PS2EventInstanceHandlerContract<FacilityControl> {
+export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
     public readonly eventName = 'FacilityControl';
     private static readonly logger = getLogger('FacilityControlEventHandler');
 

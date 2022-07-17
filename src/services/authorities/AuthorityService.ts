@@ -4,6 +4,7 @@ import {getLogger} from '../../logger';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
+import TimingStatisticsAuthority from '../../authorities/TimingStatisticsAuthority';
 
 @injectable()
 export default class AuthorityService implements ServiceInterface {
@@ -14,6 +15,7 @@ export default class AuthorityService implements ServiceInterface {
         private readonly instanceAuthority: InstanceAuthority,
         private readonly overdueInstanceAuthority: OverdueInstanceAuthority,
         private readonly populationAuthority: PopulationAuthority,
+        private readonly timingStatisticsAuthority: TimingStatisticsAuthority,
     ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -28,6 +30,7 @@ export default class AuthorityService implements ServiceInterface {
         AuthorityService.logger.debug('Starting Authority Services...');
         this.overdueInstanceAuthority.run();
         this.populationAuthority.run();
+        this.timingStatisticsAuthority.run();
     }
 
     // This isn't implemented as it appears to do it automatically

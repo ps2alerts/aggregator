@@ -6,18 +6,18 @@ import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../../inter
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import {getLogger} from '../../logger';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {PS2EventInstanceHandlerContract} from '../../interfaces/PS2EventInstanceHandlerContract';
 import {injectable} from 'inversify';
 import ExceptionHandler from '../system/ExceptionHandler';
+import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 
 @injectable()
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMessageHandlerInterface<T>{
+export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMessageHandlerInterface<T> {
     private static readonly logger = getLogger('ZoneMessageHandler');
 
     constructor(
         private readonly instance: PS2AlertsInstanceInterface,
-        private readonly handlers: Array<PS2EventInstanceHandlerContract<T>>,
+        private readonly handlers: Array<PS2EventQueueMessageHandlerInterface<T>>,
     ) {}
 
     public async handle(event: T, actions: ChannelActionsInterface): Promise<void> {

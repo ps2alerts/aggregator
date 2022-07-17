@@ -5,7 +5,7 @@ import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import {getLogger} from '../logger';
 import config from '../config';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
-import {PS2EventInstanceHandlerContract} from '../interfaces/PS2EventInstanceHandlerContract';
+import {PS2EventQueueMessageHandlerInterface} from '../interfaces/PS2EventQueueMessageHandlerInterface';
 import {TYPES} from '../constants/types';
 import {injectable, multiInject} from 'inversify';
 import ZoneMessageHandler from '../handlers/ps2census/ZoneMessageHandler';
@@ -16,12 +16,13 @@ import RabbitMQQueue from '../services/rabbitmq/RabbitMQQueue';
 export default class QueueAuthority {
     private static readonly logger = getLogger('QueueAuthority');
     private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], RabbitMQQueue[]>();
-    private readonly handlerMap = new Map<string, Array<PS2EventInstanceHandlerContract<any>>>();
+    private readonly handlerMap = new Map<string, Array<PS2EventQueueMessageHandlerInterface<any>>>();
     private currentInstances: PS2AlertsInstanceInterface[] = [];
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
-        @multiInject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventInstanceHandlerContract<any>>,
+        @multiInject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventQueueMessageHandlerInterface<any>>,
+
     ) {
         for (const handler of eventInstanceHandlers) {
             let handlerList = this.handlerMap.get(handler.eventName);
@@ -42,28 +43,29 @@ export default class QueueAuthority {
         }
 
         const queues: RabbitMQQueue[] = [];
+        const dlqName = `aggregator-${instance.instanceId}-deadletter`;
 
         // Create dead letter queue
-        await this.queueFactory.create(
+        await this.queueFactory.createEventQueue(
             config.rabbitmq.exchange,
-            `aggregator-${instance.instanceId}-deadletter`,
+            dlqName,
             {
                 maxPriority: 10,
-                expires: 90 * 60 * 1000,
-                messageTtl: 20 * 60 * 1000,
+                expires: 30 * 60 * 1000,
+                messageTtl: 30 * 60 * 1000,
             },
         );
 
         for (const [eventName, handlers] of this.handlerMap) {
-            const queue = await this.queueFactory.create(
+            const queue = await this.queueFactory.createEventQueue(
                 config.rabbitmq.topicExchange,
                 `aggregator-${instance.instanceId}-${eventName}`,
                 {
                     maxPriority: 10,
-                    messageTtl: 10 * 60 * 1000, // Grace period for the aggregator to process the message
-                    expires: 20 * 60 * 1000, // Auto deletes the queue if not consumed
-                    deadLetterExchange: config.rabbitmq.exchange,
-                    deadLetterRoutingKey: `aggregator-${instance.instanceId}-deadletter`,
+                    messageTtl: 20 * 60 * 1000, // Grace period for the aggregator to process the message
+                    expires: 15 * 60 * 1000, // Auto deletes the queue if not consumed
+                    deadLetterExchange: '',
+                    deadLetterRoutingKey: dlqName,
                 },
                 `${instance.world}.${eventName}.*`,
                 new ZoneMessageHandler(instance, handlers),

@@ -7,14 +7,14 @@ import CharacterPresenceHandler from '../CharacterPresenceHandler';
 import {Death} from 'ps2census';
 import Parser from '../../utils/parser';
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
-import {PS2EventInstanceHandlerContract} from '../../interfaces/PS2EventInstanceHandlerContract';
+import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
 import ExceptionHandler from '../system/ExceptionHandler';
 
 @injectable()
-export default class DeathEventHandler implements PS2EventInstanceHandlerContract<Death> {
+export default class DeathEventHandler implements PS2EventQueueMessageHandlerInterface<Death> {
     public readonly eventName = 'Death';
     private static readonly logger = getLogger('DeathEventHandler');
 

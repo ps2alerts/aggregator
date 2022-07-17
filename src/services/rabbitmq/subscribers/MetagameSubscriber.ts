@@ -40,7 +40,7 @@ export default class MetagameSubscriber implements RabbitMQQueueWrapperInterface
 
         // Registers queues by world and event type, enabling us to fine-tune the priorities of each queue and monitor for statistics.
         for (const world of worlds) {
-            const queue = await this.queueFactory.create(
+            const queue = await this.queueFactory.createEventQueue(
                 config.rabbitmq.topicExchange,
                 `aggregator-${world}-MetagameEvent`,
                 {

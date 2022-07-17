@@ -2,6 +2,8 @@ import {ContainerModule} from 'inversify';
 import OverdueInstanceAuthority from './OverdueInstanceAuthority';
 import PopulationAuthority from './PopulationAuthority';
 import InstanceAuthority from './InstanceAuthority';
+import TimingStatisticsAuthority from './TimingStatisticsAuthority';
+import {TYPES} from '../constants/types';
 
 export default new ContainerModule((bind) => {
     bind(InstanceAuthority)
@@ -15,4 +17,8 @@ export default new ContainerModule((bind) => {
     bind(PopulationAuthority)
         .toSelf()
         .inSingletonScope();
+
+    bind(TimingStatisticsAuthority).toDynamicValue(async (context) => {
+        return new TimingStatisticsAuthority(await context.container.getAsync(TYPES.redis));
+    }).inSingletonScope();
 });

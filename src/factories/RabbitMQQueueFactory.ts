@@ -19,8 +19,9 @@ import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
 import {QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import {Options} from 'amqplib/properties';
-import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
 import RabbitMQQueue from '../services/rabbitmq/RabbitMQQueue';
+import TimingMiddlewareHandler from '../middlewares/TimingMiddlewareHandler';
+import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
 
 @injectable()
 export default class RabbitMQQueueFactory {
@@ -29,15 +30,15 @@ export default class RabbitMQQueueFactory {
     constructor(
         @inject(TYPES.rabbitMqConnection) private readonly rabbit: AmqpConnectionManager,
         private readonly censusClient: CensusClient,
+        private readonly timingMiddlewareHandler: TimingMiddlewareHandler,
     ) {}
 
-    // Above this, QueueAuthority creates these streams
-    public async create(
+    public async createEventQueue(
         exchange: string,
         queueName: string,
         queueOptions: Options.AssertQueue = {},
         pattern: string | null = null,
-        handler: QueueMessageHandlerInterface<any> | null = null,
+        handler: QueueMessageHandlerInterface<PS2Event> | null = null,
         prefetch = 50,
     ): Promise<RabbitMQQueue> {
         pattern = pattern ?? '#'; // Default to all messages if a pattern isn't supplied
@@ -66,15 +67,21 @@ export default class RabbitMQQueueFactory {
                     // eslint-disable-next-line @typescript-eslint/no-misused-promises
                     await channel.consume(queueName, async (message) => {
                         if (!message) {
-                            throw new ApplicationException('Message was empty!', 'RabbitMQCensusStreamFactory');
+                            throw new ApplicationException('Message was empty!', 'RabbitMQCensusStreamFactory.ps2eventConsumer');
                         }
 
                         try {
-                            await handler.handle(this.parseMessage(message), {
-                                ack: () => this.handleMessageConfirm(channel, message, 'ack'),
-                                nack: () => this.handleMessageConfirm(channel, message, 'nack'),
-                                reject: () => this.handleMessageConfirm(channel, message, 'reject'),
-                            });
+                            // A middleware is added here track how long it takes messages to respond.
+                            // This will mainly call the ZoneMiddleware Handler.
+                            await this.timingMiddlewareHandler.handle(
+                                this.parsePs2eventMessage(message),
+                                {
+                                    ack: () => this.handleMessageConfirm(channel, message, 'ack'),
+                                    nack: () => this.handleMessageConfirm(channel, message, 'nack'),
+                                    reject: () => this.handleMessageConfirm(channel, message, 'reject'),
+                                },
+                                handler,
+                            );
                         } catch (err) {
                             // Do not throw an exception or the app will terminate!
                             if (err instanceof Error) {
@@ -94,6 +101,62 @@ export default class RabbitMQQueueFactory {
         await channel.waitForConnect();
 
         return new RabbitMQQueue(exchange, queueName, pattern, channel);
+    }
+
+    public async createAdminQueue(
+        exchange: string,
+        queueName: string,
+        handler: QueueMessageHandlerInterface<AdminQueueMessage>,
+    ): Promise<RabbitMQQueue> {
+        const channel = this.rabbit.createChannel({
+            json: true,
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            setup: async (channel: ConfirmChannel) => {
+                await Promise.all([
+                    channel.checkExchange(exchange),
+                    channel.assertQueue(queueName, {durable: true}),
+                ]);
+                await channel.bindQueue(queueName, exchange, '#');
+
+                const consumerOptions: Options.Consume = {
+                    priority: 0,
+                };
+
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                await channel.consume(queueName, async (message) => {
+                    if (!message) {
+                        throw new ApplicationException('Admin Message was empty!', 'RabbitMQCensusStreamFactory.adminConsumer');
+                    }
+
+                    try {
+                        // A middleware is added here track how long it takes messages to respond.
+                        // This will mainly call the ZoneMiddleware Handler.
+                        await handler.handle(
+                            this.parseAdminMessage(message),
+                            {
+                                ack: () => this.handleMessageConfirm(channel, message, 'ack'),
+                                nack: () => this.handleMessageConfirm(channel, message, 'nack'),
+                                reject: () => this.handleMessageConfirm(channel, message, 'reject'),
+                            },
+                        );
+                    } catch (err) {
+                        // Do not throw an exception or the app will terminate!
+                        if (err instanceof Error) {
+                            RabbitMQQueueFactory.logger.error(`[${queueName}] Unable to properly handle admin message! ${err.message}`);
+                        }
+
+                        channel.ack(message);
+                    }
+                }, consumerOptions);
+            },
+        });
+
+        this.registerListeners(channel, queueName);
+
+        // Ensure the connection is actually there
+        await channel.waitForConnect();
+
+        return new RabbitMQQueue(exchange, queueName, '#', channel);
     }
 
     private registerListeners(channel: ChannelWrapper, queueName: string): void {
@@ -131,6 +194,26 @@ export default class RabbitMQQueueFactory {
             default:
                 return 10;
         }
+    }
+
+    private parsePs2eventMessage(msg: ConsumeMessage): PS2Event {
+        const message = this.parseMessage(msg);
+
+        if (message instanceof PS2Event) {
+            return message;
+        }
+
+        throw new ApplicationException('parseMessage returned a non PS2Event type!');
+    }
+
+    private parseAdminMessage(msg: ConsumeMessage): AdminQueueMessage {
+        const message = this.parseMessage(msg);
+
+        if (message instanceof PS2Event) {
+            throw new ApplicationException('parseMessage returned a non PS2Event type!');
+        }
+
+        return message;
     }
 
     private parseMessage(msg: ConsumeMessage): PS2Event | AdminQueueMessage {

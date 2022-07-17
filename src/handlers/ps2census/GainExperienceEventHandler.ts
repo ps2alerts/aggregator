@@ -6,11 +6,11 @@ import GainExperienceEvent from './events/GainExperienceEvent';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
-import {PS2EventInstanceHandlerContract} from '../../interfaces/PS2EventInstanceHandlerContract';
+import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import CharacterBroker from '../../brokers/CharacterBroker';
 
 @injectable()
-export default class GainExperienceEventHandler implements PS2EventInstanceHandlerContract<GainExperience> {
+export default class GainExperienceEventHandler implements PS2EventQueueMessageHandlerInterface<GainExperience> {
     public readonly eventName = 'GainExperience';
     private static readonly logger = getLogger('GainExperienceHandler');
 

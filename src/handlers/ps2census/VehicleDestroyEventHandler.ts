@@ -9,11 +9,11 @@ import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
 import {jsonLogOutput} from '../../utils/json';
-import {PS2EventInstanceHandlerContract} from '../../interfaces/PS2EventInstanceHandlerContract';
+import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 
 @injectable()
-export default class VehicleDestroyEventHandler implements PS2EventInstanceHandlerContract<VehicleDestroy> {
+export default class VehicleDestroyEventHandler implements PS2EventQueueMessageHandlerInterface<VehicleDestroy> {
     public readonly eventName = 'VehicleDestroy';
     private static readonly logger = getLogger('VehicleDestroyEvent');
 

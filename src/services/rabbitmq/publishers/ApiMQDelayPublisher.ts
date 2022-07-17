@@ -23,7 +23,7 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
     }
 
     public async connect(): Promise<void> {
-        this.longQueue = await this.queueFactory.create(
+        this.longQueue = await this.queueFactory.createEventQueue(
             config.rabbitmq.exchange,
             this.longQueueName,
             {
@@ -35,7 +35,7 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
                 },
             });
 
-        this.shortQueue = await this.queueFactory.create(
+        this.shortQueue = await this.queueFactory.createEventQueue(
             config.rabbitmq.exchange,
             this.shortQueueName,
             {

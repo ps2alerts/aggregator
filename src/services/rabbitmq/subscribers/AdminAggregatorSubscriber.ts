@@ -18,11 +18,9 @@ export default class AdminAggregatorSubscriber implements RabbitMQQueueWrapperIn
     public async connect(): Promise<void> {
         const queueName = `aggregator-admin-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
 
-        this.queue = await this.queueFactory.create(
+        this.queue = await this.queueFactory.createAdminQueue(
             config.rabbitmq.exchange,
             queueName,
-            {},
-            '#',
             this.adminMessageHandler,
         );
     }
