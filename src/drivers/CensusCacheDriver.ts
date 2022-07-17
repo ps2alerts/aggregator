@@ -21,8 +21,16 @@ export default class CensusCacheDriver implements CacheContract {
         await this.cacheClient.flushall();
     }
 
-    public fetch(key: string): Promise<any> {
-        return this.cacheClient.get(key);
+    public async fetch(key: string): Promise<any> {
+        // Check if the key actually exists
+        if (!await this.cacheClient.exists(this.cacheKey(key))) {
+            return '';
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return JSON.parse(
+            await this.cacheClient.get(this.cacheKey(key)) ?? '',
+        );
     }
 
     public async put(key: string, data: any): Promise<void> {
