@@ -90,7 +90,7 @@ export default class RabbitMQQueueFactory {
                                 RabbitMQQueueFactory.logger.error(`[${queueName}] Unable to properly handle message! ${err.message}`);
                             }
 
-                            return channel.ack(message); // Critical error, probably unprocessable so we're chucking
+                            return channel.reject(message); // Critical error, probably unprocessable so we're chucking
                         }
                     }, consumerOptions);
                 }
