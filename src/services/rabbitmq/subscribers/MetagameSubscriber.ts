@@ -27,6 +27,11 @@ export default class MetagameSubscriber implements RabbitMQQueueWrapperInterface
             return;
         }
 
+        if (!config.census.metagameQueuesEnabled) {
+            MetagameSubscriber.logger.info('MetagameEvent queue creation is disabled. Not creating / subscribing to queues.');
+            return;
+        }
+
         MetagameSubscriber.logger.info('Creating world MetagameEvent queues...');
 
         // Subscribe only to worlds that make sense for the environment

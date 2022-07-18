@@ -45,8 +45,8 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                 return actions.ack();
             }
 
-            if (!config.census.metagameEnabled) {
-                MetagameEventEventHandler.logger.info('Ignoring metagame event message');
+            if (!config.census.metagameCreationsEnabled) {
+                MetagameEventEventHandler.logger.info('Ignoring metagame event message as metagame creations are disabled.');
                 return;
             }
 
