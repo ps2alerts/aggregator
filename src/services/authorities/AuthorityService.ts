@@ -5,6 +5,7 @@ import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 import TimingStatisticsAuthority from '../../authorities/TimingStatisticsAuthority';
+import QueueAuthority from '../../authorities/QueueAuthority';
 
 @injectable()
 export default class AuthorityService implements ServiceInterface {
@@ -15,6 +16,7 @@ export default class AuthorityService implements ServiceInterface {
         private readonly instanceAuthority: InstanceAuthority,
         private readonly overdueInstanceAuthority: OverdueInstanceAuthority,
         private readonly populationAuthority: PopulationAuthority,
+        private readonly queueAuthority: QueueAuthority,
         private readonly timingStatisticsAuthority: TimingStatisticsAuthority,
     ) {}
 
@@ -31,6 +33,7 @@ export default class AuthorityService implements ServiceInterface {
         AuthorityService.logger.debug('Starting Authority Services...');
         this.overdueInstanceAuthority.run();
         this.populationAuthority.run();
+        this.queueAuthority.run();
     }
 
     // This isn't implemented as it appears to do it automatically

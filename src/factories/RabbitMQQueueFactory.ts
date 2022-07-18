@@ -67,7 +67,9 @@ export default class RabbitMQQueueFactory {
                     // eslint-disable-next-line @typescript-eslint/no-misused-promises
                     await channel.consume(queueName, async (message) => {
                         if (!message) {
-                            throw new ApplicationException('Message was empty!', 'RabbitMQCensusStreamFactory.ps2eventConsumer');
+                            RabbitMQQueueFactory.logger.error('Message was empty!', 'RabbitMQCensusStreamFactory.ps2ev' +
+                                'entConsumer');
+                            return;
                         }
 
                         try {
@@ -88,7 +90,7 @@ export default class RabbitMQQueueFactory {
                                 RabbitMQQueueFactory.logger.error(`[${queueName}] Unable to properly handle message! ${err.message}`);
                             }
 
-                            channel.ack(message); // Critical error, probably unprocessable so we're chucking
+                            return channel.ack(message); // Critical error, probably unprocessable so we're chucking
                         }
                     }, consumerOptions);
                 }

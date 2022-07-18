@@ -4,6 +4,7 @@ import PopulationAuthority from './PopulationAuthority';
 import InstanceAuthority from './InstanceAuthority';
 import TimingStatisticsAuthority from './TimingStatisticsAuthority';
 import {TYPES} from '../constants/types';
+import QueueAuthority from './QueueAuthority';
 
 export default new ContainerModule((bind) => {
     bind(InstanceAuthority)
@@ -15,6 +16,10 @@ export default new ContainerModule((bind) => {
         .inSingletonScope();
 
     bind(PopulationAuthority)
+        .toSelf()
+        .inSingletonScope();
+
+    bind(QueueAuthority)
         .toSelf()
         .inSingletonScope();
 

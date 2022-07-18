@@ -17,7 +17,9 @@ export default class QueueAuthority {
     private static readonly logger = getLogger('QueueAuthority');
     private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], RabbitMQQueue[]>();
     private readonly handlerMap = new Map<string, Array<PS2EventQueueMessageHandlerInterface<any>>>();
+    private readonly queuesMarkedForDeletionMap = new Map<number, RabbitMQQueue[]>();
     private currentInstances: PS2AlertsInstanceInterface[] = [];
+    private timer?: NodeJS.Timeout;
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
@@ -36,6 +38,28 @@ export default class QueueAuthority {
         }
     }
 
+    public run(): void {
+        if (this.timer) {
+            QueueAuthority.logger.warn('Attempted to run QueueAuthority timer when already defined!');
+            this.stop();
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.timer = setInterval(async () => {
+            await this.checkQueueDeadlines();
+        }, 15000);
+
+        QueueAuthority.logger.debug('Created QueueAuthority timer');
+    }
+
+    public stop(): void {
+        QueueAuthority.logger.debug('Clearing QueueAuthority timer');
+
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+    }
+
     public async startQueuesForInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
         // Check if we're already monitoring the instance, if we are, do nothing
         if (this.instanceChannelMap.has(instance.instanceId)) {
@@ -46,7 +70,7 @@ export default class QueueAuthority {
         const dlqName = `aggregator-${instance.instanceId}-deadletter`;
 
         // Create dead letter queue
-        await this.queueFactory.createEventQueue(
+        const dlQueue = await this.queueFactory.createEventQueue(
             config.rabbitmq.exchange,
             dlqName,
             {
@@ -56,6 +80,8 @@ export default class QueueAuthority {
             },
         );
 
+        queues.push(dlQueue);
+
         for (const [eventName, handlers] of this.handlerMap) {
             const queue = await this.queueFactory.createEventQueue(
                 config.rabbitmq.topicExchange,
@@ -63,7 +89,7 @@ export default class QueueAuthority {
                 {
                     maxPriority: 10,
                     messageTtl: eventName === 'FacilityControl' ? 60000 : 20 * 60 * 1000, // Grace period for the aggregator to process the message. FacilityControl is set to 60s as it's time urgent
-                    expires: 15 * 60 * 1000, // Auto deletes the queue after alert finish
+                    expires: 15 * 60 * 1000, // Auto deletes the queue if not picked up by QueueAuthority. This is left quite long in case of a crash loop
                     deadLetterExchange: '',
                     deadLetterRoutingKey: dlqName,
                 },
@@ -85,7 +111,7 @@ export default class QueueAuthority {
     }
 
     // Disconnect world function
-    public async stopQueuesForInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
+    public stopQueuesForInstance(instance: PS2AlertsInstanceInterface): void {
         // If we have no connection for the world, there's nothing to disconnect from
         if (!this.instanceChannelMap.has(instance.instanceId)) {
             return;
@@ -98,9 +124,13 @@ export default class QueueAuthority {
             return;
         }
 
-        for (const queue of queues) {
-            await queue.unbind();
-        }
+        // Mark the queues for deletion with a grace period (@see checkQueueDeadlines)
+        const deadline = new Date().getTime() + (2 * 60 * 1000); // Messages have at least 2 minutes to reconcile
+        this.queuesMarkedForDeletionMap.set(deadline, queues);
+        QueueAuthority.logger.debug(`Flagged ${instance.instanceId}'s queues for deletion`);
+
+        // Remove the queues from the instanceChannelMap as we're effectively done with them
+        this.instanceChannelMap.delete(instance.instanceId);
     }
 
     // Asks instance authority for all alerts available and ensures the queues are subscribed
@@ -110,5 +140,21 @@ export default class QueueAuthority {
         }
 
         QueueAuthority.logger.info('All queues started for active alerts');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    private async checkQueueDeadlines(): Promise<void> {
+        QueueAuthority.logger.silly('Running QueueAuthority deadline check');
+        const now = new Date().getTime();
+
+        // Check the deadlines for each queue and if it's over, destroy them.
+        this.queuesMarkedForDeletionMap.forEach((queues, deadline) => {
+            if (now > deadline) {
+                queues.forEach((queue) => {
+                    void queue.destroy();
+                });
+                this.queuesMarkedForDeletionMap.delete(deadline);
+            }
+        });
     }
 }

@@ -39,12 +39,14 @@ export default class RabbitMQQueue {
         }
     }
 
-    public async unbind(): Promise<void> {
-        // One may think you could unbind the queue from the exchange via amqplib. You cannot. Therefore we'll just disconnect and let it expire.
+    public async destroy(): Promise<void> {
         this.channel.removeAllListeners();
 
-        await this.channel.close(); // Close the channels so the consumers disconnect, then the queue will auto expire
-        RabbitMQQueue.logger.info(`[${this.queueName}] connection closed!`);
+        await this.channel.deleteQueue(this.queueName); // Delete the queue (this is called by QueueAuthority so there's a delay)
+
+        await this.channel.close(); // Ensures we've not got dangling connections
+
+        RabbitMQQueue.logger.info(`[${this.queueName}] queue destroyed!`);
 
         this.isConnected = false;
     }
