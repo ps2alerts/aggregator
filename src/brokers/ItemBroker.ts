@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {TYPES} from '../constants/types';
@@ -10,6 +11,10 @@ import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {Redis} from 'ioredis';
 import {Rest} from 'ps2census';
 import config from '../config';
+import {AxiosInstance} from 'axios';
+import ApplicationException from '../exceptions/ApplicationException';
+import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints';
+import {CensusEnvironment} from '../types/CensusEnvironment';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -18,13 +23,14 @@ export default class ItemBroker implements ItemBrokerInterface {
     constructor(
         private readonly restClient: Rest.Client,
         @inject(TYPES.redis) private readonly cacheClient: Redis,
+        @inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
     ) {}
 
     public async get(
         itemId: number,
         vehicleId: Vehicle,
     ): Promise<ItemInterface> {
-        const environment = config.census.censusEnvironment;
+        const environment: CensusEnvironment = config.census.censusEnvironment;
 
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             if (!vehicleId) {
@@ -58,16 +64,42 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
 
-        const item = await this.getItem(itemId, environment);
+        // Serve the fake item by default, if one is found it gets replaced
+        let item = new FakeItemFactory().build();
+
+        const censusItem = await this.getItemFromCensus(itemId, environment);
+
+        if (censusItem) {
+            ItemBroker.logger.debug(`[${environment}] Census API found item ${itemId}!`);
+            item = censusItem;
+        }
+
+        if (environment === 'ps2' && !censusItem) {
+            const falconItem = await this.getItemFromFalcon(itemId, environment);
+
+            if (falconItem) {
+                ItemBroker.logger.debug(`[${environment}] Falcon API found item ${itemId}!`);
+                item = falconItem;
+            }
+        }
+
+        if (item.id === -1) {
+            // Log the unknown item so we can investigate
+            await this.cacheClient.sadd(config.redis.unknownItemKey, itemId);
+            ItemBroker.logger.debug(`Unknown item ${itemId} logged`);
+
+            // Returns fake
+            ItemBroker.logger.warn(`[${environment}] Returning fake item in response for item ${itemId}`);
+        }
 
         // Cache the response for 24h then return
         await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(item));
+        await this.cacheClient.sadd(config.redis.itemCacheListKey, cacheKey); // Store the cache key by name so we can wipe it manually
 
         return item;
     }
 
-    private async getItem(itemId: number, environment: string): Promise<ItemInterface> {
-        let returnItem = new FakeItemFactory().build();
+    private async getItemFromCensus(itemId: number, environment: CensusEnvironment): Promise<ItemInterface | null> {
 
         const query = this.restClient.getQueryBuilder('item')
             .limit(1);
@@ -82,23 +114,46 @@ export default class ItemBroker implements ItemBrokerInterface {
             await apiRequest.try().then((items) => {
                 if (!items || !items.length) {
                     ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
-                    return new FakeItemFactory().build();
+                    return null;
                 }
 
-                returnItem = new Item(items[0]);
+                return new Item(items[0]);
             });
         } catch (err) {
             if (err instanceof Error) {
                 ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${err.message}`);
+                return null;
             }
         }
 
-        // Log the unknown item so we can investigate
-        await this.cacheClient.sadd(config.redis.unknownItemKey, itemId);
-        ItemBroker.logger.debug(`Unknown item ${itemId} logged`);
+        return null;
+    }
 
-        // Returns fake
-        ItemBroker.logger.warn(`[${environment}] Returning fake item in response for item ${itemId}`);
+    private async getItemFromFalcon(itemId: number, environment: CensusEnvironment): Promise<ItemInterface> {
+        const returnItem = new FakeItemFactory().build();
+
+        if (environment !== 'ps2') {
+            return returnItem;
+        }
+
+        // Grab the item data from Census
+        try {
+            const request = await this.falconApiClient.get(lithafalconEndpoints.itemId, {
+                params: {
+                    item_id: itemId,
+                },
+            });
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+            const data: Rest.Format<'item'> = request.data.item_list[0];
+            return new Item(data);
+        } catch (err) {
+            if (err instanceof Error) {
+                ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Falcon API. Error: ${err.message}`);
+                throw new ApplicationException('Falcon API could not find item');
+            }
+        }
+
         return returnItem;
     }
 }

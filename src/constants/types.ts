@@ -28,7 +28,7 @@ const TYPES = {
     rabbitMQPublishers: Symbol('rabbitMQPublishers'),
 
     ps2AlertsApiClient: Symbol('ps2AlertsApiClient'),
-
+    falconApiClient: Symbol('falconApiClient'),
     // Census Message Handlers
     eventInstanceHandlers: Symbol('eventInstanceHandlers'),
 };

@@ -24,7 +24,7 @@ export default class Census {
     };
 
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
-    public readonly censusEnvironment = this.getCensusEnvironment();
+    public readonly censusEnvironment: CensusEnvironment = this.getCensusEnvironment();
     public readonly metagameEnabled = true; // Set this to false to ignore new alerts coming in
 
     /**
