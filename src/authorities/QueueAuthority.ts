@@ -74,6 +74,7 @@ export default class QueueAuthority {
             config.rabbitmq.exchange,
             dlqName,
             {
+                durable: false,
                 maxPriority: 10,
                 expires: 30 * 60 * 1000,
                 messageTtl: 30 * 60 * 1000,
@@ -87,6 +88,7 @@ export default class QueueAuthority {
                 config.rabbitmq.topicExchange,
                 `aggregator-${instance.instanceId}-${eventName}`,
                 {
+                    durable: false,
                     maxPriority: 10,
                     messageTtl: eventName === 'FacilityControl' ? 60000 : 20 * 60 * 1000, // Grace period for the aggregator to process the message. FacilityControl is set to 60s as it's time urgent
                     expires: 15 * 60 * 1000, // Auto deletes the queue if not picked up by QueueAuthority. This is left quite long in case of a crash loop

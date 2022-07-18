@@ -27,6 +27,7 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
             config.rabbitmq.exchange,
             this.longQueueName,
             {
+                durable: true,
                 messageTtl: 5460000, // 91 minutes
                 deadLetterExchange: '',
                 deadLetterRoutingKey: config.rabbitmq.apiQueueName,
@@ -39,6 +40,7 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
             config.rabbitmq.exchange,
             this.shortQueueName,
             {
+                durable: true,
                 messageTtl: 2760000, // 46 minutes
                 deadLetterExchange: '',
                 deadLetterRoutingKey: config.rabbitmq.apiQueueName,

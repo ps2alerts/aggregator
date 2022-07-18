@@ -49,6 +49,7 @@ export default class MetagameSubscriber implements RabbitMQQueueWrapperInterface
                 config.rabbitmq.topicExchange,
                 `aggregator-${world}-MetagameEvent`,
                 {
+                    durable: true,
                     maxPriority: 2,
                     messageTtl: 5 * 60 * 1000,
                 },

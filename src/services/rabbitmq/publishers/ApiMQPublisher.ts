@@ -21,6 +21,7 @@ export default class ApiMQPublisher implements RabbitMQQueueWrapperInterface {
             config.rabbitmq.exchange,
             config.rabbitmq.apiQueueName,
             {
+                durable: true,
                 messageTtl: 180 * 60 * 1000,
                 arguments: {
                     'x-queue-mode': 'lazy',

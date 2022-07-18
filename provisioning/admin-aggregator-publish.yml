@@ -137,4 +137,4 @@
         username: "{{ user }}"
         password: "{{ password }}"
         vhost: "{{ vhost }}"
-        durable: true
+        durable: false

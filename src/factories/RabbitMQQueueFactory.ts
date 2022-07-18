@@ -48,7 +48,6 @@ export default class RabbitMQQueueFactory {
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: async (channel: ConfirmChannel) => {
                 pattern = pattern ?? '#'; // This is here because it's wrapped in a lambda and can't see the check above it
-                queueOptions = {durable: true, ...queueOptions};
 
                 await Promise.all([
                     channel.checkExchange(exchange),
@@ -116,7 +115,7 @@ export default class RabbitMQQueueFactory {
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
                     channel.checkExchange(exchange),
-                    channel.assertQueue(queueName, {durable: true}),
+                    channel.assertQueue(queueName, {durable: false}),
                 ]);
                 await channel.bindQueue(queueName, exchange, '#');
 
