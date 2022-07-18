@@ -70,7 +70,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         const censusItem = await this.getItemFromCensus(itemId, environment);
 
         if (censusItem) {
-            ItemBroker.logger.debug(`[${environment}] Census API found item ${itemId}!`);
+            ItemBroker.logger.silly(`[${environment}] Census API found item ${itemId}!`);
             item = censusItem;
         }
 
@@ -78,7 +78,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             const falconItem = await this.getItemFromFalcon(itemId, environment);
 
             if (falconItem) {
-                ItemBroker.logger.debug(`[${environment}] Falcon API found item ${itemId}!`);
+                ItemBroker.logger.silly(`[${environment}] Falcon API found item ${itemId}!`);
                 item = falconItem;
             }
         }
