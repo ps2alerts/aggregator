@@ -49,7 +49,7 @@ export default class TimingStatisticsAuthority {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {
-            TimingStatisticsAuthority.logger.debug('Message Metrics:');
+            let show = false;
 
             const tableData: TableDisplayInterface[] = [];
 
@@ -86,6 +86,11 @@ export default class TimingStatisticsAuthority {
                     }
                 }
 
+                // Check if there's actually something to show
+                if (count > 0) {
+                    show = true;
+                }
+
                 tableData.push({
                     eventType,
                     count,
@@ -99,11 +104,15 @@ export default class TimingStatisticsAuthority {
                 await this.cacheClient.del(key);
             }
 
-            if (TimingStatisticsAuthority.logger.isDebugEnabled()) {
-                // eslint-disable-next-line no-console
-                console.table(tableData);
+            if (show) {
+                TimingStatisticsAuthority.logger.debug('Message Metrics:');
+
+                if (TimingStatisticsAuthority.logger.isDebugEnabled()) {
+                    // eslint-disable-next-line no-console
+                    console.table(tableData);
+                }
             }
-        }, 30000);
+        }, 60000);
 
         TimingStatisticsAuthority.logger.debug('Created TimingStatisticsAuthority timer');
     }
