@@ -99,7 +99,6 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
 
         if (CharacterPresenceHandler.logger.isSillyEnabled()) {
             // Using console here rather than the normal logger - it wasn't spitting out stuff the way I wanted. This is only for debug anyway so it won't show up in prod logs.
-            // eslint-disable-next-line no-console
             console.log(populationData);
         }
 

@@ -4,7 +4,6 @@ import {promises as fsPromises} from 'fs';
 
 // eslint-disable-next-line @typescript-eslint/no-use-before-define
 void bootApp().then(async () => {
-    // eslint-disable-next-line no-console
     console.info('Application fully booted! Writing ready file...');
     await fsPromises.writeFile('ready.file', 'ready');
 });

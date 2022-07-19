@@ -108,7 +108,6 @@ export default class TimingStatisticsAuthority {
                 TimingStatisticsAuthority.logger.debug('Message Metrics:');
 
                 if (TimingStatisticsAuthority.logger.isDebugEnabled()) {
-                    // eslint-disable-next-line no-console
                     console.table(tableData);
                 }
             }

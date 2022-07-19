@@ -290,7 +290,6 @@ export default class InstanceAuthority {
                 };
                 tableRows.push(object);
             });
-            // eslint-disable-next-line no-console
             console.table(tableRows);
         } else if (mustShow) {
             InstanceAuthority.logger.info('==== Current actives is empty =====');
