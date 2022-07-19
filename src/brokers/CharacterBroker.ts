@@ -22,7 +22,7 @@ export default class CharacterBroker {
             const character = new Character(await payload.character());
 
             if (payload instanceof AttackerEvent) {
-                const character: CharacterWorldOutfitLeader | undefined = await payload.attacker();
+                const character = await payload.attacker<CharacterWorldOutfitLeader>();
 
                 if (!character) {
                     throw new ApplicationException('AttackerEvent didn\'t resolve attacker character!');
