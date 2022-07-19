@@ -22,13 +22,13 @@ export default class CharacterBroker {
             const character = new Character(await payload.character());
 
             if (payload instanceof AttackerEvent) {
-                const character = await payload.attacker<CharacterWorldOutfitLeader>();
+                const attackerCharacter = await payload.attacker<CharacterWorldOutfitLeader>();
 
-                if (!character) {
-                    throw new ApplicationException('AttackerEvent didn\'t resolve attacker character!');
+                if (!attackerCharacter) {
+                    throw new Error('AttackerEvent didn\'t resolve attacker character!');
                 }
 
-                attacker = new Character(character);
+                attacker = new Character(attackerCharacter);
             } else {
                 attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             }
