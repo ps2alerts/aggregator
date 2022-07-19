@@ -3,6 +3,6 @@ export default class TimeoutException extends Error {
         message: string,
     ) {
         super(message);
-        this.name = 'TimeoutException';
+        this.name = TimeoutException.name;
     }
 }
