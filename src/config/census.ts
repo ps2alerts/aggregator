@@ -25,8 +25,8 @@ export default class Census {
 
     public readonly serviceID: string = get('CENSUS_SERVICE_ID');
     public readonly censusEnvironment: CensusEnvironment = this.getCensusEnvironment();
-    public readonly metagameQueuesEnabled = false; // false == don't subscribe to the queues (used for non-authority aggregators)
-    public readonly metagameCreationsEnabled = false; // false == don't create alerts but ack them in the queues
+    public readonly metagameQueuesEnabled = true; // false == don't subscribe to the queues (used for non-authority aggregators)
+    public readonly metagameCreationsEnabled = true; // false == don't create alerts but ack them in the queues
 
     /**
      * @type {ClientOptions} Configuration for PS2 Census aggregator client
