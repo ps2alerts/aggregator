@@ -21,11 +21,18 @@ export default class CharacterBroker {
     public async get(payload: CharacterEvent): Promise<{ character: Character, attacker: Character }> {
         try {
             // Set a default in case attacker doesn't result
+            let character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             let attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
 
-            const character = new Character(await payload.character());
+            if (payload.character_id && payload.character_id !== '0') {
+                character = new Character(await payload.character());
+            }
 
             if (payload instanceof AttackerEvent) {
+                if (!payload.attacker_character_id || payload.attacker_character_id === '0') {
+                    throw new Error('AttackerEvent had no actual attacker character ID! ps2census bug');
+                }
+
                 const attackerCharacter = await payload.attacker<CharacterWorldOutfitLeader>();
 
                 if (!attackerCharacter) {
