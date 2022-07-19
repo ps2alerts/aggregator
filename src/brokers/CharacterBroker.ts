@@ -8,16 +8,20 @@ import ExceptionHandler from '../handlers/system/ExceptionHandler';
 import {CharacterEvent} from 'ps2census/dist/client/events/base/character.event';
 import FakeCharacterFactory from '../factories/FakeCharacterFactory';
 import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
+import {getLogger} from '../logger';
 
 @injectable()
 export default class CharacterBroker {
+    private static readonly logger = getLogger('CharacterBroker');
+
     constructor(
         private readonly fakeCharacterFactory: FakeCharacterFactory,
     ) {}
 
     public async get(payload: CharacterEvent): Promise<{ character: Character, attacker: Character }> {
         try {
-            let attacker: Character;
+            // Set a default in case attacker doesn't result
+            let attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
 
             const character = new Character(await payload.character());
 
@@ -25,12 +29,10 @@ export default class CharacterBroker {
                 const attackerCharacter = await payload.attacker<CharacterWorldOutfitLeader>();
 
                 if (!attackerCharacter) {
-                    throw new Error('AttackerEvent didn\'t resolve attacker character!');
+                    CharacterBroker.logger.warn('AttackerEvent returned no attacker!');
+                } else {
+                    attacker = new Character(attackerCharacter);
                 }
-
-                attacker = new Character(attackerCharacter);
-            } else {
-                attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             }
 
             return {character, attacker};
