@@ -66,7 +66,7 @@ export default class FakeCharacterFactory {
     private readonly faction: Faction = Faction.NONE;
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    public async build(world: World): Promise<Character> {
+    public build(world: World): Character {
         const character = new Character(fakeCharacterCensusData);
         character.world = world;
         character.faction = this.faction;

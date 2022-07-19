@@ -30,7 +30,7 @@ export default class CharacterBroker {
 
                 attacker = new Character(character);
             } else {
-                attacker = await this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
+                attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             }
 
             return {character, attacker};
