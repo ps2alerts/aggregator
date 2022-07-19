@@ -4,13 +4,13 @@ import {TYPES} from '../../constants/types';
 import VehicleDestroyEvent from './events/VehicleDestroyEvent';
 import CharacterPresenceHandler from '../CharacterPresenceHandler';
 import {VehicleDestroy} from 'ps2census';
-import ApplicationException from '../../exceptions/ApplicationException';
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
 import {jsonLogOutput} from '../../utils/json';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
+import Character from '../../data/Character';
 
 @injectable()
 export default class VehicleDestroyEventHandler implements PS2EventQueueMessageHandlerInterface<VehicleDestroy> {
@@ -26,10 +26,12 @@ export default class VehicleDestroyEventHandler implements PS2EventQueueMessageH
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async handle(event: PS2EventQueueMessage<VehicleDestroy>): Promise<boolean> {
-        const characters = await this.characterBroker.get(event.payload);
+        let characters: {character: Character, attacker: Character};
 
-        if (!characters.attacker) {
-            throw new ApplicationException('Attacker character did not return!');
+        try {
+            characters = await this.characterBroker.get(event.payload);
+        } catch (err) {
+            throw new Error('VehicleDestroy characters returned incorrectly. Suspected unclaimed vehicles issue.');
         }
 
         const vehicleDestroyEvent = new VehicleDestroyEvent(
