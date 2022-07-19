@@ -94,6 +94,6 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
         // This should never happen
         MetagameEventEventHandler.logger.error('UNEXPECTED EXECUTION PATH processing MetagameEvent!');
-        return actions.nack();
+        return actions.ack();
     }
 }
