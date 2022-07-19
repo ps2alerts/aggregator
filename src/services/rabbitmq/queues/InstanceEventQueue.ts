@@ -94,7 +94,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             InstanceEventQueue.classLogger.error(`[${this.thisQueueName}] Unable to properly handle message! ${err.message}`);
                         }
 
-                        return channel.reject(message); // Critical error, probably unprocessable so we're chucking
+                        this.handleMessageConfirm(message, 'ack'); // Critical error, probably unprocessable so we're chucking
                     }
                 }, consumerOptions);
             },
