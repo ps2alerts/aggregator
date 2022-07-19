@@ -3,28 +3,26 @@
 
 import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import {getLogger} from '../logger';
-import config from '../config';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {PS2EventQueueMessageHandlerInterface} from '../interfaces/PS2EventQueueMessageHandlerInterface';
 import {TYPES} from '../constants/types';
 import {injectable, multiInject} from 'inversify';
 import ZoneMessageHandler from '../handlers/ps2census/ZoneMessageHandler';
 import InstanceAbstract from '../instances/InstanceAbstract';
-import RabbitMQQueue from '../services/rabbitmq/RabbitMQQueue';
+import {PS2AlertsQueueInterface} from '../interfaces/PS2AlertsQueueInterface';
 
 @injectable()
 export default class QueueAuthority {
     private static readonly logger = getLogger('QueueAuthority');
-    private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], RabbitMQQueue[]>();
+    private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], PS2AlertsQueueInterface[]>();
     private readonly handlerMap = new Map<string, Array<PS2EventQueueMessageHandlerInterface<any>>>();
-    private readonly queuesMarkedForDeletionMap = new Map<number, RabbitMQQueue[]>();
+    private readonly queuesMarkedForDeletionMap = new Map<number, PS2AlertsQueueInterface[]>();
     private currentInstances: PS2AlertsInstanceInterface[] = [];
     private timer?: NodeJS.Timeout;
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
         @multiInject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventQueueMessageHandlerInterface<any>>,
-
     ) {
         for (const handler of eventInstanceHandlers) {
             let handlerList = this.handlerMap.get(handler.eventName);
@@ -66,39 +64,31 @@ export default class QueueAuthority {
             return;
         }
 
-        const queues: RabbitMQQueue[] = [];
-        const dlqName = `aggregator-${instance.instanceId}-deadletter`;
+        const queues: PS2AlertsQueueInterface[] = [];
+        // const delayQueueName = `aggregator-${instance.instanceId}-delay`;
+        //
+        // const delayQueue = this.queueFactory.createInstanceQueue(
+        //     `aggregator-${instance.instanceId}-${eventName}`,
+        //     `${instance.world}.${eventName}.*`,
+        //     eventName === 'GainExperience' ? 100 : 50, // GainExp events are much lighter to process and more numerous
+        //     instance,
+        //     new ZoneMessageHandler(instance, handlers),
+        // );
 
-        // Create dead letter queue
-        const dlQueue = await this.queueFactory.createEventQueue(
-            config.rabbitmq.exchange,
-            dlqName,
-            {
-                durable: false,
-                maxPriority: 10,
-                expires: 30 * 60 * 1000,
-                messageTtl: 30 * 60 * 1000,
-            },
-        );
+        // Create a queue that holds delayed messages. These messages have custom TTLs on them, which makes a DLQ inappropriate.
 
-        queues.push(dlQueue);
+        // queues.push(delayQueue);
 
         for (const [eventName, handlers] of this.handlerMap) {
-            const queue = await this.queueFactory.createEventQueue(
-                config.rabbitmq.topicExchange,
+            const queue = this.queueFactory.createInstanceQueue(
                 `aggregator-${instance.instanceId}-${eventName}`,
-                {
-                    durable: false,
-                    maxPriority: 10,
-                    messageTtl: eventName === 'FacilityControl' ? 60000 : 20 * 60 * 1000, // Grace period for the aggregator to process the message. FacilityControl is set to 60s as it's time urgent
-                    expires: 15 * 60 * 1000, // Auto deletes the queue if not picked up by QueueAuthority. This is left quite long in case of a crash loop
-                    deadLetterExchange: '',
-                    deadLetterRoutingKey: dlqName,
-                },
                 `${instance.world}.${eventName}.*`,
-                new ZoneMessageHandler(instance, handlers),
                 eventName === 'GainExperience' ? 100 : 50, // GainExp events are much lighter to process and more numerous
+                instance,
+                new ZoneMessageHandler(instance, handlers),
             );
+
+            await queue.connect();
 
             queues.push(queue);
         }

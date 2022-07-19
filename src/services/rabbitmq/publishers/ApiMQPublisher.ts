@@ -1,33 +1,27 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import {injectable} from 'inversify';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import config from '../../../config';
 import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
-import RabbitMQQueue from '../RabbitMQQueue';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {getLogger} from '../../../logger';
+import {ApiQueue} from '../queues/ApiQueue';
 
 @injectable()
 export default class ApiMQPublisher implements RabbitMQQueueWrapperInterface {
     private static readonly logger = getLogger('ApiMQPublisher');
-    private queue: RabbitMQQueue;
+    private queue: ApiQueue;
 
     constructor(private readonly queueFactory: RabbitMQQueueFactory) {}
 
     public async connect(): Promise<void> {
-        this.queue = await this.queueFactory.createEventQueue(
-            config.rabbitmq.exchange,
+        this.queue = this.queueFactory.createApiQueue(
             config.rabbitmq.apiQueueName,
-            {
-                durable: true,
-                messageTtl: 180 * 60 * 1000,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
-            },
+            180 * 60 * 1000,
         );
+
+        await this.queue.connect();
     }
 
     public async send(msg: ApiMQMessage | ApiMQGlobalAggregateMessage): Promise<boolean | undefined> {

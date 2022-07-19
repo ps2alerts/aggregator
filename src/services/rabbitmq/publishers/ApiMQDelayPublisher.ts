@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import {injectable} from 'inversify';
 import {getLogger} from '../../../logger';
 import ApplicationException from '../../../exceptions/ApplicationException';
@@ -7,47 +6,33 @@ import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessa
 import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
 import config from '../../../config';
 import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
-import RabbitMQQueue from '../RabbitMQQueue';
+import {ApiQueue} from '../queues/ApiQueue';
 
 @injectable()
 export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
-    private longQueue: RabbitMQQueue;
-    private shortQueue: RabbitMQQueue;
-    private readonly shortQueueName: string;
-    private readonly longQueueName: string;
+    private longQueue: ApiQueue;
+    private shortQueue: ApiQueue;
 
-    constructor(private readonly queueFactory: RabbitMQQueueFactory) {
-        this.shortQueueName = `${config.rabbitmq.apiDelayQueueName}-46min`;
-        this.longQueueName = `${config.rabbitmq.apiDelayQueueName}-91min`;
-    }
+    constructor(private readonly queueFactory: RabbitMQQueueFactory) {}
 
     public async connect(): Promise<void> {
-        this.longQueue = await this.queueFactory.createEventQueue(
-            config.rabbitmq.exchange,
-            this.longQueueName,
-            {
-                durable: true,
-                messageTtl: 5460000, // 91 minutes
-                deadLetterExchange: '',
-                deadLetterRoutingKey: config.rabbitmq.apiQueueName,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
-            });
+        this.longQueue = this.queueFactory.createApiQueue(
+            `${config.rabbitmq.apiDelayQueueName}-91min`,
+            91 * 60 * 1000,
+            '',
+            config.rabbitmq.apiQueueName,
+        );
 
-        this.shortQueue = await this.queueFactory.createEventQueue(
-            config.rabbitmq.exchange,
-            this.shortQueueName,
-            {
-                durable: true,
-                messageTtl: 2760000, // 46 minutes
-                deadLetterExchange: '',
-                deadLetterRoutingKey: config.rabbitmq.apiQueueName,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
-            });
+        this.shortQueue = this.queueFactory.createApiQueue(
+            `${config.rabbitmq.apiDelayQueueName}-46min`,
+            46 * 60 * 1000,
+            '',
+            config.rabbitmq.apiQueueName,
+        );
+
+        await this.longQueue.connect();
+        await this.shortQueue.connect();
     }
 
     public async send(msg: ApiMQGlobalAggregateMessage, duration: number): Promise<boolean | undefined> {

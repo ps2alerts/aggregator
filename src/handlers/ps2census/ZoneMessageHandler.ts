@@ -46,26 +46,27 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
             return actions.ack();
         } catch (err) {
             if (err instanceof MaxRetryException) {
-                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Type: ${event.event_name} - Err: ${err.message}`);
-                // return actions.reject(); // TODO: Requeue
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Delaying message due to possible Census issues. Type: ${event.event_name} - Err: ${err.message}`);
+                return actions.delay(5000);
             }
 
             if (err instanceof ApplicationException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
-                // return actions.reject(); // TODO: Requeue
+                return actions.retry();
             }
 
             if (err instanceof TimeoutException) {
-                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.reject(); // Redeliver
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load Type: ${event.event_name} - Err: ${err.message}`);
+                return actions.delay(60000);
             }
 
             if (err instanceof Error) {
+                actions.ack();
                 new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
-                // return actions.reject(); // Do not requeue
             }
 
-            return actions.reject();
+            // If we haven't got a specific means of handling the issue, drop it.
+            return actions.ack();
         }
     }
 }

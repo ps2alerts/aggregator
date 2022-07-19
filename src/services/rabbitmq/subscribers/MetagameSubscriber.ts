@@ -6,13 +6,13 @@ import {pcWorldArray, World} from '../../../ps2alerts-constants/world';
 import config from '../../../config';
 import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
+import {MetagameEventQueue} from '../queues/MetagameEventQueue';
 import MetagameEventEventHandler from '../../../handlers/ps2census/MetagameEventEventHandler';
-import RabbitMQQueue from '../RabbitMQQueue';
 
 @injectable()
 export default class MetagameSubscriber implements RabbitMQQueueWrapperInterface {
     private static readonly logger = getLogger('MetagameSubscriber');
-    private readonly queues = new Map<World, RabbitMQQueue>();
+    private readonly queues = new Map<World, MetagameEventQueue>();
     private isConnected = false;
 
     constructor(
@@ -45,17 +45,12 @@ export default class MetagameSubscriber implements RabbitMQQueueWrapperInterface
 
         // Registers queues by world and event type, enabling us to fine-tune the priorities of each queue and monitor for statistics.
         for (const world of worlds) {
-            const queue = await this.queueFactory.createEventQueue(
-                config.rabbitmq.topicExchange,
+            const queue = this.queueFactory.createMetagameEventQueue(
                 `aggregator-${world}-MetagameEvent`,
-                {
-                    durable: true,
-                    maxPriority: 2,
-                    messageTtl: 5 * 60 * 1000,
-                },
                 `${world}.MetagameEvent.*`,
                 this.metagameEventHandler,
             );
+            await queue.connect();
 
             this.queues.set(world, queue);
         }

@@ -1,7 +1,7 @@
 export interface ChannelActionsInterface {
     ack(): void;
-    nack(): void;
-    reject(): void;
+    retry(): void;
+    delay(ms: number): void;
 }
 
 export interface QueueMessageHandlerInterface<T> {

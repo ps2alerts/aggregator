@@ -2,13 +2,12 @@ import {injectable} from 'inversify';
 import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import {get} from '../../../utils/env';
 import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
-import config from '../../../config';
 import AdminAggregatorMessageHandler from '../../../handlers/AdminAggregatorMessageHandler';
-import RabbitMQQueue from '../RabbitMQQueue';
+import {AdminQueue} from '../queues/AdminQueue';
 
 @injectable()
 export default class AdminAggregatorSubscriber implements RabbitMQQueueWrapperInterface {
-    private queue: RabbitMQQueue;
+    private queue: AdminQueue;
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
@@ -18,10 +17,10 @@ export default class AdminAggregatorSubscriber implements RabbitMQQueueWrapperIn
     public async connect(): Promise<void> {
         const queueName = `aggregator-admin-${get('NODE_ENV', 'development')}-${get('CENSUS_ENVIRONMENT', 'pc')}`;
 
-        this.queue = await this.queueFactory.createAdminQueue(
-            config.rabbitmq.exchange,
+        this.queue = this.queueFactory.createAdminQueue(
             queueName,
             this.adminMessageHandler,
         );
+        await this.queue.connect();
     }
 }
