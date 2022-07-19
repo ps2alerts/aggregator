@@ -17,14 +17,9 @@ export default class CharacterBroker {
 
     public async get(payload: CharacterEvent): Promise<{ character: Character, attacker: Character }> {
         try {
-            let character: Character;
             let attacker: Character;
 
-            if (payload.character_id && payload.character_id !== '0') {
-                character = new Character(await payload.character());
-            } else {
-                character = await this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
-            }
+            const character = new Character(await payload.character());
 
             if (payload instanceof AttackerEvent) {
                 const character: CharacterWorldOutfitLeader | undefined = await payload.attacker();
