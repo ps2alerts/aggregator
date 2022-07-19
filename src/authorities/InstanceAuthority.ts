@@ -174,7 +174,7 @@ export default class InstanceAuthority {
             // Formally end the instance
             await this.instanceActionFactory.buildEnd(instance).execute();
             this.queueAuthority.syncActiveInstances(this.currentInstances);
-            await this.queueAuthority.stopQueuesForInstance(instance);
+            this.queueAuthority.stopQueuesForInstance(instance);
 
             InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives(true);
