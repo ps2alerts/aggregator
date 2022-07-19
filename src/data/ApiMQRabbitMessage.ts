@@ -1,7 +1,7 @@
-export default class ApiMQRabbitMessage {
+export default abstract class ApiMQRabbitMessage {
     public readonly pattern: string;
 
-    constructor(pattern: string) {
+    protected constructor(pattern: string) {
         this.pattern = pattern;
     }
 }
