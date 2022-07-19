@@ -7,6 +7,7 @@ import {injectable} from 'inversify';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
 import {CharacterEvent} from 'ps2census/dist/client/events/base/character.event';
 import FakeCharacterFactory from '../factories/FakeCharacterFactory';
+import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
 
 @injectable()
 export default class CharacterBroker {
@@ -25,8 +26,14 @@ export default class CharacterBroker {
                 character = await this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             }
 
-            if (payload instanceof AttackerEvent && payload.attacker_character_id && payload.attacker_character_id !== '0') {
-                attacker = new Character(await payload.attacker());
+            if (payload instanceof AttackerEvent) {
+                const character: CharacterWorldOutfitLeader | undefined = await payload.attacker();
+
+                if (!character) {
+                    throw new ApplicationException('AttackerEvent didn\'t resolve attacker character!');
+                }
+
+                attacker = new Character(character);
             } else {
                 attacker = await this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             }
