@@ -75,7 +75,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
 
                     try {
                         // A middleware is added here track how long it takes messages to respond.
-                        // This will mainly call the ZoneMiddleware Handler.
+                        // This will mainly call the ZoneMessageHandler.
                         await this.timingMiddlewareHandler.handle(
                             this.createPs2Event(message),
                             {
