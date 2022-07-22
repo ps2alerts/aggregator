@@ -73,8 +73,6 @@ spec:
               value: "{{ environment }}"
             - name: VERSION
               value: "{{ version }}"
-            - name: CENSUS_SERVICE_ID
-              value: "{{ census_service_id }}"
             - name: CENSUS_ENVIRONMENT
               value: "{{ census_environment }}"
             - name: RABBITMQ_HOST
