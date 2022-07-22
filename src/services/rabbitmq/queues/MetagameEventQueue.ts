@@ -16,7 +16,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
-        pattern: string,
+        private readonly pattern: string,
         private readonly handler: QueueMessageHandlerInterface<MetagameEvent>,
         private readonly censusClient: CensusClient,
     ) {
@@ -38,7 +38,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                     channel.checkExchange(config.rabbitmq.topicExchange),
                     channel.assertQueue(this.thisQueueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.thisQueueName, config.rabbitmq.exchange, '#');
+                await channel.bindQueue(this.thisQueueName, config.rabbitmq.exchange, this.pattern);
 
                 const consumerOptions: Options.Consume = {
                     priority: 0,
@@ -47,7 +47,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 await channel.consume(this.thisQueueName, async (message) => {
                     if (!message) {
-                        throw new ApplicationException('Admin Message was empty!', 'RabbitMQCensusStreamFactory.adminConsumer');
+                        throw new ApplicationException('Admin Message was empty!', 'RabbitMQCensusStreamFactory.MetgameEventQueue');
                     }
 
                     try {
