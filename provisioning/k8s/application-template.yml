@@ -82,7 +82,7 @@ spec:
             - name: RABBITMQ_PASS
               value: "{{ rabbitmq_pass }}"
             - name: RABBITMQ_VHOST
-              value: "ps2alerts"
+              value: "/ps2alerts"
             - name: RABBITMQ_API_QUEUE
               value: "api-queue-production"
             - name: RABBITMQ_API_QUEUE_DELAY
