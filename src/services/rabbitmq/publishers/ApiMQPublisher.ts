@@ -21,9 +21,11 @@ export default class ApiMQPublisher implements RabbitMQQueueWrapperInterface {
             180 * 60 * 1000,
         );
 
-        ApiMQPublisher.logger.error('Connecting to ApiMQPublisher queue...');
+        console.log('queue', this.queue);
+
+        ApiMQPublisher.logger.debug('Connecting to ApiMQPublisher queue...');
         await this.queue.connect();
-        ApiMQPublisher.logger.error('Connected to ApiMQPublisher queue...');
+        ApiMQPublisher.logger.debug('Connected to ApiMQPublisher queue...');
 
     }
 
