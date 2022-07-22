@@ -1,23 +1,23 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
-import VehicleDestroyEvent from '../census/events/VehicleDestroyEvent';
+import VehicleDestroyEvent from '../ps2census/events/VehicleDestroyEvent';
 import {getLogger} from '../../logger';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
-import {TYPES} from '../../constants/types';
 import VehicleDestroyLogic from '../../logics/VehicleDestroyLogic';
 import {MqAcceptedPatterns} from '../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQMessage from '../../data/ApiMQMessage';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
 import {Bracket} from '../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../system/ExceptionHandler';
 
 @injectable()
 export default class VehicleAggregateHandler implements AggregateHandlerInterface<VehicleDestroyEvent> {
     private static readonly logger = getLogger('VehicleAggregateHandler');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
@@ -57,9 +57,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character attacker message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish instance vehicle aggregate attacker message to API!', err, 'VehicleAggregateHandler.processInstanceAggregates.attacker');
             }
         }
 
@@ -84,9 +82,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish instance vehicle / character victim message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish instance vehicle aggregate victim message to API!', err, 'VehicleAggregateHandler.processInstanceAggregates.victim');
             }
         }
     }
@@ -144,9 +140,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character attacker message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish global vehicle / character attacker message to API!', err, 'VehicleAggregateHandler.processInstanceAggregates.processGlobalAggregates');
             }
         }
 
@@ -196,9 +190,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleAggregateHandler.logger.error(`Could not publish global vehicle / character victim message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish global vehicle / character victim message to API! ', err, 'VehicleAggregateHandler.processInstanceAggregates.processGlobalAggregates');
             }
         }
     }

@@ -1,24 +1,22 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import {Faction} from '../../../ps2alerts-constants/faction';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import moment from 'moment/moment';
-import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class GlobalVictoryAggregate implements AggregateHandlerInterface<MetagameTerritoryInstance> {
     private static readonly logger = getLogger('GlobalVictoryAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
     ) {}
 
     public async handle(event: MetagameTerritoryInstance): Promise<boolean> {
@@ -40,7 +38,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 docs.push({$inc: {tr: 1}});
                 break;
             default:
-                throw new ApplicationException(`[${event.instanceId}] undetermined victor path!`, 'GlobalVictoryAggregate');
+                throw new ApplicationException(`[${event.instanceId}] undetermined victor path!`, 'GlobalVictoryAggregate.handle');
         }
 
         try {
@@ -67,9 +65,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                GlobalVictoryAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'GlobalVictoryAggregate.handle');
         }
 
         return true;

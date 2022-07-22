@@ -24,12 +24,15 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
     public async execute(): Promise<boolean> {
         MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
 
+        const endTime = new Date();
+
         // Mark instance as ended in memory so we can calculate victor properly
         this.instance.state = Ps2alertsEventState.ENDED;
+        this.instance.timeEnded = endTime;
 
         const data = {
             state: Ps2alertsEventState.ENDED,
-            timeEnded: new Date().toISOString(),
+            timeEnded: endTime.toISOString(),
         };
 
         // Mark the instance as ended in the database BEFORE we calculate territory (it's more prone to failure)

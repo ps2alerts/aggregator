@@ -1,5 +1,4 @@
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {getLogger} from '../../../logger';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import PopulationData from '../../../data/PopulationData';
@@ -8,6 +7,7 @@ import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import CharacterPresenceHandler from '../../CharacterPresenceHandler';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
@@ -16,16 +16,14 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
     constructor(
         private readonly characterPresenceHandler: CharacterPresenceHandler,
         private readonly instanceAuthority: InstanceAuthority,
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
     ) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
         InstancePopulationAggregate.logger.silly('InstancePopulationAggregate.handle');
 
         // Figure out running instances and generate new InstancePopulationData object
-        const activeInstances = this.instanceAuthority.getAllInstances().filter((instance) => {
-            return instance.match(event.world, event.zone);
-        });
+        const activeInstances = this.instanceAuthority.getInstances(event.world, event.zone);
 
         // If no instances running, bail.
         if (activeInstances.length === 0) {
@@ -54,9 +52,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
                 documents,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstancePopulationAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstancePopulationAggregate.handle');
         }
 
         return true;

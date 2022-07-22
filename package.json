@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "start:dev": "ts-node-dev src/index.ts",
-    "start:dev:debug": "tsc && node --inspect=0.0.0.0:9229 dist/index.js",
+    "start:dev:debug": "tsc && cp -r src/ps2alerts-constants/maps dist/ps2alerts-constants && node --inspect=0.0.0.0:9229 dist/index.js",
     "build": "tsc && cp -r src/ps2alerts-constants/maps dist/ps2alerts-constants",
     "build:watch": "tsc -w",
     "wipe": "rm -rf dist",
@@ -29,7 +29,7 @@
   "dependencies": {
     "amqp-connection-manager": "^3.2.2",
     "amqplib": "^0.8.0",
-    "axios": "^0.21.1",
+    "axios": "^0.27.2",
     "body-parser": "^1.20.0",
     "bufferutil": "^4.0.3",
     "cli-color": "^2.0.2",
@@ -42,7 +42,7 @@
     "logform": "^2.4.1",
     "moment": "^2.29.3",
     "moment-timezone": "^0.5.33",
-    "ps2census": "^4.2.2",
+    "ps2census": "^4.2.6",
     "reflect-metadata": "^0.1.13",
     "utf-8-validate": "^5.0.8",
     "winston": "^3.8.1",

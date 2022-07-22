@@ -1,30 +1,26 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
-import FactionUtils from '../../../utils/FactionUtils';
-import FacilityControlEvent from '../../census/events/FacilityControlEvent';
+import {injectable} from 'inversify';
+import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
     private static readonly logger = getLogger('GlobalFacilityControlAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
         GlobalFacilityControlAggregate.logger.silly('GlobalFacilityControlAggregate.handle');
-
-        const newFactionName = FactionUtils.parseFactionIdToShortName(event.newFaction);
-        const oldFactionName = FactionUtils.parseFactionIdToShortName(event.oldFaction);
 
         const documents = [];
 
@@ -34,16 +30,16 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
 
         if (event.isDefence) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const defenceKey = `${newFactionName}.defences`;
+            const defenceKey = `${event.newFactionName}.defences`;
             documents.push(
                 {$inc: {[defenceKey]: 1}},
                 {$inc: {['totals.defences']: 1}},
             );
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
-            const captureKey = `${newFactionName}.captures`;
-            const captureTakenKey = `${newFactionName}.takenFrom.${oldFactionName}`;
-            const captureLostKey = `${oldFactionName}.lostTo.${newFactionName}`;
+            const captureKey = `${event.newFactionName}.captures`;
+            const captureTakenKey = `${event.newFactionName}.takenFrom.${event.oldFactionName}`;
+            const captureLostKey = `${event.oldFactionName}.lostTo.${event.newFactionName}`;
             documents.push(
                 {$inc: {[captureKey]: 1}},
                 {$inc: {[captureTakenKey]: 1}},
@@ -75,9 +71,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                GlobalFacilityControlAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'GlobalFacilityControlAggregate.handle');
         }
 
         return true;

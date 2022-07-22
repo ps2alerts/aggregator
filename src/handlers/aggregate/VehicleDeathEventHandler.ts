@@ -1,23 +1,23 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import ApiMQMessage from '../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
-import {TYPES} from '../../constants/types';
-import DeathEvent from '../census/events/DeathEvent';
+import DeathEvent from '../ps2census/events/DeathEvent';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import VehicleCharacterDeathLogic from '../../logics/VehicleCharacterDeathLogic';
 import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
 import {Bracket} from '../../ps2alerts-constants/bracket';
+import ExceptionHandler from '../system/ExceptionHandler';
 
 @injectable()
 export default class VehicleDeathEventHandler implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('VehicleDeathEventHandler');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     /**
@@ -61,9 +61,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleDeathEventHandler.logger.error(`Could not publish INSTANCE_VEHICLE_AGGREGATE message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish instance vehicle aggregate message to API!', err, 'VehicleDeathEventHandler.processInstanceAggregates');
             }
         }
     }
@@ -119,9 +117,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     Bracket.TOTAL,
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    VehicleDeathEventHandler.logger.error(`Could not publish message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish global vehicle aggregate message to API!', err, 'VehicleDeathEventHandler.processGlobalAggregates');
             }
         }
     }

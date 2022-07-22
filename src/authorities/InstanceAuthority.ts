@@ -15,6 +15,19 @@ import {AxiosInstance, AxiosResponse} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import config from '../config';
 import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
+import QueueAuthority from './QueueAuthority';
+import ExceptionHandler from '../handlers/system/ExceptionHandler';
+
+interface TableDisplayInterface {
+    instanceId: string;
+    world: World;
+    zone: Zone;
+    timeRemaining: string;
+    vs: number | string;
+    nc: number | string;
+    tr: number |string;
+    cutoff: number | string;
+}
 
 @injectable()
 export default class InstanceAuthority {
@@ -26,17 +39,19 @@ export default class InstanceAuthority {
     constructor(
         private readonly instanceActionFactory: InstanceActionFactory,
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly queueAuthority: QueueAuthority,
     ) {}
 
-    public getInstance(instanceId: string): PS2AlertsInstanceInterface {
+    public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
         InstanceAuthority.logger.silly(`Attempting to find an instance with ID: "${instanceId}"...`);
 
-        const instance = this.currentInstances.find((i) => {
+        const instance = this.currentInstances.find((i: PS2AlertsInstanceInterface) => {
             return i.instanceId === instanceId;
         });
 
         if (!instance) {
-            throw new ApplicationException(`Unable to find InstanceID "${instanceId}"!`, 'InstanceAuthority');
+            InstanceAuthority.logger.error(`Unable to find InstanceID "${instanceId}"!`, 'InstanceAuthority');
+            return null;
         }
 
         InstanceAuthority.logger.silly(`Found instance with ID: "${instanceId}"!`);
@@ -45,9 +60,21 @@ export default class InstanceAuthority {
         return instance;
     }
 
-    public getInstances(world: World, zone: Zone): PS2AlertsInstanceInterface[] {
+    public getInstances(world: World | null = null, zone: Zone | null = null): PS2AlertsInstanceInterface[] {
+        if (world && zone) {
+            return this.currentInstances.filter((instance) => {
+                return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
+            });
+        }
+
+        if (world) {
+            return this.currentInstances.filter((instance) => {
+                return instance.match(world, null) && instance.state === Ps2alertsEventState.STARTED;
+            });
+        }
+
         return this.currentInstances.filter((instance) => {
-            return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
+            return instance.match(null, zone) && instance.state === Ps2alertsEventState.STARTED;
         });
     }
 
@@ -88,9 +115,7 @@ export default class InstanceAuthority {
                     }
                 })
                 .catch((err) => {
-                    if (err instanceof Error) {
-                        throw new ApplicationException(`Unable to create instance via API! E: ${err.message}`);
-                    }
+                    new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority');
                 });
 
             InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${instance.instanceId} ================`);
@@ -126,6 +151,10 @@ export default class InstanceAuthority {
             this.currentInstances.push(instance); // Add instance to the in-memory data, so it can be called upon rapidly without polling DB
             this.printActives(); // Show currently running alerts in console / log
 
+            // Subscribe to world rabbit queues to listen to messages
+            this.queueAuthority.syncActiveInstances(this.currentInstances);
+            await this.queueAuthority.startQueuesForInstance(instance);
+
             InstanceAuthority.logger.info(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
 
             return true;
@@ -144,6 +173,8 @@ export default class InstanceAuthority {
         try {
             // Formally end the instance
             await this.instanceActionFactory.buildEnd(instance).execute();
+            this.queueAuthority.syncActiveInstances(this.currentInstances);
+            this.queueAuthority.stopQueuesForInstance(instance);
 
             InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
             this.printActives(true);
@@ -176,7 +207,14 @@ export default class InstanceAuthority {
             throw new ApplicationException('InstanceAuthority was called to be initialized more than once!', 'InstanceAuthority');
         }
 
-        const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive);
+        let apiResponse: AxiosResponse;
+
+        try {
+            apiResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive);
+        } catch (err) {
+            throw new ApplicationException('Unable to get Active Instances from PS2Alerts API! Crashing the app...', 'InstanceAuthority', 1);
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const instances: MetagameTerritoryInstance[] = apiResponse.data;
 
@@ -220,6 +258,10 @@ export default class InstanceAuthority {
             this.printActives();
         }, 60000);
 
+        InstanceAuthority.logger.info('Subscribing to message queues...');
+        this.queueAuthority.syncActiveInstances(this.currentInstances);
+        await this.queueAuthority.subscribeToActives();
+
         this.printActives(true);
         InstanceAuthority.logger.debug('Initializing ActiveInstances FINISHED');
         this.initialized = true;
@@ -229,22 +271,26 @@ export default class InstanceAuthority {
     public printActives(mustShow = false): void {
         if (this.currentInstances.length) {
             InstanceAuthority.logger.info('==== Current actives =====');
+            const tableRows: TableDisplayInterface[] = [];
+
             this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
-                let output = `I: ${instance.instanceId} | W: ${instance.world}`;
-
-                if (instance instanceof MetagameTerritoryInstance) {
-                    output = `${output} | Z: ${instance.zone}`;
-                }
-
                 // Display expected time left
                 const displayDate = new Date(0);
                 displayDate.setSeconds(calculateRemainingTime(instance) / 1000);
-                output = `${output} | ${displayDate.toISOString().substr(11, 8)} remaining`;
 
-                InstanceAuthority.logger.info(output);
+                const object: TableDisplayInterface = {
+                    instanceId: instance.instanceId,
+                    world: instance.world,
+                    zone: instance.zone,
+                    timeRemaining: `${displayDate.toISOString().substr(11, 8)}`,
+                    vs: instance.result?.vs ?? '???',
+                    nc: instance.result?.nc ?? '???',
+                    tr: instance.result?.tr ?? '???',
+                    cutoff: instance.result?.cutoff ?? '???',
+                };
+                tableRows.push(object);
             });
-
-            InstanceAuthority.logger.info('==== Current actives end =====');
+            console.table(tableRows);
         } else if (mustShow) {
             InstanceAuthority.logger.info('==== Current actives is empty =====');
         }

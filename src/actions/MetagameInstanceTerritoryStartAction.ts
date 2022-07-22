@@ -41,6 +41,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         });
 
         MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
+
         return true;
     }
 

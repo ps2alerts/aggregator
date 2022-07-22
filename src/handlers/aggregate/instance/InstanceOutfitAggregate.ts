@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import DeathEvent from '../../census/events/DeathEvent';
+import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import {Kill} from 'ps2census';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';
 import FactionUtils from '../../../utils/FactionUtils';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceOutfitAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {}
 
@@ -113,9 +113,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                     }],
                 ));
             } catch (err) {
-                if (err instanceof Error) {
-                    InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-                }
+                new ExceptionHandler('Could not publish message to API!', err, 'InstanceOutfitAggregate.handle.attacker');
             }
         }
 
@@ -129,9 +127,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 }],
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstanceOutfitAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstanceOutfitAggregate.handle.character');
         }
 
         return true;

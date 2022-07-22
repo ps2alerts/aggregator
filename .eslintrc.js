@@ -195,7 +195,7 @@ module.exports = {
         ],
 
         // eslint: Possible Errors
-        "no-console": "error",
+        "no-console": 0,
 
         // eslint: Best Practices
         "curly": "error",
@@ -208,7 +208,7 @@ module.exports = {
         "no-labels": "error",
         "no-lone-blocks": "error",
         "no-multi-spaces": "error",
-        "no-new": "error",
+        "no-new": 0,
         "no-new-func": "error",
         "no-new-wrappers": "error",
         "no-octal-escape": "error",

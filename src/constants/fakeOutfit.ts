@@ -1,6 +1,6 @@
 import {Faction} from '../ps2alerts-constants/faction';
 import Outfit from '../data/Outfit';
-import {fakeCharacterCensusData} from './fakeCharacter';
+import {fakeCharacterCensusData} from '../factories/FakeCharacterFactory';
 
 /* eslint-disable */
 export const fakeOutfitCensusData = {

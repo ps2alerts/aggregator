@@ -1,19 +1,19 @@
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import DeathEvent from '../../census/events/DeathEvent';
+import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 export default class InstanceFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
     private static readonly logger = getLogger('InstanceFactionCombatAggregate');
 
-    constructor(@inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher) {}
+    constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceFactionCombatAggregate.logger.silly('InstanceFactionCombatAggregate.handle');
@@ -100,9 +100,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
                 [{instance: event.instance.instanceId}],
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                InstanceFactionCombatAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'InstanceFactionCombatAggregate.handle');
         }
 
         return true;

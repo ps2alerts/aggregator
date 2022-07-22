@@ -15,7 +15,7 @@
     valid_factions: ["1", "2", "3"]
   vars_prompt:
     - name: type
-      prompt: "Select message type [start, end, endAll, activeInstances]"
+      prompt: "Select message type [start, end, endAll, active]"
       private: no
       default: "start"
 
@@ -71,41 +71,43 @@
     - name: Create start message body
       set_fact:
         message:
-          type: "instanceStart"
-          body:
-            instanceId: "{{ 100000 | random }}"
-            world: "{{ world }}"
-            zone: "{{ zone }}"
-            faction: "{{ faction }}"
-            meltdown: "false"
-            type: "metagame"
-            start: "{{ ansible_date_time.epoch }}"
-            duration: "{{ duration|int * 60 }}"
+          eventName: "AdminMessage"
+          payload:
+            type: "instanceStart"
+            body:
+              instanceId: "{{ 100000 | random }}"
+              world: "{{ world }}"
+              zone: "{{ zone }}"
+              faction: "{{ faction }}"
+              start: "{{ ansible_date_time.epoch }}"
+              duration: "{{ duration|int * 60 }}"
       when: type == "start"
 
     - name: Create end message body
       set_fact:
         message:
-          type: "instanceEnd"
-          body:
-            instanceId: "{{ instanceId }}"
+          eventName: "AdminMessage"
+          payload:
+            type: "instanceEnd"
+            body:
+              instanceId: "{{ instanceId }}"
       when: type == "end"
 
     - name: Create endAll message body
       set_fact:
         message:
-          type: "endAll"
-          body:
-            foo: "bar"
+          eventName: "AdminMessage"
+          payload:
+            type: "endAll"
       when: type == "endAll"
 
     - name: Create activeInstances message body
       set_fact:
         message:
-          type: "{{ type }}"
-          body:
-            foo: "bar"
-      when: type == "activeInstances"
+          eventName: "AdminMessage"
+          payload:
+            type: "activeInstances"
+      when: type == "active"
 
     - name: Set up queue name
       set_fact:
@@ -135,4 +137,4 @@
         username: "{{ user }}"
         password: "{{ password }}"
         vhost: "{{ vhost }}"
-        durable: true
+        durable: false

@@ -1,4 +1,4 @@
-import VehicleDestroyEvent from '../handlers/census/events/VehicleDestroyEvent';
+import VehicleDestroyEvent from '../handlers/ps2census/events/VehicleDestroyEvent';
 import LogicInterface from './LogicInterface';
 import {Destroy} from 'ps2census';
 import {getLogger} from '../logger';

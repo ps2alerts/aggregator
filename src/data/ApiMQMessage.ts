@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any */
-export default class ApiMQMessage {
-    public readonly pattern: string;
+import ApiMQRabbitMessage from './ApiMQRabbitMessage';
+
+export default class ApiMQMessage extends ApiMQRabbitMessage {
     public readonly data: { docs: any[], conditionals?: any[]};
 
     constructor(endpoint: string, docs: any[], conditionals: any[] = []) {
-        this.pattern = endpoint;
+        super(endpoint);
         this.data = {
             docs,
             conditionals,

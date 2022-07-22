@@ -1,32 +1,46 @@
 import ServiceInterface, {SERVICE} from '../../interfaces/ServiceInterface';
 import {ContainerModule} from 'inversify';
 import config from '../../config';
-import RabbitMQ from '../../config/rabbitmq';
 import RabbitMQConnectionService from './RabbitMQConnectionService';
 import AdminAggregatorSubscriber from './subscribers/AdminAggregatorSubscriber';
 import {TYPES} from '../../constants/types';
-import AdminAggregatorMessageHandler from '../../handlers/messages/AdminAggregatorMessageHandler';
-import {RabbitMQConnectionHandlerFactory} from './RabbitMQConnectionHandlerFactory';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
+import MetagameSubscriber from './subscribers/MetagameSubscriber';
+import {AmqpConnectionManager, connect} from 'amqp-connection-manager';
 
 export default new ContainerModule((bind) => {
     bind<ServiceInterface>(SERVICE).to(RabbitMQConnectionService);
 
-    bind<RabbitMQ>('rabbitMQConfig').toConstantValue(config.rabbitmq);
-
-    // Connection Factory
-    bind<RabbitMQConnectionHandlerFactory>(TYPES.rabbitMqConnectionHandlerFactory).to(RabbitMQConnectionHandlerFactory).inSingletonScope();
+    // Rabbit Connection
+    bind<AmqpConnectionManager>(TYPES.rabbitMqConnection).toDynamicValue(() => {
+        const mqConfig = config.rabbitmq;
+        return connect(`amqp://${mqConfig.user}:${mqConfig.pass}@${mqConfig.host}:${mqConfig.port}${mqConfig.vhost}?heartbeat=${mqConfig.heartbeat}&connection_timeout=${mqConfig.timeout}`);
+    });
 
     // RabbitMQ Subscribers / Consumers
-    bind<AdminAggregatorSubscriber>(TYPES.rabbitMQSubscribers).to(AdminAggregatorSubscriber).inSingletonScope();
+    // bind<AdminAggregatorSubscriber>(TYPES.rabbitMQSubscribers).to(AdminAggregatorSubscriber).inSingletonScope();
+    // bind<MetagameSubscriber>(TYPES.rabbitMQSubscribers).to(MetagameSubscriber).inSingletonScope();
+
+    bind(AdminAggregatorSubscriber).toSelf().inSingletonScope();
+    bind(MetagameSubscriber).toSelf().inSingletonScope();
 
     // RabbitMQ Publishers
-    bind<ApiMQPublisher>(TYPES.apiMQPublisher).to(ApiMQPublisher).inSingletonScope();
-    bind<ApiMQDelayPublisher>(TYPES.apiMQDelayPublisher).to(ApiMQDelayPublisher).inSingletonScope();
-    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).toService(TYPES.apiMQPublisher);
-    bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).toService(TYPES.apiMQDelayPublisher);
+    // For some reason this method no longer works, so we have to instantiate the publishers manually.
+    // bind<ApiMQPublisher>(TYPES.rabbitMQPublishers).to(ApiMQPublisher).inSingletonScope();
+    // bind<ApiMQDelayPublisher>(TYPES.rabbitMQPublishers).to(ApiMQDelayPublisher).inSingletonScope();
 
-    // Message Handlers (which actually do the things with data)
-    bind<AdminAggregatorMessageHandler>(TYPES.adminMessageHandlers).to(AdminAggregatorMessageHandler).inSingletonScope();
+    bind(ApiMQPublisher).toSelf().inSingletonScope();
+    bind(ApiMQDelayPublisher).toSelf().inSingletonScope();
+
+    // bind(ApiMQPublisher).toDynamicValue(async (context) => {
+    //     const publisher = new ApiMQPublisher(await context.container.getAsync(RabbitMQQueueFactory));
+    //     await publisher.connect();
+    //     return publisher;
+    // }).inSingletonScope();
+    // bind(ApiMQDelayPublisher).toDynamicValue(async (context) => {
+    //     const publisher = new ApiMQDelayPublisher(await context.container.getAsync(RabbitMQQueueFactory));
+    //     await publisher.connect();
+    //     return publisher;
+    // }).inSingletonScope();
 });

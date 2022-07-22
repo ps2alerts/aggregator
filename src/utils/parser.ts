@@ -1,5 +1,5 @@
 export default class Parser {
-    public static parseNumericalArgument(argument: string, float = false): number {
+    public static parseNumericalArgument(argument: string | undefined | null, float = false): number {
         if (argument === null || argument === undefined) {
             return NaN;
         }

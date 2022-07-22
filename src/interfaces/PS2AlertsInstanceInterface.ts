@@ -18,7 +18,9 @@ export default interface PS2AlertsInstanceInterface {
 
     overdue(): boolean;
 
-    match(world: World, zone: Zone): boolean;
+    messageOverdue(timestamp: Date): boolean;
+
+    match(world: World | null, zone: Zone | null): boolean;
 
     currentDuration(): number;
 }

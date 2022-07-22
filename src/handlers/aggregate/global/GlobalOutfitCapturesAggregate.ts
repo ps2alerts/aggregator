@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../../../constants/types';
+import {injectable} from 'inversify';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
-import FacilityControlEvent from '../../census/events/FacilityControlEvent';
+import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
+import ExceptionHandler from '../../system/ExceptionHandler';
 
 @injectable()
 // Note: This does NOT create a new aggregate, merely adds data to the GlobalOutfitAggregate.
@@ -16,8 +16,8 @@ export default class GlobalOutfitCapturesAggregate implements AggregateHandlerIn
     private static readonly logger = getLogger('GlobalOutfitCapturesAggregate');
 
     constructor(
-        @inject(TYPES.apiMQPublisher) private readonly apiMQPublisher: ApiMQPublisher,
-        @inject(TYPES.apiMQDelayPublisher) private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
+        private readonly apiMQPublisher: ApiMQPublisher,
+        private readonly apiMQDelayPublisher: ApiMQDelayPublisher,
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
@@ -57,9 +57,7 @@ export default class GlobalOutfitCapturesAggregate implements AggregateHandlerIn
                 Bracket.TOTAL,
             ));
         } catch (err) {
-            if (err instanceof Error) {
-                GlobalOutfitCapturesAggregate.logger.error(`Could not publish message to API! E: ${err.message}`);
-            }
+            new ExceptionHandler('Could not publish message to API!', err, 'GlobalOutfitCaptures.handle');
         }
 
         return true;

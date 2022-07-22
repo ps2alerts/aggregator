@@ -4,6 +4,8 @@ import {getLogger} from '../../logger';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
+import TimingStatisticsAuthority from '../../authorities/TimingStatisticsAuthority';
+import QueueAuthority from '../../authorities/QueueAuthority';
 
 @injectable()
 export default class AuthorityService implements ServiceInterface {
@@ -14,11 +16,14 @@ export default class AuthorityService implements ServiceInterface {
         private readonly instanceAuthority: InstanceAuthority,
         private readonly overdueInstanceAuthority: OverdueInstanceAuthority,
         private readonly populationAuthority: PopulationAuthority,
+        private readonly queueAuthority: QueueAuthority,
+        private readonly timingStatisticsAuthority: TimingStatisticsAuthority,
     ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
         AuthorityService.logger.debug('Booting Authority Services...');
+        await this.timingStatisticsAuthority.run();
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -28,6 +33,7 @@ export default class AuthorityService implements ServiceInterface {
         AuthorityService.logger.debug('Starting Authority Services...');
         this.overdueInstanceAuthority.run();
         this.populationAuthority.run();
+        this.queueAuthority.run();
     }
 
     // This isn't implemented as it appears to do it automatically

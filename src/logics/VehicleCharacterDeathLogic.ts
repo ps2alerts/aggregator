@@ -1,6 +1,6 @@
 import LogicInterface from './LogicInterface';
 import {getLogger} from '../logger';
-import DeathEvent from '../handlers/census/events/DeathEvent';
+import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 
 export default class VehicleCharacterDeathLogic implements LogicInterface {
     private static readonly logger = getLogger('VehicleCharacterDeathLogic');

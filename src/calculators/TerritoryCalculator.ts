@@ -127,7 +127,6 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         const outOfPlayCount = this.disabledFacilityList.size;
 
         if (TerritoryCalculator.logger.isSillyEnabled()) {
-            // eslint-disable-next-line no-console
             console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
         }
 
@@ -163,10 +162,7 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
             perBasePercentage,
         };
 
-        if (TerritoryCalculator.logger.isDebugEnabled()) {
-            // eslint-disable-next-line no-console
-            console.log(`[${this.instance.instanceId}] percentages`, percentages);
-        }
+        TerritoryCalculator.logger.info(`[${this.instance.instanceId}] updated score: VS: ${percentages.vs} | NC: ${percentages.nc} | TR: ${percentages.tr} | Cutoff: ${percentages.cutoff}`);
 
         return percentages;
     }
@@ -210,7 +206,6 @@ export default class TerritoryCalculator implements CalculatorInterface<Territor
         const cutoffPercent = Math.floor(cutoffCount * perBase);
 
         if (TerritoryCalculator.logger.isSillyEnabled()) {
-            // eslint-disable-next-line no-console
             console.log('Cutoff bases', this.cutoffFacilityList);
         }
 

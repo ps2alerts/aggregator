@@ -1,92 +1,51 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import RabbitMQ from '../../../config/rabbitmq';
-import {inject, injectable} from 'inversify';
-import {RabbitMQConnectionHandlerFactory} from '../RabbitMQConnectionHandlerFactory';
-import {TYPES} from '../../../constants/types';
-import {ChannelWrapper} from 'amqp-connection-manager';
+import {injectable} from 'inversify';
 import {getLogger} from '../../../logger';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {RabbitMQConnectionAwareInterface} from '../../../interfaces/RabbitMQConnectionAwareInterface';
-import {jsonLogOutput} from '../../../utils/json';
+import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
+import config from '../../../config';
+import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
+import {ApiQueue} from '../queues/ApiQueue';
 
 @injectable()
-export default class ApiMQDelayPublisher implements RabbitMQConnectionAwareInterface {
+export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterface {
     private static readonly logger = getLogger('ApiMQDelayPublisher');
-    private readonly config: RabbitMQ;
-    private readonly connectionHandlerFactory: RabbitMQConnectionHandlerFactory;
-    private channelWrapperLong: ChannelWrapper;
-    private channelWrapperShort: ChannelWrapper;
-    private readonly shortQueue: string;
-    private readonly longQueue: string;
+    private longQueue: ApiQueue;
+    private shortQueue: ApiQueue;
 
-    constructor(
-    @inject('rabbitMQConfig') config: RabbitMQ,
-        @inject(TYPES.rabbitMqConnectionHandlerFactory) connectionHandlerFactory: RabbitMQConnectionHandlerFactory,
-    ) {
-        this.config = config;
-        this.connectionHandlerFactory = connectionHandlerFactory;
-        this.shortQueue = `${this.config.apiDelayQueueName}-46min`;
-        this.longQueue = `${this.config.apiDelayQueueName}-91min`;
-    }
+    constructor(private readonly queueFactory: RabbitMQQueueFactory) {}
 
-    public async connect(): Promise<boolean> {
-        ApiMQDelayPublisher.logger.info('Connecting to queues...');
-        this.channelWrapperLong = await this.connectionHandlerFactory.setupQueue(
-            this.longQueue,
-            null,
-            {
-                messageTtl: 5460000, // 91 minutes
-                deadLetterExchange: '',
-                deadLetterRoutingKey: this.config.apiQueueName,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
-            });
+    public async connect(): Promise<void> {
+        this.longQueue = this.queueFactory.createApiQueue(
+            `${config.rabbitmq.apiDelayQueueName}-91min`,
+            91 * 60 * 1000,
+            '',
+            config.rabbitmq.apiQueueName,
+        );
 
-        this.channelWrapperShort = await this.connectionHandlerFactory.setupQueue(
-            this.shortQueue,
-            null,
-            {
-                messageTtl: 2760000, // 46 minutes
-                deadLetterExchange: '',
-                deadLetterRoutingKey: this.config.apiQueueName,
-                arguments: {
-                    'x-queue-mode': 'lazy',
-                },
-            });
+        this.shortQueue = this.queueFactory.createApiQueue(
+            `${config.rabbitmq.apiDelayQueueName}-46min`,
+            46 * 60 * 1000,
+            '',
+            config.rabbitmq.apiQueueName,
+        );
 
-        ApiMQDelayPublisher.logger.info('Connected!');
-
-        return true;
+        await this.longQueue.connect();
+        await this.shortQueue.connect();
     }
 
     public async send(msg: ApiMQGlobalAggregateMessage, duration: number): Promise<boolean | undefined> {
         // Throw if we're attempting to send empty documents
         if (msg.data.docs.length === 0) {
-            throw new ApplicationException(`Attempted to send 0 documents to the API, pointless! Pattern: ${msg.pattern}`);
+            ApiMQDelayPublisher.logger.error(`Attempted to send 0 documents to the API, pointless! Pattern: ${msg.pattern}`);
+            return;
         }
 
-        let wrapper = this.channelWrapperLong;
-        let queue = this.longQueue;
-
-        switch (duration) {
-            case shortAlert:
-                wrapper = this.channelWrapperShort;
-                queue = this.shortQueue;
-                break;
-        }
+        const queue = duration === shortAlert ? this.shortQueue : this.longQueue;
 
         try {
-            ApiMQDelayPublisher.logger.silly(`Sending message to delay queue: ${jsonLogOutput(msg)}`);
-            await wrapper.sendToQueue(
-                queue,
-                msg,
-                {
-                    persistent: true,
-                });
-            return true;
+            return await queue.send(msg);
         } catch (err) {
             if (err instanceof Error) {
                 throw new ApplicationException(`Could not publish message to delay queue! E: ${err.message}`);
