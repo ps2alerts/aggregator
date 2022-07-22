@@ -23,7 +23,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         await this.cacheClient.setex(`CharacterPresence-${character.id}`, 60 * 5, 'foo');
 
         // Add character to Redis set based on World, Zone and Faction.
-        await this.cacheClient.sadd(`CharacterPresencePops-${instance.world}-${instance.world}-${character.faction}`, character.id);
+        await this.cacheClient.sadd(`CharacterPresencePops-${instance.world}-${instance.zone}-${character.faction}`, character.id);
 
         return true;
     }
@@ -46,6 +46,8 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
     // Calculate the current characters, their worlds / zones and return that back as a series of objects separated by world and zone.
     public async collate(): Promise<Map<string, PopulationData>> {
         const populationData: Map<string, PopulationData> = new Map<string, PopulationData>();
+
+        CharacterPresenceHandler.logger.debug('Running character presence collation');
 
         // Scan through each world, each zone and each faction to get the count from the set.
         for (const world of worldArray) {
