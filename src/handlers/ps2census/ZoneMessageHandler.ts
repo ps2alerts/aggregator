@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call */
 // This handler is responsible for requeues and building the PS2EventQueueMessage with has various helpful data included.
 
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
@@ -29,7 +30,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
         }
 
         // If the message came after the alert ended, chuck
-        if (this.instance.messageOverdue(event.timestamp)) {
+        if (this.instance.messageOverdue(event)) {
             ZoneMessageHandler.logger.silly(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
             return actions.ack();
         }

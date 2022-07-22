@@ -3,6 +3,7 @@ import {Zone} from '../ps2alerts-constants/zone';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import TerritoryResultInterface from './TerritoryResultInterface';
 import {PS2AlertsInstanceFeaturesInterface} from './PS2AlertsInstanceFeaturesInterface';
+import {PS2Event} from 'ps2census';
 
 export default interface PS2AlertsInstanceInterface {
     instanceId: string;
@@ -18,7 +19,7 @@ export default interface PS2AlertsInstanceInterface {
 
     overdue(): boolean;
 
-    messageOverdue(timestamp: Date): boolean;
+    messageOverdue(event: PS2Event): boolean;
 
     match(world: World | null, zone: Zone | null): boolean;
 

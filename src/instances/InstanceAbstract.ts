@@ -3,6 +3,7 @@ import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import ApplicationException from '../exceptions/ApplicationException';
 import moment from 'moment/moment';
+import {PS2Event} from 'ps2census';
 
 export default abstract class InstanceAbstract {
     protected constructor(
@@ -20,14 +21,20 @@ export default abstract class InstanceAbstract {
         return Date.now() > (this.timeStarted.getTime() + this.duration);
     }
 
-    public messageOverdue(timestamp: Date): boolean {
+    public messageOverdue(event: PS2Event): boolean {
         // If already ended, check if the message is overdue from the end date
         if (this.state === Ps2alertsEventState.ENDED) {
             if (!this.timeEnded) {
                 throw new ApplicationException('No time present when the alert is ended!', 'InstanceAbstract.messageOverdue');
             }
 
-            return timestamp.getTime() > this.timeEnded.getTime();
+            return event.timestamp.getTime() > this.timeEnded.getTime();
+        }
+
+        // If facility control, add a limit 5 seconds before the alert end to ensure cont locks don't skew the stats
+        if (event.event_name === 'FacilityControl') {
+            const deadline = (this.timeStarted.getTime() / 1000) + (this.duration) - 5;
+            return event.timestamp.getTime() > deadline;
         }
 
         return false;
