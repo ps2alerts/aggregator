@@ -9,7 +9,7 @@ import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 @injectable()
 export default class RabbitMQConnectionService implements ServiceInterface {
     public readonly bootPriority = 5;
-    private static readonly logger = getLogger('RabbitMQSubscriptionService');
+    private static readonly logger = getLogger('RabbitMQConnectionService');
 
     constructor(
         private readonly apiMqPublisher: ApiMQPublisher,
@@ -20,14 +20,14 @@ export default class RabbitMQConnectionService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        RabbitMQConnectionService.logger.debug('Booting RabbitMQSubscriptionService...');
+        RabbitMQConnectionService.logger.debug('Booting RabbitMQConnectionService...');
         await this.apiMqPublisher.connect();
         await this.apiMqDelayPublisher.connect();
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
     public async start(): Promise<void> {
-        RabbitMQConnectionService.logger.debug('Starting RabbitMQSubscriptionService...');
+        RabbitMQConnectionService.logger.debug('Starting RabbitMQConnectionService...');
         await this.metagameSubscriber.connect();
         await this.adminAggregatorSubscriber.connect();
     }
