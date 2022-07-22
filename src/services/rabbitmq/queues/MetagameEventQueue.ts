@@ -38,7 +38,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                     channel.checkExchange(config.rabbitmq.topicExchange),
                     channel.assertQueue(this.thisQueueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.thisQueueName, config.rabbitmq.exchange, this.pattern);
+                await channel.bindQueue(this.thisQueueName, config.rabbitmq.topicExchange, this.pattern);
 
                 const consumerOptions: Options.Consume = {
                     priority: 0,
@@ -47,7 +47,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 await channel.consume(this.thisQueueName, async (message) => {
                     if (!message) {
-                        throw new ApplicationException('Admin Message was empty!', 'RabbitMQCensusStreamFactory.MetgameEventQueue');
+                        throw new ApplicationException('MetagameEvent Message was empty!', 'RabbitMQCensusStreamFactory.MetgameEventQueue');
                     }
 
                     try {
