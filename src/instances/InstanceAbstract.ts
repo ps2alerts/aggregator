@@ -25,18 +25,9 @@ export default abstract class InstanceAbstract {
     }
 
     public messageOverdue(event: PS2Event): boolean {
-        // If already ended, check if the message is overdue from the end date
-        if (this.state === Ps2alertsEventState.ENDED) {
-            if (!this.timeEnded) {
-                throw new ApplicationException('No time present when the alert is ended!', 'InstanceAbstract.messageOverdue');
-            }
-
-            return event.timestamp.getTime() > this.timeEnded.getTime();
-        }
-
-        // If facility control, add a limit 2.5 seconds before the alert end to ensure cont locks don't skew the stats
+        // If facility control, add a limit 5 seconds before the alert end to ensure cont locks don't skew the stats
         if (event.event_name === 'FacilityControl') {
-            const deadline = (this.timeStarted.getTime() + this.duration) - 2500;
+            const deadline = (this.timeStarted.getTime() + this.duration) - 5000;
             const overdue = event.timestamp.getTime() > deadline;
 
             if (overdue) {
@@ -44,6 +35,15 @@ export default abstract class InstanceAbstract {
             }
 
             return overdue;
+        }
+
+        // If already ended, check if the message is overdue from the end date
+        if (this.state === Ps2alertsEventState.ENDED) {
+            if (!this.timeEnded) {
+                throw new ApplicationException('No time present when the alert is ended!', 'InstanceAbstract.messageOverdue');
+            }
+
+            return event.timestamp.getTime() > this.timeEnded.getTime();
         }
 
         return false;
