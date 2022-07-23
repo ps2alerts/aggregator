@@ -90,9 +90,9 @@ jobs:
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|1100m|' \
+          -e 's|{{ request_cpu }}|400m|' \
           -e 's|{{ request_mem }}|0.25Gi|' \
-          -e 's|{{ limit_cpu }}|1500m|' \
+          -e 's|{{ limit_cpu }}|1200m|' \
           -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-pc.yml
 
@@ -110,9 +110,9 @@ jobs:
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|200m|' \
+          -e 's|{{ request_cpu }}|100m|' \
           -e 's|{{ request_mem }}|0.15Gi|' \
-          -e 's|{{ limit_cpu }}|350m|' \
+          -e 's|{{ limit_cpu }}|400m|' \
           -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-ps4eu.yml
 
@@ -130,9 +130,9 @@ jobs:
           -e 's|{{ redis_db }}|1|' \
           -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
           -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|250m|' \
+          -e 's|{{ request_cpu }}|150m|' \
           -e 's|{{ request_mem }}|0.15Gi|' \
-          -e 's|{{ limit_cpu }}|400m|' \
+          -e 's|{{ limit_cpu }}|450m|' \
           -e 's|{{ limit_mem }}|0.25Gi|' \
           provisioning/k8s/application-ps4us.yml
 
