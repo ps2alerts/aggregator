@@ -33,8 +33,13 @@ export default abstract class InstanceAbstract {
 
         // If facility control, add a limit 5 seconds before the alert end to ensure cont locks don't skew the stats
         if (event.event_name === 'FacilityControl') {
-            const deadline = (this.timeStarted.getTime() / 1000) + (this.duration) - 5;
-            return event.timestamp.getTime() > deadline;
+            // const deadline = (this.timeStarted.getTime() / 1000) + (this.duration) - 5;
+            // const overdue = event.timestamp.getTime() > deadline
+            //
+            // if (overdue) {
+            //
+            // }
+            // return event.timestamp.getTime() > deadline;
         }
 
         return false;
