@@ -4,8 +4,11 @@ import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import ApplicationException from '../exceptions/ApplicationException';
 import moment from 'moment/moment';
 import {PS2Event} from 'ps2census';
+import {getLogger} from '../logger';
 
 export default abstract class InstanceAbstract {
+    private static readonly logger = getLogger('InstanceAbstract');
+
     protected constructor(
         public readonly instanceId: string, // 10-12345
         public readonly world: World,
@@ -31,15 +34,16 @@ export default abstract class InstanceAbstract {
             return event.timestamp.getTime() > this.timeEnded.getTime();
         }
 
-        // If facility control, add a limit 5 seconds before the alert end to ensure cont locks don't skew the stats
+        // If facility control, add a limit 2.5 seconds before the alert end to ensure cont locks don't skew the stats
         if (event.event_name === 'FacilityControl') {
-            // const deadline = (this.timeStarted.getTime() / 1000) + (this.duration) - 5;
-            // const overdue = event.timestamp.getTime() > deadline
-            //
-            // if (overdue) {
-            //
-            // }
-            // return event.timestamp.getTime() > deadline;
+            const deadline = (this.timeStarted.getTime() + this.duration) - 2500;
+            const overdue = event.timestamp.getTime() > deadline;
+
+            if (overdue) {
+                InstanceAbstract.logger.warn('Facility message received outside of deadline!');
+            }
+
+            return overdue;
         }
 
         return false;
