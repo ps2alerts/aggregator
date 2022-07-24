@@ -294,17 +294,15 @@ amqp-connection-manager@^3.2.2:
   dependencies:
     promise-breaker "^5.0.0"
 
-amqplib@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/amqplib/-/amqplib-0.8.0.tgz#088d10bc61cc5ac5a49ac72033c7ac66c23aeb61"
-  integrity sha512-icU+a4kkq4Y1PS4NNi+YPDMwdlbFcZ1EZTQT2nigW3fvOb6AOgUQ9+Mk4ue0Zu5cBg/XpDzB40oH10ysrk2dmA==
+amqplib@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/amqplib/-/amqplib-0.10.0.tgz#766d696f8ceae097ee9eb73e6796999e5d40a1db"
+  integrity sha512-UueEnRGY6upiSvGsSYM22Woa1SeSukqYtqgYW4Gj8gHvbf5BRhhYRqf3kQ8aSUYYffTOZi6SeOVW2eOXt0hpPA==
   dependencies:
     bitsyntax "~0.1.0"
-    bluebird "^3.7.2"
     buffer-more-ints "~1.0.0"
     readable-stream "1.x >=1.1.9"
-    safe-buffer "~5.2.1"
-    url-parse "~1.5.1"
+    url-parse "~1.5.10"
 
 ansi-escapes@^4.3.0:
   version "4.3.2"
@@ -412,11 +410,6 @@ bitsyntax@~0.1.0:
     buffer-more-ints "~1.0.0"
     debug "~2.6.9"
     safe-buffer "~5.1.2"
-
-bluebird@^3.7.2:
-  version "3.7.2"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
-  integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
 body-parser@1.19.2:
   version "1.19.2"
@@ -2011,7 +2004,7 @@ rxjs@^7.5.5:
   dependencies:
     tslib "^2.1.0"
 
-safe-buffer@5.2.1, safe-buffer@~5.2.0, safe-buffer@~5.2.1:
+safe-buffer@5.2.1, safe-buffer@~5.2.0:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6"
   integrity sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==
@@ -2414,7 +2407,7 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
-url-parse@~1.5.1:
+url-parse@~1.5.10:
   version "1.5.10"
   resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.10.tgz#9d3c2f736c1d75dd3bd2be507dcc111f1e2ea9c1"
   integrity sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==
