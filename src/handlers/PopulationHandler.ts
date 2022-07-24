@@ -1,15 +1,15 @@
 import {getLogger} from '../logger';
 import {injectable, multiInject} from 'inversify';
 import {TYPES} from '../constants/types';
-import PopulationHandlerInterface from '../interfaces/PopulationHandlerInterface';
 import {jsonLogOutput} from '../utils/json';
 import PopulationData from '../data/PopulationData';
+import MessageQueueHandlerInterface from '../interfaces/MessageQueueHandlerInterface';
 
 @injectable()
-export default class PopulationHandler implements PopulationHandlerInterface<PopulationData> {
+export default class PopulationHandler implements MessageQueueHandlerInterface<PopulationData> {
     private static readonly logger = getLogger('PopulationHandler');
 
-    constructor(@multiInject(TYPES.populationAggregates) private readonly aggregateHandlers: Array<PopulationHandlerInterface<PopulationData>>) {}
+    constructor(@multiInject(TYPES.populationAggregates) private readonly aggregateHandlers: Array<MessageQueueHandlerInterface<PopulationData>>) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
         PopulationHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
@@ -18,7 +18,7 @@ export default class PopulationHandler implements PopulationHandlerInterface<Pop
         const promises: Array<Promise<any>> = [];
 
         this.aggregateHandlers.map(
-            (handler: PopulationHandlerInterface<PopulationData>) => promises.push(handler.handle(event)
+            (handler: MessageQueueHandlerInterface<PopulationData>) => promises.push(handler.handle(event)
                 .catch((e) => {
                     if (e instanceof Error) {
                         PopulationHandler.logger.error(`Error parsing AggregateHandlers for PopulationHandler: ${e.message}\r\n${jsonLogOutput(event)}`);

@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
-import PopulationHandlerInterface from '../interfaces/PopulationHandlerInterface';
 import {TYPES} from '../constants/types';
 import {getLogger} from '../logger';
 import PopulationData from '../data/PopulationData';
 import CharacterPresenceHandler from '../handlers/CharacterPresenceHandler';
+import MessageQueueHandlerInterface from '../interfaces/MessageQueueHandlerInterface';
 
 @injectable()
 export default class PopulationAuthority {
@@ -11,7 +11,7 @@ export default class PopulationAuthority {
     private timer?: NodeJS.Timeout;
 
     constructor(
-        @inject(TYPES.populationHandler) private readonly populationHandler: PopulationHandlerInterface<PopulationData>,
+        @inject(TYPES.populationHandler) private readonly populationHandler: MessageQueueHandlerInterface<PopulationData>,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
     ) {}
 

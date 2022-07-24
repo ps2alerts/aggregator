@@ -1,7 +1,6 @@
 import {ContainerModule} from 'inversify';
 import {TYPES} from '../../constants/types';
 import DeathEvent from '../ps2census/events/DeathEvent';
-import PopulationHandlerInterface from '../../interfaces/PopulationHandlerInterface';
 import PopulationData from '../../data/PopulationData';
 // Events
 import FacilityControlEvent from '../ps2census/events/FacilityControlEvent';
@@ -29,6 +28,7 @@ import InstancePopulationAggregate from './instance/InstancePopulationAggregate'
 import InstanceWeaponAggregate from './instance/InstanceWeaponAggregate';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
+import MessageQueueHandlerInterface from '../../interfaces/MessageQueueHandlerInterface';
 
 export default new ContainerModule((bind) => {
     // Death Event
@@ -51,7 +51,7 @@ export default new ContainerModule((bind) => {
     bind<AggregateHandlerInterface<FacilityControlEvent>>(TYPES.facilityControlAggregates).to(GlobalOutfitCapturesAggregate).inSingletonScope();
 
     // Population Event
-    bind<PopulationHandlerInterface<PopulationData>>(TYPES.populationAggregates).to(InstancePopulationAggregate).inSingletonScope();
+    bind<MessageQueueHandlerInterface<PopulationData>>(TYPES.populationAggregates).to(InstancePopulationAggregate).inSingletonScope();
 
     // Vehicle Destroy Event
     bind<AggregateHandlerInterface<VehicleDestroyEvent>>(TYPES.vehicleDestroyAggregates).to(VehicleAggregateHandler).inSingletonScope();

@@ -1,3 +1,3 @@
-export interface MessageQueueHandlerInterface<T> {
+export default interface MessageQueueHandlerInterface<T> {
     handle(message: T): Promise<boolean>;
 }
