@@ -61,7 +61,7 @@
     "axios-debug-log": "^0.8.4",
     "eslint": "^8.20.0",
     "husky": "^8.0.1",
-    "lint-staged": "^12.4.1",
+    "lint-staged": "^13.0.3",
     "ts-node": "^9.1.1",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.2"
