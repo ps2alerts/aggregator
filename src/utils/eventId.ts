@@ -42,6 +42,11 @@ export default class EventId {
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.OSHUR_SUPERIORITY],
                 ],
             )],
+            [Zone.NEXUS, new Map(
+                [
+                    [Faction.NONE, MetagameEventType.NEXUS_OUTFIT_WAR],
+                ],
+            )],
         ],
     );
 
@@ -216,6 +221,9 @@ export default class EventId {
             case 223: // Oshur TR Triggered
             case 224: // Oshur VS Triggered
                 return Zone.OSHUR;
+            case 227: // Outfit Wars Game
+            case 234: // Outfit Wars Prep
+                return Zone.NEXUS;
         }
 
         return -1;
