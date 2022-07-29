@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types */
 
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {CacheContract} from 'ps2census';
-import {Redis} from 'ioredis';
-import {TYPES} from '../constants/types';
+import Redis from 'ioredis';
 
 @injectable()
 export default class CensusCacheDriver implements CacheContract {
     constructor(
-        @inject(TYPES.redis) private readonly cacheClient: Redis,
+        private readonly cacheClient: Redis,
         private readonly namespace: string = 'census',
         private readonly expiry: number = 86400,
     ) {}

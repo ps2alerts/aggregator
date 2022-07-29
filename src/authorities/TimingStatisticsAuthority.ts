@@ -1,5 +1,5 @@
 import {getLogger} from '../logger';
-import {Redis} from 'ioredis';
+import Redis from 'ioredis';
 import {injectable} from 'inversify';
 import config from '../config';
 

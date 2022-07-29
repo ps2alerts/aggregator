@@ -4,14 +4,14 @@ import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
-import {Redis} from 'ioredis';
+import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
     constructor(
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-        @inject(TYPES.redis) private readonly cacheClient: Redis,
+        private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
     ) {}
 

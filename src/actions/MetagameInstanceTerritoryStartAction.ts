@@ -9,7 +9,7 @@ import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {Redis} from 'ioredis';
+import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {

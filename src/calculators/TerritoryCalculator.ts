@@ -16,7 +16,7 @@ import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoint
 import {AxiosInstance, AxiosResponse} from 'axios';
 import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
     from '../interfaces/PS2AlertsInstanceEntriesInstanceFacilityResponseInterface';
-import {Redis} from 'ioredis';
+import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 
 interface PercentagesInterface extends FactionNumbersInterface {

@@ -1,22 +1,21 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {getLogger} from '../logger';
-import {Redis} from 'ioredis';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {FacilityControl, Rest} from 'ps2census';
-import {TYPES} from '../constants/types';
 import config from '../config';
 import PS2EventQueueMessage from '../handlers/messages/PS2EventQueueMessage';
 import Parser from '../utils/parser';
+import Redis from 'ioredis';
 
 @injectable()
 export default class FacilityDataBroker {
     private static readonly logger = getLogger('FacilityDataBroker');
 
     constructor(
-        @inject(TYPES.redis) private readonly cacheClient: Redis,
+        private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
     ) {}
 

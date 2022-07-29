@@ -8,13 +8,13 @@ import Item from '../data/Item';
 import FakeItemFactory from '../factories/FakeItemFactory';
 import {Vehicle} from '../ps2alerts-constants/vehicle';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
-import {Redis} from 'ioredis';
 import {Rest} from 'ps2census';
 import config from '../config';
 import {AxiosInstance} from 'axios';
 import ApplicationException from '../exceptions/ApplicationException';
 import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints';
 import {CensusEnvironment} from '../types/CensusEnvironment';
+import Redis from 'ioredis';
 
 @injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -22,7 +22,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
     constructor(
         private readonly restClient: Rest.Client,
-        @inject(TYPES.redis) private readonly cacheClient: Redis,
+        private readonly cacheClient: Redis,
         @inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
     ) {}
 

@@ -3,8 +3,8 @@ import OverdueInstanceAuthority from './OverdueInstanceAuthority';
 import PopulationAuthority from './PopulationAuthority';
 import InstanceAuthority from './InstanceAuthority';
 import TimingStatisticsAuthority from './TimingStatisticsAuthority';
-import {TYPES} from '../constants/types';
 import QueueAuthority from './QueueAuthority';
+import Redis from 'ioredis';
 
 export default new ContainerModule((bind) => {
     bind(InstanceAuthority)
@@ -24,6 +24,6 @@ export default new ContainerModule((bind) => {
         .inSingletonScope();
 
     bind(TimingStatisticsAuthority).toDynamicValue(async (context) => {
-        return new TimingStatisticsAuthority(await context.container.getAsync(TYPES.redis));
+        return new TimingStatisticsAuthority(await context.container.getAsync(Redis));
     }).inSingletonScope();
 });

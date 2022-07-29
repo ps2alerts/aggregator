@@ -5,6 +5,7 @@ config/db.config.js
 config/flags.js
 src/censusSocket/api_key.ts
 npm-debug.log
+yarn-error.log
 temp
 
 vars.local.yml

@@ -15,7 +15,7 @@ import {AxiosInstance} from 'axios';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
 import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
-import {Redis} from 'ioredis';
+import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 
 @injectable()
@@ -26,7 +26,7 @@ export default class InstanceActionFactory {
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
         private readonly restClient: Rest.Client,
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-        @inject(TYPES.redis) private readonly cacheClient: Redis,
+        private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
     ) {}
 

@@ -1,21 +1,20 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {Zone, zoneArray} from '../ps2alerts-constants/zone';
 import {getLogger} from '../logger';
 import CharacterPresenceHandlerInterface from '../interfaces/CharacterPresenceHandlerInterface';
 import PopulationData from '../data/PopulationData';
 import {Faction, factionArray} from '../ps2alerts-constants/faction';
 import Character from '../data/Character';
-import {Redis} from 'ioredis';
 import {World, worldArray} from '../ps2alerts-constants/world';
 import FactionUtils from '../utils/FactionUtils';
-import {TYPES} from '../constants/types';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
+import Redis from 'ioredis';
 
 @injectable()
 export default class CharacterPresenceHandler implements CharacterPresenceHandlerInterface {
     private static readonly logger = getLogger('CharacterPresenceHandler');
 
-    constructor(@inject(TYPES.redis) private readonly cacheClient: Redis) {}
+    constructor(private readonly cacheClient: Redis) {}
 
     // Updates / adds characters presence, setting a Redis key with expiry.
     public async update(character: Character, instance: PS2AlertsInstanceInterface): Promise<boolean> {

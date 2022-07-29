@@ -5,7 +5,7 @@ import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../ps2alerts-constants/zone';
 import {Rest} from 'ps2census';
 import {getLogger} from '../logger';
-import {Redis} from 'ioredis';
+import Redis from 'ioredis';
 import {
     CensusFacilityRegion,
     CensusRegionMapJoinQueryInterface,

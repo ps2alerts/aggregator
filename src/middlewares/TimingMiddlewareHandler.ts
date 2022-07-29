@@ -3,16 +3,15 @@
 // This class is usually called in front of ZoneMessageQueueHandler, not the actual handlers themselves.
 import {injectable} from 'inversify';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
-import {Redis} from 'ioredis';
+import Redis from 'ioredis';
 import {PS2Event} from 'ps2census';
 import config from '../config';
 
 @injectable()
 export default class TimingMiddlewareHandler {
     private readonly runId = config.app.runId;
-    constructor(
-        private readonly cacheClient: Redis,
-    ) {}
+
+    constructor(private readonly cacheClient: Redis) {}
 
     public async handle(
         message: PS2Event,
