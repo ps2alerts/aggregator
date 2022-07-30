@@ -14,9 +14,11 @@ import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
-import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
+import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
+// import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
+// import {OutfitwarsTerritoryResultInterface} from '../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -52,7 +54,7 @@ export default class InstanceActionFactory {
         if (instance instanceof MetagameTerritoryInstance) {
             return new MetagameTerritoryInstanceEndAction(
                 instance,
-                this.buildTerritoryResult(instance),
+                this.buildMetagameTerritoryResult(instance),
                 this.ps2AlertsApiClient,
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
@@ -86,6 +88,13 @@ export default class InstanceActionFactory {
         );
     }
 
-        throw new ApplicationException('Unable to determine territoryResultAction!', 'InstanceActionFactory');
-    }
+    // public buildOutfitwarsResult(
+    //     instance: OutfitWarsTerritoryInstance,
+    // ): ActionInterface<OutfitwarsTerritoryResultInterface> {
+    //     return new MetagameInstanceTerritoryResultAction(
+    //         instance,
+    //         this.territoryCalculatorFactory.build(instance, this.restClient),
+    //         this.ps2AlertsApiClient,
+    //     );
+    // }
 }

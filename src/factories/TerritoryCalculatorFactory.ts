@@ -29,4 +29,17 @@ export default class TerritoryCalculatorFactory {
             this.zoneDataParser,
         );
     }
+
+    // public buildOutfitwarsTerritoryCalculator(
+    //     instance: OutfitWarsTerritoryInstance,
+    //     restClient: Rest.Client,
+    // ): OutfitwarsTerritoryCalculator {
+    //     return new OutfitwarsTerritoryCalculator(
+    //         instance,
+    //         restClient,
+    //         this.ps2AlertsApiClient,
+    //         this.cacheClient,
+    //         this.zoneDataParser,
+    //     );
+    // }
 }
