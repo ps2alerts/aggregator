@@ -52,11 +52,11 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
             const metagameTerritoryInstance = new MetagameTerritoryInstance(
                 event.world,
+                event.details.zone,
+                event.instanceId,
                 event.timestamp,
                 null,
                 null,
-                event.details.zone,
-                event.instanceId,
                 event.eventType,
                 event.details.duration,
                 Ps2alertsEventState.STARTING,

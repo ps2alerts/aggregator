@@ -5,18 +5,19 @@ import {Zone} from '../ps2alerts-constants/zone';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import {Bracket} from '../ps2alerts-constants/bracket';
-import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
+import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
+import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
 
 export default class MetagameTerritoryInstance extends InstanceAbstract implements PS2AlertsInstanceInterface {
     public bracket?: Bracket;
 
     constructor(
         public readonly world: World,
-        public readonly timeStarted: Date,
-        public timeEnded: Date | null,
-        public result: TerritoryResultInterface | null,
         public readonly zone: Zone,
         public readonly censusInstanceId: number,
+        public readonly timeStarted: Date,
+        public timeEnded: Date | null,
+        public result: MetagameTerritoryControlResultInterface | null,
         public readonly censusMetagameEventType: MetagameEventType,
         duration: number, // Stored in Milliseconds
         state: Ps2alertsEventState,
@@ -25,11 +26,13 @@ export default class MetagameTerritoryInstance extends InstanceAbstract implemen
         super(
             `${world}-${censusInstanceId}`,
             world,
+            zone,
             timeStarted,
             timeEnded,
-            result,
             duration,
             state,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            Ps2alertsEventType.LIVE_METAGAME,
         );
         this.bracket = bracket ?? undefined;
     }

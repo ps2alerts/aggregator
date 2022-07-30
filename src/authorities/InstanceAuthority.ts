@@ -17,15 +17,28 @@ import config from '../config';
 import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 import QueueAuthority from './QueueAuthority';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
+import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
+import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
+import InstanceAbstract from '../instances/InstanceAbstract';
 
-interface TableDisplayInterface {
+interface MetagameTerritoryActiveTableInterface {
     instanceId: string;
     world: World;
     zone: Zone;
     timeRemaining: string;
     vs: number | string;
     nc: number | string;
-    tr: number |string;
+    tr: number | string;
+    cutoff: number | string;
+}
+
+interface OutfitwarsTerritoryActiveTableInterface {
+    instanceId: string;
+    world: World;
+    zone: Zone;
+    timeRemaining: string;
+    team1: number | string;
+    team2: number | string;
     cutoff: number | string;
 }
 
@@ -95,7 +108,7 @@ export default class InstanceAuthority {
             return false;
         }
 
-        InstanceAuthority.logger.info(`================== STARTING INSTANCE ON WORLD ${instance.world}! ==================`);
+        InstanceAuthority.logger.info(`=== STARTING INSTANCE ON WORLD ${instance.world}! ===`);
 
         if (instance instanceof MetagameTerritoryInstance) {
             const data = Object.assign(instance, {
@@ -118,7 +131,7 @@ export default class InstanceAuthority {
                     new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority');
                 });
 
-            InstanceAuthority.logger.info(`================ INSERTED NEW INSTANCE ${instance.instanceId} ================`);
+            InstanceAuthority.logger.info(`=== INSERTED NEW INSTANCE ${instance.instanceId} ===`);
 
             // Execute start actions, if it fails trash the instance
             try {
@@ -126,7 +139,7 @@ export default class InstanceAuthority {
                 await this.instanceActionFactory.buildStart(instance).execute();
 
                 // Now update the initial result record as we have the initial map state
-                await this.instanceActionFactory.buildTerritoryResult(instance).execute();
+                await this.instanceActionFactory.buildMetagameTerritoryResult(instance).execute();
             } catch (err) {
                 // End early if instance failed to insert, so we don't add an instance to the list of actives.
                 if (err instanceof Error) {
@@ -164,7 +177,7 @@ export default class InstanceAuthority {
     }
 
     public async endInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
-        InstanceAuthority.logger.info(`================== ENDING INSTANCE "${instance.instanceId}" ==================`);
+        InstanceAuthority.logger.info(`==== ENDING INSTANCE "${instance.instanceId}" ===`);
 
         // Remove the active instance now from memory so more messages don't get accepted
         this.removeActiveInstance(instance);
@@ -176,7 +189,7 @@ export default class InstanceAuthority {
             this.queueAuthority.syncActiveInstances(this.currentInstances);
             this.queueAuthority.stopQueuesForInstance(instance);
 
-            InstanceAuthority.logger.info(`================ SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ================`);
+            InstanceAuthority.logger.info(`=== SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ===`);
             this.printActives(true);
             return true;
         } catch (err) {
@@ -186,7 +199,7 @@ export default class InstanceAuthority {
     }
 
     public async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
-        InstanceAuthority.logger.info(`================== TRASHING INSTANCE "${instance.instanceId}" ==================`);
+        InstanceAuthority.logger.info(`=== TRASHING INSTANCE "${instance.instanceId}" ===`);
 
         this.removeActiveInstance(instance);
 
@@ -195,7 +208,7 @@ export default class InstanceAuthority {
                 throw new ApplicationException(`[${instance.instanceId}] UNABLE TO TRASH INSTANCE! API CALL FAILED! E: ${err.message}`, 'InstanceAuthority');
             });
 
-        InstanceAuthority.logger.error(`================ [${instance.instanceId}] INSTANCE TRASHED! ================`);
+        InstanceAuthority.logger.error(`=== [${instance.instanceId}] INSTANCE TRASHED! ===`);
 
         this.printActives(true);
     }
@@ -216,7 +229,7 @@ export default class InstanceAuthority {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const instances: MetagameTerritoryInstance[] = apiResponse.data;
+        const instances: InstanceAbstract[] = apiResponse.data;
 
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
@@ -236,19 +249,46 @@ export default class InstanceAuthority {
                     return false;
                 }
 
-                // Convert the date
-                const instance = new MetagameTerritoryInstance(
-                    i.world,
-                    new Date(i.timeStarted), // It's a string from the API, convert back into Date
-                    null,
-                    i.result,
-                    i.zone,
-                    i.censusInstanceId,
-                    i.censusMetagameEventType,
-                    i.duration,
-                    i.state,
-                    i.bracket ?? undefined,
-                );
+                let instance: PS2AlertsInstanceInterface;
+                let instanceAlias;
+
+                switch (i.ps2alertsEventType) {
+                    case Ps2alertsEventType.LIVE_METAGAME:
+                        instanceAlias = i as MetagameTerritoryInstance;
+                        instance = new MetagameTerritoryInstance(
+                            i.world,
+                            i.zone,
+                            instanceAlias.censusInstanceId,
+                            new Date(i.timeStarted), // It's a string from the API, convert back into Date
+                            null,
+                            instanceAlias.result,
+                            instanceAlias.censusMetagameEventType,
+                            i.duration,
+                            i.state,
+                            instanceAlias.bracket ?? undefined,
+                        );
+                        break;
+                    case Ps2alertsEventType.OUTFIT_WARS_AUG_2022:
+                        instanceAlias = i as OutfitWarsTerritoryInstance;
+                        instance = new OutfitWarsTerritoryInstance(
+                            i.world,
+                            Zone.NEXUS,
+                            instanceAlias.zoneInstanceId,
+                            instanceAlias.binaryZone,
+                            new Date(i.timeStarted),
+                            null,
+                            instanceAlias.result,
+                            i.state,
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            Ps2alertsEventType.OUTFIT_WARS_AUG_2022,
+                            instanceAlias.matchId,
+                            instanceAlias.phase,
+                        );
+                        break;
+                    default:
+                        throw new ApplicationException('Unknown ps2alertsEventType!', 'InstanceAuthority');
+                }
+
                 this.currentInstances.push(instance);
             });
         }
@@ -270,29 +310,52 @@ export default class InstanceAuthority {
 
     public printActives(mustShow = false): void {
         if (this.currentInstances.length) {
-            InstanceAuthority.logger.info('==== Current actives =====');
-            const tableRows: TableDisplayInterface[] = [];
+            InstanceAuthority.logger.info('=== Current actives ===');
+            const metagameTerritoryRows: MetagameTerritoryActiveTableInterface[] = [];
+            const outfitwarsTerritoryRows: OutfitwarsTerritoryActiveTableInterface[] = [];
 
             this.currentInstances.forEach((instance: PS2AlertsInstanceInterface) => {
                 // Display expected time left
                 const displayDate = new Date(0);
                 displayDate.setSeconds(calculateRemainingTime(instance) / 1000);
 
-                const object: TableDisplayInterface = {
-                    instanceId: instance.instanceId,
-                    world: instance.world,
-                    zone: instance.zone,
-                    timeRemaining: `${displayDate.toISOString().substr(11, 8)}`,
-                    vs: instance.result?.vs ?? '???',
-                    nc: instance.result?.nc ?? '???',
-                    tr: instance.result?.tr ?? '???',
-                    cutoff: instance.result?.cutoff ?? '???',
-                };
-                tableRows.push(object);
+                if (instance instanceof MetagameTerritoryInstance) {
+                    const object: MetagameTerritoryActiveTableInterface = {
+                        instanceId: instance.instanceId,
+                        world: instance.world,
+                        zone: instance.zone,
+                        timeRemaining: `${displayDate.toISOString().substr(11, 8)}`,
+                        vs: instance.result?.vs ?? '???',
+                        nc: instance.result?.nc ?? '???',
+                        tr: instance.result?.tr ?? '???',
+                        cutoff: instance.result?.cutoff ?? '???',
+                    };
+                    metagameTerritoryRows.push(object);
+                }
+
+                if (instance instanceof OutfitWarsTerritoryInstance) {
+                    const object: OutfitwarsTerritoryActiveTableInterface = {
+                        instanceId: instance.instanceId,
+                        world: instance.world,
+                        zone: instance.zone,
+                        timeRemaining: `${displayDate.toISOString().substr(11, 8)}`,
+                        team1: instance.result?.team1 ?? '???',
+                        team2: instance.result?.team2 ?? '???',
+                        cutoff: instance.result?.cutoff ?? '???',
+                    };
+                    outfitwarsTerritoryRows.push(object);
+                }
             });
-            console.table(tableRows);
+
+            if (metagameTerritoryRows.length) {
+                console.table(metagameTerritoryRows);
+            }
+
+            if (outfitwarsTerritoryRows.length) {
+                console.table(outfitwarsTerritoryRows);
+            }
         } else if (mustShow) {
-            InstanceAuthority.logger.info('==== Current actives is empty =====');
+            InstanceAuthority.logger.info('=== Current actives is empty ===');
         }
     }
 
@@ -301,6 +364,6 @@ export default class InstanceAuthority {
             return i.instanceId === instance.instanceId;
         });
 
-        InstanceAuthority.logger.debug(`================== ${instance.instanceId} removed from actives ==================`);
+        InstanceAuthority.logger.debug(`=== ${instance.instanceId} removed from actives ===`);
     }
 }

@@ -5,17 +5,17 @@ import ApplicationException from '../exceptions/ApplicationException';
 import FactionUtils from '../utils/FactionUtils';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
-import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly territoryResultAction: ActionInterface<TerritoryResultInterface>,
+        private readonly territoryResultAction: ActionInterface<MetagameTerritoryControlResultInterface>,
         private readonly ps2alertsApiClient: AxiosInstance,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
@@ -44,7 +44,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         });
 
         // Update the final result of the instance
-        const result: TerritoryResultInterface = await this.territoryResultAction.execute();
+        const result: MetagameTerritoryControlResultInterface = await this.territoryResultAction.execute();
 
         if (!result) {
             throw new ApplicationException(`[${this.instance.instanceId}] UNABLE TO CALCULATE VICTOR!`, 'MetagameTerritoryInstanceEndAction');

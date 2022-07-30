@@ -68,7 +68,7 @@ export default class InstanceActionFactory {
         if (event.instance instanceof MetagameTerritoryInstance) {
             return new MetagameInstanceTerritoryFacilityControlAction(
                 event,
-                this.buildTerritoryResult(event.instance),
+                this.buildMetagameTerritoryResult(event.instance),
                 this.ps2AlertsApiClient,
             );
         }
@@ -76,16 +76,15 @@ export default class InstanceActionFactory {
         throw new ApplicationException('Unable to determine facilityControlEventAction!', 'InstanceActionFactory');
     }
 
-    public buildTerritoryResult(
-        instance: PS2AlertsInstanceInterface,
-    ): ActionInterface<TerritoryResultInterface> {
-        if (instance instanceof MetagameTerritoryInstance) {
-            return new MetagameInstanceTerritoryResultAction(
-                instance,
-                this.territoryCalculatorFactory.build(instance, this.restClient),
-                this.ps2AlertsApiClient,
-            );
-        }
+    public buildMetagameTerritoryResult(
+        instance: MetagameTerritoryInstance,
+    ): ActionInterface<MetagameTerritoryControlResultInterface> {
+        return new MetagameInstanceTerritoryResultAction(
+            instance,
+            this.territoryCalculatorFactory.buildMetagameTerritoryCalculator(instance, this.restClient),
+            this.ps2AlertsApiClient,
+        );
+    }
 
         throw new ApplicationException('Unable to determine territoryResultAction!', 'InstanceActionFactory');
     }

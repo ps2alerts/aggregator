@@ -1,11 +1,13 @@
 import {inject, injectable} from 'inversify';
 import {TYPES} from '../constants/types';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
+import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
+// import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
+// import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
@@ -15,11 +17,11 @@ export default class TerritoryCalculatorFactory {
         private readonly zoneDataParser: ZoneDataParser,
     ) {}
 
-    public build(
+    public buildMetagameTerritoryCalculator(
         instance: MetagameTerritoryInstance,
         restClient: Rest.Client,
-    ): TerritoryCalculator {
-        return new TerritoryCalculator(
+    ): MetagameTerritoryCalculator {
+        return new MetagameTerritoryCalculator(
             instance,
             restClient,
             this.ps2AlertsApiClient,

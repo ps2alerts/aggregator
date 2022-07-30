@@ -3,9 +3,10 @@ import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import TerritoryCalculator from '../calculators/TerritoryCalculator';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
+import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
+import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
 
 // This class takes care of calculating the result of an instance and updating it via both the API and in memory
 export default class MetagameInstanceTerritoryResultAction implements ActionInterface<TerritoryResultInterface> {
@@ -13,11 +14,11 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly territoryCalculator: TerritoryCalculator,
+        private readonly territoryCalculator: MetagameTerritoryCalculator,
         private readonly ps2alertsApiClient: AxiosInstance,
     ) {}
 
-    public async execute(): Promise<TerritoryResultInterface> {
+    public async execute(): Promise<MetagameTerritoryControlResultInterface> {
         const result = await this.tryCalculate();
 
         if (result) {
@@ -37,7 +38,7 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
         return result;
     }
 
-    private async tryCalculate(attempts = 0): Promise<TerritoryResultInterface> {
+    private async tryCalculate(attempts = 0): Promise<MetagameTerritoryControlResultInterface> {
         attempts++;
 
         if (attempts > 3) {
@@ -53,7 +54,6 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
                 if (err instanceof Error) {
                     MetagameInstanceTerritoryResultAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
                 }
-
             } else {
                 if (err instanceof Error) {
                     MetagameInstanceTerritoryResultAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
@@ -63,7 +63,7 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
             setTimeout(() => {
                 MetagameInstanceTerritoryResultAction.logger.warn(`[${this.instance.instanceId}] Retrying TerritoryCalculator - Attempt #${attempts}`);
                 void this.tryCalculate(attempts);
-            }, 5000);
+            }, 1000);
         }
 
         throw new ApplicationException('TerritoryCalculator really borked', 'MetagameInstanceTerritoryResultAction');

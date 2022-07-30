@@ -1,8 +1,5 @@
-import {InstanceResultInterface} from './InstanceResultInterface';
-
-export default interface TerritoryResultInterface extends InstanceResultInterface {
+export default interface TerritoryResultInterface {
     cutoff: number;
     outOfPlay: number;
-    draw: boolean;
     perBasePercentage: number;
 }
