@@ -6,6 +6,7 @@ import {Faction} from '../../ps2alerts-constants/faction';
 import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
 
 export default class AdminAggregatorInstanceStartMessage {
+    public readonly type: 'territory' | 'outfitwars';
     public readonly instanceId: number;
     public readonly world: World;
     public readonly zone: Zone;
@@ -17,6 +18,10 @@ export default class AdminAggregatorInstanceStartMessage {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(body: Record<string, any>) {
+        if (!body.type) {
+            throw new ApplicationException('Type of alert was not provided!', 'AdminAggregatorInstanceStartMessage');
+        }
+
         if (!body.instanceId) {
             throw new ApplicationException('Failed to parse AdminAggregatorInstanceStartMessage missing field instanceId', 'AdminAggregatorInstanceStartMessage');
         }

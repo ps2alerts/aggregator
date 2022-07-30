@@ -3,7 +3,7 @@
 
 - hosts: localhost
   vars:
-    environment: ""
+    censusEnvironment: "ps2"
     hostname: "localhost"
     user: "guest"
     password: "guest"
@@ -13,29 +13,35 @@
     valid_worlds: ["1", "10", "13", "17", "19", "40", "1000", "2000"]
     valid_zones: ["2", "4", "6", "8", "10", "344"]
     valid_factions: ["0", "1", "2", "3"]
+    valid_metagame_types: ["territory", "outfitwars"]
   vars_prompt:
-    - name: type
-      prompt: "Select message type [start, end, endAll, active]"
+    - name: action
+      prompt: "Select message type (start, end, endAll, actives)"
       private: no
       default: "start"
 
+    - name: type
+      prompt: "[start] Select type of instance to start ({{ valid_metagame_types }})"
+      private: no
+      default: "territory"
+
     - name: world
-      prompt: "[start] Select world {{ valid_worlds }}"
+      prompt: "[start] Select world ({{ valid_worlds }})"
       private: no
       default: 19
 
     - name: zone
-      prompt: "[start] Select zone {{ valid_zones }} "
+      prompt: "[start] Select zone ({{ valid_zones }})"
       private: no
       default: 2
 
     - name: duration
-      prompt: '[start] Specify duration in minutes. Default is 90 for 1:30 hours'
+      prompt: "[start] Specify duration in minutes (1-90)"
       private: no
       default: 90
 
     - name: faction
-      prompt: "[start] Select triggering faction {{ valid_factions }} "
+      prompt: "[start] Select triggering faction from ({{ valid_factions }})"
       private: no
       default: 1
 
@@ -44,36 +50,50 @@
       private: no
 
     - name: env
-      prompt: "Select environment to send message to [development, staging, production]"
+      prompt: "Select environment to send message to (development, staging, production)"
       private: no
       default: "development"
 
     - name: census_env
-      prompt: "Select Census Environment [ps2, ps2ps4eu, ps2ps4us]"
+      prompt: "Select Census Environment (ps2, ps2ps4eu, ps2ps4us)"
       private: no
       default: "ps2"
   tasks:
     - name: Ensure world is valid if start type
       fail:
         msg: "World isn't valid!"
-      when: type == "start" and world not in valid_worlds
+      when: action == "start" and world not in valid_worlds
 
     - name: Ensure zone is valid if start type
       fail:
         msg: "Zone isn't valid!"
-      when: type == "start" and zone is not in valid_zones
+      when: action == "start" and zone is not in valid_zones
 
     - name: Ensure faction is valid if start type
       fail:
         msg: "Faction isn't valid!"
-      when: type == "start" and faction is not in valid_factions
+      when: action == "start" and faction is not in valid_factions
+
+    - name: If outfit wars type, ensure duration is a maximum of 45m
+      fail:
+        msg: "Outfit wars alerts cannot be more than 45 minutes in duration"
+      when: type == "outfitwars" and duration | int > 45
+
+    - name: If outfit wars type, ensure zone is 10
+      fail:
+        msg: "Outfit wars alerts must be started on zone 10"
+      when: type == "outfitwars" and zone != "10"
+
+    - name: If outfit wars type, encode zone into Binary
+      set_fact:
+        zone:
 
     - name: Create start message body
       set_fact:
         message:
           eventName: "AdminMessage"
           payload:
-            type: "instanceStart"
+            action: "{{ action }}"
             body:
               instanceId: "{{ 100000 | random }}"
               world: "{{ world }}"
@@ -81,7 +101,8 @@
               faction: "{{ faction }}"
               start: "{{ ansible_date_time.epoch }}"
               duration: "{{ duration|int * 60 }}"
-      when: type == "start"
+              metagameType: "{{ type }}"
+      when: action == "start"
 
     - name: Create end message body
       set_fact:
@@ -91,7 +112,7 @@
             type: "instanceEnd"
             body:
               instanceId: "{{ instanceId }}"
-      when: type == "end"
+      when: action == "end"
 
     - name: Create endAll message body
       set_fact:
@@ -99,7 +120,7 @@
           eventName: "AdminMessage"
           payload:
             type: "endAll"
-      when: type == "endAll"
+      when: action == "endAll"
 
     - name: Create activeInstances message body
       set_fact:
@@ -107,7 +128,7 @@
           eventName: "AdminMessage"
           payload:
             type: "activeInstances"
-      when: type == "active"
+      when: action == "active"
 
     - name: Set up queue name
       set_fact:

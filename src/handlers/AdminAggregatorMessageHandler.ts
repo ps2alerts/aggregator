@@ -15,6 +15,16 @@ import AdminAggregatorInstanceEndMessage from '../data/AdminAggregator/AdminAggr
 import {Bracket} from '../ps2alerts-constants/bracket';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import ExceptionHandler from './system/ExceptionHandler';
+import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
+import {random} from 'lodash';
+import {Phase} from '../ps2alerts-constants/outfitwars/phase';
+import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
+import {Zone} from '../ps2alerts-constants/zone';
+import {
+    encodeZoneAndInstanceIdToBinary,
+    getZoneIdFromBinary,
+    getZoneInstanceIdFromBinary,
+} from '../utils/binaryZoneIds';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements QueueMessageHandlerInterface<AdminQueueMessage> {
@@ -23,14 +33,14 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
     constructor(private readonly instanceAuthority: InstanceAuthority) {}
 
     public async handle(event: AdminQueueMessage, actions: ChannelActionsInterface): Promise<void> {
-        switch (event.type) {
-            case 'instanceStart':
+        switch (event.action) {
+            case 'start':
                 return await this.startInstance(event, actions);
-            case 'instanceEnd':
+            case 'end':
                 return await this.endInstance(event, actions);
             case 'endAll':
                 return await this.endAllInstances(actions);
-            case 'activeInstances':
+            case 'actives':
                 return this.activeInstances(actions);
         }
 
@@ -42,38 +52,15 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
     private async startInstance(message: AdminQueueMessage, actions: ChannelActionsInterface): Promise<void> {
         const adminAggregatorInstanceStart = new AdminAggregatorInstanceStartMessage(message.body);
 
-        const censusEventId = EventId.zoneFactionMeltdownToEventId(
-            adminAggregatorInstanceStart.zone,
-            adminAggregatorInstanceStart.faction,
-            adminAggregatorInstanceStart.meltdown,
-        );
-
-        const metagameDetails = metagameEventTypeDetailsMap.get(censusEventId);
-
-        if (!metagameDetails) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            AdminAggregatorMessageHandler.logger.error(`Zone: ${adminAggregatorInstanceStart.zone} - Faction: ${adminAggregatorInstanceStart.faction} - Meltdown: ${adminAggregatorInstanceStart.meltdown}`);
-
-            throw new ApplicationException(`Unknown metagame event id ${censusEventId}`, 'AdminAggregatorMessageHandler');
-        }
-
-        const instance = new MetagameTerritoryInstance(
-            adminAggregatorInstanceStart.world,
-            new Date(),
-            null,
-            null,
-            adminAggregatorInstanceStart.zone,
-            adminAggregatorInstanceStart.instanceId,
-            censusEventId,
-            adminAggregatorInstanceStart.duration,
-            Ps2alertsEventState.STARTING,
-            Bracket.UNKNOWN,
-        );
-
-        try {
-            await this.instanceAuthority.startInstance(instance);
-        } catch (err) {
-            new ExceptionHandler(`Failed starting instance #${instance.world}-${instance.censusInstanceId} via adminAggregator message!`, err, 'AdminAggregatorMessageHandler.startInstance');
+        switch (adminAggregatorInstanceStart.type) {
+            case 'territory':
+                void await this.startTerritoryInstance(adminAggregatorInstanceStart);
+                break;
+            case 'outfitwars':
+                void await this.startOutfitwarsInstance(adminAggregatorInstanceStart);
+                break;
+            default:
+                throw new ApplicationException('Unknown instance type recieved!', 'AdminAggregatorMessageHandler');
         }
 
         actions.ack();
@@ -121,5 +108,92 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
     private activeInstances(actions: ChannelActionsInterface): void {
         this.instanceAuthority.printActives();
         actions.ack();
+    }
+
+    private async startTerritoryInstance(message: AdminAggregatorInstanceStartMessage): Promise<boolean> {
+        const censusEventId = EventId.zoneFactionMeltdownToEventId(
+            message.zone,
+            message.faction,
+            message.meltdown,
+        );
+
+        const metagameDetails = metagameEventTypeDetailsMap.get(censusEventId);
+
+        if (!metagameDetails) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            AdminAggregatorMessageHandler.logger.error(`Zone: ${message.zone} - Faction: ${message.faction} - Meltdown: ${message.meltdown}`);
+
+            throw new ApplicationException(`Unknown metagame event id ${censusEventId}`, 'AdminAggregatorMessageHandler.startTerritoryInstance');
+        }
+
+        const instance = new MetagameTerritoryInstance(
+            message.world,
+            message.zone,
+            message.instanceId,
+            new Date(),
+            null,
+            null,
+            censusEventId,
+            message.duration,
+            Ps2alertsEventState.STARTING,
+            Bracket.UNKNOWN,
+        );
+
+        try {
+            return await this.instanceAuthority.startInstance(instance);
+        } catch (err) {
+            new ExceptionHandler(`Failed starting instance ${instance.instanceId} via adminAggregator message!`, err, 'AdminAggregatorMessageHandler.startTerritoryInstance');
+        }
+
+        return false;
+    }
+
+    private async startOutfitwarsInstance(message: AdminAggregatorInstanceStartMessage): Promise<boolean> {
+        if (message.zone !== Zone.NEXUS) {
+            throw new ApplicationException('Attempted to start a outfit wars instance not on Nexus.', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
+        }
+
+        // This is what we would get from Census, so the code needs to be able to handle it, so we test it here
+        // eslint-disable-next-line no-bitwise
+        const binaryZone = encodeZoneAndInstanceIdToBinary(message.zone, message.instanceId);
+        console.log('binaryZone', binaryZone);
+
+        const zoneId = getZoneIdFromBinary(binaryZone);
+        const zoneInstanceId = getZoneInstanceIdFromBinary(binaryZone);
+
+        if (zoneId !== Zone.NEXUS) {
+            throw new ApplicationException('Decoded zone definition ID did not match Nexus!', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
+        }
+
+        if (isNaN(zoneInstanceId)) {
+            throw new ApplicationException('Decoded zone instance ID did not return correctly!', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
+        }
+
+        const instance = new OutfitWarsTerritoryInstance(
+            message.world,
+            zoneId,
+            zoneInstanceId,
+            message.instanceId,
+            new Date(),
+            null,
+            null,
+            Ps2alertsEventState.STARTING,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            Ps2alertsEventType.OUTFIT_WARS_AUG_2022,
+            random(), // Change this if you need it to match a particular ID
+            Phase.QUALIFIERS, // Change this to suit
+        );
+
+        console.log(instance);
+
+        return true;
+
+        try {
+            await this.instanceAuthority.startInstance(instance);
+        } catch (err) {
+            new ExceptionHandler(`Failed starting outfit wars instance "${instance.instanceId}" via adminAggregator message!`, err, 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
+        }
+
+        return false;
     }
 }
