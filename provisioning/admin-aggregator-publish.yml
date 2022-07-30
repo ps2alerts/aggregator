@@ -11,8 +11,8 @@
     world: ""
     zone: ""
     valid_worlds: ["1", "10", "13", "17", "19", "40", "1000", "2000"]
-    valid_zones: ["2", "4", "6", "8", "344"]
-    valid_factions: ["1", "2", "3"]
+    valid_zones: ["2", "4", "6", "8", "10", "344"]
+    valid_factions: ["0", "1", "2", "3"]
   vars_prompt:
     - name: type
       prompt: "Select message type [start, end, endAll, active]"
@@ -65,7 +65,7 @@
 
     - name: Ensure faction is valid if start type
       fail:
-        msg: "Zone isn't valid!"
+        msg: "Faction isn't valid!"
       when: type == "start" and faction is not in valid_factions
 
     - name: Create start message body
