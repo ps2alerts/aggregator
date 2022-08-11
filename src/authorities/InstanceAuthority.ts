@@ -110,15 +110,15 @@ export default class InstanceAuthority {
 
         InstanceAuthority.logger.info(`=== STARTING INSTANCE ON WORLD ${instance.world}! ===`);
 
-        if (instance instanceof MetagameTerritoryInstance) {
-            const data = Object.assign(instance, {
-                features: {
-                    captureHistory: true,
-                    xpm: true,
-                },
-                mapVersion: instance.zone === Zone.OSHUR ? '1.1' : '1.0', // As of 13th July Oshur uses a new map
-            });
+        const data = Object.assign(instance, {
+            features: {
+                captureHistory: true,
+                xpm: true,
+            },
+            mapVersion: instance.zone === Zone.OSHUR ? '1.1' : '1.0', // As of 13th July Oshur uses a new map
+        });
 
+        if (instance instanceof MetagameTerritoryInstance) {
             InstanceAuthority.logger.info(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);
             await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, data)
                 .then((response) => {

@@ -19,10 +19,6 @@ import {random} from 'lodash';
 import {Phase} from '../ps2alerts-constants/outfitwars/phase';
 import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
 import {Zone} from '../ps2alerts-constants/zone';
-import {
-    getZoneIdFromBinary,
-    getZoneInstanceIdFromBinary,
-} from '../utils/binaryZoneIds';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements QueueMessageHandlerInterface<AdminQueueMessage> {
@@ -148,21 +144,18 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
     }
 
     private async startOutfitwarsInstance(message: AdminAggregatorInstanceStartMessage): Promise<boolean> {
-        const zoneId = getZoneIdFromBinary(message.zone);
-        const zoneInstanceId = getZoneInstanceIdFromBinary(message.zone);
-
-        if (zoneId !== Zone.NEXUS) {
-            throw new ApplicationException('Attempted to start a outfit wars instance not on Nexus.', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
+        if (message.zone !== Zone.NEXUS) {
+            throw new ApplicationException('Attempted to start a outfit wars instance not on Nexus (zone 10)', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
         }
 
-        if (isNaN(zoneInstanceId)) {
-            throw new ApplicationException('Decoded zone instance ID did not return correctly!', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
+        if (!message.zoneInstanceId || message.zoneInstanceId === 0 || isNaN(message.zoneInstanceId)) {
+            throw new ApplicationException('Zone Instance ID was not valid!', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
         }
 
         const instance = new OutfitWarsTerritoryInstance(
             message.world,
-            zoneId,
-            zoneInstanceId,
+            message.zone,
+            message.zoneInstanceId,
             new Date(),
             null,
             null,
@@ -172,6 +165,8 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             random(), // Change this if you need it to match a particular ID
             Phase.QUALIFIERS, // Change this to suit
         );
+
+        console.log('starting instance', instance);
 
         try {
             await this.instanceAuthority.startInstance(instance);

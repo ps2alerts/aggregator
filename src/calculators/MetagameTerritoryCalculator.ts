@@ -1,8 +1,8 @@
 import {CalculatorInterface} from './CalculatorInterface';
 import TerritoryCalculatorAbstract, {PercentagesInterface} from './TerritoryCalculatorAbstract';
-import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
+import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import {Faction} from '../ps2alerts-constants/faction';
-import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
+import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/FactionNumbersInterface';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Rest} from 'ps2census';

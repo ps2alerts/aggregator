@@ -1,4 +1,4 @@
-import TerritoryResultInterface from '../TerritoryResultInterface';
+import TerritoryResultInterface from '../../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import {Team} from '../../ps2alerts-constants/outfitwars/team';
 
 export interface OutfitwarsTerritoryResultInterface extends TerritoryResultInterface {

@@ -8,7 +8,7 @@ import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHan
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
-import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
+import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');

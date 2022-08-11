@@ -4,7 +4,7 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
-import {FactionNumbersInterface} from '../interfaces/FactionNumbersInterface';
+import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/FactionNumbersInterface';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import {Rest} from 'ps2census';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';

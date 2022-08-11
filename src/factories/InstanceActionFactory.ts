@@ -16,7 +16,7 @@ import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEv
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
-import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
+import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 // import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 // import {OutfitwarsTerritoryResultInterface} from '../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
 

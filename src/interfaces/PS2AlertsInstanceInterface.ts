@@ -1,9 +1,9 @@
 import {World} from '../ps2alerts-constants/world';
 import {Zone} from '../ps2alerts-constants/zone';
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
-import TerritoryResultInterface from './TerritoryResultInterface';
+import TerritoryResultInterface from '../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
-import {PS2AlertsInstanceFeaturesInterface} from './PS2AlertsInstanceFeaturesInterface';
+import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 import {PS2Event} from 'ps2census';
 
 export default interface PS2AlertsInstanceInterface {

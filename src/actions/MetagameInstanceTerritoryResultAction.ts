@@ -1,11 +1,11 @@
 import {ActionInterface} from '../interfaces/ActionInterface';
-import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
+import TerritoryResultInterface from '../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
-import {MetagameTerritoryControlResultInterface} from '../interfaces/MetagameTerritoryControlResultInterface';
+import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
 
 // This class takes care of calculating the result of an instance and updating it via both the API and in memory
