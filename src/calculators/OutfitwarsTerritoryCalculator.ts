@@ -1,6 +1,6 @@
 import {CalculatorInterface} from './CalculatorInterface';
 import TerritoryCalculatorAbstract from './TerritoryCalculatorAbstract';
-import {OutfitwarsTerritoryResultInterface} from '../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
+import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';

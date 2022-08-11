@@ -22,7 +22,7 @@ import {FacilityDataInterface} from '../../../interfaces/FacilityDataInterface';
 import InstanceEvent from './InstanceEvent';
 import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
 import {MetagameTerritoryControlResultInterface} from '../../../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
-import {OutfitwarsTerritoryResultInterface} from '../../../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
+import {OutfitwarsTerritoryResultInterface} from '../../../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import OutfitWarsTerritoryInstance from '../../../instances/OutfitWarsTerritoryInstance';

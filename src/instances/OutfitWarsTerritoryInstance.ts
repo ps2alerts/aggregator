@@ -6,7 +6,7 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import {Phase} from '../ps2alerts-constants/outfitwars/phase';
 import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
-import {OutfitwarsTerritoryResultInterface} from '../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
+import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 
 export default class OutfitWarsTerritoryInstance extends InstanceAbstract implements PS2AlertsInstanceInterface {
     constructor(
