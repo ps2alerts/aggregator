@@ -1,5 +1,4 @@
 // noinspection JSMethodCanBeStatic
-
 import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
 import ApplicationException from '../exceptions/ApplicationException';
 import {injectable} from 'inversify';
@@ -21,7 +20,6 @@ import {Phase} from '../ps2alerts-constants/outfitwars/phase';
 import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
 import {Zone} from '../ps2alerts-constants/zone';
 import {
-    encodeZoneAndInstanceIdToBinary,
     getZoneIdFromBinary,
     getZoneInstanceIdFromBinary,
 } from '../utils/binaryZoneIds';
@@ -50,6 +48,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
     // Collect the required information from the message in order to generate an PS2AlertsMetagameInstance, then trigger it.
     // This purposefully bypasses most of the restrictions of starting an instance in case of events or debugging.
     private async startInstance(message: AdminQueueMessage, actions: ChannelActionsInterface): Promise<void> {
+
         const adminAggregatorInstanceStart = new AdminAggregatorInstanceStartMessage(message.body);
 
         switch (adminAggregatorInstanceStart.type) {
@@ -60,7 +59,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
                 void await this.startOutfitwarsInstance(adminAggregatorInstanceStart);
                 break;
             default:
-                throw new ApplicationException('Unknown instance type recieved!', 'AdminAggregatorMessageHandler');
+                throw new ApplicationException('Unknown instance type received!', 'AdminAggregatorMessageHandler');
         }
 
         actions.ack();
@@ -149,20 +148,11 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
     }
 
     private async startOutfitwarsInstance(message: AdminAggregatorInstanceStartMessage): Promise<boolean> {
-        if (message.zone !== Zone.NEXUS) {
-            throw new ApplicationException('Attempted to start a outfit wars instance not on Nexus.', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
-        }
-
-        // This is what we would get from Census, so the code needs to be able to handle it, so we test it here
-        // eslint-disable-next-line no-bitwise
-        const binaryZone = encodeZoneAndInstanceIdToBinary(message.zone, message.instanceId);
-        console.log('binaryZone', binaryZone);
-
-        const zoneId = getZoneIdFromBinary(binaryZone);
-        const zoneInstanceId = getZoneInstanceIdFromBinary(binaryZone);
+        const zoneId = getZoneIdFromBinary(message.zone);
+        const zoneInstanceId = getZoneInstanceIdFromBinary(message.zone);
 
         if (zoneId !== Zone.NEXUS) {
-            throw new ApplicationException('Decoded zone definition ID did not match Nexus!', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
+            throw new ApplicationException('Attempted to start a outfit wars instance not on Nexus.', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
         }
 
         if (isNaN(zoneInstanceId)) {
@@ -173,7 +163,6 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             message.world,
             zoneId,
             zoneInstanceId,
-            message.instanceId,
             new Date(),
             null,
             null,
@@ -183,10 +172,6 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             random(), // Change this if you need it to match a particular ID
             Phase.QUALIFIERS, // Change this to suit
         );
-
-        console.log(instance);
-
-        return true;
 
         try {
             await this.instanceAuthority.startInstance(instance);

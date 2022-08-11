@@ -5,6 +5,7 @@ export default class AdminQueueMessage {
     public readonly body: Record<string, any>;
 
     constructor(payload: Record<string, any>) {
+        this.action = payload.action;
         this.body = payload.body;
     }
 }

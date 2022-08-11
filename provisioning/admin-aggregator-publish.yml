@@ -84,18 +84,25 @@
         msg: "Outfit wars alerts must be started on zone 10"
       when: type == "outfitwars" and zone != "10"
 
-    - name: If outfit wars type, encode zone into Binary
+    - name: Generate instance ID(s)
       set_fact:
-        zone:
+        instanceId: "{{ 100000 | random }}"
+        zoneInstanceId: "{{ 100 | random }}"
+      when: action == "start"
+
+    - name: If outfit wars type, ensure zone is a instance zone definition
+      set_fact:
+        zone: "{{ zoneInstanceId | masked_instance_id }}"
+      when: type == "outfitwars"
 
     - name: Create start message body
       set_fact:
         message:
           eventName: "AdminMessage"
           payload:
-            action: "{{ action }}"
+            action: "start"
             body:
-              instanceId: "{{ 100000 | random }}"
+              instanceId: "{{ instanceId }}"
               world: "{{ world }}"
               zone: "{{ zone }}"
               faction: "{{ faction }}"
@@ -109,7 +116,7 @@
         message:
           eventName: "AdminMessage"
           payload:
-            type: "instanceEnd"
+            action: "end"
             body:
               instanceId: "{{ instanceId }}"
       when: action == "end"
@@ -119,7 +126,7 @@
         message:
           eventName: "AdminMessage"
           payload:
-            type: "endAll"
+            action: "endAll"
       when: action == "endAll"
 
     - name: Create activeInstances message body
@@ -127,7 +134,7 @@
         message:
           eventName: "AdminMessage"
           payload:
-            type: "activeInstances"
+            action: "actives"
       when: action == "active"
 
     - name: Set up queue name
@@ -147,6 +154,10 @@
 
     - debug:
         msg: "{{ message }}"
+
+    - debug:
+        msg: "zoneInstanceId: {{ zoneInstanceId }}"
+      when: type == "outfitwars"
 
     - name: Publish Instance message
       rabbitmq_publish:

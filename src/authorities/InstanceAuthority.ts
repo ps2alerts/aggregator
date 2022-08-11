@@ -257,7 +257,7 @@ export default class InstanceAuthority {
                         instanceAlias = i as MetagameTerritoryInstance;
                         instance = new MetagameTerritoryInstance(
                             i.world,
-                            i.zone,
+                            instanceAlias.zone,
                             instanceAlias.censusInstanceId,
                             new Date(i.timeStarted), // It's a string from the API, convert back into Date
                             null,
@@ -274,7 +274,6 @@ export default class InstanceAuthority {
                             i.world,
                             Zone.NEXUS,
                             instanceAlias.zoneInstanceId,
-                            instanceAlias.binaryZone,
                             new Date(i.timeStarted),
                             null,
                             instanceAlias.result,
@@ -325,6 +324,7 @@ export default class InstanceAuthority {
                         world: instance.world,
                         zone: instance.zone,
                         timeRemaining: `${displayDate.toISOString().substr(11, 8)}`,
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         vs: instance.result?.vs ?? '???',
                         nc: instance.result?.nc ?? '???',
                         tr: instance.result?.tr ?? '???',

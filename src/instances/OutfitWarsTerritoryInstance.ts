@@ -13,7 +13,6 @@ export default class OutfitWarsTerritoryInstance extends InstanceAbstract implem
         public readonly world: World,
         public readonly zone: Zone.NEXUS, // This is provided by exploding the ZoneEvent zoneDefinitionID
         public readonly zoneInstanceId: number, // This is provided by exploding the ZoneEvent zoneInstanceId
-        public readonly binaryZone: number,
         public readonly timeStarted: Date,
         public timeEnded: Date | null,
         public result: OutfitwarsTerritoryResultInterface | null,
