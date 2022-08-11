@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  *  ### CENSUS RESPONSE ATTRIBUTES ####
  "timestamp":"",
@@ -20,11 +21,11 @@ import {FacilityControl} from 'ps2census';
 import {FacilityDataInterface} from '../../../interfaces/FacilityDataInterface';
 import InstanceEvent from './InstanceEvent';
 import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
-import OutfitWarsTerritoryInstance from '../../../instances/OutfitWarsTerritoryInstance';
 import {MetagameTerritoryControlResultInterface} from '../../../interfaces/MetagameTerritoryControlResultInterface';
 import {OutfitwarsTerritoryResultInterface} from '../../../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
-import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import ApplicationException from '../../../exceptions/ApplicationException';
+import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
+import OutfitWarsTerritoryInstance from '../../../instances/OutfitWarsTerritoryInstance';
 
 @injectable()
 export default class FacilityControlEvent extends InstanceEvent {
@@ -62,6 +63,7 @@ export default class FacilityControlEvent extends InstanceEvent {
         this.outfitCaptured = event.payload.outfit_id ? event.payload.outfit_id : null;
 
         // Used to render capture histories on the website
+        // Can't use a switch statement here as TS doesn't understand the faction references that don't exist
         /* eslint-disable */
         if (this.instance instanceof MetagameTerritoryInstance) {
             this.mapControl = {
