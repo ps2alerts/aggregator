@@ -75,8 +75,8 @@ export default class FacilityControlEvent extends InstanceEvent {
             } as MetagameTerritoryControlResultInterface;
         } else if (this.instance instanceof OutfitWarsTerritoryInstance) {
             this.mapControl = {
-                team1: this.instance.result?.team1 ?? 0,
-                team2: this.instance.result?.team2 ?? 0,
+                blue: this.instance.result?.blue ?? 0,
+                red: this.instance.result?.red ?? 0,
                 cutoff: this.instance.result?.cutoff ?? 0,
                 outOfPlay: this.instance.result?.outOfPlay ?? 0,
             } as OutfitwarsTerritoryResultInterface;

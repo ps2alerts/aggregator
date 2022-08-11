@@ -18,8 +18,8 @@ export default class OutfitWarsTerritoryInstance extends InstanceAbstract implem
         public result: OutfitwarsTerritoryResultInterface | null,
         state: Ps2alertsEventState,
         ps2alertsEventType: Ps2alertsEventType,
-        public readonly matchId: number,
-        public readonly phase: Phase,
+        public readonly phase: Phase, // Denotes the phase of the event
+        public readonly round: number, // Denotes what round of matches it is, e.g. round 2. This is incremental, e.g. phase 2 won't reset to round 1.
     ) {
         super(
             `outfitwars-${world}-${zone}-${zoneInstanceId}`,

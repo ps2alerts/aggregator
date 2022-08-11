@@ -162,8 +162,8 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             Ps2alertsEventState.STARTING,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             Ps2alertsEventType.OUTFIT_WARS_AUG_2022,
-            random(), // Change this if you need it to match a particular ID
             Phase.QUALIFIERS, // Change this to suit
+            random(1, 100), // Change this if you need it to match a particular ID
         );
 
         console.log('starting instance', instance);

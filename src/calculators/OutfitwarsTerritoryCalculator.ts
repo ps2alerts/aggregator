@@ -29,8 +29,8 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
     public async calculate(): Promise<OutfitwarsTerritoryResultInterface> {
         return {
             victor: Team.BLUE,
-            team1: 50,
-            team2: 50,
+            blue: 50,
+            red: 50,
             cutoff: 0,
             outOfPlay: 0,
             perBasePercentage: 11,

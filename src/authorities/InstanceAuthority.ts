@@ -37,8 +37,8 @@ interface OutfitwarsTerritoryActiveTableInterface {
     world: World;
     zone: Zone;
     timeRemaining: string;
-    team1: number | string;
-    team2: number | string;
+    blue: number | string;
+    red: number | string;
     cutoff: number | string;
 }
 
@@ -280,8 +280,8 @@ export default class InstanceAuthority {
                             i.state,
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                             Ps2alertsEventType.OUTFIT_WARS_AUG_2022,
-                            instanceAlias.matchId,
                             instanceAlias.phase,
+                            instanceAlias.round,
                         );
                         break;
                     default:
@@ -339,8 +339,8 @@ export default class InstanceAuthority {
                         world: instance.world,
                         zone: instance.zone,
                         timeRemaining: `${displayDate.toISOString().substr(11, 8)}`,
-                        team1: instance.result?.team1 ?? '???',
-                        team2: instance.result?.team2 ?? '???',
+                        blue: instance.result?.blue ?? '???',
+                        red: instance.result?.red ?? '???',
                         cutoff: instance.result?.cutoff ?? '???',
                     };
                     outfitwarsTerritoryRows.push(object);
