@@ -129,9 +129,9 @@ export default class InstanceAuthority {
                 await this.startTerritoryControlInstance(instance, instanceMetadata);
             }
 
-            // if (instance instanceof OutfitWarsTerritoryInstance) {
-            //     await this.startOutfitwarsTerritoryInstance(instance, instanceMetadata);
-            // }
+            if (instance instanceof OutfitWarsTerritoryInstance) {
+                await this.startOutfitwarsTerritoryInstance(instance, instanceMetadata);
+            }
 
             // Mark as started in memory state
             instance.state = Ps2alertsEventState.STARTED;
@@ -255,13 +255,12 @@ export default class InstanceAuthority {
                             instanceAlias.result,
                             i.state,
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            Ps2alertsEventType.OUTFIT_WARS_AUG_2022,
                             instanceAlias.phase,
                             instanceAlias.round,
                         );
                         break;
                     default:
-                        throw new ApplicationException('Unknown ps2alertsEventType!', 'InstanceAuthority');
+                        throw new ApplicationException('Unknown ps2alertsEventType!', 'InstanceAuthority.init');
                 }
 
                 this.currentInstances.push(instance);
@@ -349,7 +348,7 @@ export default class InstanceAuthority {
             .then((response) => {
                 if (!response.data) {
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`);
+                    throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`, 'InstanceAuthority.startTerritoryControlInstance');
                 }
             })
             .catch((err) => {
@@ -386,46 +385,48 @@ export default class InstanceAuthority {
         return true;
     }
 
-    // private async startOutfitwarsTerritoryInstance(instance: OutfitWarsTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
-    //     InstanceAuthority.logger.info(`[${instance.instanceId}] Sending outfitwars instances POST to API ${ps2AlertsApiEndpoints.instances}`);
-    //     await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, metadata)
-    //         .then((response) => {
-    //             if (!response.data) {
-    //                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    //                 throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`);
-    //             }
-    //         })
-    //         .catch((err) => {
-    //             new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
-    //         });
-    //
-    //     InstanceAuthority.logger.info(`=== INSERTED NEW OUTFIT WARS TERRITORY INSTANCE ${instance.instanceId} ===`);
-    //
-    //     // Execute start actions, if it fails trash the instance
-    //     try {
-    //         // Nullify the bracket and hydrate the map records
-    //         await this.instanceActionFactory.buildStart(instance).execute();
-    //
-    //         // Now update the initial result record as we have the initial map state
-    //         await this.instanceActionFactory.buildMetagameTerritoryResult(instance).execute();
-    //     } catch (err) {
-    //         // End early if instance failed to insert, so we don't add an instance to the list of actives.
-    //         if (err instanceof Error) {
-    //             InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
-    //         }
-    //
-    //         await this.trashInstance(instance);
-    //         return false;
-    //     }
-    //
-    //     // Mark in the database the alert has now properly started
-    //     await this.ps2AlertsApiClient.patch(
-    //         ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
-    //         {state: Ps2alertsEventState.STARTED},
-    //     ).catch((err: Error) => {
-    //         throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
-    //     });
-    //
-    //     return true;
-    // }
+    private async startOutfitwarsTerritoryInstance(instance: OutfitWarsTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
+        InstanceAuthority.logger.info(`[${instance.instanceId}] Sending outfitwars instances POST to API ${ps2AlertsApiEndpoints.outfitwars}`);
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.outfitwars, metadata)
+            .then((response) => {
+                if (!response.data) {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`, 'InstanceAuthority.startOutfitwarsTerritoryInstance');
+                }
+            })
+            .catch((err) => {
+                new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
+            });
+
+        InstanceAuthority.logger.info(`=== INSERTED NEW OUTFIT WARS TERRITORY INSTANCE ${instance.instanceId} ===`);
+
+        // Execute start actions, if it fails trash the instance
+        try {
+            // Nullify the bracket and hydrate the map records
+            await this.instanceActionFactory.buildStart(instance).execute();
+
+            // Now update the initial result record as we have the initial map state
+            await this.instanceActionFactory.buildOutfitwarsResult(instance).execute();
+        } catch (err) {
+            // End early if instance failed to insert, so we don't add an instance to the list of actives.
+            if (err instanceof Error) {
+                InstanceAuthority.logger.error(`[${instance.instanceId}] Failed to properly run start actions! E: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
+            }
+
+            await this.trashInstance(instance);
+            return false;
+        }
+
+        // Mark in the database the alert has now properly started
+        await this.ps2AlertsApiClient.patch(
+            ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
+            {state: Ps2alertsEventState.STARTED},
+        ).catch((err: Error) => {
+            throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
+        });
+
+        return true;
+    }
 }

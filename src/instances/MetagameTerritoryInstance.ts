@@ -6,7 +6,9 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
 import {Bracket} from '../ps2alerts-constants/bracket';
 import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
-import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {
+    MetagameTerritoryControlResultInterface,
+} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 
 export default class MetagameTerritoryInstance extends InstanceAbstract implements PS2AlertsInstanceInterface {
     public bracket?: Bracket;

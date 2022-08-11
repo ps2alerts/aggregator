@@ -17,7 +17,6 @@ import ExceptionHandler from './system/ExceptionHandler';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {random} from 'lodash';
 import {Phase} from '../ps2alerts-constants/outfitwars/phase';
-import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
 import {Zone} from '../ps2alerts-constants/zone';
 
 @injectable()
@@ -160,13 +159,11 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             null,
             null,
             Ps2alertsEventState.STARTING,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            Ps2alertsEventType.OUTFIT_WARS_AUG_2022,
             Phase.QUALIFIERS, // Change this to suit
             random(1, 100), // Change this if you need it to match a particular ID
         );
 
-        console.log('starting instance', instance);
+        console.log('starting OW instance', instance);
 
         try {
             await this.instanceAuthority.startInstance(instance);

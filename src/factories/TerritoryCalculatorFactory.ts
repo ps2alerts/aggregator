@@ -6,6 +6,8 @@ import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
+import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
+import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
 // import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
 // import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 
@@ -30,16 +32,16 @@ export default class TerritoryCalculatorFactory {
         );
     }
 
-    // public buildOutfitwarsTerritoryCalculator(
-    //     instance: OutfitWarsTerritoryInstance,
-    //     restClient: Rest.Client,
-    // ): OutfitwarsTerritoryCalculator {
-    //     return new OutfitwarsTerritoryCalculator(
-    //         instance,
-    //         restClient,
-    //         this.ps2AlertsApiClient,
-    //         this.cacheClient,
-    //         this.zoneDataParser,
-    //     );
-    // }
+    public buildOutfitwarsTerritoryCalculator(
+        instance: OutfitWarsTerritoryInstance,
+        restClient: Rest.Client,
+    ): OutfitwarsTerritoryCalculator {
+        return new OutfitwarsTerritoryCalculator(
+            instance,
+            restClient,
+            this.ps2AlertsApiClient,
+            this.cacheClient,
+            this.zoneDataParser,
+        );
+    }
 }

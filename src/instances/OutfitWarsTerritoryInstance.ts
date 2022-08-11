@@ -17,7 +17,6 @@ export default class OutfitWarsTerritoryInstance extends InstanceAbstract implem
         public timeEnded: Date | null,
         public result: OutfitwarsTerritoryResultInterface | null,
         state: Ps2alertsEventState,
-        ps2alertsEventType: Ps2alertsEventType,
         public readonly phase: Phase, // Denotes the phase of the event
         public readonly round: number, // Denotes what round of matches it is, e.g. round 2. This is incremental, e.g. phase 2 won't reset to round 1.
     ) {
@@ -29,7 +28,7 @@ export default class OutfitWarsTerritoryInstance extends InstanceAbstract implem
             timeEnded,
             shortAlert,
             state,
-            ps2alertsEventType,
+            Ps2alertsEventType.OUTFIT_WARS_AUG_2022,
         );
     }
 

@@ -17,6 +17,10 @@ import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTe
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
+import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
+import OutfitwarsTerritoryInstanceTerritoryResultAction
+    from '../actions/OutfitwarsTerritoryInstanceTerritoryResultActions';
 // import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 // import {OutfitwarsTerritoryResultInterface} from '../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
 
@@ -88,13 +92,13 @@ export default class InstanceActionFactory {
         );
     }
 
-    // public buildOutfitwarsResult(
-    //     instance: OutfitWarsTerritoryInstance,
-    // ): ActionInterface<OutfitwarsTerritoryResultInterface> {
-    //     return new MetagameInstanceTerritoryResultAction(
-    //         instance,
-    //         this.territoryCalculatorFactory.build(instance, this.restClient),
-    //         this.ps2AlertsApiClient,
-    //     );
-    // }
+    public buildOutfitwarsResult(
+        instance: OutfitWarsTerritoryInstance,
+    ): ActionInterface<OutfitwarsTerritoryResultInterface> {
+        return new OutfitwarsTerritoryInstanceTerritoryResultAction(
+            instance,
+            this.territoryCalculatorFactory.buildOutfitwarsTerritoryCalculator(instance, this.restClient),
+            this.ps2AlertsApiClient,
+        );
+    }
 }
