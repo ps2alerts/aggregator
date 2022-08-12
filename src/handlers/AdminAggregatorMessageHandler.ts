@@ -15,7 +15,6 @@ import {Bracket} from '../ps2alerts-constants/bracket';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import ExceptionHandler from './system/ExceptionHandler';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
-import {random} from 'lodash';
 import {Phase} from '../ps2alerts-constants/outfitwars/phase';
 import {Zone} from '../ps2alerts-constants/zone';
 
@@ -151,16 +150,28 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             throw new ApplicationException('Zone Instance ID was not valid!', 'AdminAggregatorMessageHandler.startOutfitwarsInstance');
         }
 
+        const time = new Date();
+        const round = time < new Date(2022, 8, 22) ? 1 // Qualifiers
+            : time < new Date(2022, 8, 29) ? 2
+            : time < new Date(2022, 9, 5) ? 3
+            : time < new Date(2022, 9, 12) ? 4
+            : time < new Date(2022, 9, 19) ? 5 // Playoff Ro8
+            : time < new Date(2022, 9, 26) ? 6 // Playoff Ro4
+            : 7; // Championship
+        const phase = round < 5 ? Phase.QUALIFIERS
+            : round < 7 ? Phase.PLAYOFFS
+            : Phase.CHAMPIONSHIPS;
+
         const instance = new OutfitWarsTerritoryInstance(
             message.world,
             message.zone,
             message.zoneInstanceId,
-            new Date(),
+            time,
             null,
             null,
             Ps2alertsEventState.STARTING,
-            Phase.QUALIFIERS, // Change this to suit
-            random(1, 100), // Change this if you need it to match a particular ID
+            phase, // Change this to suit
+            round, // Change this if you need it to match a particular ID
         );
 
         console.log('starting OW instance', instance);
