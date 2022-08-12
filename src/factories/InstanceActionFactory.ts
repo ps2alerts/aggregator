@@ -19,10 +19,10 @@ import ZoneDataParser from '../parsers/ZoneDataParser';
 import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
-import OutfitwarsTerritoryInstanceTerritoryResultAction
-    from '../actions/OutfitwarsTerritoryInstanceTerritoryResultActions';
-// import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
-// import {OutfitwarsTerritoryResultInterface} from '../interfaces/outfitwars/OutfitwarsTerritoryResultInterface';
+import OutfitwarsTerritoryInstanceResultAction
+    from '../actions/OutfitwarsTerritoryInstanceResultAction';
+import OutfitwarsTerritoryInstanceStartAction from '../actions/OutfitwarsTerritoryInstanceStartAction';
+import OutfitwarsTerritoryInstanceEndAction from '../actions/OutfitwarsTerritoryInstanceEndAction';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -49,6 +49,16 @@ export default class InstanceActionFactory {
             );
         }
 
+        if (instance instanceof OutfitWarsTerritoryInstance) {
+            return new OutfitwarsTerritoryInstanceStartAction(
+                instance,
+                this.ps2AlertsApiClient,
+                this.restClient,
+                this.cacheClient,
+                this.zoneDataParser,
+            );
+        }
+
         throw new ApplicationException('Unable to determine start action!', 'InstanceActionFactory');
     }
 
@@ -59,6 +69,16 @@ export default class InstanceActionFactory {
             return new MetagameTerritoryInstanceEndAction(
                 instance,
                 this.buildMetagameTerritoryResult(instance),
+                this.ps2AlertsApiClient,
+                this.globalVictoryAggregate,
+                this.outfitParticipantCacheHandler,
+            );
+        }
+
+        if (instance instanceof OutfitWarsTerritoryInstance) {
+            return new OutfitwarsTerritoryInstanceEndAction(
+                instance,
+                this.buildOutfitwarsResult(instance),
                 this.ps2AlertsApiClient,
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
@@ -95,7 +115,7 @@ export default class InstanceActionFactory {
     public buildOutfitwarsResult(
         instance: OutfitWarsTerritoryInstance,
     ): ActionInterface<OutfitwarsTerritoryResultInterface> {
-        return new OutfitwarsTerritoryInstanceTerritoryResultAction(
+        return new OutfitwarsTerritoryInstanceResultAction(
             instance,
             this.territoryCalculatorFactory.buildOutfitwarsTerritoryCalculator(instance, this.restClient),
             this.ps2AlertsApiClient,

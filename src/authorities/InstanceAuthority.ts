@@ -62,6 +62,7 @@ export default class InstanceAuthority {
     ) {}
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
+        // TODO: Make this work for outfit wars instances
         InstanceAuthority.logger.silly(`Attempting to find an instance with ID: "${instanceId}"...`);
 
         const instance = this.currentInstances.find((i: PS2AlertsInstanceInterface) => {
@@ -80,6 +81,7 @@ export default class InstanceAuthority {
     }
 
     public getInstances(world: World | null = null, zone: Zone | null = null): PS2AlertsInstanceInterface[] {
+        // TODO: Make this work for outfit wars instances
         if (world && zone) {
             return this.currentInstances.filter((instance) => {
                 return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
@@ -98,6 +100,7 @@ export default class InstanceAuthority {
     }
 
     public getAllInstances(): PS2AlertsInstanceInterface[] {
+        // TODO: Make this work for outfit wars instances
         return this.currentInstances.filter((instance) => {
             return instance.state === Ps2alertsEventState.STARTED;
         });
@@ -421,7 +424,8 @@ export default class InstanceAuthority {
 
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
-            ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', instance.instanceId),
             {state: Ps2alertsEventState.STARTED},
         ).catch((err: Error) => {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
