@@ -6,9 +6,9 @@ export function getZoneIdFromBinary(binaryZoneId: number): Zone {
 }
 
 export function getZoneInstanceIdFromBinary(binaryZoneId: number): number {
-    return binaryZoneId >> 16;
+    return (binaryZoneId >> 16) & 0x0000ffff;
 }
 
 export function encodeZoneAndInstanceIdToBinary(zone: Zone, instanceId: number): number {
-    return zone + instanceId * 2 ^ (8 * 4);
+    return zone + (instanceId << 16);
 }
