@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import {injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import config from '../../config';
@@ -10,6 +11,12 @@ import {Bracket} from '../../ps2alerts-constants/bracket';
 import {MetagameEvent} from 'ps2census';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../../interfaces/QueueMessageHandlerInterface';
 import MetagameEventEvent from './events/MetagameEventEvent';
+import {MetagameEventType} from '../../ps2alerts-constants/metagameEventType';
+import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
+import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
+import {getOutfitWarPhase, getOutfitWarRound} from '../../utils/outfitwars';
+import {getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
+import {Zone} from '../../ps2alerts-constants/zone';
 
 @injectable()
 export default class MetagameEventEventHandler implements QueueMessageHandlerInterface<MetagameEvent> {
@@ -23,7 +30,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
         const event = new MetagameEventEvent(metagameEvent);
 
         if (config.features.logging.censusEventContent.metagame) {
-            MetagameEventEventHandler.logger.info(jsonLogOutput(event), {message: 'eventData'});
+            MetagameEventEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
         }
 
         // Note because Metagame is a world message, it is not subject to filtering by Ps2censusMessageHandler, so it may not return an instance intentionally.
@@ -50,21 +57,42 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                 return actions.ack();
             }
 
-            const metagameTerritoryInstance = new MetagameTerritoryInstance(
-                event.world,
-                event.details.zone,
-                event.instanceId,
-                event.timestamp,
-                null,
-                null,
-                event.eventType,
-                event.details.duration,
-                Ps2alertsEventState.STARTING,
-                Bracket.UNKNOWN, // Force the bracket to be unknown as it is incalculable at the beginning
-            );
+            let instance: PS2AlertsInstanceInterface;
+
+            switch (event.eventType) {
+                case MetagameEventType.NEXUS_OUTFIT_WAR:
+                    const round = getOutfitWarRound(event.timestamp);
+                    const phase = getOutfitWarPhase(round);
+                    instance = new OutfitWarsTerritoryInstance(
+                        event.world,
+                        Zone.NEXUS,
+                        getZoneInstanceIdFromBinary(event.zone),
+                        event.timestamp,
+                        null,
+                        null,
+                        Ps2alertsEventState.STARTING,
+                        phase,
+                        round,
+                    );
+                    break;
+                default:
+                    instance = new MetagameTerritoryInstance(
+                        event.world,
+                        event.details.zone,
+                        event.instanceId,
+                        event.timestamp,
+                        null,
+                        null,
+                        event.eventType,
+                        event.details.duration,
+                        Ps2alertsEventState.STARTING,
+                        Bracket.UNKNOWN, // Force the bracket to be unknown as it is incalculable at the beginning
+                    );
+                    break;
+            }
 
             try {
-                await this.instanceAuthority.startInstance(metagameTerritoryInstance);
+                await this.instanceAuthority.startInstance(instance);
                 return actions.ack();
             } catch (e) {
                 if (e instanceof Error) {

@@ -94,6 +94,11 @@ export default class MetagameEventEvent {
 
         this.details = details;
 
-        this.zone = details.zone;
+        // If OW, do not adjust the zone so it can be properly parsed
+        if (this.eventType === MetagameEventType.NEXUS_OUTFIT_WAR) {
+            this.zone = parseInt(event.zone_id, 10);
+        } else {
+            this.zone = details.zone;
+        }
     }
 }

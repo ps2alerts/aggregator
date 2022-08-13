@@ -15,8 +15,8 @@ import {Bracket} from '../ps2alerts-constants/bracket';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import ExceptionHandler from './system/ExceptionHandler';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
-import {Phase} from '../ps2alerts-constants/outfitwars/phase';
 import {Zone} from '../ps2alerts-constants/zone';
+import {getOutfitWarPhase, getOutfitWarRound} from '../utils/outfitwars';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements QueueMessageHandlerInterface<AdminQueueMessage> {
@@ -151,16 +151,8 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
         }
 
         const time = new Date();
-        const round = time < new Date(2022, 8, 29) ? 1 // Qualifiers
-            : time < new Date(2022, 9, 5) ? 2
-            : time < new Date(2022, 9, 12) ? 3
-            : time < new Date(2022, 9, 19) ? 4 // Playoff Ro8
-            : time < new Date(2022, 9, 26) ? 5 // Playoff Ro4
-            : time < new Date(2022, 10, 3) ? 6 // Playoff Ro4
-            : 7; // Championship
-        const phase = round < 5 ? Phase.QUALIFIERS
-            : round < 7 ? Phase.PLAYOFFS
-            : Phase.CHAMPIONSHIPS;
+        const round = getOutfitWarRound(time);
+        const phase = getOutfitWarPhase(round);
 
         const instance = new OutfitWarsTerritoryInstance(
             message.world,
