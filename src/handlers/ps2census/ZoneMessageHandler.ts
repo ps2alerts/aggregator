@@ -40,7 +40,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
             const zoneInstanceId = getZoneInstanceIdFromBinary(zoneId);
 
             if (zoneIdDecoded !== this.instance.zone || zoneInstanceId !== instance.zoneInstanceId) {
-                ZoneMessageHandler.logger.debug(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as zone and zoneInstanceId did not match instance!`);
+                ZoneMessageHandler.logger.silly(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as zone (${zoneIdDecoded}) and zoneInstanceId (${zoneInstanceId}) did not match instance!`);
 
                 return actions.ack();
             }

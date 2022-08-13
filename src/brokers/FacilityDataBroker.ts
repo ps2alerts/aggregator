@@ -14,6 +14,7 @@ import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {getZoneVersion} from '../utils/zoneVersion';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
+import {getRealZoneId} from '../utils/zoneIdHandler';
 
 @injectable()
 export default class FacilityDataBroker {
@@ -28,7 +29,7 @@ export default class FacilityDataBroker {
     public async get(event: PS2EventQueueMessage<FacilityControl>): Promise<FacilityDataInterface> {
         const environment = config.census.censusEnvironment;
         const facilityId = Parser.parseNumericalArgument(event.payload.facility_id);
-        const zone = Parser.parseNumericalArgument(event.payload.zone_id);
+        const zone = getRealZoneId(event.payload.zone_id);
         const cacheKey = `facility-${facilityId}-${environment}`;
 
         let facilityData = new FakeMapRegionFactory().build(facilityId);

@@ -199,16 +199,27 @@ export default class InstanceAuthority {
             throw new ApplicationException('InstanceAuthority was called to be initialized more than once!', 'InstanceAuthority');
         }
 
-        let apiResponse: AxiosResponse;
+        let apiResponses: AxiosResponse[];
+
+        const promises = [
+            await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive),
+            await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
+        ];
 
         try {
-            apiResponse = await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive);
+            apiResponses = await Promise.all(promises);
         } catch (err) {
             throw new ApplicationException('Unable to get Active Instances from PS2Alerts API! Crashing the app...', 'InstanceAuthority', 1);
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const instances: InstanceAbstract[] = apiResponse.data;
+        const instances: InstanceAbstract[] = [];
+
+        apiResponses.forEach((instanceList) => {
+            const instancesArray = instanceList.data as InstanceAbstract[];
+            instancesArray.forEach((instance) => {
+                instances.push(instance);
+            });
+        });
 
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
