@@ -12,6 +12,9 @@ import ExceptionHandler from '../system/ExceptionHandler';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import TimeoutException from '../../exceptions/TimeoutException';
 import {promiseTimeout} from '../../utils/PromiseTimeout';
+import {Ps2alertsEventType} from '../../ps2alerts-constants/ps2alertsEventType';
+import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
+import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
 
 @injectable()
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -24,9 +27,23 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
     ) {}
 
     public async handle(event: T, actions: ChannelActionsInterface): Promise<void> {
-        // Ensure the event's zone matches the instance zone, because the queue holds messages from the entire world and event type
-        if (event.zone_id !== undefined && parseInt(event.zone_id, 10) !== this.instance.zone) {
-            return actions.ack();
+        const zoneId = parseInt(event.zone_id, 10);
+
+        // If Outfit wars, we need to handle zone ID in a different way
+        if (this.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME) {
+            if (zoneId !== this.instance.zone) {
+                return actions.ack();
+            }
+        } else {
+            const instance = this.instance as OutfitWarsTerritoryInstance;
+            const zoneIdDecoded = getZoneIdFromBinary(zoneId);
+            const zoneInstanceId = getZoneInstanceIdFromBinary(zoneId);
+
+            if (zoneIdDecoded !== this.instance.zone || zoneInstanceId !== instance.zoneInstanceId) {
+                ZoneMessageHandler.logger.debug(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as zone and zoneInstanceId did not match instance!`);
+
+                return actions.ack();
+            }
         }
 
         // If the message came after the alert ended, chuck
