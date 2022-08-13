@@ -25,7 +25,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
 
     public async handle(event: T, actions: ChannelActionsInterface): Promise<void> {
         // Ensure the event's zone matches the instance zone, because the queue holds messages from the entire world and event type
-        if (parseInt(event.zone_id, 10) !== this.instance.zone) {
+        if (event.zone_id !== undefined && parseInt(event.zone_id, 10) !== this.instance.zone) {
             return actions.ack();
         }
 
