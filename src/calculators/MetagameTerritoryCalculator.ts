@@ -1,5 +1,5 @@
 import {CalculatorInterface} from './CalculatorInterface';
-import TerritoryCalculatorAbstract, {PercentagesInterface} from './TerritoryCalculatorAbstract';
+import TerritoryCalculatorAbstract from './TerritoryCalculatorAbstract';
 import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import {Faction} from '../ps2alerts-constants/faction';
 import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/FactionNumbersInterface';
@@ -34,55 +34,14 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
         MetagameTerritoryCalculator.classLogger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
 
         // Hydrate the territory data
-        await this.populateLists();
+        await this.hydrateData();
 
-        // Now calculate the result
-        const warpgateCount = {
-            vs: 0,
-            nc: 0,
-            tr: 0,
-        };
-
-        this.warpgateList.forEach((warpgate) => {
-            if (warpgate.facilityFaction === Faction.VANU_SOVEREIGNTY) {
-                warpgateCount.vs++;
-            }
-
-            if (warpgate.facilityFaction === Faction.NEW_CONGLOMERATE) {
-                warpgateCount.nc++;
-            }
-
-            if (warpgate.facilityFaction === Faction.TERRAN_REPUBLIC) {
-                warpgateCount.tr++;
-            }
-        });
-
-        /* eslint-disable */
-        // TS y u no track protective if statements for maps correctly reeeeeee
-        const bases: FactionNumbersInterface = {
-            vs: this.factionFacilitiesMap.has(Faction.VANU_SOVEREIGNTY)
-                // @ts-ignore
-                ? this.factionFacilitiesMap.get(Faction.VANU_SOVEREIGNTY).size - warpgateCount.vs
-                : 0,
-            nc: this.factionFacilitiesMap.has(Faction.NEW_CONGLOMERATE)
-                // @ts-ignore
-                ? this.factionFacilitiesMap.get(Faction.NEW_CONGLOMERATE).size - warpgateCount.nc
-                : 0,
-            tr: this.factionFacilitiesMap.has(Faction.TERRAN_REPUBLIC)
-                // @ts-ignore
-                ? this.factionFacilitiesMap.get(Faction.TERRAN_REPUBLIC).size - warpgateCount.tr
-                : 0,
-        };
-        /* eslint-enable */
-
+        // Now calculate the results
         if (MetagameTerritoryCalculator.classLogger.isSillyEnabled()) {
             console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
         }
 
-        const baseCount = this.mapFacilityList.size - this.warpgateList.size;
-        const outOfPlayCount = this.disabledFacilityList.size;
-
-        const percentages = this.calculatePercentages(baseCount, bases, outOfPlayCount);
+        const percentages = this.calculatePercentages();
         const victor = this.calculateVictor(percentages);
 
         // Forcibly clean the data arrays so we don't have any chance of naughty memory leaks
@@ -101,7 +60,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
     }
 
     // noinspection JSMethodCanBeStatic
-    private calculateVictor(percentages: PercentagesInterface): {victor: Faction, draw: boolean} {
+    private calculateVictor(percentages: FactionNumbersInterface): {victor: Faction, draw: boolean} {
         const scores = [
             {faction: Faction.VANU_SOVEREIGNTY, score: percentages.vs},
             {faction: Faction.NEW_CONGLOMERATE, score: percentages.nc},
@@ -128,5 +87,4 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
             return {victor: scores[0].faction, draw: false};
         }
     }
-
 }

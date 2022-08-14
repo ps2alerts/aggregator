@@ -29,6 +29,12 @@ export interface FacilityInterface {
     facilityFaction: Faction;
 }
 
+export interface WarpgateCounts {
+    vs: number;
+    nc: number;
+    tr: number;
+}
+
 export default abstract class TerritoryCalculatorAbstract {
     private static readonly logger = getLogger('TerritoryCalculator');
 
@@ -37,6 +43,10 @@ export default abstract class TerritoryCalculatorAbstract {
     protected readonly cutoffFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     protected readonly disabledFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
     protected readonly warpgateList: Set<FacilityInterface> = new Set<FacilityInterface>();
+    protected warpgateCounts: WarpgateCounts = {vs: 0, nc: 0, tr: 0};
+    protected baseCount = 0;
+    protected outOfPlayCount = 0;
+    protected factionNumbers: FactionNumbersInterface;
 
     protected constructor(
         protected readonly instance: InstanceAbstract,
@@ -46,7 +56,7 @@ export default abstract class TerritoryCalculatorAbstract {
         protected readonly zoneDataParser: ZoneDataParser,
     ) {}
 
-    protected async populateLists(): Promise<void> {
+    protected async hydrateData(): Promise<void> {
         // Get the map's facilities, allowing us to grab warpgates for starting the traversal and facility names for debug
         await this.getMapFacilities();
 
@@ -73,6 +83,18 @@ export default abstract class TerritoryCalculatorAbstract {
         for (const warpgate of this.warpgateList) {
             const faction = await this.getFacilityFaction(warpgate.facilityId);
 
+            if (warpgate.facilityFaction === Faction.VANU_SOVEREIGNTY) {
+                this.warpgateCounts.vs++;
+            }
+
+            if (warpgate.facilityFaction === Faction.NEW_CONGLOMERATE) {
+                this.warpgateCounts.nc++;
+            }
+
+            if (warpgate.facilityFaction === Faction.TERRAN_REPUBLIC) {
+                this.warpgateCounts.tr++;
+            }
+
             TerritoryCalculatorAbstract.logger.silly(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
             await this.traverse(
                 warpgate.facilityId,
@@ -83,16 +105,40 @@ export default abstract class TerritoryCalculatorAbstract {
             );
             TerritoryCalculatorAbstract.logger.silly(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
         }
+
+        // Now we've traversed the lattice etc lets make some metrics
+        this.baseCount = this.mapFacilityList.size - this.warpgateList.size;
+        this.outOfPlayCount = this.disabledFacilityList.size;
+
+        // Now calculate the territory %ages to pass off to the client class for the result
+
+        /* eslint-disable */
+        // TS Y U NO UNDERSTAND PROTECTIVE IFS WITH MAPS?!
+        this.factionNumbers = {
+            vs: this.factionFacilitiesMap.has(Faction.VANU_SOVEREIGNTY)
+                // @ts-ignore
+                ? this.factionFacilitiesMap.get(Faction.VANU_SOVEREIGNTY).size - this.warpgateCounts.vs
+                : 0,
+            nc: this.factionFacilitiesMap.has(Faction.NEW_CONGLOMERATE)
+                // @ts-ignore
+                ? this.factionFacilitiesMap.get(Faction.NEW_CONGLOMERATE).size - this.warpgateCounts.nc
+                : 0,
+            tr: this.factionFacilitiesMap.has(Faction.TERRAN_REPUBLIC)
+                // @ts-ignore
+                ? this.factionFacilitiesMap.get(Faction.TERRAN_REPUBLIC).size - this.warpgateCounts.tr
+                : 0,
+        }
+        /* eslint-enable */
     }
 
-    protected calculatePercentages(baseCount: number, bases: FactionNumbersInterface, outOfPlayCount: number): PercentagesInterface {
-        const perBasePercentage = 100 / baseCount;
+    protected calculatePercentages(): PercentagesInterface {
+        const perBasePercentage = 100 / this.baseCount;
         const percentages = {
-            vs: Math.floor(bases.vs * perBasePercentage),
-            nc: Math.floor(bases.nc * perBasePercentage),
-            tr: Math.floor(bases.tr * perBasePercentage),
-            cutoff: this.calculateCutoffPercentage(bases, baseCount, perBasePercentage, outOfPlayCount),
-            outOfPlay: Math.floor(outOfPlayCount * perBasePercentage),
+            vs: Math.floor(this.factionNumbers.vs * perBasePercentage),
+            nc: Math.floor(this.factionNumbers.nc * perBasePercentage),
+            tr: Math.floor(this.factionNumbers.tr * perBasePercentage),
+            cutoff: this.calculateCutoffPercentage(this.factionNumbers, this.baseCount, perBasePercentage, this.outOfPlayCount),
+            outOfPlay: Math.floor(this.outOfPlayCount * perBasePercentage),
             perBasePercentage,
         };
 
@@ -275,5 +321,8 @@ export default abstract class TerritoryCalculatorAbstract {
         this.cutoffFacilityList.clear();
         this.disabledFacilityList.clear();
         this.warpgateList.clear();
+        this.warpgateCounts = {vs: 0, nc: 0, tr: 0};
+        this.baseCount = 0;
+        this.outOfPlayCount = 0;
     }
 }

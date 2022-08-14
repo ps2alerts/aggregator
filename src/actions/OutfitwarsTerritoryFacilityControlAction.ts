@@ -40,8 +40,6 @@ export default class OutfitwarsTerritoryFacilityControlAction implements ActionI
             {mapControl: this.event.instance.result},
         ).catch((err: Error) => {
             OutfitwarsTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
-            console.log('endpoint', endpoint);
-            console.log('data', JSON.stringify(this.event.instance.result));
         });
 
         return true;
