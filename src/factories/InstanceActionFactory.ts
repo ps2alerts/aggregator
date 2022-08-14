@@ -23,6 +23,7 @@ import OutfitwarsTerritoryInstanceResultAction
     from '../actions/OutfitwarsTerritoryInstanceResultAction';
 import OutfitwarsTerritoryInstanceStartAction from '../actions/OutfitwarsTerritoryInstanceStartAction';
 import OutfitwarsTerritoryInstanceEndAction from '../actions/OutfitwarsTerritoryInstanceEndAction';
+import OutfitwarsTerritoryFacilityControlAction from '../actions/OutfitwarsTerritoryFacilityControlAction';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -95,6 +96,14 @@ export default class InstanceActionFactory {
             return new MetagameInstanceTerritoryFacilityControlAction(
                 event,
                 this.buildMetagameTerritoryResult(event.instance),
+                this.ps2AlertsApiClient,
+            );
+        }
+
+        if (event.instance instanceof OutfitWarsTerritoryInstance) {
+            return new OutfitwarsTerritoryFacilityControlAction(
+                event,
+                this.buildOutfitwarsResult(event.instance),
                 this.ps2AlertsApiClient,
             );
         }

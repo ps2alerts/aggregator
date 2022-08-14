@@ -12,6 +12,7 @@ import {jsonLogOutput} from '../../utils/json';
 import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
+import {Ps2alertsEventType} from '../../ps2alerts-constants/ps2alertsEventType';
 
 @injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -48,21 +49,22 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
             mapControl: null, // This is null intentionally because we haven't calculated the control result yet (it's done in the handlers)
         };
 
-        await this.ps2AlertsApiClient.post(
-            ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
-            facilityData,
-        ).catch(async (err: Error) => {
+        /* eslint-disable */
+        // eslint, I will murder your children
+        const endpoint = event.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME
+            ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId)
+            : ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
+
+        await this.ps2AlertsApiClient.post(endpoint, facilityData).catch(async (err: Error) => {
             FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
             // Try again
-            await this.ps2AlertsApiClient.post(
-                ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
-                facilityData,
-            ).catch((err: Error) => {
+            await this.ps2AlertsApiClient.post(endpoint, facilityData).catch((err: Error) => {
                 FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
                 return false;
             });
         });
+        /* eslint-enable */
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<FacilityControlEvent>) => void handler.handle(facilityEvent)
