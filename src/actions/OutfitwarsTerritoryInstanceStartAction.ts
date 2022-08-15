@@ -35,7 +35,7 @@ export default class OutfitwarsTerritoryInstanceStartAction implements ActionInt
         }
 
         await this.ps2alertsApiClient.post(
-            ps2AlertsApiEndpoints.instanceEntriesFacilityBatch,
+            ps2AlertsApiEndpoints.outfitwarsFacilityBatch,
             docs,
         ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'OutfitwarsTerritoryInstanceStartAction');
