@@ -17,7 +17,7 @@ export default class OutfitWarsTerritoryInstance extends InstanceAbstract implem
         public timeEnded: Date | null,
         public result: OutfitwarsTerritoryResultInterface | null,
         state: Ps2alertsEventState,
-        public readonly outfitwars: OutfitWarsMetadataInterface,
+        public outfitwars: OutfitWarsMetadataInterface,
     ) {
         super(
             `outfitwars-${world}-${zone}-${zoneInstanceId}`,

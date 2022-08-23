@@ -162,8 +162,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             null,
             null,
             Ps2alertsEventState.STARTING,
-            phase, // Change this to suit
-            round, // Change this if you need it to match a particular ID
+            {phase, round},
         );
 
         console.log('starting OW instance', instance);

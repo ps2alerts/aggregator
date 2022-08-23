@@ -24,6 +24,9 @@ import OutfitwarsTerritoryInstanceResultAction
 import OutfitwarsTerritoryInstanceStartAction from '../actions/OutfitwarsTerritoryInstanceStartAction';
 import OutfitwarsTerritoryInstanceEndAction from '../actions/OutfitwarsTerritoryInstanceEndAction';
 import OutfitwarsTerritoryFacilityControlAction from '../actions/OutfitwarsTerritoryFacilityControlAction';
+import OutfitwarsTerritoryTeamAction from '../actions/OutfitwarsTerritoryTeamAction';
+import OutfitwarsTerritoryDeathAction from '../actions/OutfitwarsTerritoryDeathAction';
+import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -104,6 +107,7 @@ export default class InstanceActionFactory {
             return new OutfitwarsTerritoryFacilityControlAction(
                 event,
                 this.buildOutfitwarsResult(event.instance),
+                this.buildOutfitwarsTeam(event.instance, event),
                 this.ps2AlertsApiClient,
             );
         }
@@ -129,5 +133,18 @@ export default class InstanceActionFactory {
             this.territoryCalculatorFactory.buildOutfitwarsTerritoryCalculator(instance, this.restClient),
             this.ps2AlertsApiClient,
         );
+    }
+
+    public buildOutfitwarsTeam(
+        instance: OutfitWarsTerritoryInstance,
+        facilityControl: FacilityControlEvent,
+    ): ActionInterface<boolean> {
+        return new OutfitwarsTerritoryTeamAction(instance, facilityControl, this.restClient, this.ps2AlertsApiClient);
+    }
+
+    public buildOutfitwarsDeath(
+        event: DeathEvent,
+    ): ActionInterface<boolean> {
+        return new OutfitwarsTerritoryDeathAction(event, this.ps2AlertsApiClient);
     }
 }

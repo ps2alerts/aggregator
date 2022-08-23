@@ -11,6 +11,7 @@ export default class OutfitwarsTerritoryFacilityControlAction implements ActionI
     constructor(
         private readonly event: FacilityControlEvent,
         private readonly territoryResultAction: ActionInterface<OutfitwarsTerritoryResultInterface>,
+        private readonly territoryTeamAction: ActionInterface<boolean>,
         private readonly ps2AlertsApiClient: AxiosInstance,
     ) {}
 
@@ -24,6 +25,10 @@ export default class OutfitwarsTerritoryFacilityControlAction implements ActionI
 
         // Update the result for the instance
         await this.territoryResultAction.execute();
+
+        OutfitwarsTerritoryFacilityControlAction.logger.info(`[${this.event.instance.instanceId}] Running TeamAction`);
+        // Update the teams for the instance
+        await this.territoryTeamAction.execute();
 
         /* eslint-disable */
         const endpoint = ps2AlertsApiEndpoints.outfitwarsInstanceFacilityFacility
