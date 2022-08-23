@@ -74,9 +74,7 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
         this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', this.instance.instanceId),
             {
-                outfitwars: {
-                    teams,
-                },
+                outfitwars: this.instance.outfitwars,
             },
         ).catch((err: Error) => {
             OutfitwarsTerritoryTeamAction.logger.error(`[${this.instance.instanceId}] Unable to update the instance record for TeamAction via API! Err: ${err.message}`);

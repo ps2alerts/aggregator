@@ -52,9 +52,7 @@ export default class OutfitwarsTerritoryDeathAction implements ActionInterface<b
 
         await this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', this.event.instance.instanceId), {
-                outfitwars: {
-                    teams: instance.outfitwars.teams,
-                },
+                outfitwars: instance.outfitwars,
             },
         ).catch((err: Error) => {
             OutfitwarsTerritoryDeathAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the instance record via API! Err: ${err.message}`);
