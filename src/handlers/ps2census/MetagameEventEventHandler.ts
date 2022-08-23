@@ -71,8 +71,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                         null,
                         null,
                         Ps2alertsEventState.STARTING,
-                        phase,
-                        round,
+                        {phase, round},
                     );
                     break;
                 default:

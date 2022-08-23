@@ -269,8 +269,7 @@ export default class InstanceAuthority {
                             instanceAlias.result,
                             i.state,
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            instanceAlias.phase,
-                            instanceAlias.round,
+                            instanceAlias.outfitwars,
                         );
                         break;
                     default:

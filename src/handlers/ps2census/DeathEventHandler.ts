@@ -1,4 +1,4 @@
-import {injectable, multiInject} from 'inversify';
+import {inject, injectable, multiInject} from 'inversify';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
@@ -12,6 +12,9 @@ import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterfac
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
 import ExceptionHandler from '../system/ExceptionHandler';
+import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
+import {AxiosInstance} from 'axios';
+import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 
 @injectable()
 export default class DeathEventHandler implements PS2EventQueueMessageHandlerInterface<Death> {
@@ -22,6 +25,7 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
         private readonly itemBroker: ItemBroker,
         private readonly characterBroker: CharacterBroker,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @multiInject(TYPES.deathAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<DeathEvent>>,
     ) {}
 
@@ -39,6 +43,39 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
                 Parser.parseNumericalArgument(event.payload.attacker_vehicle_id),
             ),
         );
+
+        if (deathEvent.instance instanceof OutfitWarsTerritoryInstance) {
+            // If exactly one team is defined in an outfit war,
+            // both of the characters have outfits,
+            // and one of the characters is in a different team,
+            // set the missing team to that character's outfit
+            if (deathEvent.instance.outfitwars.teams
+                && (!!deathEvent.instance.outfitwars.teams.blue !== !!deathEvent.instance.outfitwars.teams.red)
+                && deathEvent.attackerCharacter.outfit && deathEvent.character.outfit
+                && deathEvent.attackerCharacter.outfit.id !== deathEvent.character.outfit.id
+            ) {
+                const teams = deathEvent.instance.outfitwars.teams;
+
+                if (teams.blue) {
+                    teams.red = (teams.blue.id === deathEvent.attackerCharacter.outfit.id)
+                        ? deathEvent.character.outfit
+                        : deathEvent.attackerCharacter.outfit;
+                } else if (teams.red) {
+                    teams.blue = (teams.red.id === deathEvent.attackerCharacter.outfit.id)
+                        ? deathEvent.character.outfit
+                        : deathEvent.attackerCharacter.outfit;
+                } else {
+                    DeathEventHandler.logger.warn('Neither team defined when updating teams from DeathEvent?');
+                }
+
+                await this.ps2AlertsApiClient.patch(
+                    ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', deathEvent.instance.instanceId), {
+                        outfitwars: {
+                            teams,
+                        },
+                    });
+            }
+        }
 
         // Ensure the players are counted in the presence
         await Promise.all([

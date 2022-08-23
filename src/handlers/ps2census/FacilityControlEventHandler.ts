@@ -13,6 +13,8 @@ import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import {Ps2alertsEventType} from '../../ps2alerts-constants/ps2alertsEventType';
+import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
+import {Team} from '../../ps2alerts-constants/outfitwars/team';
 
 @injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -51,9 +53,43 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
 
         /* eslint-disable */
         // eslint, I will murder your children
-        const endpoint = event.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME
-            ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId)
-            : ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
+        let endpoint = '';
+        if(event.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME){
+            endpoint = ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId)
+        } else {
+            // hoo boy this is bad
+            // Basically, if the teams are not fully defined and this facility control happened for a team
+            // that we don't already know, update the API with the info that this team is this outfit
+            const owInstance = facilityEvent.instance as OutfitWarsTerritoryInstance;
+            let teams = owInstance.outfitwars.teams as {blue: {id: string} | undefined, red: {id: string} | undefined} | undefined;
+            if((teams === undefined || !teams.blue || !teams.red) && facilityEvent.outfitCaptured !== null) {
+                const captureTeamIsBlue = (facilityEvent.newFaction as unknown as Team) === Team.BLUE;
+                const captureTeamIsRed = (facilityEvent.newFaction as unknown as Team) === Team.RED;
+                if(teams === undefined) {
+                    teams = {
+                        blue: captureTeamIsBlue
+                            ? { id: facilityEvent.outfitCaptured }
+                            : undefined,
+                        red: captureTeamIsRed
+                            ? { id: facilityEvent.outfitCaptured }
+                            : undefined
+                    }
+                } else if (!teams.blue && captureTeamIsBlue) {
+                    teams.blue = { id: facilityEvent.outfitCaptured };
+                } else if (!teams.red && captureTeamIsRed) {
+                    teams.red = { id: facilityEvent.outfitCaptured };
+                }
+                this.ps2AlertsApiClient.patch(
+                    ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', event.instance.instanceId),
+                    {
+                        outfitwars: {
+                            teams
+                        }
+                    }
+                );
+            }
+            endpoint = ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
+        }
 
         await this.ps2AlertsApiClient.post(endpoint, facilityData).catch(async (err: Error) => {
             FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
