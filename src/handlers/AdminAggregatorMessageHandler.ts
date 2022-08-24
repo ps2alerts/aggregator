@@ -16,7 +16,7 @@ import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfac
 import ExceptionHandler from './system/ExceptionHandler';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Zone} from '../ps2alerts-constants/zone';
-import {getOutfitWarPhase, getOutfitWarRound} from '../utils/outfitwars';
+import {getOutfitWarPhase, getOutfitWarRound} from '../ps2alerts-constants/outfitwars/utils';
 
 @injectable()
 export default class AdminAggregatorMessageHandler implements QueueMessageHandlerInterface<AdminQueueMessage> {

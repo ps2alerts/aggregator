@@ -14,7 +14,7 @@ import MetagameEventEvent from './events/MetagameEventEvent';
 import {MetagameEventType} from '../../ps2alerts-constants/metagameEventType';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
-import {getOutfitWarPhase, getOutfitWarRound} from '../../utils/outfitwars';
+import {getOutfitWarPhase, getOutfitWarRound} from '../../ps2alerts-constants/outfitwars/utils';
 import {getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import {Zone} from '../../ps2alerts-constants/zone';
 
