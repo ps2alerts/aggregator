@@ -10,6 +10,7 @@ import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPattern
 import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';
 import FactionUtils from '../../../utils/FactionUtils';
 import ExceptionHandler from '../../system/ExceptionHandler';
+import {Faction} from '../../../ps2alerts-constants/faction';
 
 @injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -35,12 +36,15 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 durationFirstSeen: event.instance.currentDuration(),
             }});
 
-            // Ensure outfit information is always up to date
-            attackerDocs.push({
-                $set: {
-                    outfit: event.attackerCharacter.outfit,
-                },
-            });
+            // Ensure that NSO characters do not update the outfit info, while it may be wrong on insert it will eventually be correct
+            if (event.attackerCharacter.faction !== Faction.NS_OPERATIVES) {
+                // Ensure outfit information is always updated
+                attackerDocs.push({
+                    $set: {
+                        outfit: event.attackerCharacter.outfit,
+                    },
+                });
+            }
         }
 
         if (event.character.outfit) {
@@ -49,12 +53,15 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 durationFirstSeen: event.instance.currentDuration(),
             }});
 
-            // Ensure outfit information is always up to date
-            victimDocs.push({
-                $set: {
-                    outfit: event.character.outfit,
-                },
-            });
+            // Ensure that NSO characters do not update the outfit info
+            if (event.character.faction !== Faction.NS_OPERATIVES) {
+                // Ensure outfit information is always updated
+                victimDocs.push({
+                    $set: {
+                        outfit: event.character.outfit,
+                    },
+                });
+            }
         }
 
         // Victim deaths always counted in every case
