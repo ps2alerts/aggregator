@@ -62,7 +62,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             }
         }
 
-        ItemBroker.logger.silly(`item ${cacheKey} cache MISS`);
+        ItemBroker.logger.debug(`item ${cacheKey} cache MISS`);
 
         // Serve the fake item by default, if one is found it gets replaced
         let item = new FakeItemFactory().build();
@@ -93,7 +93,18 @@ export default class ItemBroker implements ItemBrokerInterface {
         }
 
         // Cache the response for 24h then return
-        await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(item));
+        // Item needs to be converted back into a CensusItem interface and stored as such
+        const rawCensusItem = {
+            item_id: String(item.id),
+            name: {
+                en: item.name,
+            },
+            faction_id: item.faction,
+            item_category_id: String(item.categoryId),
+            is_vehicle_weapon: String(item.isVehicleWeapon),
+        };
+
+        await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(rawCensusItem));
         await this.cacheClient.sadd(config.redis.itemCacheListKey, cacheKey); // Store the cache key by name so we can wipe it manually
 
         return item;
