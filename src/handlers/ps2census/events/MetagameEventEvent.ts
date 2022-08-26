@@ -78,6 +78,10 @@ export default class MetagameEventEvent {
             throw new IllegalArgumentException('faction_vs', 'MetagameEventEvent');
         }
 
+        if (!event.timestamp) {
+            throw new IllegalArgumentException('timestamp', 'MetagameEventEvent');
+        }
+
         this.timestamp = event.timestamp;
 
         this.instanceId = Parser.parseNumericalArgument(event.instance_id);
