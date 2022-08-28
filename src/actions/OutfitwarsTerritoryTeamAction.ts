@@ -36,6 +36,12 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
 
         /* eslint-disable @typescript-eslint/naming-convention */
         const censusOutfit = (await this.restClient.getQueryBuilder('outfit').get({outfit_id: this.event.outfitCaptured}))[0];
+
+        if (!censusOutfit) {
+            OutfitwarsTerritoryTeamAction.logger.warn(`No outfit found for capture credit outfit id ${this.event.outfitCaptured}, skipping.`);
+            return true;
+        }
+
         const leader = (await this.restClient.getQueryBuilder('character').get({character_id: censusOutfit.leader_character_id}))[0];
         /* eslint-enable @typescript-eslint/naming-convention */
 
