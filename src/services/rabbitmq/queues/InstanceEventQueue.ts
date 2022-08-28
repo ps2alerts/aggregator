@@ -150,6 +150,8 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                 return new GainExperience(this.censusClient, data.payload);
             case 'VehicleDestroy':
                 return new VehicleDestroy(this.censusClient, data.payload);
+            case undefined: // In case tools sending simulated messages have the format wrong
+                throw new ApplicationException('Message type was undefined!');
         }
     }
 }
