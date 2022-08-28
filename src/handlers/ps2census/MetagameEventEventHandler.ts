@@ -34,7 +34,15 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
         }
 
         // Note because Metagame is a world message, it is not subject to filtering by Ps2censusMessageHandler, so it may not return an instance intentionally.
-        const instance = this.instanceAuthority.getInstance(`${event.world}-${event.instanceId}`);
+        let instanceId = `${event.world}-${event.instanceId}`;
+
+        /* eslint-disable no-bitwise */
+        if ((event.zone >> 16) !== 0 && (event.zone & 0xFFFF) === Zone.NEXUS) {
+            instanceId = `outfitwars-${event.world}-${Zone.NEXUS}-${(event.zone >> 16) & 0xFFFF}`;
+        }
+        /* eslint-enable no-bitwise */
+
+        const instance = this.instanceAuthority.getInstance(instanceId);
 
         if (event.eventState === MetagameEventState.STARTED && instance) {
             MetagameEventEventHandler.logger.error(`Attempted to start an already existing instance! ${event.instanceId} W: ${event.world} - Z: ${event.zone}`);
