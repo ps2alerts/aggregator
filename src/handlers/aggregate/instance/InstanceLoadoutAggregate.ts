@@ -18,8 +18,8 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceLoadoutAggregate.logger.silly('InstanceLoadoutAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const attackerDocs = [];
         const victimDocs = [];

@@ -19,8 +19,8 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceWeaponAggregate.logger.silly('InstanceWeaponAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const documents = [];
 
