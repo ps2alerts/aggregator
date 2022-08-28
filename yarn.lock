@@ -999,7 +999,7 @@ event-emitter@^0.3.5:
     d "1"
     es5-ext "~0.10.14"
 
-eventemitter3@^4.0.7:
+eventemitter3@4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
   integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==
@@ -1888,14 +1888,14 @@ proxy-addr@~2.0.7:
     forwarded "0.2.0"
     ipaddr.js "1.9.1"
 
-ps2census@^4.2.6:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.2.6.tgz#ff9f885194044910853579e7a6f11577eaa477a1"
-  integrity sha512-Fn8gcG8ONmph2oAIAdoZj9bx9OqS+TLlCd2zBtV20cdmSnK6kfr6PjBv1cBXwyKesmERrgIllWSuU/Fww0pSsA==
+ps2census@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.3.0.tgz#42757e6a639427b3f340d46fe3bef646cfe4b828"
+  integrity sha512-7HN9YXs5XANsqpZJX4z9tI828x6m+PCA6WXDSncMYQkwqPFMpX3a1ukvdmmTSfoMv753SdJmApLFciaTBXcXpA==
   dependencies:
     axios "0.27.2"
-    eventemitter3 "^4.0.7"
-    ws "8.7.0"
+    eventemitter3 "4.0.7"
+    ws "8.8.1"
   optionalDependencies:
     bufferutil "4.0.6"
     utf-8-validate "5.0.9"
@@ -2550,10 +2550,10 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-ws@8.7.0:
-  version "8.7.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.7.0.tgz#eaf9d874b433aa00c0e0d8752532444875db3957"
-  integrity sha512-c2gsP0PRwcLFzUiA8Mkr37/MI7ilIlHQxaEAtd0uNMbVMoy8puJyafRlm0bV9MbGSabUPeLrRRaqIBcFcA2Pqg==
+ws@8.8.1:
+  version "8.8.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.8.1.tgz#5dbad0feb7ade8ecc99b830c1d77c913d4955ff0"
+  integrity sha512-bGy2JzvzkPowEJV++hF07hAD6niYSr0JzBNo/J29WsB57A2r7Wlc1UFcTR9IzrPvuNVO4B8LGqF8qcpsVOhJCA==
 
 xtend@^4.0.0:
   version "4.0.2"

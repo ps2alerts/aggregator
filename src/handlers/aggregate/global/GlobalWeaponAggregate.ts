@@ -33,7 +33,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
             weapon: event.attackerWeapon,
         }});
 
-        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
+        if (event.killType === Kill.Normal) {
             documents.push({$inc: {kills: 1}});
         }
 

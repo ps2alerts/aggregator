@@ -62,15 +62,6 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
             },
         });
 
-        // NSO handling
-        if (event.killType === Kill.Undetermined) {
-            if (event.attackerCharacter.faction === event.character.faction) {
-                attackerDocs.push({$inc: {teamKills: 1}});
-            } else {
-                attackerDocs.push({$inc: {kills: 1}});
-            }
-        }
-
         if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
         }

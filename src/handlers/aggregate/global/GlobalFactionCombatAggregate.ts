@@ -32,23 +32,6 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
         if (event.attackerCharacter) {
             // Increment attacker faction kills
 
-            // NSO handling
-            if (event.killType === Kill.Undetermined) {
-                if (event.character.faction === event.attackerCharacter.faction) {
-                    const attackerKillKey = `${attackerFactionShort}.teamKills`;
-                    documents.push(
-                        {$inc: {[attackerKillKey]: 1}},
-                        {$inc: {['totals.teamKills']: 1}},
-                    );
-                } else {
-                    const attackerKillKey = `${attackerFactionShort}.kills`;
-                    documents.push(
-                        {$inc: {[attackerKillKey]: 1}},
-                        {$inc: {['totals.kills']: 1}},
-                    );
-                }
-            }
-
             if (event.killType === Kill.Normal) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
                 const attackerKillKey = `${attackerFactionShort}.kills`;

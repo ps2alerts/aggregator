@@ -32,7 +32,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
-        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
+        if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
         }
 
