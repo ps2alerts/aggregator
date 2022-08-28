@@ -8,6 +8,7 @@ import {Loadout} from '../../../ps2alerts-constants/loadout';
 import {ItemInterface} from '../../../interfaces/ItemInterface';
 import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
 import InstanceEvent from './InstanceEvent';
+import {Faction} from '../../../ps2alerts-constants/faction';
 
 @injectable()
 export default class DeathEvent extends InstanceEvent {
@@ -15,8 +16,10 @@ export default class DeathEvent extends InstanceEvent {
     public readonly attackerFiremodeId: number;
     public readonly attackerLoadoutId: Loadout;
     public readonly attackerVehicleId: Vehicle;
+    public readonly attackerTeamId: Faction;
     public readonly isHeadshot: boolean;
     public readonly killType: Kill;
+    public readonly teamId: Faction;
 
     constructor(
         event: PS2EventQueueMessage<Death>,
@@ -70,6 +73,10 @@ export default class DeathEvent extends InstanceEvent {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
             throw new IllegalArgumentException('attackerWeapon', 'DeathEvent');
         }
+
+        this.attackerTeamId = Parser.parseNumericalArgument(event.payload.attacker_team_id);
+
+        this.teamId = Parser.parseNumericalArgument(event.payload.team_id);
 
         this.isHeadshot = event.payload.is_headshot;
 
