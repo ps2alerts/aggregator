@@ -273,7 +273,20 @@ export default class InstanceAuthority {
                         );
                         break;
                     default:
-                        throw new ApplicationException('Unknown ps2alertsEventType!', 'InstanceAuthority.init');
+                        InstanceAuthority.logger.error('Unknown ps2alertsEventType! Assuming it is LIVE_METAGAME');
+                        instanceAlias = i as MetagameTerritoryInstance;
+                        instance = new MetagameTerritoryInstance(
+                            i.world,
+                            instanceAlias.zone,
+                            instanceAlias.censusInstanceId,
+                            new Date(i.timeStarted), // It's a string from the API, convert back into Date
+                            null,
+                            instanceAlias.result,
+                            instanceAlias.censusMetagameEventType,
+                            i.duration,
+                            i.state,
+                            instanceAlias.bracket ?? undefined,
+                        );
                 }
 
                 this.currentInstances.push(instance);
@@ -376,6 +389,7 @@ export default class InstanceAuthority {
             await this.instanceActionFactory.buildStart(instance).execute();
 
             // Now update the initial result record as we have the initial map state
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             await this.instanceActionFactory.buildMetagameTerritoryResult(instance).execute();
         } catch (err) {
             // End early if instance failed to insert, so we don't add an instance to the list of actives.
@@ -421,6 +435,7 @@ export default class InstanceAuthority {
             await this.instanceActionFactory.buildStart(instance).execute();
 
             // Now update the initial result record as we have the initial map state
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             await this.instanceActionFactory.buildOutfitwarsResult(instance).execute();
         } catch (err) {
             // End early if instance failed to insert, so we don't add an instance to the list of actives.
