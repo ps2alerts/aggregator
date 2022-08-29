@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {inject, injectable, multiInject} from 'inversify';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
@@ -13,7 +14,7 @@ import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
 import ExceptionHandler from '../system/ExceptionHandler';
 import {AxiosInstance} from 'axios';
-import {Ps2alertsEventType} from '../../ps2alerts-constants/ps2alertsEventType';
+import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
 
 @injectable()
@@ -45,7 +46,8 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
             ),
         );
 
-        if (deathEvent.instance.ps2alertsEventType === Ps2alertsEventType.OUTFIT_WARS_AUG_2022) {
+        if (deathEvent.instance.ps2AlertsEventType === Ps2AlertsEventType.OUTFIT_WARS_AUG_2022) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await this.instanceActionFactory.buildOutfitwarsDeath(deathEvent).execute().catch((e) => {
                 if (e instanceof Error) {
                     DeathEventHandler.logger.error(`Error parsing Outfit Wars Instance Action "deathEvent" for DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {CalculatorInterface} from './CalculatorInterface';
 import TerritoryCalculatorAbstract from './TerritoryCalculatorAbstract';
 import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import {Faction} from '../ps2alerts-constants/faction';
 import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/FactionNumbersInterface';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
@@ -53,8 +54,8 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
             tr: percentages.tr,
             cutoff: percentages.cutoff,
             outOfPlay: percentages.outOfPlay,
-            victor: this.instance.state === Ps2alertsEventState.ENDED ? victor.victor : null,
-            draw: this.instance.state === Ps2alertsEventState.ENDED ? victor.draw : false,
+            victor: this.instance.state === Ps2AlertsEventState.ENDED ? victor.victor : null,
+            draw: this.instance.state === Ps2AlertsEventState.ENDED ? victor.draw : false,
             perBasePercentage: percentages.perBasePercentage,
         };
     }

@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import InstanceAbstract from './InstanceAbstract';
 import {MetagameEventType} from '../ps2alerts-constants/metagameEventType';
 import {World} from '../ps2alerts-constants/world';
 import {Zone} from '../ps2alerts-constants/zone';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {Bracket} from '../ps2alerts-constants/bracket';
-import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
+import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {
     MetagameTerritoryControlResultInterface,
 } from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
@@ -22,7 +23,7 @@ export default class MetagameTerritoryInstance extends InstanceAbstract implemen
         public result: MetagameTerritoryControlResultInterface | null,
         public readonly censusMetagameEventType: MetagameEventType,
         duration: number, // Stored in Milliseconds
-        state: Ps2alertsEventState,
+        state: Ps2AlertsEventState,
         bracket?: Bracket,
     ) {
         super(
@@ -33,8 +34,7 @@ export default class MetagameTerritoryInstance extends InstanceAbstract implemen
             timeEnded,
             duration,
             state,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            Ps2alertsEventType.LIVE_METAGAME,
+            Ps2AlertsEventType.LIVE_METAGAME,
         );
         this.bracket = bracket ?? undefined;
     }

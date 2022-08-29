@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/restrict-template-expressions,@typescript-eslint/no-unsafe-member-access */
 import {Faction} from '../ps2alerts-constants/faction';
 import ApplicationException from '../exceptions/ApplicationException';
 import {getLogger} from '../logger';
@@ -15,7 +15,7 @@ import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {FacilityType} from '../ps2alerts-constants/facilityType';
-import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
+import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -68,7 +68,7 @@ export default abstract class TerritoryCalculatorAbstract {
             }
 
             // Additionally, check the facility ownership so we can mark locked bases as out of play.
-            if (this.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME &&
+            if (this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME &&
                 (facility.facilityFaction === Faction.NONE || facility.facilityFaction === Faction.NS_OPERATIVES)) {
                 this.disabledFacilityList.set(facility.facilityId, facility);
 
@@ -295,7 +295,8 @@ export default abstract class TerritoryCalculatorAbstract {
     // Gets the current status of the facility from the API
     protected async getFacilityFaction(facilityId: number): Promise<Faction> {
         TerritoryCalculatorAbstract.logger.silly(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
-        const endpoint = this.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const endpoint = this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME
             ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
             : ps2AlertsApiEndpoints.outfitwarsInstanceFacilityFacility;
         const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(

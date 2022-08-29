@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';
@@ -6,7 +7,7 @@ import {pcWorldArray, World} from '../ps2alerts-constants/world';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../ps2alerts-constants/zone';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
@@ -18,7 +19,7 @@ import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 import QueueAuthority from './QueueAuthority';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
-import {Ps2alertsEventType} from '../ps2alerts-constants/ps2alertsEventType';
+import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 
@@ -84,25 +85,25 @@ export default class InstanceAuthority {
         // TODO: Make this work for outfit wars instances
         if (world && zone) {
             return this.currentInstances.filter((instance) => {
-                return instance.match(world, zone) && instance.state === Ps2alertsEventState.STARTED;
+                return instance.match(world, zone) && instance.state === Ps2AlertsEventState.STARTED;
             });
         }
 
         if (world) {
             return this.currentInstances.filter((instance) => {
-                return instance.match(world, null) && instance.state === Ps2alertsEventState.STARTED;
+                return instance.match(world, null) && instance.state === Ps2AlertsEventState.STARTED;
             });
         }
 
         return this.currentInstances.filter((instance) => {
-            return instance.match(null, zone) && instance.state === Ps2alertsEventState.STARTED;
+            return instance.match(null, zone) && instance.state === Ps2AlertsEventState.STARTED;
         });
     }
 
     public getAllInstances(): PS2AlertsInstanceInterface[] {
         // TODO: Make this work for outfit wars instances
         return this.currentInstances.filter((instance) => {
-            return instance.state === Ps2alertsEventState.STARTED;
+            return instance.state === Ps2AlertsEventState.STARTED;
         });
     }
 
@@ -137,7 +138,8 @@ export default class InstanceAuthority {
             }
 
             // Mark as started in memory state
-            instance.state = Ps2alertsEventState.STARTED;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            instance.state = Ps2AlertsEventState.STARTED;
 
             this.currentInstances.push(instance); // Add instance to the in-memory data, so it can be called upon rapidly without polling DB
             this.printActives(); // Show currently running alerts in console / log
@@ -242,8 +244,8 @@ export default class InstanceAuthority {
                 let instance: PS2AlertsInstanceInterface;
                 let instanceAlias;
 
-                switch (i.ps2alertsEventType) {
-                    case Ps2alertsEventType.LIVE_METAGAME:
+                switch (i.ps2AlertsEventType) {
+                    case Ps2AlertsEventType.LIVE_METAGAME:
                         instanceAlias = i as MetagameTerritoryInstance;
                         instance = new MetagameTerritoryInstance(
                             i.world,
@@ -258,7 +260,7 @@ export default class InstanceAuthority {
                             instanceAlias.bracket ?? undefined,
                         );
                         break;
-                    case Ps2alertsEventType.OUTFIT_WARS_AUG_2022:
+                    case Ps2AlertsEventType.OUTFIT_WARS_AUG_2022:
                         instanceAlias = i as OutfitWarsTerritoryInstance;
                         instance = new OutfitWarsTerritoryInstance(
                             i.world,
@@ -273,7 +275,7 @@ export default class InstanceAuthority {
                         );
                         break;
                     default:
-                        InstanceAuthority.logger.error('Unknown ps2alertsEventType! Assuming it is LIVE_METAGAME');
+                        InstanceAuthority.logger.error('Unknown ps2AlertsEventType! Assuming it is LIVE_METAGAME');
                         instanceAlias = i as MetagameTerritoryInstance;
                         instance = new MetagameTerritoryInstance(
                             i.world,
@@ -404,7 +406,8 @@ export default class InstanceAuthority {
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
-            {state: Ps2alertsEventState.STARTED},
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            {state: Ps2AlertsEventState.STARTED},
         ).catch((err: Error) => {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startTerritoryControlInstance');
         });
@@ -451,7 +454,8 @@ export default class InstanceAuthority {
         await this.ps2AlertsApiClient.patch(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', instance.instanceId),
-            {state: Ps2alertsEventState.STARTED},
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            {state: Ps2AlertsEventState.STARTED},
         ).catch((err: Error) => {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
         });

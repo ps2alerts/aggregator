@@ -3,7 +3,7 @@ import {World} from '../../ps2alerts-constants/world';
 import {Zone} from '../../ps2alerts-constants/zone';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {Faction} from '../../ps2alerts-constants/faction';
-import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../../ps2alerts-constants/ps2AlertsEventState';
 import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 
 export default class AdminAggregatorInstanceStartMessage {
@@ -12,7 +12,7 @@ export default class AdminAggregatorInstanceStartMessage {
     public readonly world: World;
     public readonly zone: Zone;
     public readonly zoneInstanceId: number | null;
-    public readonly state: Ps2alertsEventState;
+    public readonly state: Ps2AlertsEventState;
     public readonly faction: Faction;
     public readonly meltdown = false;
     public readonly start: Date;

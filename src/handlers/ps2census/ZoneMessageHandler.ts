@@ -12,7 +12,7 @@ import ExceptionHandler from '../system/ExceptionHandler';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import TimeoutException from '../../exceptions/TimeoutException';
 import {promiseTimeout} from '../../utils/PromiseTimeout';
-import {Ps2alertsEventType} from '../../ps2alerts-constants/ps2alertsEventType';
+import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
 
@@ -30,7 +30,8 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
         const zoneId = parseInt(event.zone_id, 10);
 
         // If Outfit wars, we need to handle zone ID in a different way
-        if (this.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
             if (zoneId !== this.instance.zone) {
                 return actions.ack();
             }

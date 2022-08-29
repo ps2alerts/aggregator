@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {CalculatorInterface} from './CalculatorInterface';
 import TerritoryCalculatorAbstract, {FacilityInterface, PercentagesInterface} from './TerritoryCalculatorAbstract';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
@@ -7,7 +8,7 @@ import Redis from 'ioredis';
 import {Rest} from 'ps2census';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {getLogger} from '../logger';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
@@ -50,7 +51,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
             red: percentages.tr,
             cutoff: percentages.cutoff,
             outOfPlay: percentages.outOfPlay,
-            victor: this.instance.state === Ps2alertsEventState.ENDED
+            victor: this.instance.state === Ps2AlertsEventState.ENDED
                 ? this.calculateVictor(percentages)
                 : null,
             perBasePercentage: percentages.perBasePercentage,
@@ -82,9 +83,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
     }
 
     protected async getMapFacilities(): Promise<void> {
-        const mapData = NexusInitialMapData;
-
-        for (const row of mapData[0].Regions.Row) {
+        for (const row of NexusInitialMapData[0].Regions.Row) {
             const region = row.RowData;
             const id = parseInt(region.map_region.facility_id, 10);
 
