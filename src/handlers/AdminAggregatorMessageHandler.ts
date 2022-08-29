@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // noinspection JSMethodCanBeStatic
 import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
 import ApplicationException from '../exceptions/ApplicationException';
@@ -6,7 +7,7 @@ import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {metagameEventTypeDetailsMap} from '../ps2alerts-constants/metagameEventType';
 import EventId from '../utils/eventId';
 import InstanceAuthority from '../authorities/InstanceAuthority';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
 import AdminAggregatorInstanceStartMessage from '../data/AdminAggregator/AdminAggregatorInstanceStartMessage';
@@ -128,7 +129,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             null,
             censusEventId,
             message.duration,
-            Ps2alertsEventState.STARTING,
+            Ps2AlertsEventState.STARTING,
             Bracket.UNKNOWN,
         );
 
@@ -161,7 +162,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             time,
             null,
             null,
-            Ps2alertsEventState.STARTING,
+            Ps2AlertsEventState.STARTING,
             {phase, round},
         );
 

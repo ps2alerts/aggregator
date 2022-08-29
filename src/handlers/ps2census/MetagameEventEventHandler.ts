@@ -1,11 +1,11 @@
-/* eslint-disable no-case-declarations */
+/* eslint-disable no-case-declarations,@typescript-eslint/no-unsafe-member-access */
 import {injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import {MetagameEventState} from '../../ps2alerts-constants/metagameEventState';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
-import {Ps2alertsEventState} from '../../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../../ps2alerts-constants/ps2AlertsEventState';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 import {Bracket} from '../../ps2alerts-constants/bracket';
 import {MetagameEvent} from 'ps2census';
@@ -78,7 +78,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                         event.timestamp,
                         null,
                         null,
-                        Ps2alertsEventState.STARTING,
+                        Ps2AlertsEventState.STARTING,
                         {phase, round},
                     );
                     break;
@@ -92,7 +92,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                         null,
                         event.eventType,
                         event.details.duration,
-                        Ps2alertsEventState.STARTING,
+                        Ps2AlertsEventState.STARTING,
                         Bracket.UNKNOWN, // Force the bracket to be unknown as it is incalculable at the beginning
                     );
                     break;

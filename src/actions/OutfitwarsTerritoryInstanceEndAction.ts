@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
@@ -5,7 +6,7 @@ import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAg
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 
@@ -28,11 +29,13 @@ export default class OutfitwarsTerritoryInstanceEndAction implements ActionInter
         const endTime = new Date();
 
         // Mark instance as ended in memory so we can calculate victor properly
-        this.instance.state = Ps2alertsEventState.ENDED;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        this.instance.state = Ps2AlertsEventState.ENDED;
         this.instance.timeEnded = endTime;
 
         const data = {
-            state: Ps2alertsEventState.ENDED,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            state: Ps2AlertsEventState.ENDED,
             timeEnded: endTime.toISOString(),
         };
 

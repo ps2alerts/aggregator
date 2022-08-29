@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
@@ -7,7 +8,7 @@ import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAg
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
@@ -27,11 +28,13 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         const endTime = new Date();
 
         // Mark instance as ended in memory so we can calculate victor properly
-        this.instance.state = Ps2alertsEventState.ENDED;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        this.instance.state = Ps2AlertsEventState.ENDED;
         this.instance.timeEnded = endTime;
 
         const data = {
-            state: Ps2alertsEventState.ENDED,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            state: Ps2AlertsEventState.ENDED,
             timeEnded: endTime.toISOString(),
         };
 

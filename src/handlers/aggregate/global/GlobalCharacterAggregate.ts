@@ -33,6 +33,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         attackerDocs.push({$setOnInsert: {
             world: event.character.world,
             character: event.attackerCharacter,
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         victimDocs.push({$setOnInsert: {

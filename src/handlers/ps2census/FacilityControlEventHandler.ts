@@ -12,7 +12,7 @@ import {jsonLogOutput} from '../../utils/json';
 import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
-import {Ps2alertsEventType} from '../../ps2alerts-constants/ps2alertsEventType';
+import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 
 @injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -49,11 +49,11 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
             mapControl: null, // This is null intentionally because we haven't calculated the control result yet (it's done in the handlers)
         };
 
-        /* eslint-disable */
-        // eslint, I will murder your children
         let endpoint = '';
-        if(event.instance.ps2alertsEventType === Ps2alertsEventType.LIVE_METAGAME){
-            endpoint = ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId)
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (event.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
+            endpoint = ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId);
         } else {
             endpoint = ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
         }
@@ -67,7 +67,6 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
                 return false;
             });
         });
-        /* eslint-enable */
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<FacilityControlEvent>) => void handler.handle(facilityEvent)
