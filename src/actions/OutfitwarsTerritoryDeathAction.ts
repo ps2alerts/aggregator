@@ -51,16 +51,56 @@ export default class OutfitwarsTerritoryDeathAction implements ActionInterface<b
             instance.outfitwars.teams.red = this.event.character.outfit;
         }
 
-        await this.ps2AlertsApiClient.patch(
+        const toUpdate = [];
+        toUpdate.push(this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', this.event.instance.instanceId), {
                 outfitwars: instance.outfitwars,
             },
         ).catch((err: Error) => {
             OutfitwarsTerritoryDeathAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the instance record via API! Err: ${err.message}`);
+        }));
+
+        if (instance.outfitwars.teams?.blue){
+            toUpdate.push(
+                this.ps2AlertsApiClient.patch(
+                    ps2AlertsApiEndpoints.outfitwarsUpdateRanking
+                        .replace('{outfitId}', instance.outfitwars.teams.blue.id)
+                        .replace('{round}', instance.outfitwars.round.toString()), {
+                        instanceId: instance.instanceId,
+                    },
+                ).catch((err: Error) => {
+                    if (instance.outfitwars.teams?.blue){
+                        OutfitwarsTerritoryDeathAction.logger.error(`Could not update ${instance.outfitwars.teams.blue.name.trim()}'s round ${instance.outfitwars.round} ranking!`);
+                    }
+
+                    OutfitwarsTerritoryDeathAction.logger.error(`${err.message}`);
+                }),
+            );
+        }
+
+        if (instance.outfitwars.teams?.red){
+            toUpdate.push(
+                this.ps2AlertsApiClient.patch(
+                    ps2AlertsApiEndpoints.outfitwarsUpdateRanking
+                        .replace('{outfitId}', instance.outfitwars.teams.red.id)
+                        .replace('{round}', instance.outfitwars.round.toString()), {
+                        instanceId: instance.instanceId,
+                    },
+                ).catch((err: Error) => {
+                    if (instance.outfitwars.teams?.red){
+                        OutfitwarsTerritoryDeathAction.logger.error(`Could not update ${instance.outfitwars.teams.red.name.trim()}'s round ${instance.outfitwars.round} ranking!`);
+                    }
+
+                    OutfitwarsTerritoryDeathAction.logger.error(`${err.message}`);
+                }),
+            );
+        }
+
+        return await Promise.all(toUpdate).then(() => {
+            (this.event.instance as OutfitWarsTerritoryInstance).outfitwars = instance.outfitwars;
+            return true;
+        }).catch(() => {
+            return false;
         });
-
-        (<OutfitWarsTerritoryInstance> this.event.instance).outfitwars = instance.outfitwars;
-
-        return true;
     }
 }
