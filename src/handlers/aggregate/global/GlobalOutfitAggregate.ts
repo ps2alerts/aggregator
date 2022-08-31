@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -25,8 +25,8 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalOutfitAggregate.logger.silly('GlobalOutfitAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -34,6 +34,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
         if (event.attackerCharacter.outfit) {
             attackerDocs.push({$setOnInsert: {
                 outfit: event.attackerCharacter.outfit,
+                ps2AlertsEventType: event.instance.ps2AlertsEventType,
             }});
 
             // Ensure that NSO characters do not update the outfit info, while it may be wrong on insert it will eventually be correct
@@ -50,6 +51,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
         if (event.character.outfit) {
             victimDocs.push({$setOnInsert: {
                 outfit: event.character.outfit,
+                ps2AlertsEventType: event.instance.ps2AlertsEventType,
             }});
 
             // Ensure that NSO characters do not update the outfit info
@@ -66,7 +68,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
-        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
+        if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
         }
 
@@ -103,6 +105,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                     [{
                         world: event.world,
                         'outfit.id': attackerOutfitId,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ), event.instance.duration);
 
@@ -114,6 +117,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                     [{
                         world: event.world,
                         'outfit.id': attackerOutfitId,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                     Bracket.TOTAL,
                 ));
@@ -130,6 +134,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                 [{
                     world: event.world,
                     'outfit.id': victimOutfitId,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ), event.instance.duration);
 
@@ -141,6 +146,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
                 [{
                     world: event.world,
                     'outfit.id': victimOutfitId,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,
             ));

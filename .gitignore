@@ -20,3 +20,6 @@ vars.local.yml
 /isolate*
 
 ready.file
+
+# Python #
+__pycache__

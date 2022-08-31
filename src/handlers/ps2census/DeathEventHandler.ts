@@ -1,4 +1,5 @@
-import {injectable, multiInject} from 'inversify';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {inject, injectable, multiInject} from 'inversify';
 import {getLogger} from '../../logger';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
@@ -12,6 +13,9 @@ import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterfac
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
 import ExceptionHandler from '../system/ExceptionHandler';
+import {AxiosInstance} from 'axios';
+import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
+import InstanceActionFactory from '../../factories/InstanceActionFactory';
 
 @injectable()
 export default class DeathEventHandler implements PS2EventQueueMessageHandlerInterface<Death> {
@@ -22,6 +26,8 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
         private readonly itemBroker: ItemBroker,
         private readonly characterBroker: CharacterBroker,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
+        private readonly instanceActionFactory: InstanceActionFactory,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @multiInject(TYPES.deathAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<DeathEvent>>,
     ) {}
 
@@ -39,6 +45,17 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
                 Parser.parseNumericalArgument(event.payload.attacker_vehicle_id),
             ),
         );
+
+        if (deathEvent.instance.ps2AlertsEventType === Ps2AlertsEventType.OUTFIT_WARS_AUG_2022) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            await this.instanceActionFactory.buildOutfitwarsDeath(deathEvent).execute().catch((e) => {
+                if (e instanceof Error) {
+                    DeathEventHandler.logger.error(`Error parsing Outfit Wars Instance Action "deathEvent" for DeathEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+                } else {
+                    DeathEventHandler.logger.error('UNEXPECTED ERROR running Instance Action "deathEvent"!');
+                }
+            });
+        }
 
         // Ensure the players are counted in the presence
         await Promise.all([

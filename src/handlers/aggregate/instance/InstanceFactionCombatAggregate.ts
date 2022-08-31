@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -18,30 +19,13 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceFactionCombatAggregate.logger.silly('InstanceFactionCombatAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const documents = [];
 
         if (event.attackerCharacter) {
             // Increment attacker faction kills
-
-            // NSO handling
-            if (event.killType === Kill.Undetermined) {
-                if (event.character.faction === event.attackerCharacter.faction) {
-                    const attackerKillKey = `${attackerFactionShort}.teamKills`;
-                    documents.push(
-                        {$inc: {[attackerKillKey]: 1}},
-                        {$inc: {['totals.teamKills']: 1}},
-                    );
-                } else {
-                    const attackerKillKey = `${attackerFactionShort}.kills`;
-                    documents.push(
-                        {$inc: {[attackerKillKey]: 1}},
-                        {$inc: {['totals.kills']: 1}},
-                    );
-                }
-            }
 
             if (event.killType === Kill.Normal) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-template-expressions
@@ -97,7 +81,10 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
             await this.apiMQPublisher.send(new ApiMQMessage(
                 MqAcceptedPatterns.INSTANCE_FACTION_COMBAT_AGGREGATE,
                 documents,
-                [{instance: event.instance.instanceId}],
+                [{
+                    instance: event.instance.instanceId,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
+                }],
             ));
         } catch (err) {
             new ExceptionHandler('Could not publish message to API!', err, 'InstanceFactionCombatAggregate.handle');

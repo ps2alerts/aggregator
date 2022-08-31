@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -19,8 +19,8 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceCharacterAggregate.logger.silly('InstanceCharacterAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -28,23 +28,16 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
         attackerDocs.push({$setOnInsert: {
             character: event.attackerCharacter,
             durationFirstSeen: event.instance.currentDuration(),
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
         victimDocs.push({$setOnInsert: {
             character: event.character,
             durationFirstSeen: event.instance.currentDuration(),
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
-
-        // NSO handling
-        if (event.killType === Kill.Undetermined) {
-            if (event.attackerCharacter.faction === event.character.faction) {
-                attackerDocs.push({$inc: {teamKills: 1}});
-            } else {
-                attackerDocs.push({$inc: {kills: 1}});
-            }
-        }
 
         if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
@@ -78,6 +71,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                     [{
                         instance: event.instance.instanceId,
                         'character.id': event.attackerCharacter.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ));
             } catch (err) {
@@ -92,6 +86,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                 [{
                     instance: event.instance.instanceId,
                     'character.id': event.character.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {

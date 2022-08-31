@@ -1,14 +1,20 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
-import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {FacilityControl, Rest} from 'ps2census';
 import config from '../config';
 import PS2EventQueueMessage from '../handlers/messages/PS2EventQueueMessage';
 import Parser from '../utils/parser';
 import Redis from 'ioredis';
+import {Zone} from '../ps2alerts-constants/zone';
+import {TYPES} from '../constants/types';
+import {AxiosInstance} from 'axios';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
+import {getZoneVersion} from '../utils/zoneVersion';
+import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
+import {getRealZoneId} from '../utils/zoneIdHandler';
 
 @injectable()
 export default class FacilityDataBroker {
@@ -17,12 +23,13 @@ export default class FacilityDataBroker {
     constructor(
         private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
     ) {}
 
     public async get(event: PS2EventQueueMessage<FacilityControl>): Promise<FacilityDataInterface> {
         const environment = config.census.censusEnvironment;
         const facilityId = Parser.parseNumericalArgument(event.payload.facility_id);
-        const zone = Parser.parseNumericalArgument(event.payload.zone_id);
+        const zone = getRealZoneId(event.payload.zone_id);
         const cacheKey = `facility-${facilityId}-${environment}`;
 
         let facilityData = new FakeMapRegionFactory().build(facilityId);
@@ -40,41 +47,48 @@ export default class FacilityDataBroker {
             return new FacilityData(JSON.parse(<string>data), zone);
         }
 
-        FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache MISS`);
+        FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache MISS`);
 
-        const query = this.restClient.getQueryBuilder('map_region')
-            .limit(1);
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        const filter = {facility_id: facilityId.toString()};
+        const result = await this.getFacilityData(facilityId, zone);
 
-        // Grab the map region data from Census
-        try {
-            const apiRequest = new CensusApiRetryDriver(query, filter, 'FacilityDataBroker');
-            await apiRequest.try().then(async (facility) => {
-                if (!facility || !facility[0] || !facility[0].facility_id) {
-                    FacilityDataBroker.logger.error(`[${environment}] Could not find facility ${facilityId} (Zone ${zone}) in Census, or they returned garbage.`);
-
-                    // Log the unknown item so we can investigate
-                    await this.cacheClient.sadd(config.redis.unknownFacilityKey, `${facilityId}-${zone}`);
-                    FacilityDataBroker.logger.debug(`Unknown facility ${facilityId}-${zone} logged`);
-
-                    return facilityData;
-                }
-
-                FacilityDataBroker.logger.debug(`[${environment}] Facility ID ${facilityId} successfully retrieved from Census`);
-
-                // Cache the response for 24h then return
-                await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(facility[0]));
-
-                FacilityDataBroker.logger.silly(`[${environment}] Facility ID ${facilityId} successfully stored in cache`);
-                facilityData = new FacilityData(facility[0], zone);
-            });
-        } catch (err) {
-            if (err instanceof Error) {
-                FacilityDataBroker.logger.error(`[${environment}] Unable to properly grab facility ${facilityId} from Census. Error: ${err.message}`);
-            }
+        if (result) {
+            FacilityDataBroker.logger.debug(`Facility ID ${facilityId} successfully retrieved from PS2A API`);
+            facilityData = new FacilityData(result, zone);
         }
 
+        if (!result) {
+            FacilityDataBroker.logger.error(`PS2Alerts is missing the facility! ${facilityId} on zone ${zone}`);
+
+            // Log the unknown item so we can investigate
+            await this.cacheClient.sadd(config.redis.unknownFacilityKey, `${facilityId}-${zone}`);
+            FacilityDataBroker.logger.debug(`Unknown facility ${facilityId}-${zone} logged`);
+        }
+
+        await this.cacheClient.setex(cacheKey, 60 * 60 * 2, JSON.stringify(result)); // This cache time should also invalidate during game downtime
+
         return facilityData;
+    }
+
+    private async getFacilityData(facilityId: number, zone: Zone): Promise<CensusFacilityRegion | null> {
+        const result = await this.ps2AlertsApiClient.get(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            ps2AlertsApiEndpoints.censusRegions
+                .replace('{zone}', String(zone))
+                .replace('{version}', getZoneVersion(zone)),
+        );
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const data: CensusRegionResponseInterface = result.data;
+
+        const facilityData: CensusFacilityRegion[] = data.map_region_list.filter((facility) => {
+            return parseInt(facility.facility_id, 10) === facilityId;
+        });
+
+        // Doing filter on nothing will result in nothing so this works too
+        if (facilityData.length) {
+            return facilityData[0];
+        }
+
+        return null;
     }
 }

@@ -1,7 +1,6 @@
 // Special class to handle the MapRegion query, as it's done in multiple places and prone to crashing
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
-import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Zone} from '../ps2alerts-constants/zone';
 import {Rest} from 'ps2census';
 import {getLogger} from '../logger';
@@ -12,6 +11,7 @@ import {
     CensusRegionMapJoinQueryRowInterface,
 } from '../interfaces/CensusRegionEndpointInterfaces';
 import ZoneDataParser from './ZoneDataParser';
+import InstanceAbstract from '../instances/InstanceAbstract';
 
 export default class CensusMapRegionQueryParser {
     private static readonly logger = getLogger('CensusMapRegionQueryParser');
@@ -21,7 +21,7 @@ export default class CensusMapRegionQueryParser {
     constructor(
         private readonly restClient: Rest.Client,
         private readonly caller: string,
-        private readonly instance: MetagameTerritoryInstance,
+        private readonly instance: InstanceAbstract,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
     ) {

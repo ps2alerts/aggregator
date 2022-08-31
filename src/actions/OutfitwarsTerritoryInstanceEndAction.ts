@@ -1,29 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
-import FactionUtils from '../utils/FactionUtils';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
-import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
+import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 
-export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
+export default class OutfitwarsTerritoryInstanceEndAction implements ActionInterface<boolean> {
+    private static readonly logger = getLogger('OutfitwarsTerritoryInstanceEndAction');
 
     constructor(
-        private readonly instance: MetagameTerritoryInstance,
-        private readonly territoryResultAction: ActionInterface<MetagameTerritoryControlResultInterface>,
+        private readonly instance: OutfitWarsTerritoryInstance,
+        private readonly territoryResultAction: ActionInterface<OutfitwarsTerritoryResultInterface>,
         private readonly ps2alertsApiClient: AxiosInstance,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
-        MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
+        OutfitwarsTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
+
+        // TODO: Implement for OW properly
 
         const endTime = new Date();
 
@@ -40,27 +41,23 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
 
         // Mark the instance as ended in the database BEFORE we calculate territory (it's more prone to failure)
         await this.ps2alertsApiClient.patch(
-            ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', this.instance.instanceId),
+            // ffs es-lint
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', this.instance.instanceId),
             data,
         ).catch((err: Error) => {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`);
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Outfit Wars Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`, 'OutfitwarsTerritoryInstanceEndAction');
         });
 
         // Update the final result of the instance
-        const result: MetagameTerritoryControlResultInterface = await this.territoryResultAction.execute();
+        const result: OutfitwarsTerritoryResultInterface = await this.territoryResultAction.execute();
 
         if (!result) {
-            throw new ApplicationException(`[${this.instance.instanceId}] UNABLE TO CALCULATE VICTOR!`, 'MetagameTerritoryInstanceEndAction');
-        }
-
-        if (result.draw) {
-            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] resulted in a DRAW!`);
-        } else {
-            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] victor is: ${FactionUtils.parseFactionIdToShortName(result.victor).toUpperCase()}!`);
+            throw new ApplicationException(`[${this.instance.instanceId}] UNABLE TO CALCULATE VICTOR!`, 'OutfitwarsTerritoryInstanceEndAction');
         }
 
         // Update the world, zone and bracket aggregators
-        await this.globalVictoryAggregate.handle(this.instance);
+        // await this.globalVictoryAggregate.handle(this.instance);
 
         // Remove the outfit participant set data from Redis
         await this.outfitParticipantCacheHandler.flushOutfits(this.instance.instanceId);
