@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {inject, injectable} from 'inversify';
 import {getLogger} from '../logger';
 import ApplicationException from '../exceptions/ApplicationException';

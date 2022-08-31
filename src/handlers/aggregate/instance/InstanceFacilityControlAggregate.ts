@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {injectable} from 'inversify';
@@ -20,6 +21,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
 
         documents.push({$setOnInsert: {
             facility: event.facility,
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         if (event.isDefence) {
@@ -49,6 +51,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
                 [{
                     instance: event.instance.instanceId,
                     facility: event.facility,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {

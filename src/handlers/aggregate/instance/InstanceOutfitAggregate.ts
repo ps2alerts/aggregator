@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -34,6 +34,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
             attackerDocs.push({$setOnInsert: {
                 outfit: event.attackerCharacter.outfit,
                 durationFirstSeen: event.instance.currentDuration(),
+                ps2AlertsEventType: event.instance.ps2AlertsEventType,
             }});
 
             // Ensure that NSO characters do not update the outfit info, while it may be wrong on insert it will eventually be correct
@@ -51,6 +52,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
             victimDocs.push({$setOnInsert: {
                 outfit: event.character.outfit,
                 durationFirstSeen: event.instance.currentDuration(),
+                ps2AlertsEventType: event.instance.ps2AlertsEventType,
             }});
 
             // Ensure that NSO characters do not update the outfit info
@@ -117,6 +119,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                     [{
                         instance: event.instance.instanceId,
                         'outfit.id': attackerOutfitId,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ));
             } catch (err) {
@@ -131,6 +134,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
                 [{
                     instance: event.instance.instanceId,
                     'outfit.id': victimOutfitId,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {
