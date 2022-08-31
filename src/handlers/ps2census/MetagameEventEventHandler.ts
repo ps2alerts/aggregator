@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations,@typescript-eslint/no-unsafe-member-access */
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {getLogger} from '../../logger';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
@@ -17,12 +17,19 @@ import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInst
 import {getOutfitWarPhase, getOutfitWarRound} from '../../ps2alerts-constants/outfitwars/utils';
 import {getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import {Zone} from '../../ps2alerts-constants/zone';
+import {TYPES} from '../../constants/types';
+import {AxiosInstance} from 'axios';
+import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
+import {OutfitwarsRankingInterface} from '../../ps2alerts-constants/interfaces/OutfitwarsRankingInterface';
 
 @injectable()
 export default class MetagameEventEventHandler implements QueueMessageHandlerInterface<MetagameEvent> {
     private static readonly logger = getLogger('MetagameEventEventHandler');
 
-    constructor(private readonly instanceAuthority: InstanceAuthority) {}
+    constructor(
+        private readonly instanceAuthority: InstanceAuthority,
+        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+    ) {}
 
     public async handle(metagameEvent: MetagameEvent, actions: ChannelActionsInterface): Promise<void> {
         MetagameEventEventHandler.logger.debug('Parsing MetagameEventEvent message...');
@@ -35,10 +42,24 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
         // Note because Metagame is a world message, it is not subject to filtering by Ps2censusMessageHandler, so it may not return an instance intentionally.
         let instanceId = `${event.world}-${event.instanceId}`;
+        let round = 0;
 
         /* eslint-disable no-bitwise */
         if ((event.zone >> 16) !== 0 && (event.zone & 0xFFFF) === Zone.NEXUS) {
             instanceId = `outfitwars-${event.world}-${Zone.NEXUS}-${(event.zone >> 16) & 0xFFFF}`;
+            await this.ps2AlertsApiClient.get(`${ps2AlertsApiEndpoints.outfitwarsRankings}?sortBy=round&order=desc&world=${event.world}`).then(
+                (value) => {
+                    if (!value.data) {
+                        throw new Error('No data received!');
+                    }
+
+                    const rankings: OutfitwarsRankingInterface[] = value.data as OutfitwarsRankingInterface[];
+                    round = rankings[0].round;
+                },
+            ).catch((err: Error) => {
+                MetagameEventEventHandler.logger.warn(`Failed to retrieve rankings to get round, falling back to timestamp: ${err.message}`);
+                round = getOutfitWarRound(event.timestamp);
+            });
         }
         /* eslint-enable no-bitwise */
 
@@ -69,7 +90,6 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
             switch (event.eventType) {
                 case MetagameEventType.NEXUS_OUTFIT_WAR:
-                    const round = getOutfitWarRound(event.timestamp);
                     const phase = getOutfitWarPhase(round);
                     instance = new OutfitWarsTerritoryInstance(
                         event.world,
