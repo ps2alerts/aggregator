@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -80,7 +81,10 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
             await this.apiMQPublisher.send(new ApiMQMessage(
                 MqAcceptedPatterns.INSTANCE_FACTION_COMBAT_AGGREGATE,
                 documents,
-                [{instance: event.instance.instanceId}],
+                [{
+                    instance: event.instance.instanceId,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
+                }],
             ));
         } catch (err) {
             new ExceptionHandler('Could not publish message to API!', err, 'InstanceFactionCombatAggregate.handle');

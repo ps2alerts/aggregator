@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -28,10 +28,12 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
         attackerDocs.push({$setOnInsert: {
             character: event.attackerCharacter,
             durationFirstSeen: event.instance.currentDuration(),
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
         victimDocs.push({$setOnInsert: {
             character: event.character,
             durationFirstSeen: event.instance.currentDuration(),
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         // Victim deaths always counted in every case
@@ -69,6 +71,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                     [{
                         instance: event.instance.instanceId,
                         'character.id': event.attackerCharacter.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ));
             } catch (err) {
@@ -83,6 +86,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
                 [{
                     instance: event.instance.instanceId,
                     'character.id': event.character.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {

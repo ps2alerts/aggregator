@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -90,6 +91,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 [{
                     world: event.instance.world,
                     date: moment().format('YYYY-MM-DD'),
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ), event.instance.duration);
 
@@ -101,6 +103,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 [{
                     world: event.instance.world,
                     date: moment().format('YYYY-MM-DD'),
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,
             ));

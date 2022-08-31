@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {injectable} from 'inversify';
@@ -38,6 +38,7 @@ export default class InstanceOutfitCapturesAggregate implements AggregateHandler
                 [{
                     instance: event.instance.instanceId,
                     'outfit.id': event.outfitCaptured,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {

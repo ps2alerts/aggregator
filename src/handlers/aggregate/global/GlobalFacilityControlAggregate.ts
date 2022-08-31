@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {injectable} from 'inversify';
@@ -56,6 +56,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 [{
                     world: event.instance.world,
                     'facility.id': event.facility.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ), event.instance.duration);
 
@@ -67,6 +68,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 [{
                     world: event.instance.world,
                     facility: event.facility,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,
             ));

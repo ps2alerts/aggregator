@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -26,6 +26,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         documents.push({$setOnInsert: {
             weapon: event.attackerWeapon,
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         if (event.killType === Kill.Normal) {
@@ -57,6 +58,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
                 [{
                     instance: event.instance.instanceId,
                     'weapon.id': event.attackerWeapon.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {
