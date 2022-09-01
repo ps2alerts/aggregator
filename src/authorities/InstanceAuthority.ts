@@ -22,6 +22,7 @@ import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstanc
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
+import Redis from 'ioredis';
 
 interface MetagameTerritoryActiveTableInterface {
     instanceId: string;
@@ -60,6 +61,7 @@ export default class InstanceAuthority {
         private readonly instanceActionFactory: InstanceActionFactory,
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly queueAuthority: QueueAuthority,
+        private readonly cacheClient: Redis, // Required for Population aggregation
     ) {}
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
@@ -81,8 +83,7 @@ export default class InstanceAuthority {
         return instance;
     }
 
-    public getInstances(world: World | null = null, zone: Zone | null = null): PS2AlertsInstanceInterface[] {
-        // TODO: Make this work for outfit wars instances
+    public getInstances(world: World | null = null, zone: Zone | number | null = null): PS2AlertsInstanceInterface[] {
         if (world && zone) {
             return this.currentInstances.filter((instance) => {
                 return instance.match(world, zone) && instance.state === Ps2AlertsEventState.STARTED;
@@ -148,6 +149,9 @@ export default class InstanceAuthority {
             this.queueAuthority.syncActiveInstances(this.currentInstances);
             await this.queueAuthority.startQueuesForInstance(instance);
 
+            // Add to a redis key set so PopulationInstances is aware of active instances without causing a dependency injection loop
+            await this.cacheClient.sadd('ActiveInstances', instance.instanceId);
+
             InstanceAuthority.logger.info(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -201,6 +205,9 @@ export default class InstanceAuthority {
             throw new ApplicationException('InstanceAuthority was called to be initialized more than once!', 'InstanceAuthority');
         }
 
+        // Flush the ActiveInstances out of Redis
+        await this.cacheClient.del('ActiveInstances');
+
         let apiResponses: AxiosResponse[];
 
         const promises = [
@@ -226,7 +233,7 @@ export default class InstanceAuthority {
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
         } else {
-            instances.forEach((i) => {
+            for (const i of instances) {
                 const censusEnvironment = config.census.censusEnvironment;
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
@@ -292,7 +299,10 @@ export default class InstanceAuthority {
                 }
 
                 this.currentInstances.push(instance);
-            });
+
+                // Push the current instances to the Redis instance list to give PopulationAuthority awareness of running instances
+                await this.cacheClient.sadd('ActiveInstances', instance.instanceId);
+            }
         }
 
         // Set timer for instances display

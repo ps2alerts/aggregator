@@ -32,11 +32,10 @@ export default class OutfitWarsTerritoryInstance extends InstanceAbstract implem
         );
     }
 
-    public match(world: World | null, zone: Zone | null): boolean {
-        // TODO: Make this work off zoneInstanceID
+    public match(world: World | null, zone: Zone | number): boolean {
         return world && zone
-            ? world === this.world && zone === this.zone
+            ? world === this.world && zone === this.zone || zone === this.zoneInstanceId
             : world ? world === this.world
-            : zone === this.zone;
+            : zone === this.zone || zone === this.zoneInstanceId;
     }
 }
