@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  *  ### CENSUS RESPONSE ATTRIBUTES ####
  "timestamp":"",
@@ -18,9 +19,13 @@ import FactionUtils, {FactionName} from '../../../utils/FactionUtils';
 import {Faction} from '../../../ps2alerts-constants/faction';
 import {FacilityControl} from 'ps2census';
 import {FacilityDataInterface} from '../../../interfaces/FacilityDataInterface';
-import {MapControlInterface} from '../../../interfaces/MapControlInterface';
 import InstanceEvent from './InstanceEvent';
 import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
+import {MetagameTerritoryControlResultInterface} from '../../../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {OutfitwarsTerritoryResultInterface} from '../../../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
+import ApplicationException from '../../../exceptions/ApplicationException';
+import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
+import OutfitWarsTerritoryInstance from '../../../instances/OutfitWarsTerritoryInstance';
 
 @injectable()
 export default class FacilityControlEvent extends InstanceEvent {
@@ -31,7 +36,7 @@ export default class FacilityControlEvent extends InstanceEvent {
     public readonly durationHeld: number;
     public readonly isDefence: boolean;
     public readonly outfitCaptured: string | null;
-    public readonly mapControl: MapControlInterface | null;
+    public readonly mapControl: MetagameTerritoryControlResultInterface | OutfitwarsTerritoryResultInterface | null;
 
     constructor(
         event: PS2EventQueueMessage<FacilityControl>,
@@ -58,12 +63,26 @@ export default class FacilityControlEvent extends InstanceEvent {
         this.outfitCaptured = event.payload.outfit_id ? event.payload.outfit_id : null;
 
         // Used to render capture histories on the website
-        this.mapControl = {
-            vs: this.instance.result?.vs ?? 0,
-            nc: this.instance.result?.nc ?? 0,
-            tr: this.instance.result?.tr ?? 0,
-            cutoff: this.instance.result?.cutoff ?? 0,
-            outOfPlay: this.instance.result?.outOfPlay ?? 0,
-        };
+        // Can't use a switch statement here as TS doesn't understand the faction references that don't exist
+        /* eslint-disable */
+        if (this.instance instanceof MetagameTerritoryInstance) {
+            this.mapControl = {
+                vs: this.instance.result?.vs ?? 0,
+                nc: this.instance.result?.nc ?? 0,
+                tr: this.instance.result?.tr ?? 0,
+                cutoff: this.instance.result?.cutoff ?? 0,
+                outOfPlay: this.instance.result?.outOfPlay ?? 0,
+            } as MetagameTerritoryControlResultInterface;
+        } else if (this.instance instanceof OutfitWarsTerritoryInstance) {
+            this.mapControl = {
+                blue: this.instance.result?.blue ?? 0,
+                red: this.instance.result?.red ?? 0,
+                cutoff: this.instance.result?.cutoff ?? 0,
+                outOfPlay: this.instance.result?.outOfPlay ?? 0,
+            } as OutfitwarsTerritoryResultInterface;
+        } else {
+            throw new ApplicationException('Unknown instance type! FacilityControlEvent cannot figure out the mapControl property!');
+        }
+        /* eslint-enable */
     }
 }

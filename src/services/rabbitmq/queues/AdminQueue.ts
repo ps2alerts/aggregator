@@ -3,12 +3,16 @@ import {RabbitMQQueue} from './RabbitMQQueue';
 import {PS2AlertsQueueInterface} from '../../../interfaces/PS2AlertsQueueInterface';
 import config from '../../../config';
 import {ConfirmChannel, ConsumeMessage} from 'amqplib';
-import {Stream} from 'ps2census';
 import AdminQueueMessage from '../../../data/AdminAggregator/AdminQueueMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {Options} from 'amqplib/properties';
 import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
 import {getLogger} from '../../../logger';
+
+export interface AdminQueueMessageContentInterface {
+    action: string;
+    body: never;
+}
 
 export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     private static readonly classLogger = getLogger('AdminQueue');
@@ -82,8 +86,7 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
     }
 
     private createMessage(message: ConsumeMessage): AdminQueueMessage {
-        const data: {eventName: string, worldId: string, payload: Stream.PS2Event} = this.parseRawMessage(message);
-
+        const data: {payload: AdminQueueMessageContentInterface} = this.parseRawMessage(message);
         return new AdminQueueMessage(data.payload);
     }
 }

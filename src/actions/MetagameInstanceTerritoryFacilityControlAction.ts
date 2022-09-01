@@ -1,7 +1,7 @@
 import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
-import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
+import TerritoryResultInterface from '../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 

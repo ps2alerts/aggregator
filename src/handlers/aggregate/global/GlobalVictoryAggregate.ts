@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {getLogger} from '../../../logger';
 import {injectable} from 'inversify';
@@ -50,6 +51,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                     world: event.world,
                     zone: event.zone,
                     date: moment().startOf('day').toDate(),
+                    ps2AlertsEventType: event.ps2AlertsEventType,
                 }],
             ));
 
@@ -61,6 +63,7 @@ export default class GlobalVictoryAggregate implements AggregateHandlerInterface
                     world: event.world,
                     zone: event.zone,
                     date: moment().startOf('day').toDate(),
+                    ps2AlertsEventType: event.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,
             ));

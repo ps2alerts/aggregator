@@ -4,6 +4,7 @@ import {injectable} from 'inversify';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import ApplicationException from '../exceptions/ApplicationException';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
+import {getZoneVersion} from '../utils/zoneVersion';
 
 @injectable()
 export default class ZoneDataParser {
@@ -72,7 +73,7 @@ export default class ZoneDataParser {
         // Go through each zone and push the data to a map
         zoneArray.forEach((zone) => {
             const data: CensusFacilityRegion[] = [];
-            const version = zone === Zone.OSHUR ? '1.1' : '1.0';
+            const version = getZoneVersion(zone);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires
             const regionData: CensusRegionResponseInterface = require(`${__dirname}/../ps2alerts-constants/maps/regions-${zone}-${version}.json`);

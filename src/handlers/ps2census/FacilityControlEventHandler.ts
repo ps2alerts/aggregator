@@ -12,6 +12,7 @@ import {jsonLogOutput} from '../../utils/json';
 import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
+import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 
 @injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -26,7 +27,7 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
     ) {}
 
     public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean>{
-        FacilityControlEventHandler.logger.silly('Parsing message...');
+        FacilityControlEventHandler.logger.debug('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
@@ -48,17 +49,20 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
             mapControl: null, // This is null intentionally because we haven't calculated the control result yet (it's done in the handlers)
         };
 
-        await this.ps2AlertsApiClient.post(
-            ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
-            facilityData,
-        ).catch(async (err: Error) => {
+        let endpoint = '';
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (event.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
+            endpoint = ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId);
+        } else {
+            endpoint = ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
+        }
+
+        await this.ps2AlertsApiClient.post(endpoint, facilityData).catch(async (err: Error) => {
             FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
             // Try again
-            await this.ps2AlertsApiClient.post(
-                ps2AlertsApiEndpoints.instanceEntriesInstanceFacility.replace('{instanceId}', event.instance.instanceId),
-                facilityData,
-            ).catch((err: Error) => {
+            await this.ps2AlertsApiClient.post(endpoint, facilityData).catch((err: Error) => {
                 FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
                 return false;
             });

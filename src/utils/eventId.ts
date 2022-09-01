@@ -42,6 +42,11 @@ export default class EventId {
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.OSHUR_SUPERIORITY],
                 ],
             )],
+            [Zone.NEXUS, new Map(
+                [
+                    [Faction.NONE, MetagameEventType.NEXUS_OUTFIT_WAR],
+                ],
+            )],
         ],
     );
 
@@ -75,7 +80,8 @@ export default class EventId {
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_ESAMIR_UNSTABLE_MELTDOWN],
                 ],
             )],
-            // Oshut does not have unstable meltdown alerts.
+            // Oshur does not have unstable meltdown alerts.
+            // Nexus does not have unstable meltdown alerts.
         ],
     );
 
@@ -203,10 +209,10 @@ export default class EventId {
             case 200: // "Maximum Pressure" aka Kill everyone
             case 201: // "Maximum Pressure" aka Kill everyone
                 return -1;
-            case 204: // Outfit wars begin (500 points)
-            case 205: // Outfit wars pre-match
-            case 206: // Outfit wars relics changing
-            case 207: // Outfit wars begin (750 points)
+            case 204: // Desolation Outfit wars begin (500 points)
+            case 205: // Desolation Outfit wars pre-match
+            case 206: // Desolation Outfit wars relics changing
+            case 207: // Desolation Outfit wars begin (750 points)
             case 208: // Koltyr Territory Control NC Triggered (ACTIVE - BUT WE DON'T TRACK)
             case 209: // Koltyr Territory Control TR Triggered (ACTIVE - BUT WE DON'T TRACK)
             case 210: // Koltyr Territory Control VS Triggered (ACTIVE - BUT WE DON'T TRACK)
@@ -216,6 +222,9 @@ export default class EventId {
             case 223: // Oshur TR Triggered
             case 224: // Oshur VS Triggered
                 return Zone.OSHUR;
+            case 227: // Nexus Outfit Wars Game
+            case 234: // Nexus Outfit Wars Prep
+                return Zone.NEXUS;
         }
 
         return -1;

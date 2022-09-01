@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -19,16 +19,17 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceWeaponAggregate.logger.silly('InstanceWeaponAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const documents = [];
 
         documents.push({$setOnInsert: {
             weapon: event.attackerWeapon,
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
-        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
+        if (event.killType === Kill.Normal) {
             documents.push({$inc: {kills: 1}});
         }
 
@@ -57,6 +58,7 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
                 [{
                     instance: event.instance.instanceId,
                     'weapon.id': event.attackerWeapon.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {

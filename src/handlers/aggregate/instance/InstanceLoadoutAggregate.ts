@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
 import {injectable} from 'inversify';
@@ -18,8 +19,8 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
     public async handle(event: DeathEvent): Promise<boolean> {
         InstanceLoadoutAggregate.logger.silly('InstanceLoadoutAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -27,7 +28,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
         // Victim deaths always counted in every case
         victimDocs.push({$inc: {deaths: 1}});
 
-        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
+        if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
         }
 
@@ -59,6 +60,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
                     [{
                         instance: event.instance.instanceId,
                         loadout: event.attackerLoadoutId,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ));
             } catch (err) {
@@ -73,6 +75,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
                 [{
                     instance: event.instance.instanceId,
                     loadout: event.characterLoadoutId,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ));
         } catch (err) {

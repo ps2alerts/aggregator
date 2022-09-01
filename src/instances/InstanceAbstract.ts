@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {World} from '../ps2alerts-constants/world';
-import TerritoryResultInterface from '../interfaces/TerritoryResultInterface';
-import {Ps2alertsEventState} from '../ps2alerts-constants/ps2alertsEventState';
+import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import ApplicationException from '../exceptions/ApplicationException';
 import moment from 'moment/moment';
 import {PS2Event} from 'ps2census';
 import {getLogger} from '../logger';
+import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
+import {Zone} from '../ps2alerts-constants/zone';
 
 export default abstract class InstanceAbstract {
     private static readonly logger = getLogger('InstanceAbstract');
@@ -12,11 +14,12 @@ export default abstract class InstanceAbstract {
     protected constructor(
         public readonly instanceId: string, // 10-12345
         public readonly world: World,
+        public readonly zone: Zone, // This assumes all instances are on zones, which is currently the case but wasn't historically.
         public readonly timeStarted: Date,
         public readonly timeEnded: Date | null,
-        public readonly result: TerritoryResultInterface | null,
         public readonly duration: number, // Stored in Milliseconds
-        public state: Ps2alertsEventState,
+        public state: Ps2AlertsEventState,
+        public readonly ps2AlertsEventType: Ps2AlertsEventType,
     ) {}
 
     public overdue(): boolean {
@@ -38,7 +41,7 @@ export default abstract class InstanceAbstract {
         }
 
         // If already ended, check if the message is overdue from the end date
-        if (this.state === Ps2alertsEventState.ENDED) {
+        if (this.state === Ps2AlertsEventState.ENDED) {
             if (!this.timeEnded) {
                 throw new ApplicationException('No time present when the alert is ended!', 'InstanceAbstract.messageOverdue');
             }

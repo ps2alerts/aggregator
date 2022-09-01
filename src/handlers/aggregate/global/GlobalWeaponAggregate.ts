@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -24,8 +24,8 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalWeaponAggregate.logger.silly('GlobalWeaponAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const documents = [];
 
@@ -33,7 +33,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
             weapon: event.attackerWeapon,
         }});
 
-        if (event.killType === Kill.Normal || event.killType === Kill.Undetermined) {
+        if (event.killType === Kill.Normal) {
             documents.push({$inc: {kills: 1}});
         }
 
@@ -63,6 +63,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
                 [{
                     world: event.instance.world,
                     'weapon.id': event.attackerWeapon.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ), event.instance.duration);
 
@@ -73,6 +74,7 @@ export default class GlobalWeaponAggregate implements AggregateHandlerInterface<
                 [{
                     world: event.instance.world,
                     'weapon.id': event.attackerWeapon.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,
             ));

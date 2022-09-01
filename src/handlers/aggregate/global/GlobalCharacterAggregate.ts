@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {getLogger} from '../../../logger';
@@ -11,6 +11,7 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import FactionUtils from '../../../utils/FactionUtils';
 import ExceptionHandler from '../../system/ExceptionHandler';
+import {Ps2AlertsEventType} from '../../../ps2alerts-constants/ps2AlertsEventType';
 
 @injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -24,8 +25,8 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
     public async handle(event: DeathEvent): Promise<boolean> {
         GlobalCharacterAggregate.logger.silly('GlobalCharacterAggregate.handle');
 
-        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerCharacter.faction);
-        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.character.faction);
+        const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
+        const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
 
         const attackerDocs = [];
         const victimDocs = [];
@@ -33,11 +34,13 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         attackerDocs.push({$setOnInsert: {
             world: event.character.world,
             character: event.attackerCharacter,
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         victimDocs.push({$setOnInsert: {
             world: event.character.world,
             character: event.character,
+            ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         // Victim deaths always counted in every case
@@ -61,15 +64,6 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 'character.outfit': event.character.outfit,
             },
         });
-
-        // NSO handling
-        if (event.killType === Kill.Undetermined) {
-            if (event.attackerCharacter.faction === event.character.faction) {
-                attackerDocs.push({$inc: {teamKills: 1}});
-            } else {
-                attackerDocs.push({$inc: {kills: 1}});
-            }
-        }
 
         if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
@@ -97,15 +91,18 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         if (event.attackerCharacter && attackerDocs.length > 0) {
             try {
-                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                    MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
-                    event.instance.instanceId,
-                    attackerDocs,
-                    [{
-                        world: event.world,
-                        'character.id': event.attackerCharacter.id,
-                    }],
-                ), event.instance.duration);
+                if (event.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
+                    await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
+                        MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                        event.instance.instanceId,
+                        attackerDocs,
+                        [{
+                            world: event.world,
+                            'character.id': event.attackerCharacter.id,
+                            ps2AlertsEventType: event.instance.ps2AlertsEventType,
+                        }],
+                    ), event.instance.duration);
+                }
 
                 // Total bracket aggregation
                 await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
@@ -115,6 +112,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                     [{
                         world: event.world,
                         'character.id': event.attackerCharacter.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                     Bracket.TOTAL,
                 ));
@@ -124,15 +122,18 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         }
 
         try {
-            await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
-                MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
-                event.instance.instanceId,
-                victimDocs,
-                [{
-                    world: event.world,
-                    'character.id': event.character.id,
-                }],
-            ), event.instance.duration);
+            if (event.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
+                await this.apiMQDelayPublisher.send(new ApiMQGlobalAggregateMessage(
+                    MqAcceptedPatterns.GLOBAL_CHARACTER_AGGREGATE,
+                    event.instance.instanceId,
+                    victimDocs,
+                    [{
+                        world: event.world,
+                        'character.id': event.character.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
+                    }],
+                ), event.instance.duration);
+            }
 
             // Total bracket aggregation
             await this.apiMQPublisher.send(new ApiMQGlobalAggregateMessage(
@@ -142,6 +143,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
                 [{
                     world: event.world,
                     'character.id': event.character.id,
+                    ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,
             ));
