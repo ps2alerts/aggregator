@@ -1888,10 +1888,10 @@ proxy-addr@~2.0.7:
     forwarded "0.2.0"
     ipaddr.js "1.9.1"
 
-ps2census@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.3.0.tgz#42757e6a639427b3f340d46fe3bef646cfe4b828"
-  integrity sha512-7HN9YXs5XANsqpZJX4z9tI828x6m+PCA6WXDSncMYQkwqPFMpX3a1ukvdmmTSfoMv753SdJmApLFciaTBXcXpA==
+ps2census@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.4.1.tgz#54165a901d754b58cfa23925c1bab98feafaa2d7"
+  integrity sha512-3SPnzZALX+K9VlymMpssyOUmI69X/EOKWTkIJ2CKFcrMz3vhLiB2OW4vN5OFcBVkEe80iksN1buBGq57H6QBcQ==
   dependencies:
     axios "0.27.2"
     eventemitter3 "4.0.7"
