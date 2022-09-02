@@ -40,6 +40,9 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                     {$inc: {[attackerKillKey]: 1}},
                     {$inc: {['totals.kills']: 1}},
                 );
+
+                const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
+                documents.push({$inc: {[factionKey]: 1}});
             }
 
             if (event.killType === Kill.TeamKill) {
@@ -58,12 +61,6 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                     {$inc: {[attackerHeadshotKey]: 1}},
                     {$inc: {['totals.headshots']: 1}},
                 );
-            }
-
-            // Faction vs Faction
-            if (event.attackerCharacter.faction !== event.character.faction) {
-                const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
-                documents.push({$inc: {[factionKey]: 1}});
             }
         }
 

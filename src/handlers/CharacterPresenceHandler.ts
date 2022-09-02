@@ -34,7 +34,7 @@ export default class CharacterPresenceHandler implements CharacterPresenceHandle
         await this.cacheClient.setex(`CharacterPresence-${character.id}`, 60 * 5, zone);
 
         // Add character to overall redis set to be scanned later split by world and faction
-        const listName = `CharacterPresencePops-${instance.world}-${character.faction}`;
+        const listName = `CharacterPresencePops-${instance.world}-${character.teamId}`;
         await this.cacheClient.sadd(listName, character.id);
 
         // Add list to global list, so they can all be cleared up upon start of aggregator

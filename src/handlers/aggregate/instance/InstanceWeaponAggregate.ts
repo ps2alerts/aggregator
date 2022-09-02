@@ -31,6 +31,9 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         if (event.killType === Kill.Normal) {
             documents.push({$inc: {kills: 1}});
+
+            const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
+            documents.push({$inc: {[factionKey]: 1}});
         }
 
         if (event.killType === Kill.TeamKill) {
@@ -43,12 +46,6 @@ export default class InstanceWeaponAggregate implements AggregateHandlerInterfac
 
         if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             documents.push({$inc: {headshots: 1}});
-        }
-
-        // Faction vs Faction
-        if (event.attackerCharacter.faction !== event.character.faction) {
-            const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
-            documents.push({$inc: {[factionKey]: 1}});
         }
 
         try {

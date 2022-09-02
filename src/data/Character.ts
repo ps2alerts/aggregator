@@ -10,13 +10,14 @@ class Character implements CharacterInterface {
     public id: string;
     public name: string;
     public faction: Faction;
+    public teamId: Faction;
     public world: World;
     public battleRank: number;
     public asp: number;
     public adjustedBattleRank: number;
     public outfit: Outfit | null;
 
-    constructor(characterData: CharacterWorldOutfitLeader) {
+    constructor(characterData: CharacterWorldOutfitLeader, teamId: Faction | null = null) {
         this.id = characterData.character_id;
         this.name = characterData.name.first;
         this.faction = parseInt(characterData.faction_id, 10);
@@ -44,6 +45,13 @@ class Character implements CharacterInterface {
             this.outfit = new Outfit(characterData.outfit_member, characterData);
         } else {
             this.outfit = new FakeOutfitFactory(this.faction).build();
+        }
+
+        // If we're injecting the teamId from a death / other event, add it now
+        if (teamId) {
+            this.teamId = teamId;
+        } else {
+            this.teamId = this.faction;
         }
     }
 }
