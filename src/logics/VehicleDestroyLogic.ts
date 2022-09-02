@@ -21,7 +21,7 @@ export default class VehicleDestroyLogic implements LogicInterface {
             if (this.event.killType === Destroy.Normal) {
                 VehicleDestroyLogic.logger.silly(`[${this.mode}] IvV death`);
                 victimDocs.push({$inc: {['infantry.deaths']: 1}});
-            } else if (this.event.attackerCharacter.faction === this.event.character.faction) {
+            } else if (this.event.killType === Destroy.Friendly) {
                 VehicleDestroyLogic.logger.silly(`[${this.mode}] IvV TK`);
                 victimDocs.push({$inc: {['infantry.teamkilled']: 1}});
             }

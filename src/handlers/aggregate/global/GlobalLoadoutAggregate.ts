@@ -35,6 +35,9 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
         if (event.killType === Kill.Normal) {
             attackerDocs.push({$inc: {kills: 1}});
+
+            const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
+            attackerDocs.push({$inc: {[factionKey]: 1}});
         }
 
         if (event.killType === Kill.TeamKill) {
@@ -49,12 +52,6 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
 
         if (event.isHeadshot && event.killType !== Kill.TeamKill) {
             attackerDocs.push({$inc: {headshots: 1}});
-        }
-
-        // Faction vs Faction
-        if (event.attackerCharacter.faction !== event.character.faction) {
-            const factionKey = `factionKills.${attackerFactionShort}.${victimFactionShort}`;
-            attackerDocs.push({$inc: {[factionKey]: 1}});
         }
 
         if (attackerDocs.length > 0) {

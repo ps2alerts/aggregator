@@ -1,6 +1,7 @@
 import LogicInterface from './LogicInterface';
 import {getLogger} from '../logger';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
+import {Kill} from 'ps2census';
 
 export default class VehicleCharacterDeathLogic implements LogicInterface {
     private static readonly logger = getLogger('VehicleCharacterDeathLogic');
@@ -25,7 +26,7 @@ export default class VehicleCharacterDeathLogic implements LogicInterface {
             }
 
             // If TK
-            if (this.event.attackerCharacter.faction === this.event.character.faction) {
+            if (this.event.killType === Kill.TeamKill) {
                 if (this.event.attackerCharacter.id !== this.event.character.id) {
                     VehicleCharacterDeathLogic.logger.silly(`[${this.mode}] VvI TK`);
                     attackerDocs.push({$inc: {['infantry.teamkills']: 1}});
