@@ -33,12 +33,16 @@ export default class CharacterBroker {
                     throw new Error('AttackerEvent had no actual attacker character ID! ps2census bug');
                 }
 
+                // Re-create character with teamID supplied
+                character = new Character(await payload.character(), parseInt(payload.team_id, 10));
+
                 const attackerCharacter = await payload.attacker<CharacterWorldOutfitLeader>();
 
                 if (!attackerCharacter) {
                     CharacterBroker.logger.warn('AttackerEvent returned no attacker!');
                 } else {
-                    attacker = new Character(attackerCharacter);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                    attacker = new Character(attackerCharacter, parseInt(payload.attacker_team_id, 10));
                 }
             }
 
