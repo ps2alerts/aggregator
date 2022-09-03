@@ -24,7 +24,7 @@ export default class OutfitwarsTerritoryDeathAction implements ActionInterface<b
         }
 
         // Bail if teams are defined already
-        if (instance.outfitwars.teams && !!instance.outfitwars.teams.blue && !!instance.outfitwars.teams.blue) {
+        if (instance.outfitwars.teams && !!instance.outfitwars.teams.blue && !!instance.outfitwars.teams.red) {
             return true;
         }
 
