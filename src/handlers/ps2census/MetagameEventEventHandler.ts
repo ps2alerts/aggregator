@@ -45,7 +45,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
         /* eslint-disable no-bitwise, @typescript-eslint/no-unsafe-assignment */
         if ((event.zone >> 16) !== 0 && (event.zone & 0xFFFF) === Zone.NEXUS) {
-            instanceId = `outfitwars-${event.world}-${Zone.NEXUS}-${(event.zone >> 16) & 0xFFFF}`;
+            instanceId = `outfitwars-${event.world}-${Zone.NEXUS}-${event.instanceId}`;
             const {
                 data: currentRound,
             } = (await this.ps2AlertsApiClient.get(
