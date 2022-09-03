@@ -273,6 +273,7 @@ export default class InstanceAuthority {
                             i.world,
                             Zone.NEXUS,
                             instanceAlias.zoneInstanceId,
+                            instanceAlias.censusInstanceId,
                             new Date(i.timeStarted),
                             null,
                             instanceAlias.result,

@@ -159,6 +159,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             message.world,
             message.zone,
             message.zoneInstanceId,
+            message.instanceId,
             time,
             null,
             null,

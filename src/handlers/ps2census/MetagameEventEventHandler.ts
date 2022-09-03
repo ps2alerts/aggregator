@@ -20,7 +20,6 @@ import {Zone} from '../../ps2alerts-constants/zone';
 import {TYPES} from '../../constants/types';
 import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {OutfitwarsRankingInterface} from '../../ps2alerts-constants/interfaces/OutfitwarsRankingInterface';
 
 @injectable()
 export default class MetagameEventEventHandler implements QueueMessageHandlerInterface<MetagameEvent> {
@@ -44,24 +43,21 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
         let instanceId = `${event.world}-${event.instanceId}`;
         let round = 0;
 
-        /* eslint-disable no-bitwise */
+        /* eslint-disable no-bitwise, @typescript-eslint/no-unsafe-assignment */
         if ((event.zone >> 16) !== 0 && (event.zone & 0xFFFF) === Zone.NEXUS) {
-            instanceId = `outfitwars-${event.world}-${Zone.NEXUS}-${(event.zone >> 16) & 0xFFFF}`;
-            await this.ps2AlertsApiClient.get(`${ps2AlertsApiEndpoints.outfitwarsRankings}?sortBy=round&order=desc&world=${event.world}`).then(
-                (value) => {
-                    if (!value.data) {
-                        throw new Error('No data received!');
-                    }
-
-                    const rankings: OutfitwarsRankingInterface[] = value.data as OutfitwarsRankingInterface[];
-                    round = rankings[0].round;
-                },
+            instanceId = `outfitwars-${event.world}-${Zone.NEXUS}-${event.instanceId}`;
+            const {
+                data: currentRound,
+            } = (await this.ps2AlertsApiClient.get(
+                ps2AlertsApiEndpoints.outfitwarsCurrentRoundByWorld.replace('{world}', event.world.toString()),
             ).catch((err: Error) => {
                 MetagameEventEventHandler.logger.warn(`Failed to retrieve rankings to get round, falling back to timestamp: ${err.message}`);
-                round = getOutfitWarRound(event.timestamp);
-            });
+                const errorRound = getOutfitWarRound(event.timestamp);
+                return {data: errorRound};
+            }));
+            round = currentRound as number;
         }
-        /* eslint-enable no-bitwise */
+        /* eslint-enable no-bitwise, @typescript-eslint/no-unsafe-assignment */
 
         const instance = this.instanceAuthority.getInstance(instanceId);
 
@@ -95,6 +91,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                         event.world,
                         Zone.NEXUS,
                         getZoneInstanceIdFromBinary(event.zone),
+                        event.instanceId,
                         event.timestamp,
                         null,
                         null,
