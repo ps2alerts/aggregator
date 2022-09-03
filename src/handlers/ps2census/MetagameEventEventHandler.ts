@@ -91,6 +91,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                         event.world,
                         Zone.NEXUS,
                         getZoneInstanceIdFromBinary(event.zone),
+                        event.instanceId,
                         event.timestamp,
                         null,
                         null,
