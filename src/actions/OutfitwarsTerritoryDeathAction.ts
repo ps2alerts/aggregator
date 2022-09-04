@@ -5,6 +5,7 @@ import {AxiosInstance} from 'axios';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Team} from '../ps2alerts-constants/outfitwars/team';
+import {Faction} from '../ps2alerts-constants/faction';
 
 export default class OutfitwarsTerritoryDeathAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('OutfitwarsTerritoryDeathAction');
@@ -25,6 +26,11 @@ export default class OutfitwarsTerritoryDeathAction implements ActionInterface<b
 
         // Bail if teams are defined already
         if (instance.outfitwars.teams && !!instance.outfitwars.teams.blue && !!instance.outfitwars.teams.red) {
+            return true;
+        }
+
+        // If any attacker / victim was NSO, stop here as we suspect the team IDs for NSO are scuffed somehow
+        if (this.event.character.faction === Faction.NS_OPERATIVES || this.event.attackerCharacter.faction === Faction.NS_OPERATIVES) {
             return true;
         }
 
