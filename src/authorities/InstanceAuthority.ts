@@ -165,7 +165,7 @@ export default class InstanceAuthority {
         InstanceAuthority.logger.info(`==== ENDING INSTANCE "${instance.instanceId}" ===`);
 
         // Remove the active instance now from memory so more messages don't get accepted
-        this.removeActiveInstance(instance);
+        await this.removeActiveInstance(instance);
 
         // Find Instance and update
         try {
@@ -186,7 +186,7 @@ export default class InstanceAuthority {
     public async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
         InstanceAuthority.logger.info(`=== TRASHING INSTANCE "${instance.instanceId}" ===`);
 
-        this.removeActiveInstance(instance);
+        await this.removeActiveInstance(instance);
 
         await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
             .catch((err: Error) => {
@@ -373,10 +373,12 @@ export default class InstanceAuthority {
         }
     }
 
-    private removeActiveInstance(instance: PS2AlertsInstanceInterface): void {
+    private async removeActiveInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
         remove(this.currentInstances, (i) => {
             return i.instanceId === instance.instanceId;
         });
+
+        await this.cacheClient.srem('ActiveInstances', instance.instanceId);
 
         InstanceAuthority.logger.debug(`=== ${instance.instanceId} removed from actives ===`);
     }
