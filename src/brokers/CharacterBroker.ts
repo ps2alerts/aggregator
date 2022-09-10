@@ -24,7 +24,10 @@ export default class CharacterBroker {
             let character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             let attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
 
-            if (payload.character_id && payload.character_id !== '0') {
+            const characterActuallyExists = payload.character_id && payload.character_id !== '0';
+
+            // Only attempt to get the character if one exists to grab
+            if (characterActuallyExists) {
                 character = new Character(await payload.character());
             }
 
@@ -33,8 +36,10 @@ export default class CharacterBroker {
                     throw new Error('AttackerEvent had no actual attacker character ID! ps2census bug');
                 }
 
-                // Re-create character with teamID supplied
-                character = new Character(await payload.character(), parseInt(payload.team_id, 10));
+                // Re-create character with teamID supplied, if character exists
+                if (characterActuallyExists) {
+                    character = new Character(await payload.character(), parseInt(payload.team_id, 10));
+                }
 
                 const attackerCharacter = await payload.attacker<CharacterWorldOutfitLeader>();
 

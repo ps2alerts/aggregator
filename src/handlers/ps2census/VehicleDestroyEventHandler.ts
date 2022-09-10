@@ -26,12 +26,10 @@ export default class VehicleDestroyEventHandler implements PS2EventQueueMessageH
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async handle(event: PS2EventQueueMessage<VehicleDestroy>): Promise<boolean> {
-        let characters: {character: Character, attacker: Character};
+        const characters: {character: Character, attacker: Character} = await this.characterBroker.get(event.payload);
 
-        try {
-            characters = await this.characterBroker.get(event.payload);
-        } catch (err) {
-            throw new Error('VehicleDestroy characters returned incorrectly. Suspected unclaimed vehicles issue.');
+        if (!characters.character) {
+            VehicleDestroyEventHandler.logger.warn(`Unclaimed vehicle detected! Serving fake character!: \r\n${jsonLogOutput(event.payload)}`);
         }
 
         const vehicleDestroyEvent = new VehicleDestroyEvent(
