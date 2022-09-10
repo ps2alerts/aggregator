@@ -15,14 +15,11 @@ export default class PopulationAuthority {
         private readonly characterPresenceHandler: CharacterPresenceHandler,
     ) {}
 
-    public async run(): Promise<void> {
+    public run(): void {
         if (this.timer) {
             PopulationAuthority.logger.warn('Attempted to run PopulationAuthority timer when already defined!');
             this.stop();
         }
-
-        // Flush all old CharacterPresenceLists
-        await this.characterPresenceHandler.flush();
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {

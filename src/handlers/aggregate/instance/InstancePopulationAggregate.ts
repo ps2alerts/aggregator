@@ -34,9 +34,13 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
         const documents: Array<{ instance: string, timestamp: Date, vs: number, nc: number, tr: number, nso: number, total: number }> = [];
 
         activeInstances.forEach((instance) => {
-            // Check if instances match data
+            // Check if instances match the event
+            if (event.instanceId !== instance.instanceId) {
+                return;
+            }
+
             documents.push({
-                instance: instance.instanceId,
+                instance: event.instanceId,
                 timestamp: new Date(),
                 vs: event.vs,
                 nc: event.nc,
