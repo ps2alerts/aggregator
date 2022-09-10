@@ -22,19 +22,30 @@ export default class PopulationAuthority {
         }
 
         // Flush all old CharacterPresenceLists
-        await this.characterPresenceHandler.flushLists();
+        await this.characterPresenceHandler.flush();
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {
             PopulationAuthority.logger.silly('Running PopulationAuthority presence collection');
 
             // Collect current population metrics from CharacterPresenceHandler
-            const populationData = await this.characterPresenceHandler.collate();
+            try {
+                const result = await this.characterPresenceHandler.collate();
 
-            // Get instances, inject populations as recorded, call handlers
-            populationData.forEach((data) => {
-                void this.populationHandler.handle(data);
-            });
+                if (!result) {
+                    PopulationAuthority.logger.debug('No pop data to collate!');
+                    return;
+                }
+
+                // Get instances, inject populations as recorded, call handlers
+                result.forEach((data) => {
+                    void this.populationHandler.handle(data);
+                });
+            } catch (err) {
+                if (err instanceof Error) {
+                    PopulationAuthority.logger.error(`Population data collation failed! ${err.message}`);
+                }
+            }
         }, 60000);
 
         PopulationAuthority.logger.debug('Created PopulationAuthority timer');
