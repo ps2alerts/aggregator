@@ -7,8 +7,6 @@ import {World} from '../ps2alerts-constants/world';
 import FactionUtils from '../utils/FactionUtils';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import Redis from 'ioredis';
-import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
-import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import ApplicationException from '../exceptions/ApplicationException';
 
 interface PresenceData {
@@ -29,21 +27,11 @@ export default class CharacterPresenceHandler {
 
     // Updates / adds characters presence, setting a Redis key with expiry.
     public async update(character: Character, instance: PS2AlertsInstanceInterface): Promise<boolean> {
-        // If OutfitWars, change instance zone to be the zoneID
-        let zone: number;
-
-        if (instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
-            zone = instance.zone;
-        } else {
-            const instanceGhost = instance as OutfitWarsTerritoryInstance;
-            zone = instanceGhost.zoneInstanceId;
-        }
-
         const data: PresenceData = {
             world: instance.world,
-            zone,
-            faction: character.teamId,
+            zone: instance.zone,
             instance: instance.instanceId,
+            faction: character.teamId,
         };
 
         // Add character as its own key which will eventually expire, with the zone of the character
