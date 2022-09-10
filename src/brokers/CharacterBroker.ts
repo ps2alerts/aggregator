@@ -7,7 +7,6 @@ import {injectable} from 'inversify';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
 import {CharacterEvent} from 'ps2census/dist/client/events/base/character.event';
 import FakeCharacterFactory from '../factories/FakeCharacterFactory';
-import {CharacterWorldOutfitLeader} from '../types/CharacterWorldOutfitLeader';
 import {getLogger} from '../logger';
 
 @injectable()
@@ -21,7 +20,7 @@ export default class CharacterBroker {
     public async get(payload: CharacterEvent): Promise<{ character: Character, attacker: Character }> {
         try {
             // Set a default in case attacker doesn't result
-            let character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
+            let character: Character;
             let attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
 
             const characterActuallyExists = payload.character_id && payload.character_id !== '0';
@@ -29,25 +28,27 @@ export default class CharacterBroker {
             // Only attempt to get the character if one exists to grab
             if (characterActuallyExists) {
                 character = new Character(await payload.character());
+            } else {
+                character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             }
 
             if (payload instanceof AttackerEvent) {
-                if (!payload.attacker_character_id || payload.attacker_character_id === '0') {
-                    throw new Error('AttackerEvent had no actual attacker character ID! ps2census bug');
-                }
-
                 // Re-create character with teamID supplied, if character exists
                 if (characterActuallyExists) {
                     character = new Character(await payload.character(), parseInt(payload.team_id, 10));
                 }
 
-                const attackerCharacter = await payload.attacker<CharacterWorldOutfitLeader>();
-
-                if (!attackerCharacter) {
-                    CharacterBroker.logger.warn('AttackerEvent returned no attacker!');
+                if (!payload.attacker_character_id || payload.attacker_character_id === '0') {
+                    attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
+                    CharacterBroker.logger.error('AttackerEvent had no actual attacker character ID! ps2census bug');
                 } else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    attacker = new Character(attackerCharacter, parseInt(payload.attacker_team_id, 10));
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    const attackerCharacter = await payload.attacker();
+
+                    if (attackerCharacter) {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        attacker = new Character(attackerCharacter, parseInt(payload.attacker_team_id, 10));
+                    } // Else serve fake
                 }
             }
 

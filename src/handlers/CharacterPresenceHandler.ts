@@ -60,7 +60,7 @@ export default class CharacterPresenceHandler {
         const characters = await this.getCharactersFromList();
 
         if (characters.length === 0) {
-            throw new ApplicationException('No characters for population! Is Collector running??');
+            throw new ApplicationException('No characters for population! Is Collector running or continent has locked?');
         }
 
         // Loop characters to get zones

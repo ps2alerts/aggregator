@@ -66,10 +66,16 @@ export default class FakeCharacterFactory {
     private readonly faction: Faction = Faction.NONE;
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    public build(world: World): Character {
+    public build(world: World, teamId: Faction | null = null): Character {
         const character = new Character(fakeCharacterCensusData);
         character.world = world;
         character.faction = this.faction;
+
+        if (!teamId) {
+            character.teamId = Faction.NONE;
+        } else {
+            character.teamId = teamId;
+        }
 
         return character;
     }
