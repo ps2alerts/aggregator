@@ -70,7 +70,8 @@ export default class CharacterPresenceHandler {
             const presenceDataString = await this.cacheClient.get(key);
 
             if (!presenceDataString) {
-                throw new ApplicationException('Presence Data empty!');
+                CharacterPresenceHandler.logger.debug(`Presence data for ${key} doesn't actually exist, skipping!`);
+                continue;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
