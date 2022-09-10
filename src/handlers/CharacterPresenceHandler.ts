@@ -13,7 +13,7 @@ interface PresenceData {
     world: World;
     zone: number;
     faction: Faction;
-    instance: string;
+    instanceId: string;
 }
 
 @injectable()
@@ -30,7 +30,7 @@ export default class CharacterPresenceHandler {
         const data: PresenceData = {
             world: instance.world,
             zone: instance.zone,
-            instance: instance.instanceId,
+            instanceId: instance.instanceId,
             faction: character.teamId,
         };
 
@@ -79,15 +79,17 @@ export default class CharacterPresenceHandler {
             // Why we can't use these directly in the .set I do not know
             const world = presenceData.world;
             const zone = presenceData.zone;
+            const instanceId = presenceData.instanceId;
             const faction = presenceData.faction;
 
-            const mapKey = `${presenceData.world}-${presenceData.zone}-${presenceData.instance}`;
+            const mapKey = `${world}-${zone}-${instanceId}`;
 
             // If zone isn't initialized, set it now
             if (!populationDataMap.has(mapKey)) {
                 populationDataMap.set(mapKey, {
                     world,
                     zone,
+                    instanceId,
                     vs: 0,
                     nc: 0,
                     tr: 0,
@@ -117,6 +119,7 @@ export default class CharacterPresenceHandler {
             const newZonePops = {
                 world,
                 zone,
+                instanceId,
                 vs: zoneRecord.vs,
                 nc: zoneRecord.nc,
                 tr: zoneRecord.tr,
@@ -135,24 +138,9 @@ export default class CharacterPresenceHandler {
         return populationDataMap;
     }
 
-    public async flush(): Promise<void> {
-        CharacterPresenceHandler.logger.info('Flushing character presence lists ', 'CharacterPresenceHandler');
-
-        const characters = await this.cacheClient.smembers('Character');
-
-        // eslint-disable-next-line @typescript-eslint/no-for-in-array
-        for (const index in characters) {
-            const key = `${this.charKeyPrefix}-${characters[index]}`;
-            await this.cacheClient.del(key);
-            CharacterPresenceHandler.logger.debug(`Deleted ${key}`, 'CharacterPresenceHandler');
-        }
-
-        // Delete the list itself
-        await this.cacheClient.del(this.charListName);
-    }
-
     private async getCharactersFromList(): Promise<string[]> {
         let changes = false;
+
         const chars = await this.cacheClient.smembers(this.charListName);
 
         // For each character, loop through and check if they still exist in Redis, which is based off an expiry.
@@ -171,7 +159,7 @@ export default class CharacterPresenceHandler {
 
         // Since the above list has been changed, we'll return the characters again.
         if (changes) {
-            return await this.cacheClient.smembers(this.charListName);
+            return this.cacheClient.smembers(this.charListName);
         }
 
         return chars;

@@ -5,6 +5,7 @@ export default class PopulationData {
     constructor(
         public readonly world: World,
         public readonly zone: Zone | number,
+        public readonly instanceId: string,
         public readonly vs: number,
         public readonly nc: number,
         public readonly tr: number,
