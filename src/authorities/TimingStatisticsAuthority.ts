@@ -1,6 +1,5 @@
-import {getLogger} from '../logger';
 import Redis from 'ioredis';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import config from '../config';
 
 interface TableDisplayInterface {
@@ -12,9 +11,9 @@ interface TableDisplayInterface {
     max: string;
 }
 
-@injectable()
+@Injectable()
 export default class TimingStatisticsAuthority {
-    private static readonly logger = getLogger('TimingStatisticsAuthority');
+    private static readonly logger = new Logger('TimingStatisticsAuthority');
     private readonly runId = config.app.runId;
     private timer?: NodeJS.Timeout;
     private readonly eventTypes = ['Death', 'FacilityControl', 'GainExperience', 'VehicleDestroy'];
@@ -107,7 +106,7 @@ export default class TimingStatisticsAuthority {
             if (show) {
                 TimingStatisticsAuthority.logger.debug('Message Metrics:');
 
-                if (TimingStatisticsAuthority.logger.isDebugEnabled()) {
+                if (config.logger.silly) {
                     console.table(tableData);
                 }
             }

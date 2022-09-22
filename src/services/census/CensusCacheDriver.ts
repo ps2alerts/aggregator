@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types */
 
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import {CacheContract} from 'ps2census';
 import Redis from 'ioredis';
 
-@injectable()
+@Injectable()
 export default class CensusCacheDriver implements CacheContract {
     constructor(
         private readonly cacheClient: Redis,

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
@@ -10,9 +9,9 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ExceptionHandler from '../../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 export default class GlobalFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
-    private static readonly logger = getLogger('GlobalFacilityControlAggregate');
+    private static readonly logger = new Logger('GlobalFacilityControlAggregate');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
@@ -20,7 +19,7 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        GlobalFacilityControlAggregate.logger.silly('GlobalFacilityControlAggregate.handle');
+        GlobalFacilityControlAggregate.logger.debug('GlobalFacilityControlAggregate.handle');
 
         const documents = [];
 

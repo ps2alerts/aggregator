@@ -1,16 +1,13 @@
-import {injectable} from 'inversify';
-import ServiceInterface from '../../interfaces/ServiceInterface';
-import {getLogger} from '../../logger';
+import {Injectable, Logger, OnApplicationBootstrap, OnModuleInit} from '@nestjs/common';
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
 import TimingStatisticsAuthority from '../../authorities/TimingStatisticsAuthority';
 import QueueAuthority from '../../authorities/QueueAuthority';
 
-@injectable()
-export default class AuthorityService implements ServiceInterface {
-    public readonly bootPriority = 50;
-    private static readonly logger = getLogger('AuthorityService');
+@Injectable()
+export default class AuthorityService implements OnModuleInit, OnApplicationBootstrap {
+    private static readonly logger = new Logger('AuthorityService');
 
     constructor(
         private readonly instanceAuthority: InstanceAuthority,
@@ -20,14 +17,12 @@ export default class AuthorityService implements ServiceInterface {
         private readonly timingStatisticsAuthority: TimingStatisticsAuthority,
     ) {}
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async boot(): Promise<void> {
+    public async onModuleInit(): Promise<void> {
         AuthorityService.logger.debug('Booting Authority Services...');
         await this.timingStatisticsAuthority.run();
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async start(): Promise<void> {
+    public async onApplicationBootstrap(): Promise<void> {
         await this.instanceAuthority.init();
 
         AuthorityService.logger.debug('Starting Authority Services...');
@@ -35,8 +30,4 @@ export default class AuthorityService implements ServiceInterface {
         await this.populationAuthority.run();
         this.queueAuthority.run();
     }
-
-    // This isn't implemented as it appears to do it automatically
-    // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-empty-function
-    public async terminate(): Promise<void> {}
 }

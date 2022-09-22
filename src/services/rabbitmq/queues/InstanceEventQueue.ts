@@ -3,28 +3,19 @@
 import {AmqpConnectionManager} from 'amqp-connection-manager';
 import {RabbitMQQueue} from './RabbitMQQueue';
 import {PS2AlertsQueueInterface} from '../../../interfaces/PS2AlertsQueueInterface';
-import {
-    CensusClient,
-    Death,
-    FacilityControl,
-    GainExperience,
-    PS2Event,
-    Stream,
-    VehicleDestroy,
-} from 'ps2census';
+import {CensusClient, Death, FacilityControl, GainExperience, PS2Event, Stream, VehicleDestroy} from 'ps2census';
 import {ConfirmChannel, ConsumeMessage} from 'amqplib';
 import {Options} from 'amqplib/properties';
 import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
 import config from '../../../config';
-import {getLogger} from '../../../logger';
-import TimingMiddlewareHandler from '../../../middlewares/TimingMiddlewareHandler';
+import TimingMiddlewareHandler from '../middlewares/TimingMiddlewareHandler';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import InstanceAbstract from '../../../instances/InstanceAbstract';
+import {Logger} from '@nestjs/common';
 
 export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
-    private static readonly classLogger = getLogger('InstanceEventQueue');
+    private static readonly classLogger = new Logger('InstanceEventQueue');
     private readonly exchange = config.rabbitmq.topicExchange;
-    private readonly thisQueueName;
 
     constructor(
         connectionManager: AmqpConnectionManager,
@@ -37,7 +28,6 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
         private readonly censusClient: CensusClient,
     ) {
         super(connectionManager, queueName);
-        this.thisQueueName = queueName;
     }
 
     public async connect(): Promise<void> {
@@ -55,9 +45,9 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
                     channel.checkExchange(this.exchange),
-                    channel.assertQueue(this.thisQueueName, queueOptions),
+                    channel.assertQueue(this.queueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.thisQueueName, this.exchange, this.pattern);
+                await channel.bindQueue(this.queueName, this.exchange, this.pattern);
 
                 // If the queue requires a consumer
                 const consumerOptions: Options.Consume = {
@@ -67,9 +57,9 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                 await channel.prefetch(this.prefetch);
 
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                await channel.consume(this.thisQueueName, async (message) => {
+                await channel.consume(this.queueName, async (message) => {
                     if (!message) {
-                        InstanceEventQueue.classLogger.error(`[${this.thisQueueName}] Message was empty!`);
+                        InstanceEventQueue.classLogger.error(`[${this.queueName}] Message was empty!`);
                         return;
                     }
 
@@ -91,7 +81,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                     } catch (err) {
                         // Do not throw an exception or the app will terminate!
                         if (err instanceof Error) {
-                            InstanceEventQueue.classLogger.error(`[${this.thisQueueName}] Unable to properly handle message! ${err.message}`);
+                            InstanceEventQueue.classLogger.error(`[${this.queueName}] Unable to properly handle message! ${err.message}`);
                         }
 
                         this.handleMessageConfirm(message, 'ack'); // Critical error, probably unprocessable so we're chucking

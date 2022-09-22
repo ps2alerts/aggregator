@@ -1,5 +1,4 @@
-import {inject, injectable, multiInject} from 'inversify';
-import {getLogger} from '../../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import FacilityControlEvent from './events/FacilityControlEvent';
 import {TYPES} from '../../constants/types';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
@@ -14,16 +13,16 @@ import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpo
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 
-@injectable()
+@Injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
     public readonly eventName = 'FacilityControl';
-    private static readonly logger = getLogger('FacilityControlEventHandler');
+    private static readonly logger = new Logger('FacilityControlEventHandler');
 
     constructor(
         private readonly facilityDataBroker: FacilityDataBroker,
         private readonly instanceActionFactory: InstanceActionFactory,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-        @multiInject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
     ) {}
 
     public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean>{

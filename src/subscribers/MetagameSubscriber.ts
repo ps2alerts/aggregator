@@ -1,38 +1,36 @@
 // noinspection JSMethodCanBeStatic
 
-import {injectable} from 'inversify';
-import {getLogger} from '../../../logger';
-import {pcWorldArray, World} from '../../../ps2alerts-constants/world';
-import config from '../../../config';
-import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
-import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
-import {MetagameEventQueue} from '../queues/MetagameEventQueue';
-import MetagameEventEventHandler from '../../../handlers/ps2census/MetagameEventEventHandler';
+import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
+import {pcWorldArray, World} from '../ps2alerts-constants/world';
+import config from '../config';
+import RabbitMQQueueFactory from '../services/rabbitmq/factories/RabbitMQQueueFactory';
+import {MetagameEventQueue} from '../services/rabbitmq/queues/MetagameEventQueue';
+import MetagameEventEventHandler from '../handlers/ps2census/MetagameEventEventHandler';
 
-@injectable()
-export default class MetagameSubscriber implements RabbitMQQueueWrapperInterface {
-    private static readonly logger = getLogger('MetagameSubscriber');
+@Injectable()
+export default class MetagameSubscriber implements OnModuleInit {
+    private static readonly logger = new Logger('MetagameSubscriber');
     private readonly queues = new Map<World, MetagameEventQueue>();
     private isConnected = false;
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
         private readonly metagameEventHandler: MetagameEventEventHandler,
-    ) {}
+    ) {
+    }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async connect(): Promise<void> {
+    public async onModuleInit(): Promise<void> {
         if (this.isConnected) {
             MetagameSubscriber.logger.error('Attempted to resubscribe to Metagame queues when already connected!');
             return;
         }
 
         if (!config.census.metagameQueuesEnabled) {
-            MetagameSubscriber.logger.info('MetagameEvent queue creation is disabled. Not creating / subscribing to queues.');
+            MetagameSubscriber.logger.log('MetagameEvent queue creation is disabled. Not creating / subscribing to queues.');
             return;
         }
 
-        MetagameSubscriber.logger.info('Creating world MetagameEvent queues...');
+        MetagameSubscriber.logger.log('Creating world MetagameEvent queues...');
 
         // Subscribe only to worlds that make sense for the environment
         const censusEnv = config.census.censusEnvironment;
@@ -57,6 +55,6 @@ export default class MetagameSubscriber implements RabbitMQQueueWrapperInterface
 
         this.isConnected = true;
 
-        MetagameSubscriber.logger.info('Successfully subscribed MetagameEvent queues!');
+        MetagameSubscriber.logger.log('Successfully subscribed MetagameEvent queues!');
     }
 }

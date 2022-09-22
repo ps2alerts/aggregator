@@ -1,5 +1,4 @@
-import {inject, injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
@@ -16,14 +15,14 @@ import {getZoneVersion} from '../utils/zoneVersion';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {getRealZoneId} from '../utils/zoneIdHandler';
 
-@injectable()
+@Injectable()
 export default class FacilityDataBroker {
-    private static readonly logger = getLogger('FacilityDataBroker');
+    private static readonly logger = new Logger('FacilityDataBroker');
 
     constructor(
         private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
     ) {}
 
     public async get(event: PS2EventQueueMessage<FacilityControl>): Promise<FacilityDataInterface> {
@@ -41,10 +40,10 @@ export default class FacilityDataBroker {
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache HIT`);
+            FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return new FacilityData(JSON.parse(<string>data), zone);
+            return new FacilityData(JSON.parse(data), zone);
         }
 
         FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache MISS`);

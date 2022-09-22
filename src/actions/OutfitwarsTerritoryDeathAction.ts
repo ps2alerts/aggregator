@@ -1,4 +1,3 @@
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
@@ -6,9 +5,10 @@ import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {Faction} from '../ps2alerts-constants/faction';
+import {Logger} from '@nestjs/common';
 
 export default class OutfitwarsTerritoryDeathAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('OutfitwarsTerritoryDeathAction');
+    private static readonly logger = new Logger('OutfitwarsTerritoryDeathAction');
 
     constructor(
         private readonly event: DeathEvent,
@@ -41,19 +41,19 @@ export default class OutfitwarsTerritoryDeathAction implements ActionInterface<b
 
         // Update team from attacker character team id (if the team is not already defined)
         if (this.event.attackerTeamId.valueOf() === Team.BLUE && !instance.outfitwars.teams.blue) {
-            OutfitwarsTerritoryDeathAction.logger.info(`[${this.event.instance.instanceId}] Updating blue team outfit to '${this.event.attackerCharacter.outfit.name}' from DeathEvent using teamId :o`);
+            OutfitwarsTerritoryDeathAction.logger.log(`[${this.event.instance.instanceId}] Updating blue team outfit to '${this.event.attackerCharacter.outfit.name}' from DeathEvent using teamId :o`);
             instance.outfitwars.teams.blue = this.event.attackerCharacter.outfit;
         } else if (this.event.attackerTeamId.valueOf() === Team.RED && !instance.outfitwars.teams.red) {
-            OutfitwarsTerritoryDeathAction.logger.info(`[${this.event.instance.instanceId}] Updating red team outfit to '${this.event.attackerCharacter.outfit.name}' from DeathEvent using teamId :o`);
+            OutfitwarsTerritoryDeathAction.logger.log(`[${this.event.instance.instanceId}] Updating red team outfit to '${this.event.attackerCharacter.outfit.name}' from DeathEvent using teamId :o`);
             instance.outfitwars.teams.red = this.event.attackerCharacter.outfit;
         }
 
         // Update team from victim character team id (if the team is not already defined)
         if (this.event.teamId.valueOf() === Team.BLUE && !instance.outfitwars.teams.blue) {
-            OutfitwarsTerritoryDeathAction.logger.info(`[${this.event.instance.instanceId}] Updating blue team outfit to '${this.event.character.outfit.name}' from DeathEvent using teamId :o`);
+            OutfitwarsTerritoryDeathAction.logger.log(`[${this.event.instance.instanceId}] Updating blue team outfit to '${this.event.character.outfit.name}' from DeathEvent using teamId :o`);
             instance.outfitwars.teams.blue = this.event.character.outfit;
         } else if (this.event.teamId.valueOf() === Team.RED && !instance.outfitwars.teams.red) {
-            OutfitwarsTerritoryDeathAction.logger.info(`[${this.event.instance.instanceId}] Updating red team outfit to '${this.event.character.outfit.name}' from DeathEvent using teamId :o`);
+            OutfitwarsTerritoryDeathAction.logger.log(`[${this.event.instance.instanceId}] Updating red team outfit to '${this.event.character.outfit.name}' from DeathEvent using teamId :o`);
             instance.outfitwars.teams.red = this.event.character.outfit;
         }
 

@@ -1,11 +1,10 @@
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
-import {getLogger} from '../logger';
 import InstanceAuthority from './InstanceAuthority';
 
-@injectable()
+@Injectable()
 export default class OverdueInstanceAuthority {
-    private static readonly logger = getLogger('OverdueInstanceAuthority');
+    private static readonly logger = new Logger('OverdueInstanceAuthority');
     private timer?: NodeJS.Timeout;
 
     constructor(private readonly instanceAuthority: InstanceAuthority) {}
@@ -17,7 +16,7 @@ export default class OverdueInstanceAuthority {
         }
 
         this.timer = setInterval(() => {
-            OverdueInstanceAuthority.logger.silly('Running OverdueInstanceAuthority overdue alert check');
+            OverdueInstanceAuthority.logger.debug('Running OverdueInstanceAuthority overdue alert check');
 
             this.instanceAuthority.getAllInstances().filter((instance) => {
                 return instance.overdue();

@@ -1,4 +1,4 @@
-import {inject, injectable} from 'inversify';
+import {Inject, Injectable} from '@nestjs/common';
 import {TYPES} from '../constants/types';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Rest} from 'ps2census';
@@ -11,10 +11,10 @@ import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCal
 // import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
 // import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 
-@injectable()
+@Injectable()
 export default class TerritoryCalculatorFactory {
     constructor(
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
     ) {}

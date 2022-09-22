@@ -4,12 +4,12 @@ import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import ApplicationException from '../exceptions/ApplicationException';
 import moment from 'moment/moment';
 import {PS2Event} from 'ps2census';
-import {getLogger} from '../logger';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Zone} from '../ps2alerts-constants/zone';
+import {Logger} from '@nestjs/common';
 
 export default abstract class InstanceAbstract {
-    private static readonly logger = getLogger('InstanceAbstract');
+    private static readonly logger = new Logger('InstanceAbstract');
 
     protected constructor(
         public readonly instanceId: string, // 10-12345

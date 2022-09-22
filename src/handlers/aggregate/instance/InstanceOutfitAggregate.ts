@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import {Kill} from 'ps2census';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
@@ -12,9 +11,9 @@ import FactionUtils from '../../../utils/FactionUtils';
 import ExceptionHandler from '../../system/ExceptionHandler';
 import {Faction} from '../../../ps2alerts-constants/faction';
 
-@injectable()
+@Injectable()
 export default class InstanceOutfitAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('InstanceOutfitAggregate');
+    private static readonly logger = new Logger('InstanceOutfitAggregate');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
@@ -22,7 +21,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceOutfitAggregate.logger.silly('InstanceOutfitAggregate.handle');
+        InstanceOutfitAggregate.logger.debug('InstanceOutfitAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

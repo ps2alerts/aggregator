@@ -12,7 +12,7 @@
  * ### END ###
  **/
 
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import {Zone} from '../../../ps2alerts-constants/zone';
@@ -26,7 +26,7 @@ import {
 } from '../../../ps2alerts-constants/metagameEventType';
 import ApplicationException from '../../../exceptions/ApplicationException';
 
-@injectable()
+@Injectable()
 export default class MetagameEventEvent {
     public readonly world: World;
     public readonly eventState: MetagameEventState;

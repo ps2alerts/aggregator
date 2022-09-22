@@ -3,15 +3,14 @@
 import Character from '../data/Character';
 import {AttackerEvent, MaxRetryException} from 'ps2census';
 import ApplicationException from '../exceptions/ApplicationException';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
 import {CharacterEvent} from 'ps2census/dist/client/events/base/character.event';
 import FakeCharacterFactory from '../factories/FakeCharacterFactory';
-import {getLogger} from '../logger';
 
-@injectable()
+@Injectable()
 export default class CharacterBroker {
-    private static readonly logger = getLogger('CharacterBroker');
+    private static readonly logger = new Logger('CharacterBroker');
 
     constructor(
         private readonly fakeCharacterFactory: FakeCharacterFactory,

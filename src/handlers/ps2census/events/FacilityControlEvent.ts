@@ -12,7 +12,7 @@
  * ### END ###
  **/
 
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import Parser from '../../../utils/parser';
 import FactionUtils, {FactionName} from '../../../utils/FactionUtils';
@@ -21,13 +21,17 @@ import {FacilityControl} from 'ps2census';
 import {FacilityDataInterface} from '../../../interfaces/FacilityDataInterface';
 import InstanceEvent from './InstanceEvent';
 import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
-import {MetagameTerritoryControlResultInterface} from '../../../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
-import {OutfitwarsTerritoryResultInterface} from '../../../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
+import {
+    MetagameTerritoryControlResultInterface,
+} from '../../../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {
+    OutfitwarsTerritoryResultInterface,
+} from '../../../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInstance';
 import OutfitWarsTerritoryInstance from '../../../instances/OutfitWarsTerritoryInstance';
 
-@injectable()
+@Injectable()
 export default class FacilityControlEvent extends InstanceEvent {
     public readonly oldFaction: Faction;
     public readonly oldFactionName: FactionName;

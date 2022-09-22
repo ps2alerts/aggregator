@@ -1,12 +1,12 @@
-import {injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {Injectable, Logger} from '@nestjs/common';
 import {World} from '../ps2alerts-constants/world';
 import moment from 'moment-timezone';
 import {Moment} from 'moment';
 
-@injectable()
+// TODO: Not used?!
+@Injectable()
 export default class LocalServerTimeCalculator {
-    private static readonly logger = getLogger('LocalServerTimeCalculator');
+    private static readonly logger = new Logger('LocalServerTimeCalculator');
 
     constructor(
         private readonly world: World,
@@ -42,8 +42,8 @@ export default class LocalServerTimeCalculator {
                 time = moment(utcDate).tz('UTC'); // Jaeger shouldn't have brackets as it makes no sense for it to do so.
         }
 
-        LocalServerTimeCalculator.logger.silly(`Local server hour is ${time.hour()}`);
-        LocalServerTimeCalculator.logger.silly(`Is DST? ${time.isDST() ? 'yes' : 'no'}`);
+        LocalServerTimeCalculator.logger.debug(`Local server hour is ${time.hour()}`);
+        LocalServerTimeCalculator.logger.debug(`Is DST? ${time.isDST() ? 'yes' : 'no'}`);
 
         return time.hour();
     }

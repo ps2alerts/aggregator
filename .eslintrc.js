@@ -17,6 +17,7 @@ module.exports = {
     ],
     "rules": {
         // @typescript-eslint rules
+        " @typescript-eslint/no-unsafe-argument": 0,
         "@typescript-eslint/array-type": [
             "error",
             {
@@ -27,7 +28,7 @@ module.exports = {
             "error",
             "interface"
         ],
-        "@typescript-eslint/explicit-function-return-type": "error",
+        "@typescript-eslint/explicit-function-return-type": "warn",
         "@typescript-eslint/explicit-member-accessibility": [
             "error",
             {

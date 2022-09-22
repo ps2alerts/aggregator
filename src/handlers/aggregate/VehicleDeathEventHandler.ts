@@ -1,5 +1,4 @@
-import {injectable} from 'inversify';
-import {getLogger} from '../../logger';
+import {Injectable, Logger} from '@nestjs/common';
 import ApiMQMessage from '../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
@@ -11,9 +10,9 @@ import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage'
 import {Bracket} from '../../ps2alerts-constants/bracket';
 import ExceptionHandler from '../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 export default class VehicleDeathEventHandler implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('VehicleDeathEventHandler');
+    private static readonly logger = new Logger('VehicleDeathEventHandler');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
@@ -25,7 +24,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
      * @param event
      */
     public async handle(event: DeathEvent): Promise<boolean> {
-        VehicleDeathEventHandler.logger.silly('VehicleDeathEventHandler.handle');
+        VehicleDeathEventHandler.logger.debug('VehicleDeathEventHandler.handle');
 
         const documents = new VehicleCharacterDeathLogic(event, 'VehicleAggregateHandler').calculate();
 

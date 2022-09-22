@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios, {AxiosInstance} from 'axios';
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import config from '../config';
 
-@injectable()
+@Injectable()
 export class Ps2AlertsApiDriver {
     private readonly httpClient: AxiosInstance;
 

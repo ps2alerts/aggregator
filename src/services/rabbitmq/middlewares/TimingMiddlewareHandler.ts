@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access */
 
 // This class is usually called in front of ZoneMessageQueueHandler, not the actual handlers themselves.
-import {injectable} from 'inversify';
-import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
+import {Injectable} from '@nestjs/common';
+import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
 import Redis from 'ioredis';
 import {PS2Event} from 'ps2census';
-import config from '../config';
+import config from '../../../config';
 
-@injectable()
+@Injectable()
 export default class TimingMiddlewareHandler {
     private readonly runId = config.app.runId;
 

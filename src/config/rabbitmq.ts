@@ -1,7 +1,7 @@
 import {get, getInt} from '../utils/env';
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 
-@injectable()
+@Injectable()
 export default class RabbitMQ {
     public readonly host = get('RABBITMQ_HOST', 'ps2alerts-mq');
     public readonly port = getInt('RABBITMQ_PORT', 5672);
@@ -14,4 +14,8 @@ export default class RabbitMQ {
     public readonly timeout = 5000;
     public readonly apiQueueName = get('RABBITMQ_API_QUEUE', 'api-queue');
     public readonly apiDelayQueueName = get('RABBITMQ_API_QUEUE_DELAY', 'api-queue-delay');
+
+    get connectionUrl(): string {
+        return `amqp://${this.user}:${this.pass}@${this.host}:${this.port}${this.vhost}?heartbeat=${this.heartbeat}&connection_timeout=${this.timeout}`;
+    }
 }

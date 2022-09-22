@@ -3,7 +3,6 @@ import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import {Zone} from '../ps2alerts-constants/zone';
 import {Rest} from 'ps2census';
-import {getLogger} from '../logger';
 import Redis from 'ioredis';
 import {
     CensusFacilityRegion,
@@ -12,9 +11,10 @@ import {
 } from '../interfaces/CensusRegionEndpointInterfaces';
 import ZoneDataParser from './ZoneDataParser';
 import InstanceAbstract from '../instances/InstanceAbstract';
+import {Logger} from '@nestjs/common';
 
 export default class CensusMapRegionQueryParser {
-    private static readonly logger = getLogger('CensusMapRegionQueryParser');
+    private static readonly logger = new Logger('CensusMapRegionQueryParser');
 
     private readonly oshurData: CensusFacilityRegion[];
 
@@ -121,6 +121,6 @@ export default class CensusMapRegionQueryParser {
             return row.RowData.RegionId === oshurRow.map_region_id;
         });
 
-        return foundRegion[0] ?? [];
+        return foundRegion[0];
     }
 }

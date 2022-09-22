@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import VehicleDestroyEvent from '../ps2census/events/VehicleDestroyEvent';
-import {getLogger} from '../../logger';
 import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
 import VehicleDestroyLogic from '../../logics/VehicleDestroyLogic';
 import {MqAcceptedPatterns} from '../../ps2alerts-constants/mqAcceptedPatterns';
@@ -12,9 +11,9 @@ import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage'
 import {Bracket} from '../../ps2alerts-constants/bracket';
 import ExceptionHandler from '../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 export default class VehicleAggregateHandler implements AggregateHandlerInterface<VehicleDestroyEvent> {
-    private static readonly logger = getLogger('VehicleAggregateHandler');
+    private static readonly logger = new Logger('VehicleAggregateHandler');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
@@ -22,7 +21,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
     ) {}
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
-        VehicleAggregateHandler.logger.silly('VehicleAggregateHandler.handle');
+        VehicleAggregateHandler.logger.debug('VehicleAggregateHandler.handle');
 
         const documents = new VehicleDestroyLogic(event, 'VehicleAggregateHandler').calculate();
 

@@ -1,4 +1,3 @@
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
@@ -7,9 +6,10 @@ import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstanc
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {Rest} from 'ps2census';
 import Outfit from '../data/Outfit';
+import {Logger} from '@nestjs/common';
 
 export default class OutfitwarsTerritoryTeamAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('OutfitwarsTerritoryTeamAction');
+    private static readonly logger = new Logger('OutfitwarsTerritoryTeamAction');
 
     constructor(
         private readonly instance: OutfitWarsTerritoryInstance,

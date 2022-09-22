@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {Zone, zoneArray} from '../ps2alerts-constants/zone';
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import ApplicationException from '../exceptions/ApplicationException';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {getZoneVersion} from '../utils/zoneVersion';
 
-@injectable()
+@Injectable()
 export default class ZoneDataParser {
     private readonly regionMap = new Map<Zone, CensusFacilityRegion[]>();
     private readonly latticeMap = new Map<Zone, Map<string, Set<string>>>();

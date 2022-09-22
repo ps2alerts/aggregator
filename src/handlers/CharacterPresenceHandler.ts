@@ -1,5 +1,4 @@
-import {injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {Injectable, Logger} from '@nestjs/common';
 import PopulationData from '../data/PopulationData';
 import {Faction} from '../ps2alerts-constants/faction';
 import Character from '../data/Character';
@@ -8,6 +7,7 @@ import FactionUtils from '../utils/FactionUtils';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import Redis from 'ioredis';
 import ApplicationException from '../exceptions/ApplicationException';
+import config from '../config';
 
 interface PresenceData {
     world: World;
@@ -16,9 +16,9 @@ interface PresenceData {
     instanceId: string;
 }
 
-@injectable()
+@Injectable()
 export default class CharacterPresenceHandler {
-    private static readonly logger = getLogger('CharacterPresenceHandler');
+    private static readonly logger = new Logger('CharacterPresenceHandler');
 
     private readonly charListName = 'CharacterPresenceList';
     private readonly charKeyPrefix = 'CharacterPresence';
@@ -132,7 +132,7 @@ export default class CharacterPresenceHandler {
             populationDataMap.set(mapKey, newZonePops);
         }
 
-        if (CharacterPresenceHandler.logger.isSillyEnabled()) {
+        if (config.logger.silly) {
             console.log(populationDataMap);
         }
 
@@ -152,7 +152,7 @@ export default class CharacterPresenceHandler {
             const exists = await this.cacheClient.exists(`${this.charKeyPrefix}-${characterRef}`);
 
             if (!exists) {
-                CharacterPresenceHandler.logger.silly(`Removing stale char ${characterRef} from set listName`);
+                CharacterPresenceHandler.logger.debug(`Removing stale char ${characterRef} from set listName`);
                 await this.cacheClient.srem(this.charListName, characterRef);
                 changes = true;
             }

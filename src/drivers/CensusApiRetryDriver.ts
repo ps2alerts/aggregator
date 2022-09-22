@@ -1,10 +1,10 @@
-import {getLogger} from '../logger';
 import {Rest} from 'ps2census';
 import {promiseTimeout} from '../utils/PromiseTimeout';
+import {Logger} from '@nestjs/common';
 
 // This class exists as Census occasionally sends us invalid responses, and we must retry them.
 export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
-    private static readonly logger = getLogger('CensusApiRetryDriver');
+    private static readonly logger = new Logger('CensusApiRetryDriver');
 
     // The below with the combination gives Census 30 seconds to recover before we abort a query.
     private readonly retryLimit = 12;
@@ -19,7 +19,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
     public async try(attempts = 0): Promise<Rest.CensusResponse<Rest.Format<T>> | undefined> {
         attempts++;
 
-        CensusApiRetryDriver.logger.silly(`[${this.caller}] Attempt #${attempts}...`);
+        CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempt #${attempts}...`);
 
         try {
             if (attempts > 2) {
@@ -30,7 +30,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
             const res = await promiseTimeout(this.query.get(this.filter), 10000);
 
             if (attempts > 1) {
-                CensusApiRetryDriver.logger.info(`[${this.caller}] Retry for Census ${this.query.collection} successful at attempt #${attempts}`);
+                CensusApiRetryDriver.logger.log(`[${this.caller}] Retry for Census ${this.query.collection} successful at attempt #${attempts}`);
             }
 
             return res;

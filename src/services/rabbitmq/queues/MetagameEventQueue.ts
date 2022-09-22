@@ -7,11 +7,10 @@ import {CensusClient, MetagameEvent, Stream} from 'ps2census';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {Options} from 'amqplib/properties';
 import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
-import {getLogger} from '../../../logger';
+import {Logger} from '@nestjs/common';
 
 export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
-    private static readonly classLogger = getLogger('MetagameEventQueue');
-    private readonly thisQueueName;
+    private static readonly classLogger = new Logger('MetagameEventQueue');
 
     constructor(
         connectionManager: AmqpConnectionManager,
@@ -21,7 +20,6 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
         private readonly censusClient: CensusClient,
     ) {
         super(connectionManager, queueName);
-        this.thisQueueName = queueName;
     }
 
     public async connect(): Promise<void> {
@@ -36,16 +34,16 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
                     channel.checkExchange(config.rabbitmq.topicExchange),
-                    channel.assertQueue(this.thisQueueName, queueOptions),
+                    channel.assertQueue(this.queueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.thisQueueName, config.rabbitmq.topicExchange, this.pattern);
+                await channel.bindQueue(this.queueName, config.rabbitmq.topicExchange, this.pattern);
 
                 const consumerOptions: Options.Consume = {
                     priority: 0,
                 };
 
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                await channel.consume(this.thisQueueName, async (message) => {
+                await channel.consume(this.queueName, async (message) => {
                     if (!message) {
                         throw new ApplicationException('MetagameEvent Message was empty!', 'RabbitMQCensusStreamFactory.MetgameEventQueue');
                     }
@@ -68,7 +66,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                     } catch (err) {
                         // Do not throw an exception or the app will terminate!
                         if (err instanceof Error) {
-                            MetagameEventQueue.classLogger.error(`[${this.thisQueueName}] Unable to properly handle MetagameEvent message! ${err.message}`);
+                            MetagameEventQueue.classLogger.error(`[${this.queueName}] Unable to properly handle MetagameEvent message! ${err.message}`);
                         }
 
                         channel.ack(message);

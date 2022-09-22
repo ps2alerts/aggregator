@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import FactionUtils from '../utils/FactionUtils';
@@ -9,10 +8,13 @@ import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHan
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
-import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {
+    MetagameTerritoryControlResultInterface,
+} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {Logger} from '@nestjs/common';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
+    private static readonly logger = new Logger('MetagameTerritoryInstanceEndAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
@@ -23,7 +25,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
     ) {}
 
     public async execute(): Promise<boolean> {
-        MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
+        MetagameTerritoryInstanceEndAction.logger.log(`[${this.instance.instanceId}] Running endAction`);
 
         const endTime = new Date();
 
@@ -54,9 +56,9 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         }
 
         if (result.draw) {
-            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] resulted in a DRAW!`);
+            MetagameTerritoryInstanceEndAction.logger.log(`[${this.instance.instanceId}] resulted in a DRAW!`);
         } else {
-            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] victor is: ${FactionUtils.parseFactionIdToShortName(result.victor).toUpperCase()}!`);
+            MetagameTerritoryInstanceEndAction.logger.log(`[${this.instance.instanceId}] victor is: ${FactionUtils.parseFactionIdToShortName(result.victor).toUpperCase()}!`);
         }
 
         // Update the world, zone and bracket aggregators

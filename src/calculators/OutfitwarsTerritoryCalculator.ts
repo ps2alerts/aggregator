@@ -7,15 +7,15 @@ import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import {Rest} from 'ps2census';
 import ZoneDataParser from '../parsers/ZoneDataParser';
-import {getLogger} from '../logger';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Faction} from '../ps2alerts-constants/faction';
+import {Logger} from '@nestjs/common';
 
 export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<OutfitwarsTerritoryResultInterface> {
-    private static readonly classLogger = getLogger('OutfitwarsTerritoryCalculator');
+    private static readonly classLogger = new Logger('OutfitwarsTerritoryCalculator');
 
     constructor(
         protected readonly instance: OutfitWarsTerritoryInstance,

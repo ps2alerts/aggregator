@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
@@ -11,9 +10,10 @@ import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
+import {Logger} from '@nestjs/common';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
+    private static readonly logger = new Logger('MetagameInstanceTerritoryStartAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
@@ -24,8 +24,8 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     ) {}
 
     public async execute(): Promise<boolean> {
-        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()`);
-        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Trying to get initial map state`);
+        MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Running startActions()`);
+        MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Trying to get initial map state`);
 
         const docs = await this.getInitialMap();
 
@@ -40,7 +40,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
         });
 
-        MetagameInstanceTerritoryStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
+        MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Inserted initial map state`);
 
         return true;
     }

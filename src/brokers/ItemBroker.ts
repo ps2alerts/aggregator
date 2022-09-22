@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {inject, injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {TYPES} from '../constants/types';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
@@ -16,14 +15,14 @@ import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints'
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import Redis from 'ioredis';
 
-@injectable()
+@Injectable()
 export default class ItemBroker implements ItemBrokerInterface {
-    private static readonly logger = getLogger('ItemBroker');
+    private static readonly logger = new Logger('ItemBroker');
 
     constructor(
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
-        @inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
+        @Inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
     ) {}
 
     public async get(
@@ -34,10 +33,10 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             if (!vehicleId) {
-                ItemBroker.logger.silly(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);
+                ItemBroker.logger.debug(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);
                 return new FakeItemFactory().build();
             } else {
-                ItemBroker.logger.silly('Missing item ID, serving unknown item vehicle');
+                ItemBroker.logger.debug('Missing item ID, serving unknown item vehicle');
                 return new FakeItemFactory().build(true);
             }
         }
@@ -46,13 +45,13 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            ItemBroker.logger.silly(`item ${cacheKey} cache HIT`);
+            ItemBroker.logger.debug(`item ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
 
             // Check if we've actually got valid JSON in the key
             try {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                return new Item(JSON.parse(<string>data));
+                return new Item(JSON.parse(data));
             } catch (err) {
                 // Json didn't parse, chuck the data
                 ItemBroker.logger.warn(`Item cache ${cacheKey} was invalid JSON, flushing cache`);
@@ -70,7 +69,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         const censusItem = await this.getItemFromCensus(itemId, environment);
 
         if (censusItem) {
-            ItemBroker.logger.silly(`[${environment}] Census API found item ${itemId}!`);
+            ItemBroker.logger.debug(`[${environment}] Census API found item ${itemId}!`);
             item = censusItem;
         }
 
@@ -78,7 +77,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             const falconItem = await this.getItemFromFalcon(itemId, environment);
 
             if (falconItem) {
-                ItemBroker.logger.silly(`[${environment}] Falcon API found item ${itemId}!`);
+                ItemBroker.logger.debug(`[${environment}] Falcon API found item ${itemId}!`);
                 item = falconItem;
             }
         }

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import DeathEvent from '../../ps2census/events/DeathEvent';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {Kill} from 'ps2census';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
@@ -12,9 +11,9 @@ import {Bracket} from '../../../ps2alerts-constants/bracket';
 import FactionUtils from '../../../utils/FactionUtils';
 import ExceptionHandler from '../../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 export default class GlobalLoadoutAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalLoadoutAggregate');
+    private static readonly logger = new Logger('GlobalLoadoutAggregate');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
@@ -22,7 +21,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalLoadoutAggregate.logger.silly('GlobalLoadoutAggregate.handle');
+        GlobalLoadoutAggregate.logger.debug('GlobalLoadoutAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

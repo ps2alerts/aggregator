@@ -2,18 +2,18 @@ import {AmqpConnectionManager, ChannelWrapper} from 'amqp-connection-manager';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {jsonLogOutput} from '../../../utils/json';
 import ExceptionHandler from '../../../handlers/system/ExceptionHandler';
-import {getLogger} from '../../../logger';
 import {CreateChannelOpts} from 'amqp-connection-manager/dist/esm/ChannelWrapper';
 import {ConsumeMessage} from 'amqplib';
+import {Logger} from '@nestjs/common';
 
 export abstract class RabbitMQQueue {
-    private static readonly logger = getLogger('RabbitMQQueue');
+    private static readonly logger = new Logger('RabbitMQQueue');
     private isConnected = true;
     private channel: ChannelWrapper;
 
     protected constructor(
         private readonly connectionManager: AmqpConnectionManager,
-        private readonly queueName: string,
+        protected readonly queueName: string,
     ) {}
 
     public getChannel(): ChannelWrapper {
@@ -22,7 +22,7 @@ export abstract class RabbitMQQueue {
 
     private registerListeners(queueName: string, channel: ChannelWrapper): void {
         channel.on('connect', () => {
-            RabbitMQQueue.logger.info(`[${queueName}] connected!`);
+            RabbitMQQueue.logger.log(`[${queueName}] connected!`);
         });
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -72,7 +72,7 @@ export abstract class RabbitMQQueue {
         }
 
         try {
-            RabbitMQQueue.logger.silly(`${this.queueName}] Sending message: ${jsonLogOutput(message)}`);
+            RabbitMQQueue.logger.debug(`${this.queueName}] Sending message: ${jsonLogOutput(message)}`);
             await this.channel.sendToQueue(
                 this.queueName,
                 message,
@@ -91,7 +91,7 @@ export abstract class RabbitMQQueue {
 
         await this.channel.close(); // Ensures we've not got dangling connections
 
-        RabbitMQQueue.logger.info(`[${this.queueName}] queue destroyed!`);
+        RabbitMQQueue.logger.log(`[${this.queueName}] queue destroyed!`);
 
         this.isConnected = false;
     }

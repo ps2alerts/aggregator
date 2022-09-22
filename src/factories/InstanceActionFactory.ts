@@ -2,7 +2,7 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {inject, injectable} from 'inversify';
+import {Inject, Injectable} from '@nestjs/common';
 import {TYPES} from '../constants/types';
 import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTerritoryStartAction';
 import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
@@ -16,11 +16,12 @@ import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEv
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
-import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {
+    MetagameTerritoryControlResultInterface,
+} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
-import OutfitwarsTerritoryInstanceResultAction
-    from '../actions/OutfitwarsTerritoryInstanceResultAction';
+import OutfitwarsTerritoryInstanceResultAction from '../actions/OutfitwarsTerritoryInstanceResultAction';
 import OutfitwarsTerritoryInstanceStartAction from '../actions/OutfitwarsTerritoryInstanceStartAction';
 import OutfitwarsTerritoryInstanceEndAction from '../actions/OutfitwarsTerritoryInstanceEndAction';
 import OutfitwarsTerritoryFacilityControlAction from '../actions/OutfitwarsTerritoryFacilityControlAction';
@@ -28,14 +29,14 @@ import OutfitwarsTerritoryTeamAction from '../actions/OutfitwarsTerritoryTeamAct
 import OutfitwarsTerritoryDeathAction from '../actions/OutfitwarsTerritoryDeathAction';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 
-@injectable()
+@Injectable()
 export default class InstanceActionFactory {
     constructor(
         private readonly territoryCalculatorFactory: TerritoryCalculatorFactory,
-        @inject(TYPES.globalVictoryAggregate) private readonly globalVictoryAggregate: GlobalVictoryAggregate,
+        private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
         private readonly restClient: Rest.Client,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
     ) {}

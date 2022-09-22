@@ -1,12 +1,12 @@
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
+import {Logger} from '@nestjs/common';
 
 export default class OutfitwarsTerritoryFacilityControlAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('OutfitwarsTerritoryFacilityControlAction');
+    private static readonly logger = new Logger('OutfitwarsTerritoryFacilityControlAction');
 
     constructor(
         private readonly event: FacilityControlEvent,
@@ -21,12 +21,12 @@ export default class OutfitwarsTerritoryFacilityControlAction implements ActionI
             return true;
         }
 
-        OutfitwarsTerritoryFacilityControlAction.logger.info(`[${this.event.instance.instanceId}] Running FacilityControlAction`);
+        OutfitwarsTerritoryFacilityControlAction.logger.log(`[${this.event.instance.instanceId}] Running FacilityControlAction`);
 
         // Update the result for the instance
         await this.territoryResultAction.execute();
 
-        OutfitwarsTerritoryFacilityControlAction.logger.info(`[${this.event.instance.instanceId}] Running TeamAction`);
+        OutfitwarsTerritoryFacilityControlAction.logger.log(`[${this.event.instance.instanceId}] Running TeamAction`);
         // Update the teams for the instance
         await this.territoryTeamAction.execute();
 
