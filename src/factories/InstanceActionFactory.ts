@@ -58,9 +58,6 @@ export default class InstanceActionFactory {
             return new OutfitwarsTerritoryInstanceStartAction(
                 instance,
                 this.ps2AlertsApiClient,
-                this.restClient,
-                this.cacheClient,
-                this.zoneDataParser,
             );
         }
 
