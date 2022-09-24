@@ -7,7 +7,6 @@ import TimingStatisticsAuthority from './authorities/TimingStatisticsAuthority';
 import CharacterBroker from './brokers/CharacterBroker';
 import FacilityDataBroker from './brokers/FacilityDataBroker';
 import ItemBroker from './brokers/ItemBroker';
-import {Ps2AlertsApiDriver} from './drivers/Ps2AlertsApiDriver';
 import FakeCharacterFactory from './factories/FakeCharacterFactory';
 import FakeItemFactory from './factories/FakeItemFactory';
 import InstanceActionFactory from './factories/InstanceActionFactory';
@@ -76,9 +75,6 @@ import MetagameSubscriber from './subscribers/MetagameSubscriber';
         CharacterBroker,
         FacilityDataBroker,
         ItemBroker,
-
-        // Drivers
-        Ps2AlertsApiDriver,
 
         // Factories
         FakeCharacterFactory,
