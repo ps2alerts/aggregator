@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {Module, Scope} from '@nestjs/common';
 import InstanceAuthority from './authorities/InstanceAuthority';
 import OverdueInstanceAuthority from './authorities/OverdueInstanceAuthority';
 import PopulationAuthority from './authorities/PopulationAuthority';
@@ -132,14 +132,15 @@ import MetagameSubscriber from './subscribers/MetagameSubscriber';
             inject: [
                 InstancePopulationAggregate,
             ],
+            scope: Scope.TRANSIENT,
         },
         {
             provide: TYPES.vehicleDestroyAggregates,
             useFactory: (...aggregates: Array<AggregateHandlerInterface<VehicleDestroyEvent>>) => aggregates,
             inject: [
                 VehicleAggregateHandler,
-
             ],
+            scope: Scope.TRANSIENT,
         },
         {
             provide: TYPES.deathAggregates,
@@ -157,6 +158,7 @@ import MetagameSubscriber from './subscribers/MetagameSubscriber';
                 InstanceWeaponAggregate,
                 VehicleDeathEventHandler,
             ],
+            scope: Scope.TRANSIENT,
         },
         {
             provide: TYPES.facilityControlAggregates,
@@ -167,6 +169,7 @@ import MetagameSubscriber from './subscribers/MetagameSubscriber';
                 InstanceOutfitCapturesAggregate,
                 GlobalOutfitCapturesAggregate,
             ],
+            scope: Scope.TRANSIENT,
         },
         {
             provide: TYPES.eventInstanceHandlers,
@@ -177,6 +180,7 @@ import MetagameSubscriber from './subscribers/MetagameSubscriber';
                 GainExperienceEventHandler,
                 VehicleDestroyEventHandler,
             ],
+            scope: Scope.TRANSIENT,
         },
         // There was also a gainexperience aggregate, but it was commented out
     ],
