@@ -3,6 +3,10 @@ import AppModule from './AppModule';
 import config from './config';
 
 async function bootstrap(): Promise<void> {
+    process.on('unhandledRejection', (err) => {
+        throw err;
+    });
+
     const app = await NestFactory.createApplicationContext(AppModule, {
         logger: config.logger.levels,
     });
