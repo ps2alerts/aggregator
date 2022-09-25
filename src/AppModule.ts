@@ -54,9 +54,11 @@ import FacilityControlEvent from './handlers/ps2census/events/FacilityControlEve
 import {PS2EventQueueMessageHandlerInterface} from './interfaces/PS2EventQueueMessageHandlerInterface';
 import AdminAggregatorSubscriber from './subscribers/AdminAggregatorSubscriber';
 import MetagameSubscriber from './subscribers/MetagameSubscriber';
+import {HealthModule} from './health/HealthModule';
 
 @Module({
     imports: [
+        HealthModule,
         RedisModule,
         RabbitMQModule,
         CensusModule,
