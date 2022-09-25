@@ -62,7 +62,7 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
             this.characterPresenceHandler.update(deathEvent.attackerCharacter, deathEvent.instance),
         ]);
 
-        DeathEventHandler.logger.debug('=== Processing DeathEvent Handlers ===');
+        DeathEventHandler.logger.verbose('=== Processing DeathEvent Handlers ===');
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<DeathEvent>) => void handler.handle(deathEvent)
@@ -75,7 +75,7 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
                 }),
         );
 
-        DeathEventHandler.logger.debug('=== DeathEvent Handlers Processed! ===');
+        DeathEventHandler.logger.verbose('=== DeathEvent Handlers Processed! ===');
 
         return true;
     }

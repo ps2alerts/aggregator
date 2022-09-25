@@ -17,7 +17,7 @@ export default class InstanceOutfitCapturesAggregate implements AggregateHandler
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        InstanceOutfitCapturesAggregate.logger.debug('InstanceOutfitCapturesAggregate.handle');
+        InstanceOutfitCapturesAggregate.logger.verbose('InstanceOutfitCapturesAggregate.handle');
 
         // If no outfit was detected or a defence, do nothing here
         if (!event.outfitCaptured || event.isDefence) {

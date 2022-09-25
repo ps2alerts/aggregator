@@ -40,7 +40,7 @@ export default class FacilityDataBroker {
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache HIT`);
+            FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return new FacilityData(JSON.parse(data), zone);

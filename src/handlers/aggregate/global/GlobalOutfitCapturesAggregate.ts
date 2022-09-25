@@ -20,7 +20,7 @@ export default class GlobalOutfitCapturesAggregate implements AggregateHandlerIn
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        GlobalOutfitCapturesAggregate.logger.debug('GlobalOutfitCapturesAggregate.handle');
+        GlobalOutfitCapturesAggregate.logger.verbose('GlobalOutfitCapturesAggregate.handle');
 
         // If no outfit was detected or a defence, do nothing here
         if (!event.outfitCaptured || event.isDefence) {

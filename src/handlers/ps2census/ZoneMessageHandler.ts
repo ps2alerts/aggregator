@@ -39,7 +39,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
             const zoneInstanceId = getZoneInstanceIdFromBinary(zoneId);
 
             if (zoneIdDecoded !== this.instance.zone || zoneInstanceId !== instance.zoneInstanceId) {
-                ZoneMessageHandler.logger.debug(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as zone (${zoneIdDecoded}) and zoneInstanceId (${zoneInstanceId}) did not match instance!`);
+                ZoneMessageHandler.logger.verbose(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as zone (${zoneIdDecoded}) and zoneInstanceId (${zoneInstanceId}) did not match instance!`);
 
                 return actions.ack();
             }
@@ -47,7 +47,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
 
         // If the message came after the alert ended, chuck
         if (this.instance.messageOverdue(event)) {
-            ZoneMessageHandler.logger.debug(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
+            ZoneMessageHandler.logger.verbose(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
             return actions.ack();
         }
 

@@ -16,7 +16,7 @@ export default class InstanceLoadoutAggregate implements AggregateHandlerInterfa
     constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceLoadoutAggregate.logger.debug('InstanceLoadoutAggregate.handle');
+        InstanceLoadoutAggregate.logger.verbose('InstanceLoadoutAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

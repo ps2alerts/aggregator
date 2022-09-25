@@ -13,14 +13,14 @@ export default class OutfitParticipantCacheHandler {
         // We need to keep a track of the sets in order to flush them at the end of the alert
         await this.cacheClient.sadd(`OutfitParticipantsList-${instanceId}`, outfitId);
 
-        OutfitParticipantCacheHandler.logger.debug(`Added O: ${outfitId} - I: ${instanceId} to outfit participant cache`);
+        OutfitParticipantCacheHandler.logger.verbose(`Added O: ${outfitId} - I: ${instanceId} to outfit participant cache`);
 
         return true;
     }
 
     public async getOutfitParticipants(outfitId: string, instanceId: string): Promise<number> {
         return await this.cacheClient.smembers(`OutfitParticipants-${instanceId}-${outfitId}`).then((result) => {
-            OutfitParticipantCacheHandler.logger.debug(`${result?.length ?? 0} participants found for O: ${outfitId} - I: ${instanceId}`);
+            OutfitParticipantCacheHandler.logger.verbose(`${result?.length ?? 0} participants found for O: ${outfitId} - I: ${instanceId}`);
             return result?.length ?? 0;
         });
     }
@@ -31,7 +31,7 @@ export default class OutfitParticipantCacheHandler {
             // Delete all instance participant outfit lists
             for (const outfitId of result) {
                 await this.cacheClient.del(`OutfitParticipants-${instanceId}-${outfitId}`).then(() => {
-                    OutfitParticipantCacheHandler.logger.debug(`Deleted outfit ${outfitId} from outfit participant cache`);
+                    OutfitParticipantCacheHandler.logger.verbose(`Deleted outfit ${outfitId} from outfit participant cache`);
                 });
             }
         });

@@ -21,7 +21,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
     ) {}
 
     public async handle(event: VehicleDestroyEvent): Promise<boolean> {
-        VehicleAggregateHandler.logger.debug('VehicleAggregateHandler.handle');
+        VehicleAggregateHandler.logger.verbose('VehicleAggregateHandler.handle');
 
         const documents = new VehicleDestroyLogic(event, 'VehicleAggregateHandler').calculate();
 

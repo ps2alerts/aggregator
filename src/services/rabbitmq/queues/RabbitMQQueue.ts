@@ -72,7 +72,7 @@ export abstract class RabbitMQQueue {
         }
 
         try {
-            RabbitMQQueue.logger.debug(`${this.queueName}] Sending message: ${jsonLogOutput(message)}`);
+            RabbitMQQueue.logger.verbose(`${this.queueName}] Sending message: ${jsonLogOutput(message)}`);
             await this.channel.sendToQueue(
                 this.queueName,
                 message,

@@ -11,7 +11,7 @@ export default class PopulationHandler implements MessageQueueHandlerInterface<P
     constructor(@Inject(TYPES.populationAggregates) private readonly aggregateHandlers: Array<MessageQueueHandlerInterface<PopulationData>>) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
-        PopulationHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
+        PopulationHandler.logger.verbose(jsonLogOutput(event), {message: 'eventData'});
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: Array<Promise<any>> = [];

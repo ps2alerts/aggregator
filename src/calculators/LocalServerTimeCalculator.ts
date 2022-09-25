@@ -42,8 +42,8 @@ export default class LocalServerTimeCalculator {
                 time = moment(utcDate).tz('UTC'); // Jaeger shouldn't have brackets as it makes no sense for it to do so.
         }
 
-        LocalServerTimeCalculator.logger.debug(`Local server hour is ${time.hour()}`);
-        LocalServerTimeCalculator.logger.debug(`Is DST? ${time.isDST() ? 'yes' : 'no'}`);
+        LocalServerTimeCalculator.logger.verbose(`Local server hour is ${time.hour()}`);
+        LocalServerTimeCalculator.logger.verbose(`Is DST? ${time.isDST() ? 'yes' : 'no'}`);
 
         return time.hour();
     }

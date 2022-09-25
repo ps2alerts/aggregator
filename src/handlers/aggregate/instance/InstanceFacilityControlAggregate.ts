@@ -14,7 +14,7 @@ export default class InstanceFacilityControlAggregate implements AggregateHandle
     constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        InstanceFacilityControlAggregate.logger.debug('InstanceFacilityControlAggregate.handle');
+        InstanceFacilityControlAggregate.logger.verbose('InstanceFacilityControlAggregate.handle');
 
         const documents = [];
 

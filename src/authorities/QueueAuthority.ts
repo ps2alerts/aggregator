@@ -135,7 +135,7 @@ export default class QueueAuthority {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     private async checkQueueDeadlines(): Promise<void> {
-        QueueAuthority.logger.debug('Running QueueAuthority deadline check');
+        QueueAuthority.logger.verbose('Running QueueAuthority deadline check');
         const now = new Date().getTime();
 
         // Check the deadlines for each queue and if it's over, destroy them.

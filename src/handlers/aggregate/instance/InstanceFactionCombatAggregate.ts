@@ -16,7 +16,7 @@ export default class InstanceFactionCombatAggregate implements AggregateHandlerI
     constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceFactionCombatAggregate.logger.debug('InstanceFactionCombatAggregate.handle');
+        InstanceFactionCombatAggregate.logger.verbose('InstanceFactionCombatAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

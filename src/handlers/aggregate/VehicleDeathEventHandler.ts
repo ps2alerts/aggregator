@@ -24,7 +24,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
      * @param event
      */
     public async handle(event: DeathEvent): Promise<boolean> {
-        VehicleDeathEventHandler.logger.debug('VehicleDeathEventHandler.handle');
+        VehicleDeathEventHandler.logger.verbose('VehicleDeathEventHandler.handle');
 
         const documents = new VehicleCharacterDeathLogic(event, 'VehicleAggregateHandler').calculate();
 

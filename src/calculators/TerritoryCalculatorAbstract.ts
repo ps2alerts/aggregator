@@ -98,7 +98,7 @@ export default abstract class TerritoryCalculatorAbstract {
                 this.warpgateCounts.tr++;
             }
 
-            TerritoryCalculatorAbstract.logger.debug(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
+            TerritoryCalculatorAbstract.logger.verbose(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
             await this.traverse(
                 warpgate.facilityId,
                 0,
@@ -106,7 +106,7 @@ export default abstract class TerritoryCalculatorAbstract {
                 0,
                 zoneLattices,
             );
-            TerritoryCalculatorAbstract.logger.debug(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
+            TerritoryCalculatorAbstract.logger.verbose(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
         }
 
         // Now we've traversed the lattice etc lets make some metrics
@@ -167,7 +167,7 @@ export default abstract class TerritoryCalculatorAbstract {
     }
 
     protected async getMapFacilities(): Promise<void> {
-        TerritoryCalculatorAbstract.logger.debug(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
+        TerritoryCalculatorAbstract.logger.verbose(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
             this.restClient,
@@ -247,13 +247,13 @@ export default abstract class TerritoryCalculatorAbstract {
         // If we have already parsed this base for this faction, ignore it
         if (this.factionFacilitiesMap.get(ownerFaction)?.has(facilityId)) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            TerritoryCalculatorAbstract.logger.debug(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
+            TerritoryCalculatorAbstract.logger.verbose(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
             return true;
         }
 
         // Perform a check here to see if the faction of the base belongs to the previous base's faction, if it does not, stop!
         if (ownerFaction !== faction) {
-            TerritoryCalculatorAbstract.logger.debug(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${faction} - ${ownerFaction}`);
+            TerritoryCalculatorAbstract.logger.verbose(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${faction} - ${ownerFaction}`);
             return true;
         }
 
@@ -276,7 +276,7 @@ export default abstract class TerritoryCalculatorAbstract {
             });
         }
 
-        TerritoryCalculatorAbstract.logger.debug(`${formatDepth} [${callingFacilityId} > ${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
+        TerritoryCalculatorAbstract.logger.verbose(`${formatDepth} [${callingFacilityId} > ${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
 
         // RE RE RECURSION
         // Promise of a promise of a promise until we're happy!
@@ -295,7 +295,7 @@ export default abstract class TerritoryCalculatorAbstract {
 
     // Gets the current status of the facility from the API
     protected async getFacilityFaction(facilityId: number): Promise<Faction> {
-        TerritoryCalculatorAbstract.logger.debug(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
+        TerritoryCalculatorAbstract.logger.verbose(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const endpoint = this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME
             ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
@@ -315,7 +315,7 @@ export default abstract class TerritoryCalculatorAbstract {
             throw new ApplicationException(`[${this.instance.instanceId}] Facility ${facilityId} is missing capture information!`);
         }
 
-        TerritoryCalculatorAbstract.logger.debug(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
+        TerritoryCalculatorAbstract.logger.verbose(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
 
         return result.newFaction;
     }

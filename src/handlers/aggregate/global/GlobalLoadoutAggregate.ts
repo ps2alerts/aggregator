@@ -21,7 +21,7 @@ export default class GlobalLoadoutAggregate implements AggregateHandlerInterface
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalLoadoutAggregate.logger.debug('GlobalLoadoutAggregate.handle');
+        GlobalLoadoutAggregate.logger.verbose('GlobalLoadoutAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

@@ -19,7 +19,7 @@ export default class VehicleCharacterDeathLogic implements LogicInterface {
         if (this.event.attackerVehicleId) {
             // If suicide
             if (this.event.attackerCharacter.id === this.event.character.id) {
-                VehicleCharacterDeathLogic.logger.debug(`[${this.mode}] Suicide`);
+                VehicleCharacterDeathLogic.logger.verbose(`[${this.mode}] Suicide`);
                 return {attackerDocs: [], victimDocs: []};
             } else if (this.event.attackerWeapon.id === -2) {
                 attackerDocs.push({$inc: {['roadkills']: 1}});
@@ -28,11 +28,11 @@ export default class VehicleCharacterDeathLogic implements LogicInterface {
             // If TK
             if (this.event.killType === Kill.TeamKill) {
                 if (this.event.attackerCharacter.id !== this.event.character.id) {
-                    VehicleCharacterDeathLogic.logger.debug(`[${this.mode}] VvI TK`);
+                    VehicleCharacterDeathLogic.logger.verbose(`[${this.mode}] VvI TK`);
                     attackerDocs.push({$inc: {['infantry.teamkills']: 1}});
                 }
             } else {
-                VehicleCharacterDeathLogic.logger.debug(`[${this.mode}] VvI Kill`);
+                VehicleCharacterDeathLogic.logger.verbose(`[${this.mode}] VvI Kill`);
                 attackerDocs.push({$inc: {['infantry.kills']: 1}});
             }
         }

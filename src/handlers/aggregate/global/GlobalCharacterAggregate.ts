@@ -22,7 +22,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalCharacterAggregate.logger.debug('GlobalCharacterAggregate.handle');
+        GlobalCharacterAggregate.logger.verbose('GlobalCharacterAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

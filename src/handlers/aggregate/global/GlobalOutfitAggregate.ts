@@ -22,7 +22,7 @@ export default class GlobalOutfitAggregate implements AggregateHandlerInterface<
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalOutfitAggregate.logger.debug('GlobalOutfitAggregate.handle');
+        GlobalOutfitAggregate.logger.verbose('GlobalOutfitAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

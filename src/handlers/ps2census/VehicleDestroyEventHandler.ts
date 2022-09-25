@@ -37,7 +37,7 @@ export default class VehicleDestroyEventHandler implements PS2EventQueueMessageH
             characters.attacker,
         );
 
-        VehicleDestroyEventHandler.logger.debug('=== Processing VehicleDestroy Handlers ===');
+        VehicleDestroyEventHandler.logger.verbose('=== Processing VehicleDestroy Handlers ===');
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<VehicleDestroyEvent>) => void handler.handle(vehicleDestroyEvent)
@@ -46,7 +46,7 @@ export default class VehicleDestroyEventHandler implements PS2EventQueueMessageH
                 }),
         );
 
-        VehicleDestroyEventHandler.logger.debug('=== VehicleDestroy Handlers Processed! ===');
+        VehicleDestroyEventHandler.logger.verbose('=== VehicleDestroy Handlers Processed! ===');
 
         return true;
     }

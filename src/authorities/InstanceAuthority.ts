@@ -65,7 +65,7 @@ export default class InstanceAuthority {
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
         // TODO: Make this work for outfit wars instances
-        InstanceAuthority.logger.debug(`Attempting to find an instance with ID: "${instanceId}"...`);
+        InstanceAuthority.logger.verbose(`Attempting to find an instance with ID: "${instanceId}"...`);
 
         const instance = this.currentInstances.find((i: PS2AlertsInstanceInterface) => {
             return i.instanceId === instanceId;
@@ -76,8 +76,8 @@ export default class InstanceAuthority {
             return null;
         }
 
-        InstanceAuthority.logger.debug(`Found instance with ID: "${instanceId}"!`);
-        InstanceAuthority.logger.debug(`${jsonLogOutput(instance)}`);
+        InstanceAuthority.logger.verbose(`Found instance with ID: "${instanceId}"!`);
+        InstanceAuthority.logger.verbose(`${jsonLogOutput(instance)}`);
 
         return instance;
     }

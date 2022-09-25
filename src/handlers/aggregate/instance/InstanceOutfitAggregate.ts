@@ -21,7 +21,7 @@ export default class InstanceOutfitAggregate implements AggregateHandlerInterfac
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceOutfitAggregate.logger.debug('InstanceOutfitAggregate.handle');
+        InstanceOutfitAggregate.logger.verbose('InstanceOutfitAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

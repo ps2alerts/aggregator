@@ -33,10 +33,10 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             if (!vehicleId) {
-                ItemBroker.logger.debug(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);
+                ItemBroker.logger.verbose(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);
                 return new FakeItemFactory().build();
             } else {
-                ItemBroker.logger.debug('Missing item ID, serving unknown item vehicle');
+                ItemBroker.logger.verbose('Missing item ID, serving unknown item vehicle');
                 return new FakeItemFactory().build(true);
             }
         }
@@ -45,7 +45,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            ItemBroker.logger.debug(`item ${cacheKey} cache HIT`);
+            ItemBroker.logger.verbose(`item ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
 
             // Check if we've actually got valid JSON in the key
@@ -69,7 +69,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         const censusItem = await this.getItemFromCensus(itemId, environment);
 
         if (censusItem) {
-            ItemBroker.logger.debug(`[${environment}] Census API found item ${itemId}!`);
+            ItemBroker.logger.verbose(`[${environment}] Census API found item ${itemId}!`);
             item = censusItem;
         }
 
@@ -77,7 +77,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             const falconItem = await this.getItemFromFalcon(itemId, environment);
 
             if (falconItem) {
-                ItemBroker.logger.debug(`[${environment}] Falcon API found item ${itemId}!`);
+                ItemBroker.logger.verbose(`[${environment}] Falcon API found item ${itemId}!`);
                 item = falconItem;
             }
         }

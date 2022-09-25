@@ -20,10 +20,10 @@ export default class GainExperienceEventHandler implements PS2EventQueueMessageH
     ) {}
 
     public async handle(event: PS2EventQueueMessage<GainExperience>): Promise<boolean>{
-        GainExperienceEventHandler.logger.debug('Parsing message...');
+        GainExperienceEventHandler.logger.verbose('Parsing message...');
 
         if (config.features.logging.censusEventContent) {
-            GainExperienceEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
+            GainExperienceEventHandler.logger.verbose(jsonLogOutput(event), {message: 'eventData'});
         }
 
         const characters = await this.characterBroker.get(event.payload);

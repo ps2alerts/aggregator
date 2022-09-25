@@ -152,7 +152,7 @@ export default class CharacterPresenceHandler {
             const exists = await this.cacheClient.exists(`${this.charKeyPrefix}-${characterRef}`);
 
             if (!exists) {
-                CharacterPresenceHandler.logger.debug(`Removing stale char ${characterRef} from set listName`);
+                CharacterPresenceHandler.logger.verbose(`Removing stale char ${characterRef} from set listName`);
                 await this.cacheClient.srem(this.charListName, characterRef);
                 changes = true;
             }

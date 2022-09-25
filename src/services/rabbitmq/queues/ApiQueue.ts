@@ -56,7 +56,7 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
         }
 
         try {
-            ApiQueue.classLogger.debug(`${this.queueName}] Sending message: ${jsonLogOutput(msg)}`);
+            ApiQueue.classLogger.verbose(`${this.queueName}] Sending message: ${jsonLogOutput(msg)}`);
             await this.getChannel().sendToQueue(
                 this.queueName,
                 msg,

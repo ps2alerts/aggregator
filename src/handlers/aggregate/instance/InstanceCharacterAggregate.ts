@@ -16,7 +16,7 @@ export default class InstanceCharacterAggregate implements AggregateHandlerInter
     constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceCharacterAggregate.logger.debug('InstanceCharacterAggregate.handle');
+        InstanceCharacterAggregate.logger.verbose('InstanceCharacterAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

@@ -19,7 +19,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
     public async try(attempts = 0): Promise<Rest.CensusResponse<Rest.Format<T>> | undefined> {
         attempts++;
 
-        CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempt #${attempts}...`);
+        CensusApiRetryDriver.logger.verbose(`[${this.caller}] Attempt #${attempts}...`);
 
         try {
             if (attempts > 2) {
