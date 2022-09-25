@@ -279,6 +279,14 @@
     tslib "2.4.0"
     uuid "9.0.0"
 
+"@nestjs/microservices@^9.1.2":
+  version "9.1.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/microservices/-/microservices-9.1.2.tgz#c449e60529d1b7d40544433450fbb684805fb3f0"
+  integrity sha512-i/Vgw7CXHFBe1qNZdhJ2smf0MmluFK1P8TGV4HdT8yMdwqT6hc8Elm7Fb1ZIdm0R3Sn30CnsCpvFNm7cXTQ07A==
+  dependencies:
+    iterare "1.2.1"
+    tslib "2.4.0"
+
 "@nestjs/platform-fastify@^9.1.2":
   version "9.1.2"
   resolved "https://registry.yarnpkg.com/@nestjs/platform-fastify/-/platform-fastify-9.1.2.tgz#1dd4efc9e72366471a5eed86a937071477a49077"

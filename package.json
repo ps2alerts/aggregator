@@ -36,6 +36,7 @@
   "dependencies": {
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/microservices": "^9.1.2",
     "@nestjs/platform-fastify": "^9.1.2",
     "@nestjs/terminus": "^9.1.1",
     "amqp-connection-manager": "^4.1.4",
