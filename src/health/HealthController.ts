@@ -4,7 +4,7 @@ import {
     HealthCheckResult,
     HealthCheckService,
     HttpHealthIndicator,
-    MicroserviceHealthIndicator
+    MicroserviceHealthIndicator,
 } from '@nestjs/terminus';
 import config from '../config';
 import {MicroserviceOptions, RedisOptions, Transport} from '@nestjs/microservices';
@@ -22,13 +22,9 @@ export class HealthController {
     @HealthCheck()
     public check(): Promise<HealthCheckResult> {
         return this.health.check([
-            () => this.http.pingCheck('api', config.internalApi.host, {
+            () => this.http.pingCheck('api', `${config.internalApi.host}/healthcheck`, {
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                auth: {
-                    username: config.internalApi.username,
-                    password: config.internalApi.password,
                 },
             }),
             () => this.microservice.pingCheck<RedisOptions>('redis', {
