@@ -38,7 +38,7 @@ export default class RabbitMQModule implements OnModuleInit {
     ) {
     }
 
-    async onModuleInit() {
+    public async onModuleInit() {
         await Promise.all([
             this.apiMqPublisher.connect(),
             this.apiMqDelayPublisher.connect(),

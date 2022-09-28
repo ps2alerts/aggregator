@@ -25,7 +25,7 @@ export default class RedisModule implements OnModuleInit, OnModuleDestroy {
             .on('error', (message) => this.logger.warn(message));
     }
 
-    public async onModuleDestroy(): Promise<void> {
+    public onModuleDestroy(): void {
         this.redis.disconnect();
     }
 }

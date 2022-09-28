@@ -55,6 +55,7 @@ import {PS2EventQueueMessageHandlerInterface} from './interfaces/PS2EventQueueMe
 import AdminAggregatorSubscriber from './subscribers/AdminAggregatorSubscriber';
 import MetagameSubscriber from './subscribers/MetagameSubscriber';
 import {HealthModule} from './health/HealthModule';
+import {Death} from 'ps2census';
 
 @Module({
     imports: [
@@ -175,7 +176,7 @@ import {HealthModule} from './health/HealthModule';
         },
         {
             provide: TYPES.eventInstanceHandlers,
-            useFactory: (...handlers: Array<PS2EventQueueMessageHandlerInterface<any>>) => handlers,
+            useFactory: (...handlers: Array<PS2EventQueueMessageHandlerInterface<Death>>) => handlers,
             inject: [
                 DeathEventHandler,
                 FacilityControlEventHandler,

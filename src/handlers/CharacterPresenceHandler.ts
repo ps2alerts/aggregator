@@ -113,7 +113,8 @@ export default class CharacterPresenceHandler {
                 throw new ApplicationException('Faction.NONE was returned for Populations!');
             }
 
-            const factionCount = zoneRecord[factionKey];
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const factionCount: number = zoneRecord[factionKey];
             const newFactionCount = factionCount + 1;
 
             // Create a new clone of the zonePops, as it is apparently read only and cannot be changed

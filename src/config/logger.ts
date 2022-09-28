@@ -1,7 +1,7 @@
 import {LogLevel} from '@nestjs/common';
-import {get} from '../utils/env';
+import {get, getBool} from '../utils/env';
 
 export default class Logger {
-    public readonly silly = false;
-    public readonly levels: LogLevel[] = get('LOG_LEVELS', 'error,warn,log').split(',') as any;
+    public readonly silly = getBool('LOG_SILLY', false);
+    public readonly levels = get('LOG_LEVELS', 'error,warn,log').split(',') as LogLevel[];
 }
