@@ -1,4 +1,4 @@
-import {Module, Scope} from '@nestjs/common';
+import {Logger, Module, OnApplicationShutdown, Scope} from '@nestjs/common';
 import InstanceAuthority from './authorities/InstanceAuthority';
 import OverdueInstanceAuthority from './authorities/OverdueInstanceAuthority';
 import PopulationAuthority from './authorities/PopulationAuthority';
@@ -188,5 +188,10 @@ import {Death} from 'ps2census';
         // There was also a gainexperience aggregate, but it was commented out
     ],
 })
-export default class AppModule {
+export default class AppModule implements OnApplicationShutdown {
+    private readonly logger = new Logger('App');
+
+    public onApplicationShutdown(): void {
+        this.logger.log('Goodbye :)');
+    }
 }
