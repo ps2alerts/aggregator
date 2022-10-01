@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/ps2alerts/aggregator#readme",
   "dependencies": {
-    "amqp-connection-manager": "^4.1.4",
+    "amqp-connection-manager": "^4.1.7",
     "amqplib": "^0.10.0",
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
