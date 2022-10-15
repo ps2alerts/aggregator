@@ -112,7 +112,7 @@ export default class InstanceAuthority {
             throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
         }
 
-        InstanceAuthority.logger.info(`=== STARTING INSTANCE ON WORLD ${instance.world}! ===`);
+        InstanceAuthority.logger.log(`=== STARTING INSTANCE ON WORLD ${instance.world}! ===`);
 
         const instanceMetadata: InstanceMetadataInterface = Object.assign(instance, {
             features: {
