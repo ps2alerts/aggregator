@@ -112,13 +112,7 @@ export default class InstanceAuthority {
             throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
         }
 
-        // If SolTech, chuck. Websocket is massively broken for SolTech at the moment.
-        if (instance.world === World.SOLTECH) {
-            InstanceAuthority.logger.log('SolTech instance detected. Ignoring.');
-            return false;
-        }
-
-        InstanceAuthority.logger.log(`=== STARTING INSTANCE ON WORLD ${instance.world}! ===`);
+        InstanceAuthority.logger.info(`=== STARTING INSTANCE ON WORLD ${instance.world}! ===`);
 
         const instanceMetadata: InstanceMetadataInterface = Object.assign(instance, {
             features: {

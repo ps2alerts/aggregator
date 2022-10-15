@@ -36,9 +36,9 @@ export default class MetagameSubscriber implements OnModuleInit {
         const censusEnv = config.census.censusEnvironment;
         let worlds: World[] = censusEnv === 'ps2' ? pcWorldArray : censusEnv === 'ps2ps4us' ? [1000] : [2000];
 
-        // Filter out Jaeger and SolTech (SolTech is heavily broken atm)
+        // Filter out Jaeger
         worlds = worlds.filter((world) => {
-            return !(world === World.JAEGER || world === World.SOLTECH);
+            return !(world === World.JAEGER);
         });
 
         // Registers queues by world and event type, enabling us to fine-tune the priorities of each queue and monitor for statistics.
