@@ -333,12 +333,12 @@ ajv@^6.10.0, ajv@^6.12.4:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-amqp-connection-manager@^4.1.4:
-  version "4.1.4"
-  resolved "https://registry.yarnpkg.com/amqp-connection-manager/-/amqp-connection-manager-4.1.4.tgz#1e5bf4222b5431fb5ccce6c16728667e09d3a155"
-  integrity sha512-FR9mC71YDvugaKwxaxOWaS1PmPxFDN3gO7/zuzmCreFHxdJj4BpRVs/O1dRz2loEUl/JYIvz4B0vB3uaQsnVtg==
+amqp-connection-manager@^4.1.9:
+  version "4.1.9"
+  resolved "https://registry.yarnpkg.com/amqp-connection-manager/-/amqp-connection-manager-4.1.9.tgz#410e5a8ef2cd848ea625a151e63be7e3e5989746"
+  integrity sha512-FvV6xfdytmGZdOEAwOWPXgxDBGXytJorN5s8OmS9MlmDrF829bGeo3DphgZZNtY6c1xLccLCKiRjMKt9xfDnFA==
   dependencies:
-    promise-breaker "^5.0.0"
+    promise-breaker "^6.0.0"
 
 amqplib@^0.10.0:
   version "0.10.1"
@@ -1875,10 +1875,10 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-promise-breaker@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/promise-breaker/-/promise-breaker-5.0.0.tgz#58e8541f1619554057da95a211794d7834d30c1d"
-  integrity sha512-mgsWQuG4kJ1dtO6e/QlNDLFtMkMzzecsC69aI5hlLEjGHFNpHrvGhFi4LiK5jg2SMQj74/diH+wZliL9LpGsyA==
+promise-breaker@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/promise-breaker/-/promise-breaker-6.0.0.tgz#107d2b70f161236abdb4ac5a736c7eb8df489d0f"
+  integrity sha512-BthzO9yTPswGf7etOBiHCVuugs2N01/Q/94dIPls48z2zCmrnDptUUZzfIb+41xq0MnYZ/BzmOd6ikDR4ibNZA==
 
 proxy-addr@~2.0.7:
   version "2.0.7"
