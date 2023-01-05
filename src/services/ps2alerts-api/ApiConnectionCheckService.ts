@@ -8,7 +8,7 @@ import ApplicationException from '../../exceptions/ApplicationException';
 @injectable()
 export default class ApiConnectionCheckService implements ServiceInterface {
     public readonly bootPriority = 1;
-    private static readonly logger = getLogger('ApiConnectivityBootService');
+    private static readonly logger = getLogger('ApiConnectionCheckService');
     private readonly maxAttempts = 6;
     private readonly retryTime = 10000;
 
@@ -18,9 +18,9 @@ export default class ApiConnectionCheckService implements ServiceInterface {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     public async boot(): Promise<void> {
-        ApiConnectionCheckService.logger.info('Booting ApiConnectivityBootService...');
+        ApiConnectionCheckService.logger.info('Booting ApiConnectionCheckService...');
         await this.tryConnection();
-        ApiConnectionCheckService.logger.info('ApiConnectivityBootService booted!');
+        ApiConnectionCheckService.logger.info('ApiConnectionCheckService booted!');
     }
 
     private async tryConnection(attempts = 0): Promise<boolean> {
