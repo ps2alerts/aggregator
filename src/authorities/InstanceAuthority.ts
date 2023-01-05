@@ -224,8 +224,6 @@ export default class InstanceAuthority {
             });
         });
 
-        console.log('Following active instances detected:', instances);
-
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
         } else {
@@ -299,6 +297,8 @@ export default class InstanceAuthority {
 
                 // Push the current instances to the Redis instance list to give PopulationAuthority awareness of running instances
                 await this.cacheClient.sadd('ActiveInstances', instance.instanceId);
+
+                console.log('Following active instances detected:', instances);
             }
         }
 
