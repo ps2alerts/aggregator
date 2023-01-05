@@ -206,7 +206,7 @@ export default class InstanceAuthority {
 
         const promises = [
             await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive),
-            await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
+            // await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
         ];
 
         try {
@@ -223,6 +223,8 @@ export default class InstanceAuthority {
                 instances.push(instance);
             });
         });
+
+        console.log('Following active instances detected:', instances);
 
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
