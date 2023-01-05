@@ -296,9 +296,8 @@ export default class InstanceAuthority {
                 this.currentInstances.push(instance);
 
                 // Push the current instances to the Redis instance list to give PopulationAuthority awareness of running instances
+                InstanceAuthority.logger.info(`Pushing instance ${instance.instanceId} to ActiveInstances`);
                 await this.cacheClient.sadd('ActiveInstances', instance.instanceId);
-
-                console.log('Following active instances detected:', instances);
             }
         }
 
@@ -306,6 +305,8 @@ export default class InstanceAuthority {
         this.activeTimer = setInterval(() => {
             this.printActives();
         }, 60000);
+
+        console.log('Following active instances detected:', this.currentInstances);
 
         InstanceAuthority.logger.info('Subscribing to message queues...');
         this.queueAuthority.syncActiveInstances(this.currentInstances);
