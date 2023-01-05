@@ -6,6 +6,7 @@ import {promises as fsPromises} from 'fs';
 void bootApp().then(async () => {
     console.info('Application fully booted! Writing ready file...');
     await fsPromises.writeFile('ready.file', 'ready');
+    console.info('Application is fully ready!');
 });
 
 async function bootApp(): Promise<void> {
