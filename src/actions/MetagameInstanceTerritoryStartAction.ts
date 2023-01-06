@@ -11,6 +11,7 @@ import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('MetagameInstanceTerritoryStartAction');
@@ -21,6 +22,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -46,6 +48,8 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
     }
 
     private async getInitialMap(): Promise<MapDataInterface[]> {
+        const date = new Date();
+
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
             this.restClient,
@@ -53,14 +57,15 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.instance,
             this.cacheClient,
             this.zoneDataParser,
+            this.statisticsHandler,
         ).getMapData();
+        await this.statisticsHandler.logTime(date, MetricTypes.CENSUS_MAP_REGION);
 
         if (mapData.length === 0) {
             throw new ApplicationException('Unable to properly get map data from census!');
         }
 
         const docs: MapDataInterface[] = [];
-        const date = new Date();
 
         mapData[0].Regions.Row.forEach((row) => {
             // Check if we have a facility type, if we don't chuck it as it's an old facility

@@ -8,6 +8,7 @@ import ExceptionHandler from '../handlers/system/ExceptionHandler';
 import {CharacterEvent} from 'ps2census/dist/client/events/base/character.event';
 import FakeCharacterFactory from '../factories/FakeCharacterFactory';
 import {getLogger} from '../logger';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 @injectable()
 export default class CharacterBroker {
@@ -15,6 +16,7 @@ export default class CharacterBroker {
 
     constructor(
         private readonly fakeCharacterFactory: FakeCharacterFactory,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async get(payload: CharacterEvent): Promise<{ character: Character, attacker: Character }> {
@@ -27,7 +29,10 @@ export default class CharacterBroker {
 
             // Only attempt to get the character if one exists to grab
             if (characterActuallyExists) {
+                const started = new Date();
                 character = new Character(await payload.character());
+                await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_CHARACTER);
+
             } else {
                 character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
             }
@@ -35,15 +40,19 @@ export default class CharacterBroker {
             if (payload instanceof AttackerEvent) {
                 // Re-create character with teamID supplied, if character exists
                 if (characterActuallyExists) {
+                    const started = new Date();
                     character = new Character(await payload.character(), parseInt(payload.team_id, 10));
+                    await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_CHARACTER);
                 }
 
                 if (!payload.attacker_character_id || payload.attacker_character_id === '0') {
                     attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
                     CharacterBroker.logger.error('AttackerEvent had no actual attacker character ID! ps2census bug');
                 } else {
+                    const started = new Date();
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     const attackerCharacter = await payload.attacker();
+                    await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_CHARACTER);
 
                     if (attackerCharacter) {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

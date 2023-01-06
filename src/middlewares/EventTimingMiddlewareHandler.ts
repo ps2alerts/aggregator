@@ -3,25 +3,25 @@
 // This class is usually called in front of ZoneMessageQueueHandler, not the actual handlers themselves.
 import {injectable} from 'inversify';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
-import Redis from 'ioredis';
 import {PS2Event} from 'ps2census';
-import config from '../config';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 @injectable()
-export default class TimingMiddlewareHandler {
-    private readonly runId = config.app.runId;
-
-    constructor(private readonly cacheClient: Redis) {}
+export default class EventTimingMiddlewareHandler {
+    constructor(
+        private readonly statisticsHandler: StatisticsHandler,
+    ) {}
 
     public async handle(
         message: PS2Event,
         actions: ChannelActionsInterface,
         handler: QueueMessageHandlerInterface<PS2Event>,
     ): Promise<void> {
-        const time = Date.now();
+        const startTime = new Date();
+
         const actionProxy: ChannelActionsInterface = new Proxy(actions, {
             get: (target: any, prop) => async () => {
-                await this.logTime(time - message.timestamp.getTime(), message.event_name);
+                await this.logTime(startTime, message.event_name);
                 target[prop]();
             },
         });
@@ -30,9 +30,7 @@ export default class TimingMiddlewareHandler {
     }
 
     // Log the time that it took to process the message, determined from the message time.
-    private async logTime(ms: number, eventType: string): Promise<void> {
-        const listKey = `metrics-messages-${eventType}-${this.runId}`;
-
-        await this.cacheClient.lpush(listKey, ms);
+    private async logTime(started: Date, eventType: string): Promise<void> {
+        await this.statisticsHandler.logTime(started, eventType);
     }
 }

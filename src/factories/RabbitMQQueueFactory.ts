@@ -3,7 +3,7 @@ import {TYPES} from '../constants/types';
 import {AmqpConnectionManager} from 'amqp-connection-manager';
 import {CensusClient, MetagameEvent, PS2Event} from 'ps2census';
 import {QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
-import TimingMiddlewareHandler from '../middlewares/TimingMiddlewareHandler';
+import EventTimingMiddlewareHandler from '../middlewares/EventTimingMiddlewareHandler';
 import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
 import {InstanceEventQueue} from '../services/rabbitmq/queues/InstanceEventQueue';
 import {ApiQueue} from '../services/rabbitmq/queues/ApiQueue';
@@ -16,7 +16,7 @@ export default class RabbitMQQueueFactory {
     constructor(
         @inject(TYPES.rabbitMqConnection) private readonly connectionManager: AmqpConnectionManager,
         private readonly censusClient: CensusClient,
-        private readonly timingMiddlewareHandler: TimingMiddlewareHandler,
+        private readonly timingMiddlewareHandler: EventTimingMiddlewareHandler,
     ) {}
 
     public createInstanceQueue(

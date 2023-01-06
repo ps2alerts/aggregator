@@ -8,8 +8,7 @@ import ZoneDataParser from '../parsers/ZoneDataParser';
 import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
-// import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
-// import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 @injectable()
 export default class TerritoryCalculatorFactory {
@@ -17,6 +16,7 @@ export default class TerritoryCalculatorFactory {
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public buildMetagameTerritoryCalculator(
@@ -29,6 +29,7 @@ export default class TerritoryCalculatorFactory {
             this.ps2AlertsApiClient,
             this.cacheClient,
             this.zoneDataParser,
+            this.statisticsHandler,
         );
     }
 
@@ -42,6 +43,7 @@ export default class TerritoryCalculatorFactory {
             this.ps2AlertsApiClient,
             this.cacheClient,
             this.zoneDataParser,
+            this.statisticsHandler,
         );
     }
 }

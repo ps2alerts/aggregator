@@ -27,6 +27,7 @@ import OutfitwarsTerritoryFacilityControlAction from '../actions/OutfitwarsTerri
 import OutfitwarsTerritoryTeamAction from '../actions/OutfitwarsTerritoryTeamAction';
 import OutfitwarsTerritoryDeathAction from '../actions/OutfitwarsTerritoryDeathAction';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 @injectable()
 export default class InstanceActionFactory {
@@ -38,6 +39,7 @@ export default class InstanceActionFactory {
         @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public buildStart(
@@ -50,6 +52,7 @@ export default class InstanceActionFactory {
                 this.restClient,
                 this.cacheClient,
                 this.zoneDataParser,
+                this.statisticsHandler,
             );
         }
 
@@ -76,6 +79,7 @@ export default class InstanceActionFactory {
                 this.ps2AlertsApiClient,
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
+                this.statisticsHandler,
             );
         }
 
@@ -100,6 +104,7 @@ export default class InstanceActionFactory {
                 event,
                 this.buildMetagameTerritoryResult(event.instance),
                 this.ps2AlertsApiClient,
+                this.statisticsHandler,
             );
         }
 
@@ -122,6 +127,7 @@ export default class InstanceActionFactory {
             instance,
             this.territoryCalculatorFactory.buildMetagameTerritoryCalculator(instance, this.restClient),
             this.ps2AlertsApiClient,
+            this.statisticsHandler,
         );
     }
 

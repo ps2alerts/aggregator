@@ -9,7 +9,10 @@ import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHan
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
-import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {
+    MetagameTerritoryControlResultInterface,
+} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
@@ -20,6 +23,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         private readonly ps2alertsApiClient: AxiosInstance,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -45,6 +49,8 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`);
         });
+
+        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2A_API);
 
         // Update the final result of the instance
         const result: MetagameTerritoryControlResultInterface = await this.territoryResultAction.execute();

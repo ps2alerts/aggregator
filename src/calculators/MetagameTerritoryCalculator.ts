@@ -11,6 +11,7 @@ import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {getLogger} from '../logger';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
     private static readonly classLogger = getLogger('MetagameTerritoryCalculator');
@@ -21,6 +22,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
         ps2AlertsApiClient: AxiosInstance,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
+        statisticsHandler: StatisticsHandler,
     ) {
         super(
             instance,
@@ -28,6 +30,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
             ps2AlertsApiClient,
             cacheClient,
             zoneDataParser,
+            statisticsHandler,
         );
     }
 

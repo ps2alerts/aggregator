@@ -13,6 +13,7 @@ import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Faction} from '../ps2alerts-constants/faction';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<OutfitwarsTerritoryResultInterface> {
     private static readonly classLogger = getLogger('OutfitwarsTerritoryCalculator');
@@ -23,6 +24,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
         ps2AlertsApiClient: AxiosInstance,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
+        statisticsHandler: StatisticsHandler,
     ) {
         super(
             instance,
@@ -30,6 +32,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
             ps2AlertsApiClient,
             cacheClient,
             zoneDataParser,
+            statisticsHandler,
         );
     }
 
