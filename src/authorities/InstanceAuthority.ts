@@ -225,11 +225,13 @@ export default class InstanceAuthority {
             });
         });
 
+        InstanceAuthority.logger.debug('Detected the following active instances:');
+        console.log(instances);
+
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
         } else {
             for (const i of instances) {
-
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 if (this.censusEnvironment === censusEnvironments.pc && !pcWorldArray.includes(i.world)) {
                     InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PC environment`);
@@ -300,6 +302,8 @@ export default class InstanceAuthority {
                 await this.cacheClient.sadd(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
             }
         }
+
+        InstanceAuthority.logger.debug('== Detected active instances loaded, starting timers and subscribing... ==');
 
         // Set timer for instances display
         this.activeTimer = setInterval(() => {
