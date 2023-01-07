@@ -235,13 +235,13 @@ export default class InstanceAuthority {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 if (this.censusEnvironment === censusEnvironments.pc && !pcWorldArray.includes(i.world)) {
                     InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PC environment`);
-                    return false;
+                    continue;
                 } else if (this.censusEnvironment === censusEnvironments.ps4eu && i.world !== World.CERES) {
                     InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4EU environment`);
-                    return false;
+                    continue;
                 } else if (this.censusEnvironment === censusEnvironments.ps4us && i.world !== World.GENUDINE) {
                     InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4US environment`);
-                    return false;
+                    continue;
                 }
 
                 let instance: PS2AlertsInstanceInterface;
