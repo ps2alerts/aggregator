@@ -8,6 +8,7 @@ import FactionUtils from '../utils/FactionUtils';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import Redis from 'ioredis';
 import ApplicationException from '../exceptions/ApplicationException';
+import config from '../config';
 
 interface PresenceData {
     world: World;
@@ -50,8 +51,10 @@ export default class CharacterPresenceHandler {
         const populationDataMap: Map<string, PopulationData> = new Map<string, PopulationData>();
         CharacterPresenceHandler.logger.debug('Running character presence collation');
 
+        const censusEnvironment = config.census.censusEnvironment;
+
         // Check for instances
-        const instances = await this.cacheClient.smembers('ActiveInstances');
+        const instances = await this.cacheClient.smembers(`ActiveInstances-${censusEnvironment}`);
 
         if (!instances.length) {
             CharacterPresenceHandler.logger.debug('No instances running, aborting collection');

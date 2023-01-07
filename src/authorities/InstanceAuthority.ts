@@ -56,6 +56,7 @@ export default class InstanceAuthority {
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
     private activeTimer?: NodeJS.Timeout;
     private initialized = false;
+    private readonly censusEnvironment = config.census.censusEnvironment;
 
     constructor(
         private readonly instanceActionFactory: InstanceActionFactory,
@@ -144,7 +145,7 @@ export default class InstanceAuthority {
             await this.queueAuthority.startQueuesForInstance(instance);
 
             // Add to a redis key set so PopulationInstances is aware of active instances without causing a dependency injection loop
-            await this.cacheClient.sadd('ActiveInstances', instance.instanceId);
+            await this.cacheClient.sadd(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
 
             InstanceAuthority.logger.info(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
         } catch (err) {
@@ -200,7 +201,7 @@ export default class InstanceAuthority {
         }
 
         // Flush the ActiveInstances out of Redis
-        await this.cacheClient.del('ActiveInstances');
+        await this.cacheClient.del(`ActiveInstances-${this.censusEnvironment}`);
 
         let apiResponses: AxiosResponse[];
 
@@ -228,16 +229,15 @@ export default class InstanceAuthority {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
         } else {
             for (const i of instances) {
-                const censusEnvironment = config.census.censusEnvironment;
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                if (censusEnvironment === censusEnvironments.pc && !pcWorldArray.includes(i.world)) {
+                if (this.censusEnvironment === censusEnvironments.pc && !pcWorldArray.includes(i.world)) {
                     InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PC environment`);
                     return false;
-                } else if (censusEnvironment === censusEnvironments.ps4eu && i.world !== World.CERES) {
+                } else if (this.censusEnvironment === censusEnvironments.ps4eu && i.world !== World.CERES) {
                     InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4EU environment`);
                     return false;
-                } else if (censusEnvironment === censusEnvironments.ps4us && i.world !== World.GENUDINE) {
+                } else if (this.censusEnvironment === censusEnvironments.ps4us && i.world !== World.GENUDINE) {
                     InstanceAuthority.logger.warn(`[${i.instanceId}] Ignoring instance on world "${i.world}" instance in PS4US environment`);
                     return false;
                 }
@@ -296,8 +296,8 @@ export default class InstanceAuthority {
                 this.currentInstances.push(instance);
 
                 // Push the current instances to the Redis instance list to give PopulationAuthority awareness of running instances
-                InstanceAuthority.logger.info(`Pushing instance ${instance.instanceId} to ActiveInstances`);
-                await this.cacheClient.sadd('ActiveInstances', instance.instanceId);
+                InstanceAuthority.logger.info(`Pushing instance ${instance.instanceId} to ActiveInstances-${this.censusEnvironment}`);
+                await this.cacheClient.sadd(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
             }
         }
 
@@ -375,7 +375,7 @@ export default class InstanceAuthority {
             return i.instanceId === instance.instanceId;
         });
 
-        await this.cacheClient.srem('ActiveInstances', instance.instanceId);
+        await this.cacheClient.srem(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
 
         InstanceAuthority.logger.debug(`=== ${instance.instanceId} removed from actives ===`);
     }
