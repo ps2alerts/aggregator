@@ -48,6 +48,7 @@ interface OutfitwarsTerritoryActiveTableInterface {
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
     mapVersion: string;
+    latticeVersion: string;
 }
 
 @injectable()
@@ -108,6 +109,18 @@ export default class InstanceAuthority {
         });
     }
 
+    public getLatticeVersion(zone: Zone): string {
+        switch (zone) {
+            case Zone.OSHUR: // July 13th, 2022 (surf and storm) updated Oshur lattices significantly
+            case Zone.INDAR: // November 17th, 2022 update modified Indar lattices
+                return '1.1';
+            default:
+                break;
+        }
+
+        return '1.0';
+    }
+
     public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         if (!this.initialized) {
             throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
@@ -121,6 +134,7 @@ export default class InstanceAuthority {
                 xpm: true,
             },
             mapVersion: instance.zone === Zone.OSHUR ? '1.1' : '1.0', // As of 13th July Oshur uses a new map
+            latticeVersion: this.getLatticeVersion(instance.zone),
         });
 
         try {
