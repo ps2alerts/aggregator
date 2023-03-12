@@ -111,8 +111,12 @@ export default class InstanceAuthority {
 
     public getLatticeVersion(zone: Zone): string {
         switch (zone) {
-            case Zone.OSHUR: // July 13th, 2022 (surf and storm) updated Oshur lattices significantly
-            case Zone.INDAR: // November 17th, 2022 update modified Indar lattices
+            case Zone.OSHUR: // November 17th, 2022 update modified Indar lattices and added CTF to all continents
+                return '1.2';
+            case Zone.INDAR:
+            case Zone.AMERISH:
+            case Zone.ESAMIR:
+            case Zone.HOSSIN:
                 return '1.1';
             default:
                 break;
