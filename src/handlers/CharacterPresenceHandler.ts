@@ -14,6 +14,7 @@ interface PresenceData {
     zone: number;
     faction: Faction;
     instanceId: string;
+    charId: string;
 }
 
 @Injectable()
@@ -32,6 +33,7 @@ export default class CharacterPresenceHandler {
             zone: instance.zone,
             instanceId: instance.instanceId,
             faction: character.teamId,
+            charId: character.id,
         };
 
         // Add character as its own key which will eventually expire, with the zone of the character
@@ -110,7 +112,9 @@ export default class CharacterPresenceHandler {
             const factionKey = FactionUtils.parseFactionIdToShortName(faction) ?? Faction.NONE;
 
             if (factionKey === 'none') {
-                throw new ApplicationException('Faction.NONE was returned for Populations!');
+                CharacterPresenceHandler.logger.error(`Faction.NONE was returned for character ${presenceData.charId}, index: ${index}. Nuking bad data...`);
+                await this.cacheClient.del(key);
+                continue;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

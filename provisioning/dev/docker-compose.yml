@@ -40,8 +40,8 @@ services:
       CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
       REDIS_HOST: "ps2alerts-redis"
       REDIS_DB: "0"
-      API_BASE_URL: "http://ps2alerts-api:3000"
       LOGGER_TRANSPORTS: "console"
+      INTERNAL_API_HOST: "http://ps2alerts-api:3000"
       INTERNAL_API_USER: "ps2alerts"
       INTERNAL_API_PASS: "foobar"
     labels:
@@ -63,8 +63,8 @@ services:
       CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
       REDIS_HOST: "ps2alerts-redis"
       REDIS_DB: "0"
-      API_BASE_URL: "http://ps2alerts-api:3000"
       LOGGER_TRANSPORTS: "console"
+      INTERNAL_API_HOST: "http://ps2alerts-api:3000"
       INTERNAL_API_USER: "ps2alerts"
       INTERNAL_API_PASS: "foobar"
     labels:

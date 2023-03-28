@@ -14,6 +14,7 @@ import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoint
 import {getZoneVersion} from '../utils/zoneVersion';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {getRealZoneId} from '../utils/zoneIdHandler';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 @Injectable()
 export default class FacilityDataBroker {
@@ -23,6 +24,7 @@ export default class FacilityDataBroker {
         private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly timingStatisticsHandler: StatisticsHandler,
     ) {}
 
     public async get(event: PS2EventQueueMessage<FacilityControl>): Promise<FacilityDataInterface> {
@@ -69,12 +71,14 @@ export default class FacilityDataBroker {
     }
 
     private async getFacilityData(facilityId: number, zone: Zone): Promise<CensusFacilityRegion | null> {
+        const started = new Date();
         const result = await this.ps2AlertsApiClient.get(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             ps2AlertsApiEndpoints.censusRegions
                 .replace('{zone}', String(zone))
                 .replace('{version}', getZoneVersion(zone)),
         );
+        await this.timingStatisticsHandler.logTime(started, MetricTypes.CENSUS_FACILITY_DATA);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data: CensusRegionResponseInterface = result.data;

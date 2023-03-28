@@ -16,6 +16,7 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 import config from '../config';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
@@ -56,6 +57,7 @@ export default abstract class TerritoryCalculatorAbstract {
         protected readonly ps2AlertsApiClient: AxiosInstance,
         protected readonly cacheClient: Redis,
         protected readonly zoneDataParser: ZoneDataParser,
+        protected readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     protected async hydrateData(): Promise<void> {
@@ -175,6 +177,7 @@ export default abstract class TerritoryCalculatorAbstract {
             this.instance,
             this.cacheClient,
             this.zoneDataParser,
+            this.statisticsHandler,
         ).getMapData();
 
         if (mapData.length === 0) {

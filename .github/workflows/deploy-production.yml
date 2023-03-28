@@ -52,102 +52,102 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            maelstromeous/ps2alerts:ps2alerts-aggregator-production-${{ github.sha }}
-            maelstromeous/ps2alerts:ps2alerts-aggregator-production-latest
+            maelstromeous/ps2alerts:aggregator-production-${{ github.sha }}
+            maelstromeous/ps2alerts:aggregator-production-latest
           build-args: |
             BUILD_SHA=${{ env.SHORT_SHA }}
             BUILT=${{ env.NOW }}
             VERSION=${{ steps.latesttag.outputs.tag }}
 
-  deploy-to-k8s:
-    needs: build-docker-images
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-
-      # Create copies of the template for different aggregator census environments
-      - name: Copy Templates
-        working-directory: provisioning/k8s
-        env:
-          FILES: application-pc.yml application-ps4eu.yml application-ps4us.yml
-        run: for f in $FILES; do cp application-template.yml $f; done
-
-      # Inject the application template with the correct variables. {{ version }} refers to the Git SHA and is what changes the container version.
-      - name: Update the K8s application resource file (PC)
-        run: |
-          sed -is -e 's|{{ application }}|ps2alerts-aggregator-pc|' \
-          -e 's|{{ environment }}|production|' \
-          -e 's|{{ version }}|${{ github.sha }}|' \
-          -e 's|{{ port }}|3000|' \
-          -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
-          -e 's|{{ census_environment }}|ps2|' \
-          -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
-          -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
-          -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
-          -e 's|{{ redis_db }}|1|' \
-          -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
-          -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|800m|' \
-          -e 's|{{ request_mem }}|0.25Gi|' \
-          -e 's|{{ limit_cpu }}|1600m|' \
-          -e 's|{{ limit_mem }}|0.5Gi|' \
-          provisioning/k8s/application-pc.yml
-
-      - name: Update the K8s application resource file (PS4EU)
-        run: |
-          sed -is -e 's|{{ application }}|ps2alerts-aggregator-ps4eu|' \
-          -e 's|{{ environment }}|production|' \
-          -e 's|{{ version }}|${{ github.sha }}|' \
-          -e 's|{{ port }}|3000|' \
-          -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
-          -e 's|{{ census_environment }}|ps2ps4eu|' \
-          -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
-          -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
-          -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
-          -e 's|{{ redis_db }}|1|' \
-          -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
-          -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|100m|' \
-          -e 's|{{ request_mem }}|0.15Gi|' \
-          -e 's|{{ limit_cpu }}|400m|' \
-          -e 's|{{ limit_mem }}|0.25Gi|' \
-          provisioning/k8s/application-ps4eu.yml
-
-      - name: Update the K8s application resource file (PS4US)
-        run: |
-          sed -is -e 's|{{ application }}|ps2alerts-aggregator-ps4us|' \
-          -e 's|{{ environment }}|production|' \
-          -e 's|{{ version }}|${{ github.sha }}|' \
-          -e 's|{{ port }}|3000|' \
-          -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
-          -e 's|{{ census_environment }}|ps2ps4us|' \
-          -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
-          -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
-          -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
-          -e 's|{{ redis_db }}|1|' \
-          -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
-          -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
-          -e 's|{{ request_cpu }}|150m|' \
-          -e 's|{{ request_mem }}|0.15Gi|' \
-          -e 's|{{ limit_cpu }}|450m|' \
-          -e 's|{{ limit_mem }}|0.25Gi|' \
-          provisioning/k8s/application-ps4us.yml
-
-      # Apply the application resources, telling k8s to change the container version to the new one.
-      - uses: actions-hub/kubectl@master
-        name: Apply application resources
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        with:
-          args: apply -f provisioning/k8s/application-pc.yml -f provisioning/k8s/application-ps4eu.yml -f provisioning/k8s/application-ps4us.yml
-
-      # Outputs the rollout status and returns a 0 signal (thus completing the workflow) once it's rolled out.
-      - uses: actions-hub/kubectl@master
-        name: Wait for deployment to finish
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        with:
-          args: rollout status deployment/ps2alerts-aggregator-pc-production -n ps2alerts
+#  deploy-to-k8s:
+#    needs: build-docker-images
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#        with:
+#          submodules: true
+#
+#      # Create copies of the template for different aggregator census environments
+#      - name: Copy Templates
+#        working-directory: provisioning/k8s
+#        env:
+#          FILES: application-pc.yml application-ps4eu.yml application-ps4us.yml
+#        run: for f in $FILES; do cp application-template.yml $f; done
+#
+#      # Inject the application template with the correct variables. {{ version }} refers to the Git SHA and is what changes the container version.
+#      - name: Update the K8s application resource file (PC)
+#        run: |
+#          sed -is -e 's|{{ application }}|ps2alerts-aggregator-pc|' \
+#          -e 's|{{ environment }}|production|' \
+#          -e 's|{{ version }}|${{ github.sha }}|' \
+#          -e 's|{{ port }}|3000|' \
+#          -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
+#          -e 's|{{ census_environment }}|ps2|' \
+#          -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
+#          -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
+#          -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
+#          -e 's|{{ redis_db }}|1|' \
+#          -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
+#          -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
+#          -e 's|{{ request_cpu }}|800m|' \
+#          -e 's|{{ request_mem }}|0.25Gi|' \
+#          -e 's|{{ limit_cpu }}|1600m|' \
+#          -e 's|{{ limit_mem }}|0.5Gi|' \
+#          provisioning/k8s/application-pc.yml
+#
+#      - name: Update the K8s application resource file (PS4EU)
+#        run: |
+#          sed -is -e 's|{{ application }}|ps2alerts-aggregator-ps4eu|' \
+#          -e 's|{{ environment }}|production|' \
+#          -e 's|{{ version }}|${{ github.sha }}|' \
+#          -e 's|{{ port }}|3000|' \
+#          -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
+#          -e 's|{{ census_environment }}|ps2ps4eu|' \
+#          -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
+#          -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
+#          -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
+#          -e 's|{{ redis_db }}|1|' \
+#          -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
+#          -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
+#          -e 's|{{ request_cpu }}|100m|' \
+#          -e 's|{{ request_mem }}|0.15Gi|' \
+#          -e 's|{{ limit_cpu }}|400m|' \
+#          -e 's|{{ limit_mem }}|0.25Gi|' \
+#          provisioning/k8s/application-ps4eu.yml
+#
+#      - name: Update the K8s application resource file (PS4US)
+#        run: |
+#          sed -is -e 's|{{ application }}|ps2alerts-aggregator-ps4us|' \
+#          -e 's|{{ environment }}|production|' \
+#          -e 's|{{ version }}|${{ github.sha }}|' \
+#          -e 's|{{ port }}|3000|' \
+#          -e 's|{{ census_service_id }}|${{ secrets.CENSUS_SERVICE_ID }}|' \
+#          -e 's|{{ census_environment }}|ps2ps4us|' \
+#          -e 's|{{ rabbitmq_pass }}|${{ secrets.RABBITMQ_PS2ALERTS_PASS }}|' \
+#          -e 's|{{ redis_host }}|ps2alerts-redis-master|' \
+#          -e 's|{{ redis_pass }}|${{ secrets.REDIS_PASS }}|' \
+#          -e 's|{{ redis_db }}|1|' \
+#          -e 's|{{ internal_api_user }}|${{ secrets.INTERNAL_API_USER }}|' \
+#          -e 's|{{ internal_api_pass }}|${{ secrets.INTERNAL_API_PASS }}|' \
+#          -e 's|{{ request_cpu }}|150m|' \
+#          -e 's|{{ request_mem }}|0.15Gi|' \
+#          -e 's|{{ limit_cpu }}|450m|' \
+#          -e 's|{{ limit_mem }}|0.25Gi|' \
+#          provisioning/k8s/application-ps4us.yml
+#
+#      # Apply the application resources, telling k8s to change the container version to the new one.
+#      - uses: actions-hub/kubectl@master
+#        name: Apply application resources
+#        env:
+#          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+#        with:
+#          args: apply -f provisioning/k8s/application-pc.yml -f provisioning/k8s/application-ps4eu.yml -f provisioning/k8s/application-ps4us.yml
+#
+#      # Outputs the rollout status and returns a 0 signal (thus completing the workflow) once it's rolled out.
+#      - uses: actions-hub/kubectl@master
+#        name: Wait for deployment to finish
+#        env:
+#          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+#        with:
+#          args: rollout status deployment/ps2alerts-aggregator-pc-production -n ps2alerts

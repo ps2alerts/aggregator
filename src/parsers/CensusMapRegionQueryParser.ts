@@ -12,6 +12,7 @@ import {
 import ZoneDataParser from './ZoneDataParser';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 export default class CensusMapRegionQueryParser {
     private static readonly logger = new Logger('CensusMapRegionQueryParser');
@@ -24,6 +25,7 @@ export default class CensusMapRegionQueryParser {
         private readonly instance: InstanceAbstract,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {
         this.oshurData = this.initOshurData();
     }
@@ -46,6 +48,8 @@ export default class CensusMapRegionQueryParser {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
+        const started = new Date();
+
         const query = this.restClient.getQueryBuilder('map')
             .join({
                 type: 'map_region',
@@ -67,7 +71,8 @@ export default class CensusMapRegionQueryParser {
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        await apiRequest.try().then((mapData: CensusRegionMapJoinQueryInterface[]) => {
+        await apiRequest.try().then(async (mapData: CensusRegionMapJoinQueryInterface[]) => {
+            await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_MAP_REGION);
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Census returned map_region data`);
 

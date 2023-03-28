@@ -14,6 +14,7 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import Redis from 'ioredis';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 @Injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -23,6 +24,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         @Inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
+        private readonly timingStatisticsHandler: StatisticsHandler,
     ) {}
 
     public async get(
@@ -110,7 +112,6 @@ export default class ItemBroker implements ItemBrokerInterface {
     }
 
     private async getItemFromCensus(itemId: number, environment: CensusEnvironment): Promise<ItemInterface | null> {
-
         const query = this.restClient.getQueryBuilder('item')
             .limit(1);
         const filter = {
@@ -121,11 +122,14 @@ export default class ItemBroker implements ItemBrokerInterface {
         // Grab the item data from Census
         try {
             const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker');
-            await apiRequest.try().then((items) => {
+            const started = new Date();
+            await apiRequest.try().then(async (items) => {
                 if (!items || !items.length) {
                     ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
                     return null;
                 }
+
+                await this.timingStatisticsHandler.logTime(started, MetricTypes.CENSUS_ITEM);
 
                 return new Item(items[0]);
             });

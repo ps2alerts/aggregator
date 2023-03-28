@@ -143,10 +143,7 @@
 
     - name: Set hostname if staging or production, set correct hostname and password
       set_fact:
-        hostname: "queues.ps2alerts.com"
-        user: "{{ rabbit.user }}"
-        password: "{{ rabbit.password }}"
-        vhost: "ps2alerts"
+        hostname: "10.0.5.2"
       when: env == "staging" or env == "production"
 
     - debug:

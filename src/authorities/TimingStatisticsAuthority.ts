@@ -1,14 +1,15 @@
 import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
 import config from '../config';
+import {MetricTypes} from '../handlers/StatisticsHandler';
 
 interface TableDisplayInterface {
-    eventType: string;
+    metricType: string;
     count: number;
     avgCountSec: string;
-    avgTime: string;
-    min: string;
-    max: string;
+    avgMs: string;
+    minMs: number;
+    maxMs: number;
 }
 
 @Injectable()
@@ -16,7 +17,6 @@ export default class TimingStatisticsAuthority {
     private static readonly logger = new Logger('TimingStatisticsAuthority');
     private readonly runId = config.app.runId;
     private timer?: NodeJS.Timeout;
-    private readonly eventTypes = ['Death', 'FacilityControl', 'GainExperience', 'VehicleDestroy'];
 
     constructor(
         private readonly cacheClient: Redis,
@@ -30,6 +30,8 @@ export default class TimingStatisticsAuthority {
 
         // Wipe all metrics lists so 1) we don't have any dangling lists from previous runs and 2) stats are wiped
         const keys = await this.cacheClient.smembers(config.redis.metricsListKey);
+        const censusCacheHitKey = `metrics-CensusCacheHits-${this.runId}`;
+        const censusCacheMissKey = `metrics-CensusCacheMiss-${this.runId}`;
 
         if (keys.length) {
             for (const key of keys) {
@@ -39,9 +41,12 @@ export default class TimingStatisticsAuthority {
         }
 
         // Add this run's keys in so the next run can flush them
-        for (const eventType of this.eventTypes) {
-            const listKey = `metrics-messages-${eventType}-${this.runId}`;
+        for (const [metricType] of Object.entries(MetricTypes)) {
+            const listKey = `metrics-${metricType}-${this.runId}`;
             await this.cacheClient.sadd(config.redis.metricsListKey, listKey);
+
+            // Add CensusCacheHits and CensusCacheMisses to metrics key list
+            await this.cacheClient.sadd(config.redis.metricsListKey, [censusCacheHitKey, censusCacheMissKey]);
         }
 
         TimingStatisticsAuthority.logger.debug(`${keys.length} metrics keys cleared!`);
@@ -52,8 +57,8 @@ export default class TimingStatisticsAuthority {
 
             const tableData: TableDisplayInterface[] = [];
 
-            for (const eventType of this.eventTypes) {
-                const key = `metrics-messages-${eventType}-${this.runId}`;
+            for (const [metricType] of Object.entries(MetricTypes)) {
+                const key = `metrics-${metricType}-${this.runId}`;
                 const length = await this.cacheClient.llen(key);
                 const timings = await this.cacheClient.lrange(key, 0, length);
 
@@ -61,7 +66,7 @@ export default class TimingStatisticsAuthority {
                 let timeSum = 0;
                 let avgCountSec = 0;
                 let avgTime = 0;
-                let min = -1;
+                let min = 0;
                 let max = 0;
 
                 for (const timeString of timings) {
@@ -72,7 +77,7 @@ export default class TimingStatisticsAuthority {
                     avgCountSec = count / 60;
                     avgTime = timeSum / count;
 
-                    if (min === -1) {
+                    if (min === 0) {
                         min = time;
                     }
 
@@ -91,12 +96,12 @@ export default class TimingStatisticsAuthority {
                 }
 
                 tableData.push({
-                    eventType,
+                    metricType,
                     count,
                     avgCountSec: avgCountSec.toFixed(2),
-                    avgTime: (avgTime / 1000).toFixed(2),
-                    min: (min / 1000).toFixed(2),
-                    max: (max / 1000).toFixed(2),
+                    avgMs: avgTime.toFixed(2),
+                    minMs: min,
+                    maxMs: max,
                 });
 
                 // Flush the list so everything resets
@@ -109,6 +114,8 @@ export default class TimingStatisticsAuthority {
                 if (config.logger.silly) {
                     console.table(tableData);
                 }
+            } else {
+                TimingStatisticsAuthority.logger.debug('No metrics to show!');
             }
         }, 60000);
 

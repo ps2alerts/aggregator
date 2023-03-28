@@ -5,7 +5,7 @@ import ApplicationException from '../../exceptions/ApplicationException';
 
 @Injectable()
 export default class ApiConnectionCheckService implements OnModuleInit {
-    private static readonly logger = new Logger('ApiConnectivityBootService');
+    private static readonly logger = new Logger(ApiConnectionCheckService.name);
     private readonly maxAttempts = 6;
     private readonly retryTime = 10000;
 
@@ -15,9 +15,9 @@ export default class ApiConnectionCheckService implements OnModuleInit {
     }
 
     public async onModuleInit(): Promise<void> {
-        ApiConnectionCheckService.logger.log('Booting ApiConnectivityBootService...');
+        ApiConnectionCheckService.logger.log('Booting ApiConnectivityCheckService...');
         await this.tryConnection();
-        ApiConnectionCheckService.logger.log('ApiConnectivityBootService booted!');
+        ApiConnectionCheckService.logger.log('ApiConnectivityCheckService booted!');
     }
 
     private async tryConnection(attempts = 0): Promise<boolean> {

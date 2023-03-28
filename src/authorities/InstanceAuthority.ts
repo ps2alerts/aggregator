@@ -47,6 +47,7 @@ interface OutfitwarsTerritoryActiveTableInterface {
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
     mapVersion: string;
+    latticeVersion: string;
 }
 
 @Injectable()
@@ -107,6 +108,22 @@ export default class InstanceAuthority {
         });
     }
 
+    public getLatticeVersion(zone: Zone): string {
+        switch (zone) {
+            case Zone.OSHUR: // November 17th, 2022 update modified Indar lattices and added CTF to all continents
+                return '1.2';
+            case Zone.INDAR:
+            case Zone.AMERISH:
+            case Zone.ESAMIR:
+            case Zone.HOSSIN:
+                return '1.1';
+            default:
+                break;
+        }
+
+        return '1.0';
+    }
+
     public async startInstance(instance: PS2AlertsInstanceInterface): Promise<boolean> {
         if (!this.initialized) {
             throw new ApplicationException(`Attempted to start instance before initialized! World ${instance.world}!`);
@@ -120,6 +137,7 @@ export default class InstanceAuthority {
                 xpm: true,
             },
             mapVersion: instance.zone === Zone.OSHUR ? '1.1' : '1.0', // As of 13th July Oshur uses a new map
+            latticeVersion: this.getLatticeVersion(instance.zone),
         });
 
         try {
@@ -205,7 +223,7 @@ export default class InstanceAuthority {
 
         const promises = [
             await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive),
-            await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
+            // await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
         ];
 
         try {
@@ -295,6 +313,7 @@ export default class InstanceAuthority {
                 this.currentInstances.push(instance);
 
                 // Push the current instances to the Redis instance list to give PopulationAuthority awareness of running instances
+                InstanceAuthority.logger.info(`Pushing instance ${instance.instanceId} to ActiveInstances`);
                 await this.cacheClient.sadd('ActiveInstances', instance.instanceId);
             }
         }

@@ -42,4 +42,4 @@ jobs:
           file: provisioning/base/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: maelstromeous/ps2alerts:ps2alerts-aggregator-base
+          tags: maelstromeous/ps2alerts:aggregator-base
