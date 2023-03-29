@@ -27,7 +27,7 @@ export default abstract class InstanceAbstract {
         return Date.now() > (this.timeStarted.getTime() + this.duration);
     }
 
-    public messageOverdue(event: PS2Event): boolean {
+    public messageOverdue(event: PS2Event<any>): boolean {
         // If facility control, add a limit 2.5 seconds before the alert end to ensure cont locks don't skew the stats
         if (event.event_name === 'FacilityControl') {
             const deadline = (this.timeStarted.getTime() + this.duration) - 2500;

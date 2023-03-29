@@ -87,6 +87,6 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
     private createMessage(message: ConsumeMessage): MetagameEvent {
         const data: {eventName: string, worldId: string, payload: Stream.PS2Event} = this.parseRawMessage(message);
 
-        return new MetagameEvent(this.censusClient, data.payload);
+        return new MetagameEvent(this.censusClient, data.payload as any);
     }
 }

@@ -18,7 +18,7 @@ export default class CharacterBroker {
         private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
-    public async get(payload: CharacterEvent): Promise<{ character: Character, attacker: Character }> {
+    public async get(payload: CharacterEvent<any>): Promise<{ character: Character, attacker: Character }> {
         try {
             // Set a default in case attacker doesn't result
             let character: Character;

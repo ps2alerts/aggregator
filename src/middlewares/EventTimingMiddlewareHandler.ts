@@ -14,9 +14,9 @@ export default class EventTimingMiddlewareHandler {
     }
 
     public async handle(
-        message: PS2Event,
+        message: PS2Event<any>,
         actions: ChannelActionsInterface,
-        handler: QueueMessageHandlerInterface<PS2Event>,
+        handler: QueueMessageHandlerInterface<PS2Event<any>>,
     ): Promise<void> {
         const startTime = new Date();
 

@@ -24,7 +24,7 @@ export default class RabbitMQQueueFactory {
         pattern: string,
         prefetch: number,
         instance: InstanceAbstract,
-        handler: QueueMessageHandlerInterface<PS2Event>,
+        handler: QueueMessageHandlerInterface<PS2Event<any>>,
     ): InstanceEventQueue {
         return new InstanceEventQueue(
             this.connectionManager,

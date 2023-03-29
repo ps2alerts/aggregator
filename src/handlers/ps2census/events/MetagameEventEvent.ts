@@ -60,19 +60,19 @@ export default class MetagameEventEvent {
 
         this.eventType = Parser.parseNumericalArgument(event.metagame_event_id, false);
 
-        this.factionNc = Parser.parseNumericalArgument(event.faction_nc, true);
+        this.factionNc = event.faction_nc;
 
         if (isNaN(this.factionNc)) {
             throw new IllegalArgumentException('faction_nc', 'MetagameEventEvent');
         }
 
-        this.factionTr = Parser.parseNumericalArgument(event.faction_tr, true);
+        this.factionTr = event.faction_tr;
 
         if (isNaN(this.factionTr)) {
             throw new IllegalArgumentException('faction_tr', 'MetagameEventEvent');
         }
 
-        this.factionVs = Parser.parseNumericalArgument(event.faction_vs, true);
+        this.factionVs = event.faction_vs;
 
         if (isNaN(this.factionVs)) {
             throw new IllegalArgumentException('faction_vs', 'MetagameEventEvent');

@@ -16,7 +16,7 @@ import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/bina
 import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMessageHandlerInterface<T> {
+export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements QueueMessageHandlerInterface<T> {
     private static readonly logger = new Logger('ZoneMessageHandler');
 
     constructor(

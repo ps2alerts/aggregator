@@ -50,7 +50,7 @@ export default class FacilityControlEvent extends InstanceEvent {
 
         this.facility = facility;
 
-        this.durationHeld = Parser.parseNumericalArgument(event.payload.duration_held);
+        this.durationHeld = event.payload.duration_held;
 
         if (isNaN(this.durationHeld)) {
             throw new IllegalArgumentException('durationHeld', 'FacilityControlEvent');

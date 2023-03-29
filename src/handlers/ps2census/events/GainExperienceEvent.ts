@@ -33,7 +33,7 @@ export default class GainExperienceEvent extends InstanceEvent {
             throw new IllegalArgumentException('loadout_id');
         }
 
-        this.amount = Parser.parseNumericalArgument(event.payload.amount);
+        this.amount = event.payload.amount;
 
         if (isNaN(this.amount)) {
             throw new IllegalArgumentException('amount');

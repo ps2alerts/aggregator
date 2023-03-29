@@ -21,7 +21,7 @@ export default interface PS2AlertsInstanceInterface {
 
     overdue(): boolean;
 
-    messageOverdue(event: PS2Event): boolean;
+    messageOverdue(event: PS2Event<any>): boolean;
 
     match(world: World | null, zone: Zone | null): boolean;
 

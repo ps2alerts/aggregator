@@ -23,7 +23,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
         private readonly pattern: string,
         private readonly prefetch: number,
         private readonly instance: InstanceAbstract,
-        private readonly handler: QueueMessageHandlerInterface<PS2Event>,
+        private readonly handler: QueueMessageHandlerInterface<PS2Event<any>>,
         private readonly timingMiddlewareHandler: EventTimingMiddlewareHandler,
         private readonly censusClient: CensusClient,
     ) {
@@ -115,14 +115,13 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
         }
     }
 
-    private createPs2Event(message: ConsumeMessage): PS2Event {
+    private createPs2Event(message: ConsumeMessage): PS2Event<any> {
         const data: {eventName: string, worldId: string, payload: Stream.PS2Event} = this.parseRawMessage(message);
 
         switch (data.payload.event_name) {
             case 'AchievementEarned':
             case 'BattleRankUp':
             case 'ContinentLock':
-            case 'ContinentUnlock':
             case 'ItemAdded':
             case 'PlayerFacilityCapture':
             case 'PlayerFacilityDefend':
