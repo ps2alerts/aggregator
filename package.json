@@ -30,7 +30,7 @@
     "amqp-connection-manager": "^4.1.4",
     "amqplib": "^0.10.0",
     "axios": "^0.27.2",
-    "body-parser": "^1.20.0",
+    "body-parser": "^1.20.2",
     "bufferutil": "^4.0.7",
     "cli-color": "^2.0.3",
     "clone": "^2.1.2",
