@@ -39,7 +39,7 @@
     "inversify": "^6.0.1",
     "ioredis": "^5.3.1",
     "lodash": "^4.17.21",
-    "logform": "^2.4.2",
+    "logform": "^2.5.1",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.42",
     "ps2census": "^4.4.1",
