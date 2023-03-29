@@ -4,12 +4,7 @@ import {Injectable} from '@nestjs/common';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import ApplicationException from '../exceptions/ApplicationException';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
-import * as IndarMap from '../ps2alerts-constants/maps/regions-2-1.0.json';
-import * as HossinMap from '../ps2alerts-constants/maps/regions-4-1.0.json';
-import * as AmerishMap from '../ps2alerts-constants/maps/regions-6-1.0.json';
-import * as EsamirMap from '../ps2alerts-constants/maps/regions-8-1.0.json';
-import * as NexusMap from '../ps2alerts-constants/maps/regions-10-1.0.json';
-import * as OshurMap from '../ps2alerts-constants/maps/regions-344-1.1.json';
+import {getZoneVersion} from '../utils/zoneVersion';
 
 @Injectable()
 export default class ZoneDataParser {
@@ -78,8 +73,10 @@ export default class ZoneDataParser {
         // Go through each zone and push the data to a map
         zoneArray.forEach((zone) => {
             const data: CensusFacilityRegion[] = [];
+            const version = getZoneVersion(zone);
 
-            const regionData = this.getRegionData(zone);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires
+            const regionData: CensusRegionResponseInterface = require(`${__dirname}/../ps2alerts-constants/maps/regions-${zone}-${version}.json`);
 
             regionData.map_region_list.forEach((region) => {
                 const facilityId = parseInt(region.facility_id, 10);
@@ -100,23 +97,6 @@ export default class ZoneDataParser {
 
             this.regionMap.set(zone, data);
         });
-    }
-
-    private getRegionData(zone: number): CensusRegionResponseInterface {
-        switch (zone) {
-            case 2:
-                return IndarMap as CensusRegionResponseInterface;
-            case 4:
-                return HossinMap as CensusRegionResponseInterface;
-            case 6:
-                return AmerishMap as CensusRegionResponseInterface;
-            case 8:
-                return EsamirMap as CensusRegionResponseInterface;
-            case 10:
-                return NexusMap as CensusRegionResponseInterface;
-            case 344:
-                return OshurMap as CensusRegionResponseInterface;
-        }
     }
 
     private initLatticeData(): void {
