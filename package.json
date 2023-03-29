@@ -44,7 +44,7 @@
     "moment-timezone": "^0.5.42",
     "ps2census": "^4.4.1",
     "reflect-metadata": "^0.1.13",
-    "utf-8-validate": "^5.0.8",
+    "utf-8-validate": "^6.0.3",
     "winston": "^3.8.2",
     "winston-transport": "^4.4.0"
   },
