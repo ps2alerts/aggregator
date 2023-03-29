@@ -65,7 +65,6 @@ export default class InstanceAuthority {
     ) {}
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
-        // TODO: Make this work for outfit wars instances
         InstanceAuthority.logger.verbose(`Attempting to find an instance with ID: "${instanceId}"...`);
 
         const instance = this.currentInstances.find((i: PS2AlertsInstanceInterface) => {
@@ -102,7 +101,6 @@ export default class InstanceAuthority {
     }
 
     public getAllInstances(): PS2AlertsInstanceInterface[] {
-        // TODO: Make this work for outfit wars instances
         return this.currentInstances.filter((instance) => {
             return instance.state === Ps2AlertsEventState.STARTED;
         });
@@ -397,6 +395,7 @@ export default class InstanceAuthority {
 
     private async startTerritoryControlInstance(instance: MetagameTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
         InstanceAuthority.logger.log(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);
+
         await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, metadata)
             .then((response) => {
                 if (!response.data) {
@@ -405,7 +404,8 @@ export default class InstanceAuthority {
                 }
             })
             .catch((err) => {
-                new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority.startTerritoryControlInstance');
+                console.log(err.response.data);
+                new ExceptionHandler('Unable to create instance via API!', err.response.data.message, 'InstanceAuthority.startTerritoryControlInstance');
             });
 
         InstanceAuthority.logger.log(`=== INSERTED NEW METAGAME TERRITORY INSTANCE ${instance.instanceId} ===`);
