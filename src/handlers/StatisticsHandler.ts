@@ -1,6 +1,6 @@
-import {injectable} from 'inversify';
 import Redis from 'ioredis';
 import config from '../config';
+import {Injectable} from '@nestjs/common';
 
 export enum MetricTypes {
     CENSUS_CHARACTER = 'CensusCharacter',
@@ -23,7 +23,7 @@ const censusEndpoints = [
     MetricTypes.CENSUS_ITEM,
 ];
 
-@injectable()
+@Injectable()
 export default class StatisticsHandler {
     private readonly runId = config.app.runId;
 

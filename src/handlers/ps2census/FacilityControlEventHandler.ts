@@ -26,7 +26,7 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
     ) {}
 
     public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean>{
-        FacilityControlEventHandler.logger.silly('Parsing message...');
+        FacilityControlEventHandler.logger.verbose('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});

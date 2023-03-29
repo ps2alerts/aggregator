@@ -6,8 +6,9 @@ import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 import RabbitMQQueueFactory from './factories/RabbitMQQueueFactory';
 import CensusModule from '../census/CensusModule';
-import TimingMiddlewareHandler from './middlewares/TimingMiddlewareHandler';
 import RedisModule from '../redis/RedisModule';
+import EventTimingMiddlewareHandler from '../../middlewares/EventTimingMiddlewareHandler';
+import StatisticsHandler from '../../handlers/StatisticsHandler';
 
 @Module({
     imports: [RedisModule, CensusModule],
@@ -18,7 +19,8 @@ import RedisModule from '../redis/RedisModule';
         },
 
         RabbitMQQueueFactory,
-        TimingMiddlewareHandler,
+        EventTimingMiddlewareHandler,
+        StatisticsHandler,
 
         ApiMQPublisher,
         ApiMQDelayPublisher,
@@ -26,9 +28,9 @@ import RedisModule from '../redis/RedisModule';
     exports: [
         TYPES.rabbitMqConnection,
         RabbitMQQueueFactory,
-        TimingMiddlewareHandler,
         ApiMQPublisher,
         ApiMQDelayPublisher,
+        StatisticsHandler,
     ],
 })
 export default class RabbitMQModule implements OnModuleInit {
