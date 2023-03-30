@@ -28,6 +28,8 @@ For first time runs, you must run `ps2alerts-aggregator-init`, which goes ahead 
 
 Run `ps2alerts-start` to start all associated services including this module. Dependencies will be handled via the bootstrap process.
 
+Before first running the aggregator, you need to copy `.env.example` to `.env` and fill in your census service ID, as well as any other dependencies e.g. remote redis etc.
+
 To start the aggregator for development, run `ps2alerts-aggregator-dev`. This will bootstrap the container with ENV vars etc and tail the docker logs, as you would if you ran it manually via NPM.
 
 #### Workarounds
