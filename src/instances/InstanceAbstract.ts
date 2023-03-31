@@ -2,7 +2,6 @@
 import {World} from '../ps2alerts-constants/world';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import ApplicationException from '../exceptions/ApplicationException';
-import moment from 'moment/moment';
 import {PS2Event} from 'ps2census';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Zone} from '../ps2alerts-constants/zone';
@@ -27,6 +26,7 @@ export default abstract class InstanceAbstract {
         return Date.now() > (this.timeStarted.getTime() + this.duration);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public messageOverdue(event: PS2Event<any>): boolean {
         // If facility control, add a limit 2.5 seconds before the alert end to ensure cont locks don't skew the stats
         if (event.event_name === 'FacilityControl') {
@@ -54,9 +54,10 @@ export default abstract class InstanceAbstract {
 
     // Returns the current second tick of the alert
     public currentDuration(): number {
+        const nowUnix = Date.now() / 1000;
+        const timeStartedUnix = this.timeStarted.getTime() / 1000;
+
         // Return current difference in seconds between start and now
-        const nowUnix = moment().unix() * 1000;
-        // Holy mother of brackets batman!
-        return parseInt(((nowUnix - this.timeStarted.getTime()) / 1000).toFixed(0), 10);
+        return parseInt((nowUnix - timeStartedUnix).toFixed(0), 10);
     }
 }
