@@ -1,45 +1,86 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {Zone, zoneArray} from '../ps2alerts-constants/zone';
-import {Injectable} from '@nestjs/common';
+import {getZoneLatticeVersion, Zone} from '../ps2alerts-constants/zone';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import ApplicationException from '../exceptions/ApplicationException';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
-import * as IndarMap from '../ps2alerts-constants/maps/regions-2-1.0.json';
-import * as HossinMap from '../ps2alerts-constants/maps/regions-4-1.0.json';
-import * as AmerishMap from '../ps2alerts-constants/maps/regions-6-1.0.json';
-import * as EsamirMap from '../ps2alerts-constants/maps/regions-8-1.0.json';
-import * as NexusMap from '../ps2alerts-constants/maps/regions-10-1.0.json';
-import * as OshurMap from '../ps2alerts-constants/maps/regions-344-1.1.json';
+import {TYPES} from '../constants/types';
+import {AxiosInstance} from 'axios';
+import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
+import Redis from 'ioredis';
 
 @Injectable()
 export default class ZoneDataParser {
-    private readonly regionMap = new Map<Zone, CensusFacilityRegion[]>();
-    private readonly latticeMap = new Map<Zone, Map<string, Set<string>>>();
+    private static readonly logger = new Logger('ZoneDataParser');
 
-    constructor() {
-        this.initRegionData();
-        this.initLatticeData();
-    }
+    constructor(
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly cacheClient: Redis,
+    ) {}
 
-    public getRegions(zone: Zone): CensusFacilityRegion[] {
-        const regions = this.regionMap.get(zone);
+    // Sends a call off to the PS2A API to grab the map data based on current date and zone, pulling in the correct lattice links contextually based off instance date.
+    public async getRegions(zone: Zone, date: Date): Promise<CensusFacilityRegion[]> {
+        ZoneDataParser.logger.debug('getRegions');
 
-        // This absolutely must not fail, so cause a full application crash if the data is somehow missing.
-        if (!regions) {
-            throw new ApplicationException(`Region data for zone ${zone} is missing!`, 'ZoneDataParser', 1);
+        const latticeVersion = getZoneLatticeVersion(zone, date);
+
+        const cacheKey = `regionData-z:${zone}-v:${latticeVersion}`;
+
+        ZoneDataParser.logger.debug(cacheKey);
+
+        // Pull lattice data out of cache if it exists
+        if (await this.cacheClient.exists(cacheKey)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return JSON.parse(await this.cacheClient.get(`regionData-z:${zone}-v:${latticeVersion}`));
         }
 
-        return regions;
+        const path = ps2AlertsApiEndpoints.censusRegions
+            .replace('{zone}', zone.toString())
+            .replace('{version}', latticeVersion);
+
+        ZoneDataParser.logger.debug(path);
+        const response = await this.ps2AlertsApiClient.get(path);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const regionData: CensusRegionResponseInterface = response.data;
+
+        ZoneDataParser.logger.debug(response.data);
+
+        // This absolutely must not fail, so cause a full application crash if the data is somehow missing.
+        if (!regionData?.map_region_list?.length) {
+            throw new ApplicationException(`Region data for zone ${zone} and lattice version ${latticeVersion} is missing!`, 'ZoneDataParser.getRegions', 1);
+        }
+
+        const data: CensusFacilityRegion[] = [];
+
+        regionData.map_region_list.forEach((region) => {
+            const facilityId = parseInt(region.facility_id, 10);
+
+            // If facility is in blacklist, don't map it
+            if (censusOldFacilities.includes(facilityId) || isNaN(facilityId)) {
+                return;
+            }
+
+            data.push({
+                map_region_id: region.map_region_id,
+                facility_id: region.facility_id,
+                facility_name: region.facility_name,
+                facility_type_id: region.facility_type_id,
+                facility_links: region.facility_links, // used by getLattices
+            });
+        });
+
+        await this.cacheClient.setex(cacheKey, 3600, JSON.stringify(data));
+
+        return data;
     }
 
-    // Facility link data is not bi-directional, meaning a base may have 0 links but other bases may link to it.
-    // This function makes the data bi-directional so we can better traverse it.
-    public getLattices(zone: Zone): Map<string, Set<string>> {
-        const regions = this.getRegions(zone);
+    // Facility link data from Census is annoyingly not bidirectional, meaning a base may have 0 links but other bases may link to it. This function makes it bidirectional enabling us to traverse it correctly.
+    public async getLattices(zone: Zone, date: Date): Promise<Map<string, Set<string>>> {
+        const regions = await this.getRegions(zone, date);
         const facilities = new Map<string, Set<string>>();
 
         if (!regions) {
-            throw new ApplicationException('No lattice data was returned!', 'TerritoryCalculator.transformLatticeData');
+            throw new ApplicationException('No lattice data was returned!', 'ZoneDataParser.getLattices');
         }
 
         regions.forEach((region) => {
@@ -72,56 +113,5 @@ export default class ZoneDataParser {
         });
 
         return facilities;
-    }
-
-    private initRegionData(): void {
-        // Go through each zone and push the data to a map
-        zoneArray.forEach((zone) => {
-            const data: CensusFacilityRegion[] = [];
-
-            const regionData = this.getRegionData(zone);
-
-            regionData.map_region_list.forEach((region) => {
-                const facilityId = parseInt(region.facility_id, 10);
-
-                // If facility is in blacklist, don't map it
-                if (censusOldFacilities.includes(facilityId) || isNaN(facilityId)) {
-                    return;
-                }
-
-                data.push({
-                    map_region_id: region.map_region_id,
-                    facility_id: region.facility_id,
-                    facility_name: region.facility_name,
-                    facility_type_id: region.facility_type_id,
-                    facility_links: region.facility_links, // used by getLattices
-                });
-            });
-
-            this.regionMap.set(zone, data);
-        });
-    }
-
-    private getRegionData(zone: number): CensusRegionResponseInterface {
-        switch (zone) {
-            case 2:
-                return IndarMap as CensusRegionResponseInterface;
-            case 4:
-                return HossinMap as CensusRegionResponseInterface;
-            case 6:
-                return AmerishMap as CensusRegionResponseInterface;
-            case 8:
-                return EsamirMap as CensusRegionResponseInterface;
-            case 10:
-                return NexusMap as CensusRegionResponseInterface;
-            case 344:
-                return OshurMap as CensusRegionResponseInterface;
-        }
-    }
-
-    private initLatticeData(): void {
-        zoneArray.forEach((zone) => {
-            this.latticeMap.set(zone, this.getLattices(zone));
-        });
     }
 }

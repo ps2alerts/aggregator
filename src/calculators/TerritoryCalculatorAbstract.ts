@@ -82,7 +82,7 @@ export default abstract class TerritoryCalculatorAbstract {
             }
         });
 
-        const zoneLattices = this.zoneDataParser.getLattices(this.instance.zone);
+        const zoneLattices = await this.zoneDataParser.getLattices(this.instance.zone, this.instance.timeStarted);
 
         // For each warpgate returned, execute the lattice traversal
         for (const warpgate of this.warpgateList) {
