@@ -23,31 +23,30 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 import Redis from 'ioredis';
 
-interface MetagameTerritoryActiveTableInterface {
-    instanceId: string;
-    world: World;
-    zone: Zone;
-    timeRemaining: string;
-    vs: number | string;
-    nc: number | string;
-    tr: number | string;
-    cutoff: number | string;
-}
-
-interface OutfitwarsTerritoryActiveTableInterface {
-    instanceId: string;
-    world: World;
-    zone: Zone;
-    timeRemaining: string;
-    blue: number | string;
-    red: number | string;
-    cutoff: number | string;
-}
-
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
     mapVersion: string;
     latticeVersion: string;
+}
+
+interface TerritoryActiveTableInterface {
+    instanceId: string;
+    world: World;
+    zone: Zone;
+    timeRemaining: string;
+    cutoff: number | string;
+    outOfPlay: number | string;
+}
+
+interface MetagameTerritoryActiveTableInterface extends TerritoryActiveTableInterface {
+    vs: number | string;
+    nc: number | string;
+    tr: number | string;
+}
+
+interface OutfitwarsTerritoryActiveTableInterface extends TerritoryActiveTableInterface {
+    blue: number | string;
+    red: number | string;
 }
 
 @Injectable()
@@ -337,6 +336,7 @@ export default class InstanceAuthority {
                         nc: instance.result?.nc ?? '???',
                         tr: instance.result?.tr ?? '???',
                         cutoff: instance.result?.cutoff ?? '???',
+                        outOfPlay: instance.result?.outOfPlay ?? '???',
                     };
                     metagameTerritoryRows.push(object);
                 }
@@ -350,6 +350,7 @@ export default class InstanceAuthority {
                         blue: instance.result?.blue ?? '???',
                         red: instance.result?.red ?? '???',
                         cutoff: instance.result?.cutoff ?? '???',
+                        outOfPlay: instance.result?.outOfPlay ?? '???',
                     };
                     outfitwarsTerritoryRows.push(object);
                 }
