@@ -24,7 +24,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         @Inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
-        private readonly timingStatisticsHandler: StatisticsHandler,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async get(
@@ -32,6 +32,8 @@ export default class ItemBroker implements ItemBrokerInterface {
         vehicleId: Vehicle,
     ): Promise<ItemInterface> {
         const environment: CensusEnvironment = config.census.censusEnvironment;
+
+        const started = new Date();
 
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             if (!vehicleId) {
@@ -48,6 +50,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.verbose(`${cacheKey} cache HIT`);
+            await this.statisticsHandler.logTime(started, MetricTypes.ITEM_CACHE_HITS);
             const data = await this.cacheClient.get(cacheKey);
 
             // Check if we've actually got valid JSON in the key
@@ -63,7 +66,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             }
         }
 
-        ItemBroker.logger.debug(`${cacheKey} MISS`);
+        ItemBroker.logger.verbose(`${cacheKey} MISS`);
 
         // Serve the fake item by default, if one is found it gets replaced
         let item = new FakeItemFactory().build();
@@ -106,6 +109,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         };
 
         await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(rawCensusItem));
+        await this.statisticsHandler.logTime(started, MetricTypes.ITEM_CACHE_MISSES);
 
         return item;
     }
@@ -128,7 +132,7 @@ export default class ItemBroker implements ItemBrokerInterface {
                     return null;
                 }
 
-                await this.timingStatisticsHandler.logTime(started, MetricTypes.CENSUS_ITEM);
+                await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_ITEM);
 
                 return new Item(items[0]);
             });
