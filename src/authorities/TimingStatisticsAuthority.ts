@@ -32,8 +32,6 @@ export default class TimingStatisticsAuthority {
         // Wipe all metrics lists, so we don't have any dangling lists from previous runs
         const keys = await this.cacheClient.smembers(this.metricsListKey);
 
-        TimingStatisticsAuthority.logger.debug(keys);
-
         if (keys.length) {
             for (const key of keys) {
                 await this.cacheClient.del(key);
@@ -43,9 +41,9 @@ export default class TimingStatisticsAuthority {
 
         // Add this run's keys in so the next run can flush them
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [key, metricType] of Object.values(MetricTypes)) {
+        for (const [key, metricType] of Object.entries(MetricTypes)) {
             const listKey = `metrics:${this.runId}:${metricType}`;
-            TimingStatisticsAuthority.logger.debug(`${listKey}`);
+            TimingStatisticsAuthority.logger.debug(`Adding ${listKey} to metrics key list`);
             await this.cacheClient.sadd(this.metricsListKey, listKey);
         }
 

@@ -166,7 +166,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             {phase, round},
         );
 
-        console.log('starting OW instance', instance);
+        AdminAggregatorMessageHandler.logger.log('Starting Outfit Wars instance', instance);
 
         try {
             await this.instanceAuthority.startInstance(instance);

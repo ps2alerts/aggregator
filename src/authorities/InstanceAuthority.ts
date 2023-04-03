@@ -388,7 +388,7 @@ export default class InstanceAuthority {
                 }
             })
             .catch((err) => {
-                console.log(err.response.data);
+                InstanceAuthority.logger.error(err.response.data);
                 new ExceptionHandler('Unable to create instance via API!', err.response.data.message, 'InstanceAuthority.startTerritoryControlInstance');
             });
 
