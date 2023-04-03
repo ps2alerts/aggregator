@@ -8,7 +8,7 @@ import Redis from 'ioredis';
 export default class CensusCacheDriver implements CacheContract {
     constructor(
         private readonly cacheClient: Redis,
-        private readonly namespace: string = 'census',
+        private readonly namespace: string = 'censusCache',
         private readonly expiry: number = 86400,
     ) {}
 
@@ -41,6 +41,6 @@ export default class CensusCacheDriver implements CacheContract {
     }
 
     private cacheKey(key: string): string {
-        return `${this.namespace}-${key}`;
+        return `${this.namespace}:${key}`;
     }
 }

@@ -20,18 +20,13 @@ export default class ZoneDataParser {
 
     // Sends a call off to the PS2A API to grab the map data based on current date and zone, pulling in the correct lattice links contextually based off instance date.
     public async getRegions(zone: Zone, date: Date): Promise<CensusFacilityRegion[]> {
-        ZoneDataParser.logger.debug('getRegions');
-
         const latticeVersion = getZoneLatticeVersion(zone, date);
-
-        const cacheKey = `regionData-z:${zone}-v:${latticeVersion}`;
-
-        ZoneDataParser.logger.debug(cacheKey);
+        const cacheKey = `regionData:Z${zone}:V${latticeVersion}`;
 
         // Pull lattice data out of cache if it exists
         if (await this.cacheClient.exists(cacheKey)) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return JSON.parse(await this.cacheClient.get(`regionData-z:${zone}-v:${latticeVersion}`));
+            return JSON.parse(await this.cacheClient.get(cacheKey));
         }
 
         const path = ps2AlertsApiEndpoints.censusRegions

@@ -31,7 +31,7 @@ export default class FacilityDataBroker {
         const environment = config.census.censusEnvironment;
         const facilityId = Parser.parseNumericalArgument(event.payload.facility_id);
         const zone = getRealZoneId(event.payload.zone_id);
-        const cacheKey = `facility-${facilityId}-${environment}`;
+        const cacheKey = `facilityData:${facilityId}:${environment}`;
 
         let facilityData = new FakeMapRegionFactory().build(facilityId);
 
@@ -48,12 +48,12 @@ export default class FacilityDataBroker {
             return new FacilityData(JSON.parse(data), zone);
         }
 
-        FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache MISS`);
+        FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache MISS`);
 
         const result = await this.getFacilityData(facilityId, zone);
 
         if (result) {
-            FacilityDataBroker.logger.debug(`Facility ID ${facilityId} successfully retrieved from PS2A API`);
+            FacilityDataBroker.logger.verbose(`Facility ID ${facilityId} successfully retrieved from PS2A API`);
             facilityData = new FacilityData(result, zone);
         }
 
@@ -61,7 +61,7 @@ export default class FacilityDataBroker {
             FacilityDataBroker.logger.error(`PS2Alerts is missing the facility! ${facilityId} on zone ${zone}`);
 
             // Log the unknown item so we can investigate
-            await this.cacheClient.sadd(config.redis.unknownFacilityKey, `${facilityId}-${zone}`);
+            await this.cacheClient.sadd(`unknownFacilities:${environment}`, `${facilityId}-${zone}`);
             FacilityDataBroker.logger.debug(`Unknown facility ${facilityId}-${zone} logged`);
         }
 

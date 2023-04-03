@@ -43,11 +43,11 @@ export default class ItemBroker implements ItemBrokerInterface {
             }
         }
 
-        const cacheKey = `item-${itemId}-${environment}`;
+        const cacheKey = `itemCache:${environment}:${itemId}`;
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            ItemBroker.logger.verbose(`item ${cacheKey} cache HIT`);
+            ItemBroker.logger.verbose(`${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
 
             // Check if we've actually got valid JSON in the key
@@ -56,14 +56,14 @@ export default class ItemBroker implements ItemBrokerInterface {
                 return new Item(JSON.parse(data));
             } catch (err) {
                 // Json didn't parse, chuck the data
-                ItemBroker.logger.warn(`Item cache ${cacheKey} was invalid JSON, flushing cache`);
+                ItemBroker.logger.warn(`${cacheKey} was invalid JSON, flushing cache`);
 
                 await this.cacheClient.del(cacheKey);
                 // Fall through to the rest of the method to get the item
             }
         }
 
-        ItemBroker.logger.debug(`item ${cacheKey} cache MISS`);
+        ItemBroker.logger.debug(`${cacheKey} MISS`);
 
         // Serve the fake item by default, if one is found it gets replaced
         let item = new FakeItemFactory().build();
@@ -86,7 +86,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         if (item.id === -1) {
             // Log the unknown item so we can investigate
-            await this.cacheClient.sadd(config.redis.unknownItemKey, itemId);
+            await this.cacheClient.sadd(`unknownItems:${environment}`, itemId);
             ItemBroker.logger.debug(`Unknown item ${itemId} logged`);
 
             // Returns fake
@@ -106,7 +106,6 @@ export default class ItemBroker implements ItemBrokerInterface {
         };
 
         await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(rawCensusItem));
-        await this.cacheClient.sadd(config.redis.itemCacheListKey, cacheKey); // Store the cache key by name so we can wipe it manually
 
         return item;
     }

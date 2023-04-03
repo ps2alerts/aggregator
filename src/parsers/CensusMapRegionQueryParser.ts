@@ -23,7 +23,7 @@ export default class CensusMapRegionQueryParser {
     ) {}
 
     public async getMapData(): Promise<CensusRegionMapJoinQueryInterface[]> {
-        const cacheKey = `census-map-w:${this.instance.world}-z:${this.instance.zone}`;
+        const cacheKey = `censusMap:W${this.instance.world}:Z${this.instance.zone}`;
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
