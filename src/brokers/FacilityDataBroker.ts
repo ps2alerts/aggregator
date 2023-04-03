@@ -31,7 +31,7 @@ export default class FacilityDataBroker {
         const environment = config.census.censusEnvironment;
         const facilityId = Parser.parseNumericalArgument(event.payload.facility_id);
         const zone = getRealZoneId(event.payload.zone_id);
-        const cacheKey = `facilityData:${facilityId}:${environment}`;
+        const cacheKey = `facilityData:${environment}:${facilityId}`;
 
         let facilityData = new FakeMapRegionFactory().build(facilityId);
 
