@@ -6,16 +6,15 @@ import {RabbitMQQueue} from './RabbitMQQueue';
 import {PS2AlertsQueueInterface} from '../../../interfaces/PS2AlertsQueueInterface';
 import {ConfirmChannel} from 'amqplib';
 import config from '../../../config';
-import {getLogger} from '../../../logger';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {jsonLogOutput} from '../../../utils/json';
 import ExceptionHandler from '../../../handlers/system/ExceptionHandler';
+import {Logger} from '@nestjs/common';
 
 export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
-    private static readonly classLogger = getLogger('ApiQueue');
-    private readonly thisQueueName;
+    private static readonly classLogger = new Logger('ApiQueue');
 
     constructor(
         connectionManager: AmqpConnectionManager,
@@ -25,7 +24,6 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
         private readonly deadLetterRoutingKey: string | undefined,
     ) {
         super(connectionManager, queueName);
-        this.thisQueueName = queueName;
     }
 
     public async connect(): Promise<void> {
@@ -45,28 +43,28 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
                     channel.checkExchange(config.rabbitmq.exchange),
-                    channel.assertQueue(this.thisQueueName, queueOptions),
+                    channel.assertQueue(this.queueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.thisQueueName, config.rabbitmq.exchange, '#');
+                await channel.bindQueue(this.queueName, config.rabbitmq.exchange, '#');
             },
         });
     }
 
     public async send(msg: ApiMQMessage | ApiMQGlobalAggregateMessage): Promise<boolean | undefined> {
         if (!msg) {
-            throw new ApplicationException(`${this.thisQueueName}] attempting to send a blank message! Pointless!`);
+            throw new ApplicationException(`${this.queueName}] attempting to send a blank message! Pointless!`);
         }
 
         try {
-            ApiQueue.classLogger.silly(`${this.thisQueueName}] Sending message: ${jsonLogOutput(msg)}`);
+            ApiQueue.classLogger.verbose(`${this.queueName}] Sending message: ${jsonLogOutput(msg)}`);
             await this.getChannel().sendToQueue(
-                this.thisQueueName,
+                this.queueName,
                 msg,
                 {persistent: true},
             );
             return true;
         } catch (err) {
-            new ExceptionHandler(`${this.thisQueueName}] Unable to send message to queue!`, err, 'RabbitMQQueue');
+            new ExceptionHandler(`${this.queueName}] Unable to send message to queue!`, err, 'RabbitMQQueue');
         }
     }
 

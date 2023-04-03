@@ -1,24 +1,23 @@
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import ExceptionHandler from '../../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 // Note: This does NOT create a new aggregate, merely adds data to the InstanceOutfitAggregate.
 export default class InstanceOutfitCapturesAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
-    private static readonly logger = getLogger('InstanceOutfitCapturesAggregate');
+    private static readonly logger = new Logger('InstanceOutfitCapturesAggregate');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
     ) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        InstanceOutfitCapturesAggregate.logger.silly('InstanceOutfitCapturesAggregate.handle');
+        InstanceOutfitCapturesAggregate.logger.verbose('InstanceOutfitCapturesAggregate.handle');
 
         // If no outfit was detected or a defence, do nothing here
         if (!event.outfitCaptured || event.isDefence) {

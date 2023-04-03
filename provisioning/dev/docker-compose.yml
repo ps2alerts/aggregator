@@ -11,16 +11,7 @@ services:
     networks:
       - "ps2alerts"
     environment:
-      NODE_ENV: "development"
-      VERSION: "12345"
       CENSUS_ENVIRONMENT: "ps2"
-      CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
-      REDIS_HOST: "ps2alerts-redis"
-      REDIS_DB: "0"
-      INTERNAL_API_HOST: "http://ps2alerts-api:3000"
-      INTERNAL_API_USER: "ps2alerts"
-      INTERNAL_API_PASS: "foobar"
-      LOGGER_TRANSPORTS: "console"
     labels:
       traefik.enable: "false"
 
@@ -34,16 +25,7 @@ services:
     networks:
       - "ps2alerts"
     environment:
-      NODE_ENV: "development"
-      VERSION: "12345"
       CENSUS_ENVIRONMENT: "ps2ps4eu"
-      CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
-      REDIS_HOST: "ps2alerts-redis"
-      REDIS_DB: "0"
-      LOGGER_TRANSPORTS: "console"
-      INTERNAL_API_HOST: "http://ps2alerts-api:3000"
-      INTERNAL_API_USER: "ps2alerts"
-      INTERNAL_API_PASS: "foobar"
     labels:
       traefik.enable: "false"
 
@@ -57,16 +39,7 @@ services:
     networks:
       - "ps2alerts"
     environment:
-      NODE_ENV: "development"
-      VERSION: "12345"
       CENSUS_ENVIRONMENT: "ps2ps4us"
-      CENSUS_SERVICE_ID: "$CENSUS_SERVICE_ID"
-      REDIS_HOST: "ps2alerts-redis"
-      REDIS_DB: "0"
-      LOGGER_TRANSPORTS: "console"
-      INTERNAL_API_HOST: "http://ps2alerts-api:3000"
-      INTERNAL_API_USER: "ps2alerts"
-      INTERNAL_API_PASS: "foobar"
     labels:
       traefik.enable: "false"
 networks:

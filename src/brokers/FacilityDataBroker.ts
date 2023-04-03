@@ -1,5 +1,4 @@
-import {inject, injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
@@ -17,14 +16,14 @@ import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces
 import {getRealZoneId} from '../utils/zoneIdHandler';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
-@injectable()
+@Injectable()
 export default class FacilityDataBroker {
-    private static readonly logger = getLogger('FacilityDataBroker');
+    private static readonly logger = new Logger('FacilityDataBroker');
 
     constructor(
         private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly timingStatisticsHandler: StatisticsHandler,
     ) {}
 
@@ -32,7 +31,7 @@ export default class FacilityDataBroker {
         const environment = config.census.censusEnvironment;
         const facilityId = Parser.parseNumericalArgument(event.payload.facility_id);
         const zone = getRealZoneId(event.payload.zone_id);
-        const cacheKey = `facility-${facilityId}-${environment}`;
+        const cacheKey = `facilityData:${environment}:${facilityId}`;
 
         let facilityData = new FakeMapRegionFactory().build(facilityId);
 
@@ -43,18 +42,18 @@ export default class FacilityDataBroker {
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            FacilityDataBroker.logger.silly(`facilityData ${cacheKey} cache HIT`);
+            FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache HIT`);
             const data = await this.cacheClient.get(cacheKey);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return new FacilityData(JSON.parse(<string>data), zone);
+            return new FacilityData(JSON.parse(data), zone);
         }
 
-        FacilityDataBroker.logger.debug(`facilityData ${cacheKey} cache MISS`);
+        FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache MISS`);
 
         const result = await this.getFacilityData(facilityId, zone);
 
         if (result) {
-            FacilityDataBroker.logger.debug(`Facility ID ${facilityId} successfully retrieved from PS2A API`);
+            FacilityDataBroker.logger.verbose(`Facility ID ${facilityId} successfully retrieved from PS2A API`);
             facilityData = new FacilityData(result, zone);
         }
 
@@ -62,7 +61,7 @@ export default class FacilityDataBroker {
             FacilityDataBroker.logger.error(`PS2Alerts is missing the facility! ${facilityId} on zone ${zone}`);
 
             // Log the unknown item so we can investigate
-            await this.cacheClient.sadd(config.redis.unknownFacilityKey, `${facilityId}-${zone}`);
+            await this.cacheClient.sadd(`unknownFacilities:${environment}`, `${facilityId}-${zone}`);
             FacilityDataBroker.logger.debug(`Unknown facility ${facilityId}-${zone} logged`);
         }
 

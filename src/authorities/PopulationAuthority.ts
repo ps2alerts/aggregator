@@ -1,17 +1,14 @@
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../constants/types';
-import {getLogger} from '../logger';
-import PopulationData from '../data/PopulationData';
+import {Injectable, Logger} from '@nestjs/common';
 import CharacterPresenceHandler from '../handlers/CharacterPresenceHandler';
-import MessageQueueHandlerInterface from '../interfaces/MessageQueueHandlerInterface';
+import PopulationHandler from '../handlers/PopulationHandler';
 
-@injectable()
+@Injectable()
 export default class PopulationAuthority {
-    private static readonly logger = getLogger('PopulationAuthority');
+    private static readonly logger = new Logger('PopulationAuthority');
     private timer?: NodeJS.Timeout;
 
     constructor(
-        @inject(TYPES.populationHandler) private readonly populationHandler: MessageQueueHandlerInterface<PopulationData>,
+        private readonly populationHandler: PopulationHandler,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
     ) {}
 
@@ -23,7 +20,7 @@ export default class PopulationAuthority {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {
-            PopulationAuthority.logger.silly('Running PopulationAuthority presence collection');
+            PopulationAuthority.logger.verbose('Running PopulationAuthority presence collection');
 
             // Collect current population metrics from CharacterPresenceHandler
             try {

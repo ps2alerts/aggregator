@@ -1,5 +1,4 @@
-import {injectable} from 'inversify';
-import {getLogger} from '../../../logger';
+import {Injectable, Logger} from '@nestjs/common';
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import PopulationData from '../../../data/PopulationData';
 import InstanceAuthority from '../../../authorities/InstanceAuthority';
@@ -9,9 +8,9 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 import CharacterPresenceHandler from '../../CharacterPresenceHandler';
 import ExceptionHandler from '../../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 export default class InstancePopulationAggregate implements AggregateHandlerInterface<PopulationData>{
-    private static readonly logger = getLogger('InstancePopulationAggregate');
+    private static readonly logger = new Logger('InstancePopulationAggregate');
 
     constructor(
         private readonly characterPresenceHandler: CharacterPresenceHandler,
@@ -20,7 +19,7 @@ export default class InstancePopulationAggregate implements AggregateHandlerInte
     ) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
-        InstancePopulationAggregate.logger.silly('InstancePopulationAggregate.handle');
+        InstancePopulationAggregate.logger.verbose('InstancePopulationAggregate.handle');
 
         // Figure out running instances and generate new InstancePopulationData object
         const activeInstances = this.instanceAuthority.getInstances(event.world, event.zone);

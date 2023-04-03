@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import {inject, injectable, multiInject} from 'inversify';
-import {getLogger} from '../../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {jsonLogOutput} from '../../utils/json';
 import DeathEvent from './events/DeathEvent';
 import {TYPES} from '../../constants/types';
@@ -17,18 +16,18 @@ import {AxiosInstance} from 'axios';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
 
-@injectable()
+@Injectable()
 export default class DeathEventHandler implements PS2EventQueueMessageHandlerInterface<Death> {
     public readonly eventName = 'Death';
-    private static readonly logger = getLogger('DeathEventHandler');
+    private static readonly logger = new Logger('DeathEventHandler');
 
     constructor(
         private readonly itemBroker: ItemBroker,
         private readonly characterBroker: CharacterBroker,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
         private readonly instanceActionFactory: InstanceActionFactory,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-        @multiInject(TYPES.deathAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<DeathEvent>>,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.deathAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<DeathEvent>>,
     ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -63,7 +62,7 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
             this.characterPresenceHandler.update(deathEvent.attackerCharacter, deathEvent.instance),
         ]);
 
-        DeathEventHandler.logger.silly('=== Processing DeathEvent Handlers ===');
+        DeathEventHandler.logger.verbose('=== Processing DeathEvent Handlers ===');
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<DeathEvent>) => void handler.handle(deathEvent)
@@ -76,7 +75,7 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
                 }),
         );
 
-        DeathEventHandler.logger.silly('=== DeathEvent Handlers Processed! ===');
+        DeathEventHandler.logger.verbose('=== DeathEvent Handlers Processed! ===');
 
         return true;
     }

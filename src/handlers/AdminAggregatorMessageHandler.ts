@@ -2,13 +2,12 @@
 // noinspection JSMethodCanBeStatic
 import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
 import ApplicationException from '../exceptions/ApplicationException';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {metagameEventTypeDetailsMap} from '../ps2alerts-constants/metagameEventType';
 import EventId from '../utils/eventId';
 import InstanceAuthority from '../authorities/InstanceAuthority';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
-import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
 import AdminAggregatorInstanceStartMessage from '../data/AdminAggregator/AdminAggregatorInstanceStartMessage';
 import AdminAggregatorInstanceEndMessage from '../data/AdminAggregator/AdminAggregatorInstanceEndMessage';
@@ -19,9 +18,9 @@ import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstanc
 import {Zone} from '../ps2alerts-constants/zone';
 import {getOutfitWarPhase, getOutfitWarRound} from '../ps2alerts-constants/outfitwars/utils';
 
-@injectable()
+@Injectable()
 export default class AdminAggregatorMessageHandler implements QueueMessageHandlerInterface<AdminQueueMessage> {
-    private static readonly logger = getLogger('AdminAggregatorMessageHandler');
+    private static readonly logger = new Logger('AdminAggregatorMessageHandler');
 
     constructor(private readonly instanceAuthority: InstanceAuthority) {}
 
@@ -167,7 +166,7 @@ export default class AdminAggregatorMessageHandler implements QueueMessageHandle
             {phase, round},
         );
 
-        console.log('starting OW instance', instance);
+        AdminAggregatorMessageHandler.logger.log('Starting Outfit Wars instance', instance);
 
         try {
             await this.instanceAuthority.startInstance(instance);

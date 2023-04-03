@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types */
 
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import {CacheContract} from 'ps2census';
 import Redis from 'ioredis';
 
-@injectable()
+@Injectable()
 export default class CensusCacheDriver implements CacheContract {
     constructor(
         private readonly cacheClient: Redis,
-        private readonly namespace: string = 'census',
+        private readonly namespace: string = 'censusCache',
         private readonly expiry: number = 86400,
     ) {}
 
@@ -41,6 +41,6 @@ export default class CensusCacheDriver implements CacheContract {
     }
 
     private cacheKey(key: string): string {
-        return `${this.namespace}-${key}`;
+        return `${this.namespace}:${key}`;
     }
 }

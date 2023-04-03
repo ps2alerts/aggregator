@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import {Kill} from 'ps2census';
 import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
@@ -13,9 +12,9 @@ import FactionUtils from '../../../utils/FactionUtils';
 import ExceptionHandler from '../../system/ExceptionHandler';
 import {Ps2AlertsEventType} from '../../../ps2alerts-constants/ps2AlertsEventType';
 
-@injectable()
+@Injectable()
 export default class GlobalCharacterAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalCharacterAggregate');
+    private static readonly logger = new Logger('GlobalCharacterAggregate');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
@@ -23,7 +22,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalCharacterAggregate.logger.silly('GlobalCharacterAggregate.handle');
+        GlobalCharacterAggregate.logger.verbose('GlobalCharacterAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);

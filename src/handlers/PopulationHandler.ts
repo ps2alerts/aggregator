@@ -1,18 +1,17 @@
-import {getLogger} from '../logger';
-import {injectable, multiInject} from 'inversify';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {TYPES} from '../constants/types';
 import {jsonLogOutput} from '../utils/json';
 import PopulationData from '../data/PopulationData';
 import MessageQueueHandlerInterface from '../interfaces/MessageQueueHandlerInterface';
 
-@injectable()
+@Injectable()
 export default class PopulationHandler implements MessageQueueHandlerInterface<PopulationData> {
-    private static readonly logger = getLogger('PopulationHandler');
+    private static readonly logger = new Logger('PopulationHandler');
 
-    constructor(@multiInject(TYPES.populationAggregates) private readonly aggregateHandlers: Array<MessageQueueHandlerInterface<PopulationData>>) {}
+    constructor(@Inject(TYPES.populationAggregates) private readonly aggregateHandlers: Array<MessageQueueHandlerInterface<PopulationData>>) {}
 
     public async handle(event: PopulationData): Promise<boolean> {
-        PopulationHandler.logger.silly(jsonLogOutput(event), {message: 'eventData'});
+        PopulationHandler.logger.verbose(jsonLogOutput(event), {message: 'eventData'});
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: Array<Promise<any>> = [];

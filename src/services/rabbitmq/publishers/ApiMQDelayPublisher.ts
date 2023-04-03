@@ -1,16 +1,15 @@
-import {injectable} from 'inversify';
-import {getLogger} from '../../../logger';
+import {Injectable, Logger} from '@nestjs/common';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
 import config from '../../../config';
-import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
+import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import {ApiQueue} from '../queues/ApiQueue';
 
-@injectable()
+@Injectable()
 export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterface {
-    private static readonly logger = getLogger('ApiMQDelayPublisher');
+    private static readonly logger = new Logger('ApiMQDelayPublisher');
     private longQueue: ApiQueue;
     private shortQueue: ApiQueue;
 

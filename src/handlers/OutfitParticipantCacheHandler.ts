@@ -1,44 +1,43 @@
-import {injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {Injectable, Logger} from '@nestjs/common';
 import Redis from 'ioredis';
 
-@injectable()
+@Injectable()
 export default class OutfitParticipantCacheHandler {
-    private static readonly logger = getLogger('OutfitParticipantCacheHandler');
+    private static readonly logger = new Logger('OutfitParticipantCacheHandler');
 
     constructor(private readonly cacheClient: Redis) {}
 
     public async addOutfit(outfitId: string, characterId: string, instanceId: string): Promise<boolean> {
-        await this.cacheClient.sadd(`OutfitParticipants-${instanceId}-${outfitId}`, characterId);
+        await this.cacheClient.sadd(`outfitParticipants:${instanceId}:${outfitId}`, characterId);
 
         // We need to keep a track of the sets in order to flush them at the end of the alert
-        await this.cacheClient.sadd(`OutfitParticipantsList-${instanceId}`, outfitId);
+        await this.cacheClient.sadd(`outfitParticipants:list:${instanceId}`, outfitId);
 
-        OutfitParticipantCacheHandler.logger.silly(`Added O: ${outfitId} - I: ${instanceId} to outfit participant cache`);
+        OutfitParticipantCacheHandler.logger.verbose(`Added O: ${outfitId} - I: ${instanceId} to outfit participant cache`);
 
         return true;
     }
 
     public async getOutfitParticipants(outfitId: string, instanceId: string): Promise<number> {
-        return await this.cacheClient.smembers(`OutfitParticipants-${instanceId}-${outfitId}`).then((result) => {
-            OutfitParticipantCacheHandler.logger.silly(`${result?.length ?? 0} participants found for O: ${outfitId} - I: ${instanceId}`);
+        return await this.cacheClient.smembers(`outfitParticipants:${instanceId}:${outfitId}`).then((result) => {
+            OutfitParticipantCacheHandler.logger.verbose(`${result?.length ?? 0} participants found for O: ${outfitId} - I: ${instanceId}`);
             return result?.length ?? 0;
         });
     }
 
     public async flushOutfits(instanceId: string): Promise<boolean> {
         // Get list of outfits we have on record for the instance
-        await this.cacheClient.smembers(`OutfitParticipantsList-${instanceId}`).then(async (result) => {
+        await this.cacheClient.smembers(`outfitParticipants:list:${instanceId}`).then(async (result) => {
             // Delete all instance participant outfit lists
             for (const outfitId of result) {
-                await this.cacheClient.del(`OutfitParticipants-${instanceId}-${outfitId}`).then(() => {
-                    OutfitParticipantCacheHandler.logger.silly(`Deleted outfit ${outfitId} from outfit participant cache`);
+                await this.cacheClient.del(`outfitParticipants:${instanceId}:${outfitId}`).then(() => {
+                    OutfitParticipantCacheHandler.logger.verbose(`Deleted outfit ${outfitId} from outfit participant cache`);
                 });
             }
         });
 
         // Finally, delete the instance level outfit list
-        const count = await this.cacheClient.del(`OutfitParticipantsList-${instanceId}`);
+        const count = await this.cacheClient.del(`outfitParticipants:list:${instanceId}`);
 
         if (count === 0) {
             OutfitParticipantCacheHandler.logger.error(`Failed to delete all OutfitParticipants for instance ${instanceId}`);

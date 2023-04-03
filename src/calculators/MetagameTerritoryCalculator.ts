@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {CalculatorInterface} from './CalculatorInterface';
 import TerritoryCalculatorAbstract from './TerritoryCalculatorAbstract';
-import {MetagameTerritoryControlResultInterface} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {
+    MetagameTerritoryControlResultInterface,
+} from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import {Faction} from '../ps2alerts-constants/faction';
 import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/FactionNumbersInterface';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
@@ -10,11 +12,12 @@ import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
-import {getLogger} from '../logger';
+import {Logger} from '@nestjs/common';
 import StatisticsHandler from '../handlers/StatisticsHandler';
+import config from '../config';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
-    private static readonly classLogger = getLogger('MetagameTerritoryCalculator');
+    private static readonly classLogger = new Logger('MetagameTerritoryCalculator');
 
     constructor(
         protected readonly instance: MetagameTerritoryInstance,
@@ -41,7 +44,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
         await this.hydrateData();
 
         // Now calculate the results
-        if (MetagameTerritoryCalculator.classLogger.isSillyEnabled()) {
+        if (config.logger.silly) {
             console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
         }
 
@@ -64,7 +67,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
     }
 
     // noinspection JSMethodCanBeStatic
-    private calculateVictor(percentages: FactionNumbersInterface): {victor: Faction, draw: boolean} {
+    private calculateVictor(percentages: FactionNumbersInterface): { victor: Faction, draw: boolean } {
         const scores = [
             {faction: Faction.VANU_SOVEREIGNTY, score: percentages.vs},
             {faction: Faction.NEW_CONGLOMERATE, score: percentages.nc},

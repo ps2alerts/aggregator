@@ -1,5 +1,4 @@
-import {injectable, multiInject} from 'inversify';
-import {getLogger} from '../../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {TYPES} from '../../constants/types';
 import VehicleDestroyEvent from './events/VehicleDestroyEvent';
 import CharacterPresenceHandler from '../CharacterPresenceHandler';
@@ -12,16 +11,16 @@ import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQue
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import Character from '../../data/Character';
 
-@injectable()
+@Injectable()
 export default class VehicleDestroyEventHandler implements PS2EventQueueMessageHandlerInterface<VehicleDestroy> {
     public readonly eventName = 'VehicleDestroy';
-    private static readonly logger = getLogger('VehicleDestroyEvent');
+    private static readonly logger = new Logger('VehicleDestroyEvent');
 
     constructor(
         private readonly characterBroker: CharacterBroker,
         private readonly itemBroker: ItemBroker,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
-        @multiInject(TYPES.vehicleDestroyAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<VehicleDestroyEvent>>,
+        @Inject(TYPES.vehicleDestroyAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<VehicleDestroyEvent>>,
     ) {}
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -38,7 +37,7 @@ export default class VehicleDestroyEventHandler implements PS2EventQueueMessageH
             characters.attacker,
         );
 
-        VehicleDestroyEventHandler.logger.silly('=== Processing VehicleDestroy Handlers ===');
+        VehicleDestroyEventHandler.logger.verbose('=== Processing VehicleDestroy Handlers ===');
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<VehicleDestroyEvent>) => void handler.handle(vehicleDestroyEvent)
@@ -47,7 +46,7 @@ export default class VehicleDestroyEventHandler implements PS2EventQueueMessageH
                 }),
         );
 
-        VehicleDestroyEventHandler.logger.silly('=== VehicleDestroy Handlers Processed! ===');
+        VehicleDestroyEventHandler.logger.verbose('=== VehicleDestroy Handlers Processed! ===');
 
         return true;
     }

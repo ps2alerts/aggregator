@@ -1,4 +1,3 @@
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
@@ -7,15 +6,18 @@ import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstanc
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {Rest} from 'ps2census';
 import Outfit from '../data/Outfit';
+import {Logger} from '@nestjs/common';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 export default class OutfitwarsTerritoryTeamAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('OutfitwarsTerritoryTeamAction');
+    private static readonly logger = new Logger('OutfitwarsTerritoryTeamAction');
 
     constructor(
         private readonly instance: OutfitWarsTerritoryInstance,
         private readonly event: FacilityControlEvent,
         private readonly restClient: Rest.Client,
         private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -77,6 +79,8 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
 
         this.instance.outfitwars.teams = teams;
 
+        const started = new Date();
+
         this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', this.instance.instanceId),
             {
@@ -85,6 +89,8 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
         ).catch((err: Error) => {
             OutfitwarsTerritoryTeamAction.logger.error(`[${this.instance.instanceId}] Unable to update the instance record for TeamAction via API! Err: ${err.message}`);
         });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

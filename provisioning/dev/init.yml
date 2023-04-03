@@ -2,8 +2,6 @@
 - hosts: localhost
   vars:
     root_dir: "{{ playbook_dir }}/../../"
-  vars_files:
-    - ../../vars.local.yml
   tasks:
     - debug:
         msg: "========= 📡 Initializing Aggregator Module 📡 ========="

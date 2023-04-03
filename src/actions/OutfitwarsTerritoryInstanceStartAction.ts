@@ -1,38 +1,36 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import MapDataInterface from '../interfaces/MapDataInterface';
-import {Rest} from 'ps2census';
 import {AxiosInstance} from 'axios';
-import Redis from 'ioredis';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
-import ZoneDataParser from '../parsers/ZoneDataParser';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
+import {Logger} from '@nestjs/common';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 // TODO: Abstract this class!
 export default class OutfitwarsTerritoryInstanceStartAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('OutfitwarsTerritoryInstanceStartAction');
+    private static readonly logger = new Logger('OutfitwarsTerritoryInstanceStartAction');
 
     constructor(
         private readonly instance: OutfitWarsTerritoryInstance,
         private readonly ps2alertsApiClient: AxiosInstance,
-        private readonly restClient: Rest.Client,
-        private readonly cacheClient: Redis,
-        private readonly zoneDataParser: ZoneDataParser,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
-        OutfitwarsTerritoryInstanceStartAction.logger.info(`[${this.instance.instanceId}] Running startActions()`);
-        OutfitwarsTerritoryInstanceStartAction.logger.info(`[${this.instance.instanceId}] Trying to get initial map state`);
+        OutfitwarsTerritoryInstanceStartAction.logger.log(`[${this.instance.instanceId}] Running startActions()`);
+        OutfitwarsTerritoryInstanceStartAction.logger.log(`[${this.instance.instanceId}] Trying to get initial map state`);
 
         const docs = this.getInitialMap();
 
         if (!docs) {
             throw new ApplicationException(`[${this.instance.instanceId}] Map state was empty!`, 'OutfitwarsTerritoryInstanceStartAction');
         }
+
+        const started = new Date();
 
         await this.ps2alertsApiClient.post(
             ps2AlertsApiEndpoints.outfitwarsFacilityBatch,
@@ -41,7 +39,9 @@ export default class OutfitwarsTerritoryInstanceStartAction implements ActionInt
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'OutfitwarsTerritoryInstanceStartAction');
         });
 
-        OutfitwarsTerritoryInstanceStartAction.logger.info(`[${this.instance.instanceId}] Inserted initial map state`);
+        await this.statisticsHandler.logTime(started, 'PS2ALERTS_API');
+
+        OutfitwarsTerritoryInstanceStartAction.logger.log(`[${this.instance.instanceId}] Inserted initial map state`);
 
         return true;
     }

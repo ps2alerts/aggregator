@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import FactionUtils from '../../../utils/FactionUtils';
 import {Kill} from 'ps2census';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
@@ -10,12 +9,12 @@ import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDela
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
-import moment from 'moment/moment';
 import ExceptionHandler from '../../system/ExceptionHandler';
+import {format} from 'date-fns';
 
-@injectable()
+@Injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('GlobalFactionCombatAggregate');
+    private static readonly logger = new Logger('GlobalFactionCombatAggregate');
 
     constructor(
         private readonly apiMQPublisher: ApiMQPublisher,
@@ -23,7 +22,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
     ) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        GlobalFactionCombatAggregate.logger.silly('GlobalFactionCombatAggregate.handle');
+        GlobalFactionCombatAggregate.logger.verbose('GlobalFactionCombatAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
@@ -87,7 +86,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 documents,
                 [{
                     world: event.instance.world,
-                    date: moment().format('YYYY-MM-DD'),
+                    date: format(new Date(), 'yyyy-MM-dd'),
                     ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ), event.instance.duration);
@@ -99,7 +98,7 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 documents,
                 [{
                     world: event.instance.world,
-                    date: moment().format('YYYY-MM-DD'),
+                    date: format(new Date(), 'yyyy-MM-dd'),
                     ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,

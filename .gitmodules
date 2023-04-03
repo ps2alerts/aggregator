@@ -1,4 +1,4 @@
 [submodule "src/ps2alerts-constants"]
 	path = src/ps2alerts-constants
 	url = https://github.com/ps2alerts/constants
-	branch = outfit-wars
+	branch = main

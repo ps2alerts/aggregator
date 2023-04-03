@@ -5,9 +5,8 @@ import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
 import {MaxRetryException, ZoneEvent} from 'ps2census';
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../../interfaces/QueueMessageHandlerInterface';
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
-import {getLogger} from '../../logger';
 import ApplicationException from '../../exceptions/ApplicationException';
-import {injectable} from 'inversify';
+import {Logger} from '@nestjs/common';
 import ExceptionHandler from '../system/ExceptionHandler';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import TimeoutException from '../../exceptions/TimeoutException';
@@ -16,10 +15,9 @@ import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
 
-@injectable()
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMessageHandlerInterface<T> {
-    private static readonly logger = getLogger('ZoneMessageHandler');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements QueueMessageHandlerInterface<T> {
+    private static readonly logger = new Logger('ZoneMessageHandler');
 
     constructor(
         private readonly instance: PS2AlertsInstanceInterface,
@@ -41,7 +39,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
             const zoneInstanceId = getZoneInstanceIdFromBinary(zoneId);
 
             if (zoneIdDecoded !== this.instance.zone || zoneInstanceId !== instance.zoneInstanceId) {
-                ZoneMessageHandler.logger.silly(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as zone (${zoneIdDecoded}) and zoneInstanceId (${zoneInstanceId}) did not match instance!`);
+                ZoneMessageHandler.logger.verbose(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as zone (${zoneIdDecoded}) and zoneInstanceId (${zoneInstanceId}) did not match instance!`);
 
                 return actions.ack();
             }
@@ -49,7 +47,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent> implements QueueMes
 
         // If the message came after the alert ended, chuck
         if (this.instance.messageOverdue(event)) {
-            ZoneMessageHandler.logger.silly(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
+            ZoneMessageHandler.logger.verbose(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
             return actions.ack();
         }
 

@@ -1,20 +1,20 @@
-import {inject, injectable} from 'inversify';
-import {TYPES} from '../constants/types';
+import {Inject, Injectable} from '@nestjs/common';
+import {TYPES} from '../../../constants/types';
 import {AmqpConnectionManager} from 'amqp-connection-manager';
 import {CensusClient, MetagameEvent, PS2Event} from 'ps2census';
-import {QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
-import EventTimingMiddlewareHandler from '../middlewares/EventTimingMiddlewareHandler';
-import AdminQueueMessage from '../data/AdminAggregator/AdminQueueMessage';
-import {InstanceEventQueue} from '../services/rabbitmq/queues/InstanceEventQueue';
-import {ApiQueue} from '../services/rabbitmq/queues/ApiQueue';
-import {AdminQueue} from '../services/rabbitmq/queues/AdminQueue';
-import InstanceAbstract from '../instances/InstanceAbstract';
-import {MetagameEventQueue} from '../services/rabbitmq/queues/MetagameEventQueue';
+import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
+import EventTimingMiddlewareHandler from '../../../middlewares/EventTimingMiddlewareHandler';
+import AdminQueueMessage from '../../../data/AdminAggregator/AdminQueueMessage';
+import {InstanceEventQueue} from '../queues/InstanceEventQueue';
+import {ApiQueue} from '../queues/ApiQueue';
+import {AdminQueue} from '../queues/AdminQueue';
+import InstanceAbstract from '../../../instances/InstanceAbstract';
+import {MetagameEventQueue} from '../queues/MetagameEventQueue';
 
-@injectable()
+@Injectable()
 export default class RabbitMQQueueFactory {
     constructor(
-        @inject(TYPES.rabbitMqConnection) private readonly connectionManager: AmqpConnectionManager,
+        @Inject(TYPES.rabbitMqConnection) private readonly connectionManager: AmqpConnectionManager,
         private readonly censusClient: CensusClient,
         private readonly timingMiddlewareHandler: EventTimingMiddlewareHandler,
     ) {}
@@ -24,7 +24,8 @@ export default class RabbitMQQueueFactory {
         pattern: string,
         prefetch: number,
         instance: InstanceAbstract,
-        handler: QueueMessageHandlerInterface<PS2Event>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        handler: QueueMessageHandlerInterface<PS2Event<any>>,
     ): InstanceEventQueue {
         return new InstanceEventQueue(
             this.connectionManager,

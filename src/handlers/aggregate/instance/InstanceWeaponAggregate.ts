@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import DeathEvent from '../../ps2census/events/DeathEvent';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import {Kill} from 'ps2census';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
@@ -10,14 +9,14 @@ import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher
 import FactionUtils from '../../../utils/FactionUtils';
 import ExceptionHandler from '../../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 export default class InstanceWeaponAggregate implements AggregateHandlerInterface<DeathEvent> {
-    private static readonly logger = getLogger('InstanceWeaponAggregate');
+    private static readonly logger = new Logger('InstanceWeaponAggregate');
 
     constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: DeathEvent): Promise<boolean> {
-        InstanceWeaponAggregate.logger.silly('InstanceWeaponAggregate.handle');
+        InstanceWeaponAggregate.logger.verbose('InstanceWeaponAggregate.handle');
 
         const attackerFactionShort = FactionUtils.parseFactionIdToShortName(event.attackerTeamId);
         const victimFactionShort = FactionUtils.parseFactionIdToShortName(event.teamId);
