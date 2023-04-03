@@ -1,7 +1,7 @@
 {
   "name": "ps2alerts-aggregator",
-  "version": "4.0.6",
-  "description": "The aggregator collection script that powers PS2Alerts.com.",
+  "version": "4.5.0",
+  "description": "Aggregation engine that powers PS2Alerts.com.",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
