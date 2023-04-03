@@ -22,7 +22,8 @@ export default class EventTimingMiddlewareHandler {
 
         const actionProxy: ChannelActionsInterface = new Proxy(actions, {
             get: (target: any, prop) => async () => {
-                await this.logTime(startTime, message.event_name);
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                await this.logTime(startTime, `Event:${message.event_name}`);
                 target[prop]();
             },
         });

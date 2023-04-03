@@ -18,6 +18,7 @@ export default class TimingStatisticsAuthority {
     private readonly runId = config.app.runId;
     private readonly metricsListKey = 'metrics:list';
     private timer?: NodeJS.Timeout;
+    private readonly displayTime = 60000;
 
     constructor(
         private readonly cacheClient: Redis,
@@ -43,7 +44,6 @@ export default class TimingStatisticsAuthority {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [key, metricType] of Object.entries(MetricTypes)) {
             const listKey = `metrics:${this.runId}:${metricType}`;
-            TimingStatisticsAuthority.logger.debug(`Adding ${listKey} to metrics key list`);
             await this.cacheClient.sadd(this.metricsListKey, listKey);
         }
 
@@ -55,8 +55,9 @@ export default class TimingStatisticsAuthority {
 
             const tableData: TableDisplayInterface[] = [];
 
-            for (const [metricType] of Object.entries(MetricTypes)) {
-                const key = `metrics:${metricType}:${this.runId}`;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for (const [key, metricType] of Object.entries(MetricTypes)) {
+                const key = `metrics:${this.runId}:${metricType}`;
                 const length = await this.cacheClient.llen(key);
                 const timings = await this.cacheClient.lrange(key, 0, length);
 
@@ -107,12 +108,12 @@ export default class TimingStatisticsAuthority {
             }
 
             if (show && config.logger.levels.includes('debug')) {
-                TimingStatisticsAuthority.logger.debug('Message Metrics:');
+                TimingStatisticsAuthority.logger.debug(`Message Metrics for ${this.displayTime / 1000}s:`);
                 console.table(tableData);
             } else if (!show) {
                 TimingStatisticsAuthority.logger.debug('No metrics to show!');
             }
-        }, 60000);
+        }, this.displayTime);
 
         TimingStatisticsAuthority.logger.debug('Created TimingStatisticsAuthority timer');
     }

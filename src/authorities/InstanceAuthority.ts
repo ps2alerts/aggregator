@@ -22,6 +22,7 @@ import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 import Redis from 'ioredis';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
@@ -61,6 +62,7 @@ export default class InstanceAuthority {
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly queueAuthority: QueueAuthority,
         private readonly cacheClient: Redis, // Required for Population aggregation
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
@@ -180,10 +182,14 @@ export default class InstanceAuthority {
 
         await this.removeActiveInstance(instance);
 
+        const started = new Date();
+
         await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
             .catch((err: Error) => {
                 throw new ApplicationException(`[${instance.instanceId}] UNABLE TO TRASH INSTANCE! API CALL FAILED! E: ${err.message}`, 'InstanceAuthority');
             });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         InstanceAuthority.logger.error(`=== [${instance.instanceId}] INSTANCE TRASHED! ===`);
 
@@ -202,6 +208,8 @@ export default class InstanceAuthority {
 
         let apiResponses: AxiosResponse[];
 
+        const started = new Date();
+
         const promises = [
             await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive),
             // await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
@@ -212,6 +220,8 @@ export default class InstanceAuthority {
         } catch (err) {
             throw new ApplicationException('Unable to get Active Instances from PS2Alerts API! Crashing the app...', 'InstanceAuthority', 1);
         }
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         const instances: InstanceAbstract[] = [];
 
@@ -381,6 +391,8 @@ export default class InstanceAuthority {
     private async startTerritoryControlInstance(instance: MetagameTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
         InstanceAuthority.logger.log(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);
 
+        let started = new Date();
+
         await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, metadata)
             .then((response) => {
                 if (!response.data) {
@@ -392,6 +404,8 @@ export default class InstanceAuthority {
                 InstanceAuthority.logger.error(err.response.data);
                 new ExceptionHandler('Unable to create instance via API!', err.response.data.message, 'InstanceAuthority.startTerritoryControlInstance');
             });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         InstanceAuthority.logger.log(`=== INSERTED NEW METAGAME TERRITORY INSTANCE ${instance.instanceId} ===`);
 
@@ -413,6 +427,8 @@ export default class InstanceAuthority {
             return false;
         }
 
+        started = new Date();
+
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
@@ -422,11 +438,15 @@ export default class InstanceAuthority {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startTerritoryControlInstance');
         });
 
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+
         return true;
     }
 
     private async startOutfitwarsTerritoryInstance(instance: OutfitWarsTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
         InstanceAuthority.logger.log(`[${instance.instanceId}] Sending outfitwars instances POST to API ${ps2AlertsApiEndpoints.outfitwars}`);
+
+        let started = new Date();
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.outfitwars, metadata)
@@ -439,6 +459,8 @@ export default class InstanceAuthority {
             .catch((err) => {
                 new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
             });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         InstanceAuthority.logger.log(`=== INSERTED NEW OUTFIT WARS TERRITORY INSTANCE ${instance.instanceId} ===`);
 
@@ -460,6 +482,8 @@ export default class InstanceAuthority {
             return false;
         }
 
+        started = new Date();
+
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -469,6 +493,8 @@ export default class InstanceAuthority {
         ).catch((err: Error) => {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
         });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

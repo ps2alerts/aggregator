@@ -61,6 +61,7 @@ export default class InstanceActionFactory {
             return new OutfitwarsTerritoryInstanceStartAction(
                 instance,
                 this.ps2AlertsApiClient,
+                this.statisticsHandler,
             );
         }
 
@@ -88,6 +89,7 @@ export default class InstanceActionFactory {
                 this.ps2AlertsApiClient,
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
+                this.statisticsHandler,
             );
         }
 
@@ -112,6 +114,7 @@ export default class InstanceActionFactory {
                 this.buildOutfitwarsResult(event.instance),
                 this.buildOutfitwarsTeam(event.instance, event),
                 this.ps2AlertsApiClient,
+                this.statisticsHandler,
             );
         }
 
@@ -136,6 +139,7 @@ export default class InstanceActionFactory {
             instance,
             this.territoryCalculatorFactory.buildOutfitwarsTerritoryCalculator(instance, this.restClient),
             this.ps2AlertsApiClient,
+            this.statisticsHandler,
         );
     }
 
@@ -143,12 +147,22 @@ export default class InstanceActionFactory {
         instance: OutfitWarsTerritoryInstance,
         facilityControl: FacilityControlEvent,
     ): ActionInterface<boolean> {
-        return new OutfitwarsTerritoryTeamAction(instance, facilityControl, this.restClient, this.ps2AlertsApiClient);
+        return new OutfitwarsTerritoryTeamAction(
+            instance,
+            facilityControl,
+            this.restClient,
+            this.ps2AlertsApiClient,
+            this.statisticsHandler,
+        );
     }
 
     public buildOutfitwarsDeath(
         event: DeathEvent,
     ): ActionInterface<boolean> {
-        return new OutfitwarsTerritoryDeathAction(event, this.ps2AlertsApiClient);
+        return new OutfitwarsTerritoryDeathAction(
+            event,
+            this.ps2AlertsApiClient,
+            this.statisticsHandler,
+        );
     }
 }

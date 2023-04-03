@@ -12,6 +12,7 @@ import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
+import StatisticsHandler, {MetricTypes} from '../StatisticsHandler';
 
 @Injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -23,6 +24,7 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
         private readonly instanceActionFactory: InstanceActionFactory,
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @Inject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean>{
@@ -57,6 +59,8 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
             endpoint = ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
         }
 
+        const started = new Date();
+
         await this.ps2AlertsApiClient.post(endpoint, facilityData).catch(async (err: Error) => {
             FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
@@ -66,6 +70,8 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
                 return false;
             });
         });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<FacilityControlEvent>) => void handler.handle(facilityEvent)

@@ -50,7 +50,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`);
         });
 
-        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2A_API);
+        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2ALERTS_API);
 
         // Update the final result of the instance
         const result: MetagameTerritoryControlResultInterface = await this.territoryResultAction.execute();

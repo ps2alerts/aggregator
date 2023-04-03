@@ -16,7 +16,7 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 import config from '../config';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
@@ -299,15 +299,21 @@ export default abstract class TerritoryCalculatorAbstract {
     // Gets the current status of the facility from the API
     protected async getFacilityFaction(facilityId: number): Promise<Faction> {
         TerritoryCalculatorAbstract.logger.verbose(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const endpoint = this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME
             ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
             : ps2AlertsApiEndpoints.outfitwarsInstanceFacilityFacility;
+
+        const started = new Date();
+
         const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(
             endpoint
                 .replace('{instanceId}', this.instance.instanceId)
                 .replace('{facilityId}', facilityId.toString()),
         );
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface = apiResponse.data;

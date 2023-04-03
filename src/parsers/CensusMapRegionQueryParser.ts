@@ -60,8 +60,6 @@ export default class CensusMapRegionQueryParser {
         const apiRequest = new CensusApiRetryDriver(query, filter, 'MetagameInstanceTerritoryStartAction');
         let mapDataFinal: CensusRegionMapJoinQueryInterface[] = [];
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         await apiRequest.try().then(async (mapData: CensusRegionMapJoinQueryInterface[]) => {
             await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_MAP_REGION);
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

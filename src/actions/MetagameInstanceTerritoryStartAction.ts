@@ -35,12 +35,16 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             throw new ApplicationException(`[${this.instance.instanceId}] Map state was empty!`, 'MetagameInstanceTerritoryStartAction');
         }
 
+        const started = new Date();
+
         await this.ps2alertsApiClient.post(
             ps2AlertsApiEndpoints.instanceEntriesFacilityBatch,
             docs,
         ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
         });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Inserted initial map state`);
 

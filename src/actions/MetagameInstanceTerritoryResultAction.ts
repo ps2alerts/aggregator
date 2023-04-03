@@ -41,7 +41,7 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update instance result data! Err: ${err.message} - Data: ${JSON.stringify({result})}`, 'MetagameInstanceTerritoryResultAction');
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2A_API);
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return result;
     }

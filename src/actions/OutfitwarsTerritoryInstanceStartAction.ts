@@ -8,6 +8,7 @@ import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 // TODO: Abstract this class!
 export default class OutfitwarsTerritoryInstanceStartAction implements ActionInterface<boolean> {
@@ -16,6 +17,7 @@ export default class OutfitwarsTerritoryInstanceStartAction implements ActionInt
     constructor(
         private readonly instance: OutfitWarsTerritoryInstance,
         private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -28,12 +30,16 @@ export default class OutfitwarsTerritoryInstanceStartAction implements ActionInt
             throw new ApplicationException(`[${this.instance.instanceId}] Map state was empty!`, 'OutfitwarsTerritoryInstanceStartAction');
         }
 
+        const started = new Date();
+
         await this.ps2alertsApiClient.post(
             ps2AlertsApiEndpoints.outfitwarsFacilityBatch,
             docs,
         ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'OutfitwarsTerritoryInstanceStartAction');
         });
+
+        await this.statisticsHandler.logTime(started, 'PS2ALERTS_API');
 
         OutfitwarsTerritoryInstanceStartAction.logger.log(`[${this.instance.instanceId}] Inserted initial map state`);
 

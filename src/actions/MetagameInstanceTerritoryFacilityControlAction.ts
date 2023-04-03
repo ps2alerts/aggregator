@@ -41,9 +41,8 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
             MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2A_API);
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }
-
 }

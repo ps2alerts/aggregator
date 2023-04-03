@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {getZoneLatticeVersion, Zone} from '../ps2alerts-constants/zone';
-import {Inject, Injectable, Logger} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import ApplicationException from '../exceptions/ApplicationException';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
@@ -8,14 +8,14 @@ import {TYPES} from '../constants/types';
 import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import Redis from 'ioredis';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 @Injectable()
 export default class ZoneDataParser {
-    private static readonly logger = new Logger('ZoneDataParser');
-
     constructor(
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     // Sends a call off to the PS2A API to grab the map data based on current date and zone, pulling in the correct lattice links contextually based off instance date.
@@ -33,12 +33,11 @@ export default class ZoneDataParser {
             .replace('{zone}', zone.toString())
             .replace('{version}', latticeVersion);
 
-        ZoneDataParser.logger.debug(path);
+        const started = new Date();
         const response = await this.ps2AlertsApiClient.get(path);
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const regionData: CensusRegionResponseInterface = response.data;
-
-        ZoneDataParser.logger.debug(response.data);
 
         // This absolutely must not fail, so cause a full application crash if the data is somehow missing.
         if (!regionData?.map_region_list?.length) {

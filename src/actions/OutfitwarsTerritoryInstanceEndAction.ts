@@ -9,6 +9,7 @@ import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 export default class OutfitwarsTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('OutfitwarsTerritoryInstanceEndAction');
@@ -19,6 +20,7 @@ export default class OutfitwarsTerritoryInstanceEndAction implements ActionInter
         private readonly ps2alertsApiClient: AxiosInstance,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -48,6 +50,8 @@ export default class OutfitwarsTerritoryInstanceEndAction implements ActionInter
         ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Outfit Wars Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`, 'OutfitwarsTerritoryInstanceEndAction');
         });
+
+        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2ALERTS_API);
 
         // Update the final result of the instance
         const result: OutfitwarsTerritoryResultInterface = await this.territoryResultAction.execute();
