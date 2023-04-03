@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import {GainExperience} from 'ps2census';
@@ -7,7 +7,7 @@ import Character from '../../../data/Character';
 import InstanceEvent from './InstanceEvent';
 import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
 
-@injectable()
+@Injectable()
 export default class GainExperienceEvent extends InstanceEvent {
     public readonly experienceId: number;
     public readonly loadout: Loadout;
@@ -33,7 +33,7 @@ export default class GainExperienceEvent extends InstanceEvent {
             throw new IllegalArgumentException('loadout_id');
         }
 
-        this.amount = Parser.parseNumericalArgument(event.payload.amount);
+        this.amount = event.payload.amount;
 
         if (isNaN(this.amount)) {
             throw new IllegalArgumentException('amount');

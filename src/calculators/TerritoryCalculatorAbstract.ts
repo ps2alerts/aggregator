@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions,@typescript-eslint/no-unsafe-member-access */
 import {Faction} from '../ps2alerts-constants/faction';
 import ApplicationException from '../exceptions/ApplicationException';
-import {getLogger} from '../logger';
 import {jsonLogOutput} from '../utils/json';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/FactionNumbersInterface';
@@ -16,7 +15,9 @@ import ZoneDataParser from '../parsers/ZoneDataParser';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import {Logger} from '@nestjs/common';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import config from '../config';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -38,7 +39,7 @@ export interface WarpgateCounts {
 }
 
 export default abstract class TerritoryCalculatorAbstract {
-    private static readonly logger = getLogger('TerritoryCalculator');
+    private static readonly logger = new Logger('TerritoryCalculator');
 
     protected readonly factionFacilitiesMap: Map<Faction, Set<number>> = new Map<Faction, Set<number>>();
     protected readonly mapFacilityList: Map<number, FacilityInterface> = new Map<number, FacilityInterface>();
@@ -81,7 +82,7 @@ export default abstract class TerritoryCalculatorAbstract {
             }
         });
 
-        const zoneLattices = this.zoneDataParser.getLattices(this.instance.zone);
+        const zoneLattices = await this.zoneDataParser.getLattices(this.instance.zone, this.instance.timeStarted);
 
         // For each warpgate returned, execute the lattice traversal
         for (const warpgate of this.warpgateList) {
@@ -99,7 +100,7 @@ export default abstract class TerritoryCalculatorAbstract {
                 this.warpgateCounts.tr++;
             }
 
-            TerritoryCalculatorAbstract.logger.silly(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
+            TerritoryCalculatorAbstract.logger.verbose(`******** [${this.instance.instanceId}] STARTING FACTION ${faction} WARPGATE ********`);
             await this.traverse(
                 warpgate.facilityId,
                 0,
@@ -107,7 +108,7 @@ export default abstract class TerritoryCalculatorAbstract {
                 0,
                 zoneLattices,
             );
-            TerritoryCalculatorAbstract.logger.silly(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
+            TerritoryCalculatorAbstract.logger.verbose(`******** [${this.instance.instanceId}] FINISHED FACTION ${faction} WARPGATE ********`);
         }
 
         // Now we've traversed the lattice etc lets make some metrics
@@ -146,7 +147,7 @@ export default abstract class TerritoryCalculatorAbstract {
             perBasePercentage,
         };
 
-        TerritoryCalculatorAbstract.logger.info(`[${this.instance.instanceId}] updated score: VS: ${percentages.vs} | NC: ${percentages.nc} | TR: ${percentages.tr} | Cutoff: ${percentages.cutoff}`);
+        TerritoryCalculatorAbstract.logger.log(`[${this.instance.instanceId}] updated score: VS: ${percentages.vs} | NC: ${percentages.nc} | TR: ${percentages.tr} | Cutoff: ${percentages.cutoff} | OoP: ${percentages.outOfPlay}`);
 
         return percentages;
     }
@@ -160,7 +161,7 @@ export default abstract class TerritoryCalculatorAbstract {
         const cutoffCount = (baseCount - bases.vs - bases.nc - bases.tr) - outOfPlayCount;
         const cutoffPercent = Math.floor(cutoffCount * perBase);
 
-        if (TerritoryCalculatorAbstract.logger.isSillyEnabled()) {
+        if (config.logger.silly) {
             console.log('Cutoff bases', this.cutoffFacilityList);
         }
 
@@ -168,7 +169,7 @@ export default abstract class TerritoryCalculatorAbstract {
     }
 
     protected async getMapFacilities(): Promise<void> {
-        TerritoryCalculatorAbstract.logger.silly(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
+        TerritoryCalculatorAbstract.logger.verbose(`[${this.instance.instanceId}] Commencing to get the map facilities...`);
         // Take a snapshot of the map for use with territory calculations for the end
         const mapData = await new CensusMapRegionQueryParser(
             this.restClient,
@@ -249,13 +250,13 @@ export default abstract class TerritoryCalculatorAbstract {
         // If we have already parsed this base for this faction, ignore it
         if (this.factionFacilitiesMap.get(ownerFaction)?.has(facilityId)) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            TerritoryCalculatorAbstract.logger.silly(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
+            TerritoryCalculatorAbstract.logger.verbose(`${formatDepth} [${this.instance.instanceId} / ${facilityId} - ${facilityName}] Facility has already been parsed, skipping!`);
             return true;
         }
 
         // Perform a check here to see if the faction of the base belongs to the previous base's faction, if it does not, stop!
         if (ownerFaction !== faction) {
-            TerritoryCalculatorAbstract.logger.silly(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${faction} - ${ownerFaction}`);
+            TerritoryCalculatorAbstract.logger.verbose(`${formatDepth} [${facilityId} - ${facilityName}] NO MATCH - ${faction} - ${ownerFaction}`);
             return true;
         }
 
@@ -278,7 +279,7 @@ export default abstract class TerritoryCalculatorAbstract {
             });
         }
 
-        TerritoryCalculatorAbstract.logger.silly(`${formatDepth} [${callingFacilityId} > ${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
+        TerritoryCalculatorAbstract.logger.verbose(`${formatDepth} [${callingFacilityId} > ${facilityId} - ${facilityName}] nextHops ${jsonLogOutput(nextHops)}`);
 
         // RE RE RECURSION
         // Promise of a promise of a promise until we're happy!
@@ -297,16 +298,22 @@ export default abstract class TerritoryCalculatorAbstract {
 
     // Gets the current status of the facility from the API
     protected async getFacilityFaction(facilityId: number): Promise<Faction> {
-        TerritoryCalculatorAbstract.logger.silly(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
+        TerritoryCalculatorAbstract.logger.verbose(`[${this.instance.instanceId}] Getting faction for facility ${facilityId}...`);
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const endpoint = this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME
             ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
             : ps2AlertsApiEndpoints.outfitwarsInstanceFacilityFacility;
+
+        const started = new Date();
+
         const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(
             endpoint
                 .replace('{instanceId}', this.instance.instanceId)
                 .replace('{facilityId}', facilityId.toString()),
         );
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface = apiResponse.data;
@@ -317,7 +324,7 @@ export default abstract class TerritoryCalculatorAbstract {
             throw new ApplicationException(`[${this.instance.instanceId}] Facility ${facilityId} is missing capture information!`);
         }
 
-        TerritoryCalculatorAbstract.logger.silly(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
+        TerritoryCalculatorAbstract.logger.verbose(`[${this.instance.instanceId}] Facility ${facilityId} faction is ${result.newFaction}`);
 
         return result.newFaction;
     }

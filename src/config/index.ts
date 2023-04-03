@@ -5,6 +5,9 @@ import Logger from './logger';
 import InternalApi from './internal-api';
 import RabbitMQ from './rabbitmq';
 import Redis from './redis';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 /**
  * Holds the configuration information for various aspects of the application.

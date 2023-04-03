@@ -3,8 +3,6 @@
   vars:
     root_dir: "{{ playbook_dir }}/../../"
     debug: "false"
-  vars_files:
-    - ../../vars.local.yml
   tasks:
     - debug:
         msg: "========= 📡 Starting Aggregator Module - PC ONLY 📡 ========="
@@ -35,15 +33,5 @@
         networks:
           - name: "ps2alerts"
         tty: true
-        env:
-          NODE_ENV: "development"
-          VERSION: "12345"
-          CENSUS_ENVIRONMENT: "ps2"
-          CENSUS_SERVICE_ID: "{{ census_service_id }}"
-          REDIS_HOST: "ps2alerts-redis"
-          REDIS_DB: "0"
-          INTERNAL_API_HOST: "http://ps2alerts-api:3000"
-          LOGGER_TRANSPORTS: "console"
-          NODE_DEBUG: "{{ debug }}"
         labels:
           traefik.enable: "false"

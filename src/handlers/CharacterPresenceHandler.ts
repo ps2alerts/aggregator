@@ -1,5 +1,4 @@
-import {injectable} from 'inversify';
-import {getLogger} from '../logger';
+import {Injectable, Logger} from '@nestjs/common';
 import PopulationData from '../data/PopulationData';
 import {Faction} from '../ps2alerts-constants/faction';
 import Character from '../data/Character';
@@ -8,6 +7,7 @@ import FactionUtils from '../utils/FactionUtils';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import Redis from 'ioredis';
 import ApplicationException from '../exceptions/ApplicationException';
+import config from '../config';
 
 interface PresenceData {
     world: World;
@@ -17,12 +17,12 @@ interface PresenceData {
     charId: string;
 }
 
-@injectable()
+@Injectable()
 export default class CharacterPresenceHandler {
-    private static readonly logger = getLogger('CharacterPresenceHandler');
+    private static readonly logger = new Logger('CharacterPresenceHandler');
 
-    private readonly charListName = 'CharacterPresenceList';
-    private readonly charKeyPrefix = 'CharacterPresence';
+    private readonly charListName = 'characterPresence:list';
+    private readonly charKeyPrefix = 'characterPresence';
 
     constructor(private readonly cacheClient: Redis) {}
 
@@ -37,7 +37,7 @@ export default class CharacterPresenceHandler {
         };
 
         // Add character as its own key which will eventually expire, with the zone of the character
-        await this.cacheClient.setex(`${this.charKeyPrefix}-${character.id}`, 60 * 5, JSON.stringify(data));
+        await this.cacheClient.setex(`${this.charKeyPrefix}:${character.id}`, 60 * 5, JSON.stringify(data));
 
         // Add character to overall redis set to be scanned later split by world and faction
         await this.cacheClient.sadd(this.charListName, character.id);
@@ -68,7 +68,7 @@ export default class CharacterPresenceHandler {
         // Loop characters to get zones
         // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const index in characters) {
-            const key = `${this.charKeyPrefix}-${characters[index]}`;
+            const key = `${this.charKeyPrefix}:${characters[index]}`;
             const presenceDataString = await this.cacheClient.get(key);
 
             if (!presenceDataString) {
@@ -85,7 +85,7 @@ export default class CharacterPresenceHandler {
             const instanceId = presenceData.instanceId;
             const faction = presenceData.faction;
 
-            const mapKey = `${world}-${zone}-${instanceId}`;
+            const mapKey = `popData:W${world}:Z${zone}:I${instanceId}`;
 
             // If zone isn't initialized, set it now
             if (!populationDataMap.has(mapKey)) {
@@ -117,7 +117,8 @@ export default class CharacterPresenceHandler {
                 continue;
             }
 
-            const factionCount = zoneRecord[factionKey];
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const factionCount: number = zoneRecord[factionKey];
             const newFactionCount = factionCount + 1;
 
             // Create a new clone of the zonePops, as it is apparently read only and cannot be changed
@@ -136,7 +137,7 @@ export default class CharacterPresenceHandler {
             populationDataMap.set(mapKey, newZonePops);
         }
 
-        if (CharacterPresenceHandler.logger.isSillyEnabled()) {
+        if (config.logger.silly) {
             console.log(populationDataMap);
         }
 
@@ -153,10 +154,10 @@ export default class CharacterPresenceHandler {
         // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const index in chars) {
             const characterRef = chars[index];
-            const exists = await this.cacheClient.exists(`${this.charKeyPrefix}-${characterRef}`);
+            const exists = await this.cacheClient.exists(`${this.charKeyPrefix}:${characterRef}`);
 
             if (!exists) {
-                CharacterPresenceHandler.logger.silly(`Removing stale char ${characterRef} from set listName`);
+                CharacterPresenceHandler.logger.verbose(`Removing stale char ${characterRef} from set listName`);
                 await this.cacheClient.srem(this.charListName, characterRef);
                 changes = true;
             }

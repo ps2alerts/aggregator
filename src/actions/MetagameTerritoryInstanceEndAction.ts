@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import FactionUtils from '../utils/FactionUtils';
@@ -12,10 +11,11 @@ import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {
     MetagameTerritoryControlResultInterface,
 } from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
+import {Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('MetagameTerritoryInstanceEndAction');
+    private static readonly logger = new Logger('MetagameTerritoryInstanceEndAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
@@ -27,7 +27,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
     ) {}
 
     public async execute(): Promise<boolean> {
-        MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] Running endAction`);
+        MetagameTerritoryInstanceEndAction.logger.log(`[${this.instance.instanceId}] Running endAction`);
 
         const endTime = new Date();
 
@@ -50,7 +50,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`);
         });
 
-        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2A_API);
+        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2ALERTS_API);
 
         // Update the final result of the instance
         const result: MetagameTerritoryControlResultInterface = await this.territoryResultAction.execute();
@@ -60,9 +60,9 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         }
 
         if (result.draw) {
-            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] resulted in a DRAW!`);
+            MetagameTerritoryInstanceEndAction.logger.log(`[${this.instance.instanceId}] resulted in a DRAW!`);
         } else {
-            MetagameTerritoryInstanceEndAction.logger.info(`[${this.instance.instanceId}] victor is: ${FactionUtils.parseFactionIdToShortName(result.victor).toUpperCase()}!`);
+            MetagameTerritoryInstanceEndAction.logger.log(`[${this.instance.instanceId}] victor is: ${FactionUtils.parseFactionIdToShortName(result.victor).toUpperCase()}!`);
         }
 
         // Update the world, zone and bracket aggregators

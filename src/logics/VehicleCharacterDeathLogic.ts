@@ -1,10 +1,10 @@
 import LogicInterface from './LogicInterface';
-import {getLogger} from '../logger';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import {Kill} from 'ps2census';
+import {Logger} from '@nestjs/common';
 
 export default class VehicleCharacterDeathLogic implements LogicInterface {
-    private static readonly logger = getLogger('VehicleCharacterDeathLogic');
+    private static readonly logger = new Logger('VehicleCharacterDeathLogic');
 
     constructor(
         private readonly event: DeathEvent,
@@ -19,7 +19,7 @@ export default class VehicleCharacterDeathLogic implements LogicInterface {
         if (this.event.attackerVehicleId) {
             // If suicide
             if (this.event.attackerCharacter.id === this.event.character.id) {
-                VehicleCharacterDeathLogic.logger.silly(`[${this.mode}] Suicide`);
+                VehicleCharacterDeathLogic.logger.verbose(`[${this.mode}] Suicide`);
                 return {attackerDocs: [], victimDocs: []};
             } else if (this.event.attackerWeapon.id === -2) {
                 attackerDocs.push({$inc: {['roadkills']: 1}});
@@ -28,11 +28,11 @@ export default class VehicleCharacterDeathLogic implements LogicInterface {
             // If TK
             if (this.event.killType === Kill.TeamKill) {
                 if (this.event.attackerCharacter.id !== this.event.character.id) {
-                    VehicleCharacterDeathLogic.logger.silly(`[${this.mode}] VvI TK`);
+                    VehicleCharacterDeathLogic.logger.verbose(`[${this.mode}] VvI TK`);
                     attackerDocs.push({$inc: {['infantry.teamkills']: 1}});
                 }
             } else {
-                VehicleCharacterDeathLogic.logger.silly(`[${this.mode}] VvI Kill`);
+                VehicleCharacterDeathLogic.logger.verbose(`[${this.mode}] VvI Kill`);
                 attackerDocs.push({$inc: {['infantry.kills']: 1}});
             }
         }

@@ -1,26 +1,23 @@
-import {inject, injectable} from 'inversify';
-import ServiceInterface from '../../interfaces/ServiceInterface';
-import {getLogger} from '../../logger';
+import {Inject, Injectable, Logger, OnModuleInit} from '@nestjs/common';
 import {TYPES} from '../../constants/types';
 import {AxiosInstance} from 'axios';
 import ApplicationException from '../../exceptions/ApplicationException';
 
-@injectable()
-export default class ApiConnectionCheckService implements ServiceInterface {
-    public readonly bootPriority = 1;
-    private static readonly logger = getLogger('ApiConnectionCheckService');
+@Injectable()
+export default class ApiConnectionCheckService implements OnModuleInit {
+    private static readonly logger = new Logger(ApiConnectionCheckService.name);
     private readonly maxAttempts = 6;
     private readonly retryTime = 10000;
 
     constructor(
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-    ) {}
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+    ) {
+    }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    public async boot(): Promise<void> {
-        ApiConnectionCheckService.logger.info('Booting ApiConnectionCheckService...');
+    public async onModuleInit(): Promise<void> {
+        ApiConnectionCheckService.logger.log('Booting ApiConnectivityCheckService...');
         await this.tryConnection();
-        ApiConnectionCheckService.logger.info('ApiConnectionCheckService booted!');
+        ApiConnectionCheckService.logger.log('ApiConnectivityCheckService booted!');
     }
 
     private async tryConnection(attempts = 0): Promise<boolean> {

@@ -1,7 +1,7 @@
 import Character from '../data/Character';
 import {World} from '../ps2alerts-constants/world';
 import {Faction} from '../ps2alerts-constants/faction';
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 
 /* eslint-disable */
 export const fakeCharacterCensusData = {
@@ -61,7 +61,7 @@ export const fakeCharacterCensusData = {
 };
 /* eslint-enable */
 
-@injectable()
+@Injectable()
 export default class FakeCharacterFactory {
     private readonly faction: Faction = Faction.NONE;
 

@@ -2,14 +2,13 @@
 import {World} from '../ps2alerts-constants/world';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import ApplicationException from '../exceptions/ApplicationException';
-import moment from 'moment/moment';
 import {PS2Event} from 'ps2census';
-import {getLogger} from '../logger';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Zone} from '../ps2alerts-constants/zone';
+import {Logger} from '@nestjs/common';
 
 export default abstract class InstanceAbstract {
-    private static readonly logger = getLogger('InstanceAbstract');
+    private static readonly logger = new Logger('InstanceAbstract');
 
     protected constructor(
         public readonly instanceId: string, // 10-12345
@@ -27,14 +26,15 @@ export default abstract class InstanceAbstract {
         return Date.now() > (this.timeStarted.getTime() + this.duration);
     }
 
-    public messageOverdue(event: PS2Event): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public messageOverdue(event: PS2Event<any>): boolean {
         // If facility control, add a limit 2.5 seconds before the alert end to ensure cont locks don't skew the stats
         if (event.event_name === 'FacilityControl') {
             const deadline = (this.timeStarted.getTime() + this.duration) - 2500;
             const overdue = event.timestamp.getTime() > deadline;
 
             if (overdue) {
-                InstanceAbstract.logger.warn('Facility message received outside of deadline!');
+                InstanceAbstract.logger.warn(`[${this.instanceId}] Facility message received outside of deadline!`);
             }
 
             return overdue;
@@ -43,7 +43,7 @@ export default abstract class InstanceAbstract {
         // If already ended, check if the message is overdue from the end date
         if (this.state === Ps2AlertsEventState.ENDED) {
             if (!this.timeEnded) {
-                throw new ApplicationException('No time present when the alert is ended!', 'InstanceAbstract.messageOverdue');
+                throw new ApplicationException(`[${this.instanceId}] No time present when the alert is ended!`, 'InstanceAbstract.messageOverdue');
             }
 
             return event.timestamp.getTime() > this.timeEnded.getTime();
@@ -54,9 +54,10 @@ export default abstract class InstanceAbstract {
 
     // Returns the current second tick of the alert
     public currentDuration(): number {
+        const nowUnix = Date.now() / 1000;
+        const timeStartedUnix = this.timeStarted.getTime() / 1000;
+
         // Return current difference in seconds between start and now
-        const nowUnix = moment().unix() * 1000;
-        // Holy mother of brackets batman!
-        return parseInt(((nowUnix - this.timeStarted.getTime()) / 1000).toFixed(0), 10);
+        return parseInt((nowUnix - timeStartedUnix).toFixed(0), 10);
     }
 }

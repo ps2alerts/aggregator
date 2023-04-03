@@ -1,7 +1,6 @@
 import {ActionInterface} from '../interfaces/ActionInterface';
 import TerritoryResultInterface from '../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import ApplicationException from '../exceptions/ApplicationException';
-import {getLogger} from '../logger';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
@@ -9,11 +8,12 @@ import {
     MetagameTerritoryControlResultInterface,
 } from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
+import {Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 // This class takes care of calculating the result of an instance and updating it via both the API and in memory
 export default class MetagameInstanceTerritoryResultAction implements ActionInterface<TerritoryResultInterface> {
-    private static readonly logger = getLogger('MetagameInstanceTerritoryResultAction');
+    private static readonly logger = new Logger('MetagameInstanceTerritoryResultAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
@@ -41,7 +41,7 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update instance result data! Err: ${err.message} - Data: ${JSON.stringify({result})}`, 'MetagameInstanceTerritoryResultAction');
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2A_API);
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return result;
     }

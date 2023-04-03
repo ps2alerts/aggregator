@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import {Death, Kill} from 'ps2census';
@@ -10,7 +10,7 @@ import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
 import InstanceEvent from './InstanceEvent';
 import {Faction} from '../../../ps2alerts-constants/faction';
 
-@injectable()
+@Injectable()
 export default class DeathEvent extends InstanceEvent {
     public readonly characterLoadoutId: Loadout;
     public readonly attackerFiremodeId: number;

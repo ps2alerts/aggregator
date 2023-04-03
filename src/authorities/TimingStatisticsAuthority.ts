@@ -1,6 +1,5 @@
-import {getLogger} from '../logger';
 import Redis from 'ioredis';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import config from '../config';
 import {MetricTypes} from '../handlers/StatisticsHandler';
 
@@ -13,11 +12,13 @@ interface TableDisplayInterface {
     maxMs: number;
 }
 
-@injectable()
+@Injectable()
 export default class TimingStatisticsAuthority {
-    private static readonly logger = getLogger('TimingStatisticsAuthority');
+    private static readonly logger = new Logger('TimingStatisticsAuthority');
     private readonly runId = config.app.runId;
+    private readonly metricsListKey = 'metrics:list';
     private timer?: NodeJS.Timeout;
+    private readonly displayTime = 60000;
 
     constructor(
         private readonly cacheClient: Redis,
@@ -29,25 +30,21 @@ export default class TimingStatisticsAuthority {
             this.stop();
         }
 
-        // Wipe all metrics lists so 1) we don't have any dangling lists from previous runs and 2) stats are wiped
-        const keys = await this.cacheClient.smembers(config.redis.metricsListKey);
-        const censusCacheHitKey = `metrics-CensusCacheHits-${this.runId}`;
-        const censusCacheMissKey = `metrics-CensusCacheMiss-${this.runId}`;
+        // Wipe all metrics lists, so we don't have any dangling lists from previous runs
+        const keys = await this.cacheClient.smembers(this.metricsListKey);
 
         if (keys.length) {
             for (const key of keys) {
                 await this.cacheClient.del(key);
-                await this.cacheClient.srem(config.redis.metricsListKey, key);
+                await this.cacheClient.srem(this.metricsListKey, key);
             }
         }
 
         // Add this run's keys in so the next run can flush them
-        for (const [metricType] of Object.entries(MetricTypes)) {
-            const listKey = `metrics-${metricType}-${this.runId}`;
-            await this.cacheClient.sadd(config.redis.metricsListKey, listKey);
-
-            // Add CensusCacheHits and CensusCacheMisses to metrics key list
-            await this.cacheClient.sadd(config.redis.metricsListKey, [censusCacheHitKey, censusCacheMissKey]);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [key, metricType] of Object.entries(MetricTypes)) {
+            const listKey = `metrics:${this.runId}:${metricType}`;
+            await this.cacheClient.sadd(this.metricsListKey, listKey);
         }
 
         TimingStatisticsAuthority.logger.debug(`${keys.length} metrics keys cleared!`);
@@ -58,8 +55,9 @@ export default class TimingStatisticsAuthority {
 
             const tableData: TableDisplayInterface[] = [];
 
-            for (const [metricType] of Object.entries(MetricTypes)) {
-                const key = `metrics-${metricType}-${this.runId}`;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for (const [key, metricType] of Object.entries(MetricTypes)) {
+                const key = `metrics:${this.runId}:${metricType}`;
                 const length = await this.cacheClient.llen(key);
                 const timings = await this.cacheClient.lrange(key, 0, length);
 
@@ -109,16 +107,13 @@ export default class TimingStatisticsAuthority {
                 await this.cacheClient.del(key);
             }
 
-            if (show) {
-                TimingStatisticsAuthority.logger.debug('Message Metrics:');
-
-                if (TimingStatisticsAuthority.logger.isDebugEnabled()) {
-                    console.table(tableData);
-                }
-            } else {
+            if (show && config.logger.levels.includes('debug')) {
+                TimingStatisticsAuthority.logger.debug(`Message Metrics for ${this.displayTime / 1000}s:`);
+                console.table(tableData);
+            } else if (!show) {
                 TimingStatisticsAuthority.logger.debug('No metrics to show!');
             }
-        }, 60000);
+        }, this.displayTime);
 
         TimingStatisticsAuthority.logger.debug('Created TimingStatisticsAuthority timer');
     }

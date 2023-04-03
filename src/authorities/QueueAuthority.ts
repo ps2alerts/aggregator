@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // This class is responsible for managing queue state based on instances running
 
-import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
-import {getLogger} from '../logger';
+import RabbitMQQueueFactory from '../services/rabbitmq/factories/RabbitMQQueueFactory';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {PS2EventQueueMessageHandlerInterface} from '../interfaces/PS2EventQueueMessageHandlerInterface';
 import {TYPES} from '../constants/types';
-import {injectable, multiInject} from 'inversify';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import ZoneMessageHandler from '../handlers/ps2census/ZoneMessageHandler';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsQueueInterface} from '../interfaces/PS2AlertsQueueInterface';
 
-@injectable()
+@Injectable()
 export default class QueueAuthority {
-    private static readonly logger = getLogger('QueueAuthority');
+    private static readonly logger = new Logger('QueueAuthority');
     private readonly instanceChannelMap = new Map<InstanceAbstract['instanceId'], PS2AlertsQueueInterface[]>();
     private readonly handlerMap = new Map<string, Array<PS2EventQueueMessageHandlerInterface<any>>>();
     private readonly queuesMarkedForDeletionMap = new Map<number, PS2AlertsQueueInterface[]>();
@@ -22,7 +21,7 @@ export default class QueueAuthority {
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
-        @multiInject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventQueueMessageHandlerInterface<any>>,
+        @Inject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventQueueMessageHandlerInterface<any>>,
     ) {
         for (const handler of eventInstanceHandlers) {
             let handlerList = this.handlerMap.get(handler.eventName);
@@ -95,7 +94,7 @@ export default class QueueAuthority {
 
         this.instanceChannelMap.set(instance.instanceId, queues);
 
-        QueueAuthority.logger.info(`Successfully subscribed queues for instance ${instance.instanceId}!`);
+        QueueAuthority.logger.log(`Successfully subscribed queues for instance ${instance.instanceId}!`);
     }
 
     public syncActiveInstances(instances: PS2AlertsInstanceInterface[]): void {
@@ -131,12 +130,12 @@ export default class QueueAuthority {
             await this.startQueuesForInstance(instance);
         }
 
-        QueueAuthority.logger.info('All queues started for active alerts');
+        QueueAuthority.logger.log('All queues started for active alerts');
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     private async checkQueueDeadlines(): Promise<void> {
-        QueueAuthority.logger.silly('Running QueueAuthority deadline check');
+        QueueAuthority.logger.verbose('Running QueueAuthority deadline check');
         const now = new Date().getTime();
 
         // Check the deadlines for each queue and if it's over, destroy them.

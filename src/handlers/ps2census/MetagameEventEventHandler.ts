@@ -1,6 +1,5 @@
 /* eslint-disable no-case-declarations,@typescript-eslint/no-unsafe-member-access */
-import {inject, injectable} from 'inversify';
-import {getLogger} from '../../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import {MetagameEventState} from '../../ps2alerts-constants/metagameEventState';
@@ -21,13 +20,13 @@ import {TYPES} from '../../constants/types';
 import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 
-@injectable()
+@Injectable()
 export default class MetagameEventEventHandler implements QueueMessageHandlerInterface<MetagameEvent> {
-    private static readonly logger = getLogger('MetagameEventEventHandler');
+    private static readonly logger = new Logger('MetagameEventEventHandler');
 
     constructor(
         private readonly instanceAuthority: InstanceAuthority,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
     ) {}
 
     public async handle(metagameEvent: MetagameEvent, actions: ChannelActionsInterface): Promise<void> {
@@ -78,7 +77,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
             }
 
             if (!config.census.metagameCreationsEnabled) {
-                MetagameEventEventHandler.logger.info('Ignoring metagame event message as metagame creations are disabled.');
+                MetagameEventEventHandler.logger.log('Ignoring metagame event message as metagame creations are disabled.');
                 return actions.ack();
             }
 

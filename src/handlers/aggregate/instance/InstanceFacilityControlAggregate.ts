@@ -1,21 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
-import {getLogger} from '../../../logger';
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
 import ExceptionHandler from '../../system/ExceptionHandler';
 
-@injectable()
+@Injectable()
 export default class InstanceFacilityControlAggregate implements AggregateHandlerInterface<FacilityControlEvent> {
-    private static readonly logger = getLogger('InstanceFacilityControlAggregate');
+    private static readonly logger = new Logger('InstanceFacilityControlAggregate');
 
     constructor(private readonly apiMQPublisher: ApiMQPublisher) {}
 
     public async handle(event: FacilityControlEvent): Promise<boolean> {
-        InstanceFacilityControlAggregate.logger.silly('InstanceFacilityControlAggregate.handle');
+        InstanceFacilityControlAggregate.logger.verbose('InstanceFacilityControlAggregate.handle');
 
         const documents = [];
 

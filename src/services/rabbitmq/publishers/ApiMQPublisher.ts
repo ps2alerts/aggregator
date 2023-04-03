@@ -1,16 +1,15 @@
-import {injectable} from 'inversify';
+import {Injectable, Logger} from '@nestjs/common';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import config from '../../../config';
-import RabbitMQQueueFactory from '../../../factories/RabbitMQQueueFactory';
+import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import ApplicationException from '../../../exceptions/ApplicationException';
-import {getLogger} from '../../../logger';
 import {ApiQueue} from '../queues/ApiQueue';
 
-@injectable()
+@Injectable()
 export default class ApiMQPublisher implements RabbitMQQueueWrapperInterface {
-    private static readonly logger = getLogger('ApiMQPublisher');
+    private static readonly logger = new Logger('ApiMQPublisher');
     private queue: ApiQueue;
 
     constructor(private readonly queueFactory: RabbitMQQueueFactory) {}

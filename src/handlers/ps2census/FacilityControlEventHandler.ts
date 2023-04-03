@@ -1,5 +1,4 @@
-import {inject, injectable, multiInject} from 'inversify';
-import {getLogger} from '../../logger';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import FacilityControlEvent from './events/FacilityControlEvent';
 import {TYPES} from '../../constants/types';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
@@ -13,21 +12,23 @@ import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
+import StatisticsHandler, {MetricTypes} from '../StatisticsHandler';
 
-@injectable()
+@Injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
     public readonly eventName = 'FacilityControl';
-    private static readonly logger = getLogger('FacilityControlEventHandler');
+    private static readonly logger = new Logger('FacilityControlEventHandler');
 
     constructor(
         private readonly facilityDataBroker: FacilityDataBroker,
         private readonly instanceActionFactory: InstanceActionFactory,
-        @inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-        @multiInject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
+        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        @Inject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean>{
-        FacilityControlEventHandler.logger.silly('Parsing message...');
+        FacilityControlEventHandler.logger.verbose('Parsing message...');
 
         if (config.features.logging.censusEventContent.facilityControl) {
             FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
@@ -58,6 +59,8 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
             endpoint = ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
         }
 
+        const started = new Date();
+
         await this.ps2AlertsApiClient.post(endpoint, facilityData).catch(async (err: Error) => {
             FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
@@ -67,6 +70,8 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
                 return false;
             });
         });
+
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<FacilityControlEvent>) => void handler.handle(facilityEvent)

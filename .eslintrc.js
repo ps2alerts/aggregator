@@ -17,6 +17,9 @@ module.exports = {
     ],
     "rules": {
         // @typescript-eslint rules
+        "@typescript-eslint/no-unsafe-argument": 0,
+        "@typescript-eslint/explicit-function-return-type": 0,
+        "@typescript-eslint/naming-convention": 0,
         "@typescript-eslint/array-type": [
             "error",
             {
@@ -27,7 +30,6 @@ module.exports = {
             "error",
             "interface"
         ],
-        "@typescript-eslint/explicit-function-return-type": "error",
         "@typescript-eslint/explicit-member-accessibility": [
             "error",
             {
@@ -85,46 +87,46 @@ module.exports = {
             "error",
             "method"
         ],
-        "@typescript-eslint/naming-convention": [
-            "warn",
-            {
-                "selector": "variableLike",
-                "format": ["camelCase"]
-            },
-            {
-                "selector": "memberLike",
-                "format": ["camelCase"]
-            },
-            {
-                "selector": "typeLike",
-                "format": ["PascalCase"]
-            },
-            {
-                "selector": "variable",
-                "format": ["camelCase", "UPPER_CASE"]
-            },
-            {
-                "selector": "parameter",
-                "format": ["camelCase"],
-                "leadingUnderscore": "allow"
-            },
-            {
-                "selector": "memberLike",
-                "modifiers": ["private"],
-                "format": ["camelCase"],
-                "leadingUnderscore": "allow"
-            },
-            {
-                "selector": "property",
-                "modifiers": ["static", "readonly"],
-                "types": ["boolean", "string", "number"],
-                "format": ["UPPER_CASE"]
-            },
-            {
-                "selector": "enumMember",
-                "format": ["UPPER_CASE"]
-            }
-        ],
+        // "@typescript-eslint/naming-convention": [
+        //     "warn",
+        //     {
+        //         "selector": "variableLike",
+        //         "format": ["camelCase"]
+        //     },
+        //     {
+        //         "selector": "memberLike",
+        //         "format": ["camelCase"]
+        //     },
+        //     {
+        //         "selector": "typeLike",
+        //         "format": ["PascalCase"]
+        //     },
+        //     {
+        //         "selector": "variable",
+        //         "format": ["camelCase", "UPPER_CASE"]
+        //     },
+        //     {
+        //         "selector": "parameter",
+        //         "format": ["camelCase"],
+        //         "leadingUnderscore": "allow"
+        //     },
+        //     {
+        //         "selector": "memberLike",
+        //         "modifiers": ["private"],
+        //         "format": ["camelCase"],
+        //         "leadingUnderscore": "allow"
+        //     },
+        //     {
+        //         "selector": "property",
+        //         "modifiers": ["static", "readonly"],
+        //         "types": ["boolean", "string", "number"],
+        //         "format": ["UPPER_CASE"]
+        //     },
+        //     {
+        //         "selector": "enumMember",
+        //         "format": ["UPPER_CASE"]
+        //     }
+        // ],
         "@typescript-eslint/no-base-to-string": "error",
         "@typescript-eslint/no-confusing-non-null-assertion": "error",
         "@typescript-eslint/no-dynamic-delete": "error",

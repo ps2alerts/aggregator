@@ -1,13 +1,13 @@
-import {getLogger} from '../logger';
 import {ActionInterface} from '../interfaces/ActionInterface';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import TerritoryResultInterface from '../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
+import {Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface<boolean> {
-    private static readonly logger = getLogger('MetagameInstanceTerritoryFacilityControlAction');
+    private static readonly logger = new Logger('MetagameInstanceTerritoryFacilityControlAction');
 
     constructor(
         private readonly event: FacilityControlEvent,
@@ -22,7 +22,7 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
             return true;
         }
 
-        MetagameInstanceTerritoryFacilityControlAction.logger.info(`[${this.event.instance.instanceId}] Running FacilityControlAction`);
+        MetagameInstanceTerritoryFacilityControlAction.logger.log(`[${this.event.instance.instanceId}] Running FacilityControlAction`);
 
         // Update the result for the instance
         await this.territoryResultAction.execute();
@@ -41,9 +41,8 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
             MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2A_API);
+        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }
-
 }

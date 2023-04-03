@@ -1,6 +1,6 @@
 // noinspection JSMethodCanBeStatic
 
-import {getLogger} from '../../logger';
+import {Logger} from '@nestjs/common';
 
 export default class ExceptionHandler {
     constructor(
@@ -12,7 +12,7 @@ export default class ExceptionHandler {
     }
 
     private throw(message: string, exception: unknown | Error, orgin: string): void {
-        const logger = getLogger(orgin);
+        const logger = new Logger(orgin);
 
         logger.error(message);
 

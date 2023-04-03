@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import {Injectable} from '@nestjs/common';
 import Parser from '../../../utils/parser';
 import IllegalArgumentException from '../../../exceptions/IllegalArgumentException';
 import {Destroy, VehicleDestroy} from 'ps2census';
@@ -6,7 +6,7 @@ import Character from '../../../data/Character';
 import InstanceEvent from './InstanceEvent';
 import PS2EventQueueMessage from '../../messages/PS2EventQueueMessage';
 
-@injectable()
+@Injectable()
 export default class VehicleDestroyEvent extends InstanceEvent {
     public readonly attackerLoadoutId: number;
     public readonly attackerVehicleId: number;
