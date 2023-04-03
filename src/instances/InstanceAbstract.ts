@@ -34,7 +34,7 @@ export default abstract class InstanceAbstract {
             const overdue = event.timestamp.getTime() > deadline;
 
             if (overdue) {
-                InstanceAbstract.logger.warn('Facility message received outside of deadline!');
+                InstanceAbstract.logger.warn(`[${this.instanceId}] Facility message received outside of deadline!`);
             }
 
             return overdue;
@@ -43,7 +43,7 @@ export default abstract class InstanceAbstract {
         // If already ended, check if the message is overdue from the end date
         if (this.state === Ps2AlertsEventState.ENDED) {
             if (!this.timeEnded) {
-                throw new ApplicationException('No time present when the alert is ended!', 'InstanceAbstract.messageOverdue');
+                throw new ApplicationException(`[${this.instanceId}] No time present when the alert is ended!`, 'InstanceAbstract.messageOverdue');
             }
 
             return event.timestamp.getTime() > this.timeEnded.getTime();
