@@ -147,7 +147,7 @@ export default abstract class TerritoryCalculatorAbstract {
             perBasePercentage,
         };
 
-        TerritoryCalculatorAbstract.logger.log(`[${this.instance.instanceId}] updated score: VS: ${percentages.vs} | NC: ${percentages.nc} | TR: ${percentages.tr} | Cutoff: ${percentages.cutoff}`);
+        TerritoryCalculatorAbstract.logger.log(`[${this.instance.instanceId}] updated score: VS: ${percentages.vs} | NC: ${percentages.nc} | TR: ${percentages.tr} | Cutoff: ${percentages.cutoff} | OoP: ${percentages.outOfPlay}`);
 
         return percentages;
     }
