@@ -25,11 +25,6 @@ export default class MetagameSubscriber implements OnModuleInit {
             return;
         }
 
-        if (!config.census.metagameQueuesEnabled) {
-            MetagameSubscriber.logger.log('MetagameEvent queue creation is disabled. Not creating / subscribing to queues.');
-            return;
-        }
-
         MetagameSubscriber.logger.log('Creating world MetagameEvent queues...');
 
         // Subscribe only to worlds that make sense for the environment
