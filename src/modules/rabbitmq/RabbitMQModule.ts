@@ -1,7 +1,6 @@
 import {Module, OnModuleInit} from '@nestjs/common';
 import {connect} from 'amqp-connection-manager';
 import {TYPES} from '../../constants/types';
-import config from '../../config';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
 import RabbitMQQueueFactory from './factories/RabbitMQQueueFactory';
@@ -9,13 +8,15 @@ import CensusModule from '../census/CensusModule';
 import RedisModule from '../redis/RedisModule';
 import EventTimingMiddlewareHandler from '../../middlewares/EventTimingMiddlewareHandler';
 import StatisticsHandler from '../../handlers/StatisticsHandler';
+import {ConfigService} from "@nestjs/config";
 
 @Module({
     imports: [RedisModule, CensusModule],
     providers: [
         {
             provide: TYPES.rabbitMqConnection,
-            useFactory: () => connect(config.rabbitmq.connectionUrl),
+            useFactory: (config: ConfigService) => connect(config.get('rabbitmq.urls')),
+            inject: [ConfigService],
         },
 
         RabbitMQQueueFactory,

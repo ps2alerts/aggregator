@@ -1,12 +1,17 @@
 import {Logger, Module, OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import Redis from 'ioredis';
-import config from '../../config';
+import {ConfigService} from "@nestjs/config";
 
 @Module({
     providers: [
         {
             provide: Redis,
-            useFactory: () => new Redis(config.redis),
+            useFactory: (config: ConfigService) => new Redis({
+                host: config.get('redis.host'),
+                port: config.get('redis.port'),
+                password: config.get('redis.password')
+            }),
+            inject: [ConfigService],
         },
     ],
     exports: [Redis],

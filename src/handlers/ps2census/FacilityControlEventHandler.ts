@@ -6,7 +6,6 @@ import {AxiosInstance} from 'axios';
 import {FacilityControl} from 'ps2census';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
-import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
@@ -25,14 +24,13 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @Inject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
         private readonly statisticsHandler: StatisticsHandler,
-    ) {}
+    ) {
+    }
 
-    public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean>{
+    public async handle(event: PS2EventQueueMessage<FacilityControl>): Promise<boolean> {
         FacilityControlEventHandler.logger.verbose('Parsing message...');
 
-        if (config.features.logging.censusEventContent.facilityControl) {
-            FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
-        }
+        FacilityControlEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
 
         const facilityEvent = new FacilityControlEvent(event, await this.facilityDataBroker.get(event));
 

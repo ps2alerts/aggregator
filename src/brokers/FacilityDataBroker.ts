@@ -2,8 +2,7 @@ import {Inject, Injectable, Logger} from '@nestjs/common';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
-import {FacilityControl, Rest} from 'ps2census';
-import config from '../config';
+import {FacilityControl, PS2Environment, Rest} from 'ps2census';
 import PS2EventQueueMessage from '../handlers/messages/PS2EventQueueMessage';
 import Parser from '../utils/parser';
 import Redis from 'ioredis';
@@ -15,20 +14,26 @@ import {getZoneVersion} from '../utils/zoneVersion';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {getRealZoneId} from '../utils/zoneIdHandler';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export default class FacilityDataBroker {
     private static readonly logger = new Logger('FacilityDataBroker');
+
+    private readonly censusEnvironment: PS2Environment;
 
     constructor(
         private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly timingStatisticsHandler: StatisticsHandler,
-    ) {}
+        config: ConfigService
+    ) {
+        this.censusEnvironment = config.getOrThrow('census.environment');
+    }
 
     public async get(event: PS2EventQueueMessage<FacilityControl>): Promise<FacilityDataInterface> {
-        const environment = config.census.censusEnvironment;
+        const environment = this.censusEnvironment;
         const facilityId = Parser.parseNumericalArgument(event.payload.facility_id);
         const zone = getRealZoneId(event.payload.zone_id);
         const cacheKey = `facilityData:${environment}:${facilityId}`;

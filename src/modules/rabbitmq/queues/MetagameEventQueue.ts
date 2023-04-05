@@ -1,7 +1,6 @@
 import {AmqpConnectionManager} from 'amqp-connection-manager';
 import {RabbitMQQueue} from './RabbitMQQueue';
 import {PS2AlertsQueueInterface} from '../../../interfaces/PS2AlertsQueueInterface';
-import config from '../../../config';
 import {ConfirmChannel, ConsumeMessage} from 'amqplib';
 import {CensusClient, MetagameEvent, Stream} from 'ps2census';
 import ApplicationException from '../../../exceptions/ApplicationException';
@@ -15,6 +14,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        private readonly topicExchange: string,
         private readonly pattern: string,
         private readonly handler: QueueMessageHandlerInterface<MetagameEvent>,
         private readonly censusClient: CensusClient,
@@ -33,10 +33,10 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
-                    channel.checkExchange(config.rabbitmq.topicExchange),
+                    channel.checkExchange(this.topicExchange),
                     channel.assertQueue(this.queueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.queueName, config.rabbitmq.topicExchange, this.pattern);
+                await channel.bindQueue(this.queueName, this.topicExchange, this.pattern);
 
                 const consumerOptions: Options.Consume = {
                     priority: 0,

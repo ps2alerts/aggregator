@@ -3,9 +3,9 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import {RabbitMQQueueWrapperInterface} from '../../../interfaces/RabbitMQQueueWrapperInterface';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
-import config from '../../../config';
 import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import {ApiQueue} from '../queues/ApiQueue';
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterface {
@@ -13,21 +13,27 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
     private longQueue: ApiQueue;
     private shortQueue: ApiQueue;
 
-    constructor(private readonly queueFactory: RabbitMQQueueFactory) {}
+    private readonly apiDelayQueueName: string;
+    private readonly apiQueueName: string;
+
+    constructor(private readonly queueFactory: RabbitMQQueueFactory, config: ConfigService) {
+        this.apiDelayQueueName = config.get('rabbitmq.apiDelayQueueName');
+        this.apiQueueName = config.get('rabbitmq.apiQueueName');
+    }
 
     public async connect(): Promise<void> {
         this.longQueue = this.queueFactory.createApiQueue(
-            `${config.rabbitmq.apiDelayQueueName}-91min`,
+            `${this.apiDelayQueueName}-91min`,
             91 * 60 * 1000,
             '',
-            config.rabbitmq.apiQueueName,
+            this.apiQueueName,
         );
 
         this.shortQueue = this.queueFactory.createApiQueue(
-            `${config.rabbitmq.apiDelayQueueName}-46min`,
+            `${this.apiDelayQueueName}-46min`,
             46 * 60 * 1000,
             '',
-            config.rabbitmq.apiQueueName,
+            this.apiQueueName,
         );
 
         await this.longQueue.connect();

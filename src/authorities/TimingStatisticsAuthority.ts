@@ -1,7 +1,7 @@
 import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
-import config from '../config';
 import {MetricTypes} from '../handlers/StatisticsHandler';
+import {ConfigService} from "@nestjs/config";
 
 interface TableDisplayInterface {
     metricType: string;
@@ -15,14 +15,17 @@ interface TableDisplayInterface {
 @Injectable()
 export default class TimingStatisticsAuthority {
     private static readonly logger = new Logger('TimingStatisticsAuthority');
-    private readonly runId = config.app.runId;
+    private readonly runId: number;
     private readonly metricsListKey = 'metrics:list';
     private timer?: NodeJS.Timeout;
     private readonly displayTime = 60000;
 
     constructor(
         private readonly cacheClient: Redis,
-    ) {}
+        config: ConfigService,
+    ) {
+        this.runId = config.get('app.runId');
+    }
 
     public async run(): Promise<void> {
         if (this.timer) {
@@ -107,10 +110,10 @@ export default class TimingStatisticsAuthority {
                 await this.cacheClient.del(key);
             }
 
-            if (show && config.logger.levels.includes('debug')) {
+            if (show) {
                 TimingStatisticsAuthority.logger.debug(`Message Metrics for ${this.displayTime / 1000}s:`);
                 console.table(tableData);
-            } else if (!show) {
+            } else {
                 TimingStatisticsAuthority.logger.debug('No metrics to show!');
             }
         }, this.displayTime);

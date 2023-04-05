@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
-import config from '../config';
 import {Injectable} from '@nestjs/common';
+import {ConfigService} from "@nestjs/config";
 
 export enum MetricTypes {
     CENSUS_CACHE_HITS = 'Census:CacheHits',
@@ -27,10 +27,16 @@ const censusEndpoints = [
 
 @Injectable()
 export default class StatisticsHandler {
-    private readonly runId = config.app.runId;
-    private readonly metricsPrefix = `metrics:${this.runId}`;
+    private readonly runId: number;
+    private readonly metricsPrefix: string;
 
-    constructor(private readonly cacheClient: Redis) {}
+    constructor(
+        private readonly cacheClient: Redis,
+        config: ConfigService
+    ) {
+        this.runId = config.get('app.runId');
+        this.metricsPrefix = `metrics:${this.runId}`;
+    }
 
     public async logTime(started: Date, type: MetricTypes | string): Promise<void> {
         const finishedTime = new Date().getTime();

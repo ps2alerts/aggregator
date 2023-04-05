@@ -14,7 +14,6 @@ import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
 import StatisticsHandler from '../handlers/StatisticsHandler';
-import config from '../config';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
     private static readonly classLogger = new Logger('MetagameTerritoryCalculator');
@@ -44,9 +43,9 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
         await this.hydrateData();
 
         // Now calculate the results
-        if (config.logger.silly) {
-            console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
-        }
+        // if (config.logger.silly) {
+        //     console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
+        // }
 
         const percentages = this.calculatePercentages();
         const victor = this.calculateVictor(percentages);

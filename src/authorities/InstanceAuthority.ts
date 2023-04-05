@@ -13,7 +13,6 @@ import InstanceActionFactory from '../factories/InstanceActionFactory';
 import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
 import {AxiosInstance, AxiosResponse} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import config from '../config';
 import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 import QueueAuthority from './QueueAuthority';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
@@ -23,6 +22,8 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 import Redis from 'ioredis';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import {ConfigService} from "@nestjs/config";
+import {PS2Environment} from "ps2census";
 
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
@@ -56,7 +57,7 @@ export default class InstanceAuthority {
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
     private activeTimer?: NodeJS.Timeout;
     private initialized = false;
-    private readonly censusEnvironment = config.census.censusEnvironment;
+    private readonly censusEnvironment: PS2Environment;
 
     constructor(
         private readonly instanceActionFactory: InstanceActionFactory,
@@ -64,7 +65,10 @@ export default class InstanceAuthority {
         private readonly queueAuthority: QueueAuthority,
         private readonly cacheClient: Redis, // Required for Population aggregation
         private readonly statisticsHandler: StatisticsHandler,
-    ) {}
+        config: ConfigService
+    ) {
+        this.censusEnvironment = config.getOrThrow('census.environment');
+    }
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
         InstanceAuthority.logger.verbose(`Attempting to find an instance with ID: "${instanceId}"...`);

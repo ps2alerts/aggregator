@@ -2,10 +2,10 @@ import {Module} from '@nestjs/common';
 import {CensusClient, CharacterManager, Rest} from 'ps2census';
 import {TYPES} from '../../constants/types';
 import axios from 'axios';
-import config from '../../config';
 import Redis from 'ioredis';
 import CensusCacheDriver from './CensusCacheDriver';
 import RedisModule from '../redis/RedisModule';
+import {ConfigService} from "@nestjs/config";
 
 @Module({
     imports: [RedisModule],
@@ -13,7 +13,7 @@ import RedisModule from '../redis/RedisModule';
         // Census
         {
             provide: CensusClient,
-            useFactory: (cache: CensusCacheDriver) => new CensusClient(config.census.serviceID, config.census.censusEnvironment, {
+            useFactory: (config: ConfigService, cache: CensusCacheDriver) => new CensusClient(config.getOrThrow('census.serviceID'), config.getOrThrow('census.environment'), {
                 characterManager: {
                     query: (query) =>
                         query.resolve('world', ['outfit_member_extended', ['outfit_id', 'name', 'alias', 'leader_character_id']])
@@ -27,7 +27,7 @@ import RedisModule from '../redis/RedisModule';
                     },
                 },
             }),
-            inject: [CensusCacheDriver],
+            inject: [ConfigService, CensusCacheDriver],
         },
         {
             provide: Rest.Client,

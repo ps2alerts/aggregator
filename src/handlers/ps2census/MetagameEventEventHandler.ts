@@ -1,6 +1,5 @@
 /* eslint-disable no-case-declarations,@typescript-eslint/no-unsafe-member-access */
 import {Inject, Injectable, Logger} from '@nestjs/common';
-import config from '../../config';
 import {jsonLogOutput} from '../../utils/json';
 import {MetagameEventState} from '../../ps2alerts-constants/metagameEventState';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
@@ -24,6 +23,8 @@ import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpo
 export default class MetagameEventEventHandler implements QueueMessageHandlerInterface<MetagameEvent> {
     private static readonly logger = new Logger('MetagameEventEventHandler');
 
+    private readonly metagameCreationsEnabled = true;
+
     constructor(
         private readonly instanceAuthority: InstanceAuthority,
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
@@ -34,9 +35,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
         const event = new MetagameEventEvent(metagameEvent);
 
-        if (config.features.logging.censusEventContent.metagame) {
-            MetagameEventEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
-        }
+        MetagameEventEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
 
         // Note because Metagame is a world message, it is not subject to filtering by Ps2censusMessageHandler, so it may not return an instance intentionally.
         let instanceId = `${event.world}-${event.instanceId}`;
@@ -76,7 +75,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                 return actions.ack();
             }
 
-            if (!config.census.metagameCreationsEnabled) {
+            if (!this.metagameCreationsEnabled) {
                 MetagameEventEventHandler.logger.log('Ignoring metagame event message as metagame creations are disabled.');
                 return actions.ack();
             }

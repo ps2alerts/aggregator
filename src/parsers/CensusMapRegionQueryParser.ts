@@ -2,9 +2,7 @@ import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import ApplicationException from '../exceptions/ApplicationException';
 import {Rest} from 'ps2census';
 import Redis from 'ioredis';
-import {
-    CensusRegionMapJoinQueryInterface,
-} from '../interfaces/CensusRegionEndpointInterfaces';
+import {CensusRegionMapJoinQueryInterface,} from '../interfaces/CensusRegionEndpointInterfaces';
 import ZoneDataParser from './ZoneDataParser';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {Logger} from '@nestjs/common';

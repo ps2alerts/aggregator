@@ -1,7 +1,6 @@
 import {AmqpConnectionManager} from 'amqp-connection-manager';
 import {RabbitMQQueue} from './RabbitMQQueue';
 import {PS2AlertsQueueInterface} from '../../../interfaces/PS2AlertsQueueInterface';
-import config from '../../../config';
 import {ConfirmChannel, ConsumeMessage} from 'amqplib';
 import AdminQueueMessage from '../../../data/AdminAggregator/AdminQueueMessage';
 import ApplicationException from '../../../exceptions/ApplicationException';
@@ -20,6 +19,7 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        private readonly exchange: string,
         private readonly handler: QueueMessageHandlerInterface<AdminQueueMessage>,
     ) {
         super(connectionManager, queueName);
@@ -32,10 +32,10 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
-                    channel.checkExchange(config.rabbitmq.exchange),
+                    channel.checkExchange(this.exchange),
                     channel.assertQueue(this.queueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.queueName, config.rabbitmq.exchange, '#');
+                await channel.bindQueue(this.queueName, this.exchange, '#');
 
                 const consumerOptions: Options.Consume = {
                     priority: 0,

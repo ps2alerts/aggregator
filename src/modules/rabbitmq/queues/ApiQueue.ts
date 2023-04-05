@@ -5,7 +5,6 @@ import {AmqpConnectionManager} from 'amqp-connection-manager';
 import {RabbitMQQueue} from './RabbitMQQueue';
 import {PS2AlertsQueueInterface} from '../../../interfaces/PS2AlertsQueueInterface';
 import {ConfirmChannel} from 'amqplib';
-import config from '../../../config';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ApiMQMessage from '../../../data/ApiMQMessage';
@@ -19,6 +18,7 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        private readonly exchange: string,
         private readonly ttl: number,
         private readonly deadLetterExchange: string | undefined,
         private readonly deadLetterRoutingKey: string | undefined,
@@ -42,10 +42,10 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
-                    channel.checkExchange(config.rabbitmq.exchange),
+                    channel.checkExchange(this.exchange),
                     channel.assertQueue(this.queueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.queueName, config.rabbitmq.exchange, '#');
+                await channel.bindQueue(this.queueName, this.exchange, '#');
             },
         });
     }

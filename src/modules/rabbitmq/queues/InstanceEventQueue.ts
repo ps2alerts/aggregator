@@ -7,7 +7,6 @@ import {CensusClient, Death, FacilityControl, GainExperience, PS2Event, Stream, 
 import {ConfirmChannel, ConsumeMessage} from 'amqplib';
 import {Options} from 'amqplib/properties';
 import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
-import config from '../../../config';
 import EventTimingMiddlewareHandler from '../../../middlewares/EventTimingMiddlewareHandler';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import InstanceAbstract from '../../../instances/InstanceAbstract';
@@ -15,11 +14,11 @@ import {Logger} from '@nestjs/common';
 
 export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     private static readonly classLogger = new Logger('InstanceEventQueue');
-    private readonly exchange = config.rabbitmq.topicExchange;
 
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        private readonly exchange: string,
         private readonly pattern: string,
         private readonly prefetch: number,
         private readonly instance: InstanceAbstract,

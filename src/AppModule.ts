@@ -56,9 +56,16 @@ import AdminAggregatorSubscriber from './subscribers/AdminAggregatorSubscriber';
 import MetagameSubscriber from './subscribers/MetagameSubscriber';
 import {HealthModule} from './health/HealthModule';
 import {Death} from 'ps2census';
+import {ConfigModule} from "@nestjs/config";
+import {config} from "./config";
 
 @Module({
     imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [config],
+            expandVariables: true
+        }),
         HealthModule,
         RedisModule,
         RabbitMQModule,

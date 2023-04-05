@@ -10,6 +10,7 @@ import {ApiQueue} from '../queues/ApiQueue';
 import {AdminQueue} from '../queues/AdminQueue';
 import InstanceAbstract from '../../../instances/InstanceAbstract';
 import {MetagameEventQueue} from '../queues/MetagameEventQueue';
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export default class RabbitMQQueueFactory {
@@ -17,6 +18,7 @@ export default class RabbitMQQueueFactory {
         @Inject(TYPES.rabbitMqConnection) private readonly connectionManager: AmqpConnectionManager,
         private readonly censusClient: CensusClient,
         private readonly timingMiddlewareHandler: EventTimingMiddlewareHandler,
+        private readonly config: ConfigService,
     ) {}
 
     public createInstanceQueue(
@@ -30,6 +32,7 @@ export default class RabbitMQQueueFactory {
         return new InstanceEventQueue(
             this.connectionManager,
             queueName,
+            this.config.get('rabbitmq.exchange'),
             pattern,
             prefetch,
             instance,
@@ -48,6 +51,7 @@ export default class RabbitMQQueueFactory {
         return new ApiQueue(
             this.connectionManager,
             queueName,
+            this.config.get('rabbitmq.exchange'),
             ttl,
             deadLetterExchange,
             deadLetterRoutingKey,
@@ -61,6 +65,7 @@ export default class RabbitMQQueueFactory {
         return new AdminQueue(
             this.connectionManager,
             queueName,
+            this.config.get('rabbitmq.exchange'),
             handler,
         );
     }
@@ -73,6 +78,7 @@ export default class RabbitMQQueueFactory {
         return new MetagameEventQueue(
             this.connectionManager,
             queueName,
+            this.config.get('rabbitmq.topicExchange'),
             pattern,
             handler,
             this.censusClient,

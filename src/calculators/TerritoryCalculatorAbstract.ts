@@ -17,7 +17,6 @@ import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
-import config from '../config';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -161,9 +160,9 @@ export default abstract class TerritoryCalculatorAbstract {
         const cutoffCount = (baseCount - bases.vs - bases.nc - bases.tr) - outOfPlayCount;
         const cutoffPercent = Math.floor(cutoffCount * perBase);
 
-        if (config.logger.silly) {
-            console.log('Cutoff bases', this.cutoffFacilityList);
-        }
+        // if (config.logger.silly) {
+        //     console.log('Cutoff bases', this.cutoffFacilityList);
+        // }
 
         return cutoffPercent;
     }

@@ -7,7 +7,8 @@ import FactionUtils from '../utils/FactionUtils';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import Redis from 'ioredis';
 import ApplicationException from '../exceptions/ApplicationException';
-import config from '../config';
+import {PS2Environment} from "ps2census";
+import {ConfigService} from "@nestjs/config";
 
 interface PresenceData {
     world: World;
@@ -24,7 +25,14 @@ export default class CharacterPresenceHandler {
     private readonly charListName = 'characterPresence:list';
     private readonly charKeyPrefix = 'characterPresence';
 
-    constructor(private readonly cacheClient: Redis) {}
+    private readonly censusEnvironment: PS2Environment;
+
+    constructor(
+        private readonly cacheClient: Redis,
+        config: ConfigService,
+        ) {
+        this.censusEnvironment = config.getOrThrow('census.environment');
+    }
 
     // Updates / adds characters presence, setting a Redis key with expiry.
     public async update(character: Character, instance: PS2AlertsInstanceInterface): Promise<boolean> {
@@ -50,10 +58,8 @@ export default class CharacterPresenceHandler {
         const populationDataMap: Map<string, PopulationData> = new Map<string, PopulationData>();
         CharacterPresenceHandler.logger.debug('Running character presence collation');
 
-        const censusEnvironment = config.census.censusEnvironment;
-
         // Check for instances
-        const instances = await this.cacheClient.smembers(`ActiveInstances-${censusEnvironment}`);
+        const instances = await this.cacheClient.smembers(`ActiveInstances-${this.censusEnvironment}`);
 
         if (!instances.length) {
             CharacterPresenceHandler.logger.debug('No instances running, aborting collection');
@@ -139,9 +145,9 @@ export default class CharacterPresenceHandler {
             populationDataMap.set(mapKey, newZonePops);
         }
 
-        if (config.logger.silly) {
-            console.log(populationDataMap);
-        }
+        // if (config.logger.silly) {
+        //     console.log(populationDataMap);
+        // }
 
         return populationDataMap;
     }

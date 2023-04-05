@@ -8,30 +8,35 @@ import FakeItemFactory from '../factories/FakeItemFactory';
 import {Vehicle} from '../ps2alerts-constants/vehicle';
 import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {Rest} from 'ps2census';
-import config from '../config';
 import {AxiosInstance} from 'axios';
 import ApplicationException from '../exceptions/ApplicationException';
 import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import Redis from 'ioredis';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export default class ItemBroker implements ItemBrokerInterface {
     private static readonly logger = new Logger('ItemBroker');
+
+    private readonly censusEnvironment: CensusEnvironment;
 
     constructor(
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         @Inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
         private readonly statisticsHandler: StatisticsHandler,
-    ) {}
+        config: ConfigService,
+    ) {
+        this.censusEnvironment = config.getOrThrow('census.environment');
+    }
 
     public async get(
         itemId: number,
         vehicleId: Vehicle,
     ): Promise<ItemInterface> {
-        const environment: CensusEnvironment = config.census.censusEnvironment;
+        const environment = this.censusEnvironment;
 
         const started = new Date();
 
