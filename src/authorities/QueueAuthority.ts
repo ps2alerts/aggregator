@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // This class is responsible for managing queue state based on instances running
 
-import RabbitMQQueueFactory from '../services/rabbitmq/factories/RabbitMQQueueFactory';
+import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {PS2EventQueueMessageHandlerInterface} from '../interfaces/PS2EventQueueMessageHandlerInterface';
 import {TYPES} from '../constants/types';

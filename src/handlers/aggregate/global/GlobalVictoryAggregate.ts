@@ -6,7 +6,7 @@ import MetagameTerritoryInstance from '../../../instances/MetagameTerritoryInsta
 import {Faction} from '../../../ps2alerts-constants/faction';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ExceptionHandler from '../../system/ExceptionHandler';
 import {format} from 'date-fns';

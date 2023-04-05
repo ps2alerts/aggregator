@@ -1,11 +1,11 @@
 import {Injectable, Logger} from '@nestjs/common';
 import ApiMQMessage from '../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../ps2alerts-constants/mqAcceptedPatterns';
-import ApiMQPublisher from '../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../modules/rabbitmq/publishers/ApiMQPublisher';
 import DeathEvent from '../ps2census/events/DeathEvent';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import VehicleCharacterDeathLogic from '../../logics/VehicleCharacterDeathLogic';
-import ApiMQDelayPublisher from '../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQDelayPublisher from '../../modules/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../data/ApiMQGlobalAggregateMessage';
 import {Bracket} from '../../ps2alerts-constants/bracket';
 import ExceptionHandler from '../system/ExceptionHandler';

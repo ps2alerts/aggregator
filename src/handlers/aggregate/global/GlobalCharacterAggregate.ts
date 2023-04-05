@@ -3,10 +3,10 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {Injectable, Logger} from '@nestjs/common';
 import {Kill} from 'ps2census';
-import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQDelayPublisher from '../../../modules/rabbitmq/publishers/ApiMQDelayPublisher';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import FactionUtils from '../../../utils/FactionUtils';
 import ExceptionHandler from '../../system/ExceptionHandler';

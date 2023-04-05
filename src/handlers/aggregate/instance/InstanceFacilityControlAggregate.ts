@@ -4,7 +4,7 @@ import {Injectable, Logger} from '@nestjs/common';
 import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import ExceptionHandler from '../../system/ExceptionHandler';
 
 @Injectable()

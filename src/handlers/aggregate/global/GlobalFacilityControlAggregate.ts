@@ -3,9 +3,9 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import {Injectable, Logger} from '@nestjs/common';
 import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
-import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQDelayPublisher from '../../../modules/rabbitmq/publishers/ApiMQDelayPublisher';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ExceptionHandler from '../../system/ExceptionHandler';
 

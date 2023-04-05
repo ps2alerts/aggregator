@@ -3,8 +3,8 @@
 import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
 import {pcWorldArray, World} from '../ps2alerts-constants/world';
 import config from '../config';
-import RabbitMQQueueFactory from '../services/rabbitmq/factories/RabbitMQQueueFactory';
-import {MetagameEventQueue} from '../services/rabbitmq/queues/MetagameEventQueue';
+import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
+import {MetagameEventQueue} from '../modules/rabbitmq/queues/MetagameEventQueue';
 import MetagameEventEventHandler from '../handlers/ps2census/MetagameEventEventHandler';
 
 @Injectable()

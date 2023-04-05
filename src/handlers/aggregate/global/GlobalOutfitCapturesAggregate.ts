@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unsafe-assignment */
 import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInterface';
 import {Injectable, Logger} from '@nestjs/common';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import FacilityControlEvent from '../../ps2census/events/FacilityControlEvent';
-import ApiMQDelayPublisher from '../../../services/rabbitmq/publishers/ApiMQDelayPublisher';
+import ApiMQDelayPublisher from '../../../modules/rabbitmq/publishers/ApiMQDelayPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessage';
 import ExceptionHandler from '../../system/ExceptionHandler';
