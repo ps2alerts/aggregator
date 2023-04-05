@@ -4,6 +4,7 @@ import {Injectable} from '@nestjs/common';
 import {CacheContract} from 'ps2census';
 import Redis from 'ioredis';
 
+// TODO: Add prometheus counters
 @Injectable()
 export default class CensusCacheDriver implements CacheContract {
     constructor(

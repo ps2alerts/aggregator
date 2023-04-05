@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import {Injectable} from '@nestjs/common';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 export enum MetricTypes {
     CENSUS_CACHE_HITS = 'Census:CacheHits',
@@ -32,13 +32,14 @@ export default class StatisticsHandler {
 
     constructor(
         private readonly cacheClient: Redis,
-        config: ConfigService
+        config: ConfigService,
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
     }
 
     public async logTime(started: Date, type: MetricTypes | string): Promise<void> {
+        // TODO: Replace with prometheus histogram
         const finishedTime = new Date().getTime();
         const listKey = `${this.metricsPrefix}:${type}`;
 
