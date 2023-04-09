@@ -11,7 +11,7 @@ export const config = () => ({
     },
 
     logger: {
-        levels: env('LOG_LEVELS', 'error,warn,log,debug').split(','),
+        levels: envSplit('LOG_LEVELS', ['error','warn','log','debug']),
     },
 
     /** Services */
