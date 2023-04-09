@@ -21,6 +21,7 @@ export default class RabbitMQQueueFactory {
         private readonly config: ConfigService,
     ) {}
 
+    // Creates the queues that are used to process Death, VehicleDestroy etc.
     public createInstanceQueue(
         queueName: string,
         pattern: string,
@@ -42,6 +43,7 @@ export default class RabbitMQQueueFactory {
         );
     }
 
+    // Creates queue to send data to the API for processing
     public createApiQueue(
         queueName: string,
         ttl: number,
@@ -58,6 +60,7 @@ export default class RabbitMQQueueFactory {
         );
     }
 
+    // Creates queue to control the aggregator via admin commands
     public createAdminQueue(
         queueName: string,
         handler: QueueMessageHandlerInterface<AdminQueueMessage>,
@@ -70,6 +73,7 @@ export default class RabbitMQQueueFactory {
         );
     }
 
+    // Creates queues to process MetagameEvent messages
     public createMetagameEventQueue(
         queueName: string,
         pattern: string,
