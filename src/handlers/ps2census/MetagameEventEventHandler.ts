@@ -35,7 +35,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
         const event = new MetagameEventEvent(metagameEvent);
 
-        MetagameEventEventHandler.logger.debug(jsonLogOutput(event), {message: 'eventData'});
+        MetagameEventEventHandler.logger.verbose(jsonLogOutput(event), {message: 'eventData'});
 
         // Note because Metagame is a world message, it is not subject to filtering by Ps2censusMessageHandler, so it may not return an instance intentionally.
         let instanceId = `${event.world}-${event.instanceId}`;
