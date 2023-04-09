@@ -28,10 +28,18 @@
         volumes:
           - "{{ root_dir }}:/app:rw"
         ports:
-          - "1337"
+          - "1337:1337"
           - "9229:9229"
         networks:
           - name: "ps2alerts"
         tty: true
         labels:
-          traefik.enable: "false"
+          traefik.enable: "true"
+          traefik.http.routers.ps2alerts_api_http.rule: "Host(`dev.aggregator.ps2alerts.com`)"
+          traefik.http.routers.ps2alerts_api_http.entrypoints: "web"
+          traefik.http.routers.ps2alerts_api.middlewares: "redirect-to-https"
+          traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+          traefik.http.routers.ps2alerts_api.entrypoints: "websecure"
+          traefik.http.routers.ps2alerts_api.rule: "Host(`dev.aggregator.ps2alerts.com`)"
+          traefik.http.routers.ps2alerts_api.tls: "true"
+          traefik.http.routers.ps2alerts_api.tls.domains[0].main: "dev.aggregator.ps2alerts.com"

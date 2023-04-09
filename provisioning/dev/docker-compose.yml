@@ -6,28 +6,45 @@ services:
     volumes:
       - "../../:/app:rw"
     ports:
-      - "1337"
-      - "9229:9229"
+      - "1337:1337"
+      - "9229:9229" # Debug port
     networks:
       - "ps2alerts"
     environment:
       CENSUS_ENVIRONMENT: "ps2"
+      APP_PORT: "1337"
     labels:
-      traefik.enable: "false"
-
+      traefik.enable: "true"
+      traefik.http.routers.ps2alerts_aggregator_pc_http.rule: "Host(`dev.aggregator.ps2alerts.com`)"
+      traefik.http.routers.ps2alerts_aggregator_pc_http.entrypoints: "web"
+      traefik.http.routers.ps2alerts_aggregator_pc.middlewares: "redirect-to-https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+      traefik.http.routers.ps2alerts_aggregator_pc.entrypoints: "websecure"
+      traefik.http.routers.ps2alerts_aggregator_pc.rule: "Host(`dev.aggregator.ps2alerts.com`)"
+      traefik.http.routers.ps2alerts_aggregator_pc.tls: "true"
+      traefik.http.routers.ps2alerts_aggregator_pc.tls.domains[0].main: "dev.aggregator.ps2alerts.com"
   aggregator-ps4eu:
     image: ps2alerts/aggregator:dev
     restart: "no"
     volumes:
       - "../../:/app:rw"
     ports:
-      - "1338"
+      - "1338:1338"
     networks:
       - "ps2alerts"
     environment:
       CENSUS_ENVIRONMENT: "ps2ps4eu"
+      APP_PORT: "1338"
     labels:
-      traefik.enable: "false"
+      traefik.enable: "true"
+      traefik.http.routers.ps2alerts_aggregator_ps4eu_http.rule: "Host(`dev.aggregator-ps4eu.ps2alerts.com`)"
+      traefik.http.routers.ps2alerts_aggregator_ps4eu_http.entrypoints: "web"
+      traefik.http.routers.ps2alerts_aggregator_ps4eu.middlewares: "redirect-to-https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+      traefik.http.routers.ps2alerts_aggregator_ps4eu.entrypoints: "websecure"
+      traefik.http.routers.ps2alerts_aggregator_ps4eu.rule: "Host(`dev.aggregator-ps4eu.ps2alerts.com`)"
+      traefik.http.routers.ps2alerts_aggregator_ps4eu.tls: "true"
+      traefik.http.routers.ps2alerts_aggregator_ps4eu.tls.domains[0].main: "dev.aggregator-ps4eu.ps2alerts.com"
 
   aggregator-ps4us:
     image: ps2alerts/aggregator:dev
@@ -35,13 +52,22 @@ services:
     volumes:
       - "../../:/app:rw"
     ports:
-      - "1339"
+      - "1339:1339"
     networks:
       - "ps2alerts"
     environment:
       CENSUS_ENVIRONMENT: "ps2ps4us"
+      APP_PORT: "1339"
     labels:
-      traefik.enable: "false"
+      traefik.enable: "true"
+      traefik.http.routers.ps2alerts_aggregator_ps4us_http.rule: "Host(`dev.aggregator-ps4us.ps2alerts.com`)"
+      traefik.http.routers.ps2alerts_aggregator_ps4us_http.entrypoints: "web"
+      traefik.http.routers.ps2alerts_aggregator_ps4us.middlewares: "redirect-to-https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+      traefik.http.routers.ps2alerts_aggregator_ps4us.entrypoints: "websecure"
+      traefik.http.routers.ps2alerts_aggregator_ps4us.rule: "Host(`dev.aggregator-ps4us.ps2alerts.com`)"
+      traefik.http.routers.ps2alerts_aggregator_ps4us.tls: "true"
+      traefik.http.routers.ps2alerts_aggregator_ps4us.tls.domains[0].main: "dev.aggregator-ps4us.ps2alerts.com"
 networks:
   ps2alerts:
     external:

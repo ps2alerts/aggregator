@@ -7,7 +7,7 @@ export const config = () => ({
         environment: env('NODE_ENV'),
         version: env('VERSION'),
         runId: random(1, 1337),
-        port: envInt('APP_PORT', 10, 3000),
+        port: envInt('APP_PORT', 10, 1337),
     },
 
     logger: {
