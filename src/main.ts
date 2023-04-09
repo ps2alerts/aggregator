@@ -20,6 +20,8 @@ async function bootstrap(): Promise<void> {
     const config = await app.resolve(ConfigService);
 
     app.useLogger(config.get('logger.levels'));
+    // NestJS being weird and not auto flushing logger
+    Logger.flush();
 
     app.enableShutdownHooks();
 
