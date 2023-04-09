@@ -32,7 +32,7 @@ export default class RabbitMQQueueFactory {
         return new InstanceEventQueue(
             this.connectionManager,
             queueName,
-            this.config.get('rabbitmq.exchange'),
+            this.config.get('rabbitmq.topicExchange'),
             pattern,
             prefetch,
             instance,
