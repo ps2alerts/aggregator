@@ -2,6 +2,7 @@ version: "3.9"
 services:
   aggregator-pc:
     image: ps2alerts/aggregator:dev
+    container_name: ps2alerts-aggregator-pc
     restart: "no"
     volumes:
       - "../../:/app:rw"
@@ -25,6 +26,7 @@ services:
       traefik.http.routers.ps2alerts_aggregator_pc.tls.domains[0].main: "dev.aggregator.ps2alerts.com"
   aggregator-ps4eu:
     image: ps2alerts/aggregator:dev
+    container_name: ps2alerts-aggregator-ps4eu
     restart: "no"
     volumes:
       - "../../:/app:rw"
@@ -48,6 +50,7 @@ services:
 
   aggregator-ps4us:
     image: ps2alerts/aggregator:dev
+    container_name: ps2alerts-aggregator-ps4us
     restart: "no"
     volumes:
       - "../../:/app:rw"
