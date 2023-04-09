@@ -5,7 +5,7 @@ import {pcWorldArray, World} from '../ps2alerts-constants/world';
 import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
 import {MetagameEventQueue} from '../modules/rabbitmq/queues/MetagameEventQueue';
 import MetagameEventEventHandler from '../handlers/ps2census/MetagameEventEventHandler';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class MetagameSubscriber implements OnModuleInit {
@@ -29,7 +29,7 @@ export default class MetagameSubscriber implements OnModuleInit {
         MetagameSubscriber.logger.log('Creating world MetagameEvent queues...');
 
         // Subscribe only to worlds that make sense for the environment
-        const censusEnv = this.config.get('census.environment');
+        const censusEnv: string = this.config.get('census.environment');
         let worlds: World[] = censusEnv === 'ps2' ? pcWorldArray : censusEnv === 'ps2ps4us' ? [1000] : [2000];
 
         // Filter out Jaeger

@@ -10,7 +10,7 @@ import {ApiQueue} from '../queues/ApiQueue';
 import {AdminQueue} from '../queues/AdminQueue';
 import InstanceAbstract from '../../../instances/InstanceAbstract';
 import {MetagameEventQueue} from '../queues/MetagameEventQueue';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class RabbitMQQueueFactory {

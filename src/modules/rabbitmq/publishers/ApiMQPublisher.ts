@@ -5,7 +5,7 @@ import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessa
 import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import ApplicationException from '../../../exceptions/ApplicationException';
 import {ApiQueue} from '../queues/ApiQueue';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class ApiMQPublisher implements RabbitMQQueueWrapperInterface {

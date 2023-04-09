@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import ApiConnectionCheckService from './ApiConnectionCheckService';
 import axios from 'axios';
 import {TYPES} from '../../constants/types';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Module({
     providers: [
@@ -20,7 +20,7 @@ import {ConfigService} from "@nestjs/config";
                     password: config.get('internalApi.password'),
                 },
             }),
-            inject: [ConfigService]
+            inject: [ConfigService],
         },
     ],
     exports: [TYPES.ps2AlertsApiClient],

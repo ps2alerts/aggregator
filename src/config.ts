@@ -1,5 +1,5 @@
-import {env, envInt, envSplit} from "./utils/env";
-import {random} from "lodash";
+import {env, envInt, envSplit} from './utils/env';
+import {random} from 'lodash';
 
 export const config = () => ({
     /** Basis */
@@ -38,5 +38,5 @@ export const config = () => ({
         host: env('REDIS_HOST', 'ps2alerts-redis'),
         port: envInt('REDIS_PORT', 10, 6379),
         password: env('REDIS_PASS', ''),
-    }
-})
+    },
+});

@@ -5,7 +5,7 @@ import axios from 'axios';
 import Redis from 'ioredis';
 import CensusCacheDriver from './CensusCacheDriver';
 import RedisModule from '../redis/RedisModule';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Module({
     imports: [RedisModule],

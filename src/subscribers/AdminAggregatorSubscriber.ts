@@ -2,7 +2,7 @@ import {Injectable, OnModuleInit} from '@nestjs/common';
 import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
 import AdminAggregatorMessageHandler from '../handlers/AdminAggregatorMessageHandler';
 import {AdminQueue} from '../modules/rabbitmq/queues/AdminQueue';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class AdminAggregatorSubscriber implements OnModuleInit {

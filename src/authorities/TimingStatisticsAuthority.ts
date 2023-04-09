@@ -1,7 +1,7 @@
 import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
 import {MetricTypes} from '../handlers/StatisticsHandler';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 interface TableDisplayInterface {
     metricType: string;

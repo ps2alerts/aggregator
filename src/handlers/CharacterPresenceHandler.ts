@@ -7,8 +7,8 @@ import FactionUtils from '../utils/FactionUtils';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import Redis from 'ioredis';
 import ApplicationException from '../exceptions/ApplicationException';
-import {PS2Environment} from "ps2census";
-import {ConfigService} from "@nestjs/config";
+import {PS2Environment} from 'ps2census';
+import {ConfigService} from '@nestjs/config';
 
 interface PresenceData {
     world: World;
@@ -30,7 +30,7 @@ export default class CharacterPresenceHandler {
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
-        ) {
+    ) {
         this.censusEnvironment = config.getOrThrow('census.environment');
     }
 

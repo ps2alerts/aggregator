@@ -7,7 +7,7 @@ import {
     MicroserviceHealthIndicator,
 } from '@nestjs/terminus';
 import {MicroserviceOptions, RedisOptions, RmqOptions, Transport} from '@nestjs/microservices';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Controller('health')
 export class HealthController {
@@ -33,7 +33,7 @@ export class HealthController {
                 options: {
                     host: this.config.get('redis.host'),
                     port: this.config.get('redis.port'),
-                    password: this.config.get('redis.password')
+                    password: this.config.get('redis.password'),
                 },
             }),
             () => this.microservice.pingCheck<MicroserviceOptions>('rabbitmq', {

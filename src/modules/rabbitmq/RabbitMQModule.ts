@@ -8,7 +8,7 @@ import CensusModule from '../census/CensusModule';
 import RedisModule from '../redis/RedisModule';
 import EventTimingMiddlewareHandler from '../../middlewares/EventTimingMiddlewareHandler';
 import StatisticsHandler from '../../handlers/StatisticsHandler';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Module({
     imports: [RedisModule, CensusModule],

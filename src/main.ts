@@ -2,7 +2,7 @@ import {NestFactory} from '@nestjs/core';
 import AppModule from './AppModule';
 import {FastifyAdapter} from '@nestjs/platform-fastify';
 import {Logger} from '@nestjs/common';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 async function bootstrap(): Promise<void> {
     process.on('uncaughtException', (err) => {

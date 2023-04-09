@@ -22,8 +22,8 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 import Redis from 'ioredis';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
-import {ConfigService} from "@nestjs/config";
-import {PS2Environment} from "ps2census";
+import {ConfigService} from '@nestjs/config';
+import {PS2Environment} from 'ps2census';
 
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
@@ -65,7 +65,7 @@ export default class InstanceAuthority {
         private readonly queueAuthority: QueueAuthority,
         private readonly cacheClient: Redis, // Required for Population aggregation
         private readonly statisticsHandler: StatisticsHandler,
-        config: ConfigService
+        config: ConfigService,
     ) {
         this.censusEnvironment = config.getOrThrow('census.environment');
     }

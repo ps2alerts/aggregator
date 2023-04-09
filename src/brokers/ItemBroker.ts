@@ -14,7 +14,7 @@ import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints'
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import Redis from 'ioredis';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class ItemBroker implements ItemBrokerInterface {

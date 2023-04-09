@@ -14,7 +14,7 @@ import {getZoneVersion} from '../utils/zoneVersion';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {getRealZoneId} from '../utils/zoneIdHandler';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class FacilityDataBroker {
@@ -27,7 +27,7 @@ export default class FacilityDataBroker {
         private readonly restClient: Rest.Client,
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly timingStatisticsHandler: StatisticsHandler,
-        config: ConfigService
+        config: ConfigService,
     ) {
         this.censusEnvironment = config.getOrThrow('census.environment');
     }

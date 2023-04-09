@@ -5,7 +5,7 @@ import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessa
 import {shortAlert} from '../../../ps2alerts-constants/metagameEventType';
 import RabbitMQQueueFactory from '../factories/RabbitMQQueueFactory';
 import {ApiQueue} from '../queues/ApiQueue';
-import {ConfigService} from "@nestjs/config";
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterface {
