@@ -18,7 +18,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
-        private readonly exchange: string,
+        private readonly topicExchange: string,
         private readonly pattern: string,
         private readonly prefetch: number,
         private readonly instance: InstanceAbstract,
@@ -44,10 +44,10 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             setup: async (channel: ConfirmChannel) => {
                 await Promise.all([
-                    channel.checkExchange(this.exchange),
+                    channel.checkExchange(this.topicExchange),
                     channel.assertQueue(this.queueName, queueOptions),
                 ]);
-                await channel.bindQueue(this.queueName, this.exchange, this.pattern);
+                await channel.bindQueue(this.queueName, this.topicExchange, this.pattern);
 
                 // If the queue requires a consumer
                 const consumerOptions: Options.Consume = {
