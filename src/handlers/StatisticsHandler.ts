@@ -43,7 +43,6 @@ export default class StatisticsHandler {
             const hit = duration <= 50;
             const censusCacheKey = `${this.metricsPrefix}:${hit ? MetricTypes.CENSUS_CACHE_HITS : MetricTypes.CENSUS_CACHE_MISSES}`;
             await this.cacheClient.lpush(censusCacheKey, duration);
-            return;
         }
 
         await this.cacheClient.lpush(listKey, duration);
