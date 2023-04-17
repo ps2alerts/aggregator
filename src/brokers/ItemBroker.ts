@@ -44,10 +44,10 @@ export default class ItemBroker implements ItemBrokerInterface {
             if (!vehicleId) {
                 ItemBroker.logger.verbose(`[${environment}] Missing item and vehicle ID, serving unknown item weapon`);
                 return new FakeItemFactory().build();
-            } else {
-                ItemBroker.logger.verbose('Missing item ID, serving unknown item vehicle');
-                return new FakeItemFactory().build(true);
             }
+
+            ItemBroker.logger.verbose(`[${environment}] Missing item ID but has vehicle ID, assuming vehicle roadkill`);
+            return new FakeItemFactory().build(true);
         }
 
         const cacheKey = `itemCache:${environment}:${itemId}`;
@@ -78,7 +78,8 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         const censusItem = await this.getItemFromCensus(itemId, environment);
 
-        if (censusItem) {
+        // If we didn't just return a fake item, use it
+        if (censusItem.id !== -1) {
             ItemBroker.logger.verbose(`[${environment}] Census API found item ${itemId}!`);
             item = censusItem;
         }
@@ -120,6 +121,8 @@ export default class ItemBroker implements ItemBrokerInterface {
     }
 
     private async getItemFromCensus(itemId: number, environment: CensusEnvironment): Promise<ItemInterface | null> {
+        let returnItem = new FakeItemFactory().build();
+
         const query = this.restClient.getQueryBuilder('item')
             .limit(1);
         const filter = {
@@ -132,23 +135,22 @@ export default class ItemBroker implements ItemBrokerInterface {
             const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker');
             const started = new Date();
             await apiRequest.try().then(async (items) => {
-                if (!items?.length) {
+                if (!items[0]) {
                     ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
                     return null;
                 }
 
                 await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_ITEM);
 
-                return new Item(items[0]);
+                returnItem = new Item(items[0]);
             });
         } catch (err) {
             if (err instanceof Error) {
                 ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Census. Error: ${err.message}`);
-                return null;
             }
         }
 
-        return null;
+        return returnItem;
     }
 
     private async getItemFromFalcon(itemId: number, environment: CensusEnvironment): Promise<ItemInterface> {
@@ -158,7 +160,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             return returnItem;
         }
 
-        // Grab the item data from Census
+        // Grab the item data from Falcon
         try {
             const request = await this.falconApiClient.get(lithafalconEndpoints.itemId, {
                 params: {
