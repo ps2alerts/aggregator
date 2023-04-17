@@ -15,7 +15,9 @@ export enum MetricTypes {
     EVENT_VEHICLE_DESTROY = 'Event:VehicleDestroy',
     ITEM_CACHE_HITS = 'Item:CacheHits',
     ITEM_CACHE_MISSES = 'Item:CacheMisses',
+    FALCON_ITEM = 'Falcon:Item',
     PS2ALERTS_API = 'PS2Alerts:API',
+    PS2ALERTS_API_MAP = 'PS2Alerts:MapRegion',
 }
 
 const censusEndpoints = [
@@ -50,7 +52,6 @@ export default class StatisticsHandler {
             const hit = duration <= 50;
             const censusCacheKey = `${this.metricsPrefix}:${hit ? MetricTypes.CENSUS_CACHE_HITS : MetricTypes.CENSUS_CACHE_MISSES}`;
             await this.cacheClient.lpush(censusCacheKey, duration);
-            return;
         }
 
         await this.cacheClient.lpush(listKey, duration);

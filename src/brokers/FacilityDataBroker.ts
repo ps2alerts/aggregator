@@ -83,7 +83,7 @@ export default class FacilityDataBroker {
                 .replace('{zone}', String(zone))
                 .replace('{version}', getZoneVersion(zone)),
         );
-        await this.timingStatisticsHandler.logTime(started, MetricTypes.CENSUS_FACILITY_DATA);
+        await this.timingStatisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API_MAP);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data: CensusRegionResponseInterface = result.data;

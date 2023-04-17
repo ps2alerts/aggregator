@@ -162,6 +162,7 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         // Grab the item data from Falcon
         try {
+            const started = new Date();
             const request = await this.falconApiClient.get(lithafalconEndpoints.itemId, {
                 params: {
                     item_id: itemId,
@@ -170,6 +171,8 @@ export default class ItemBroker implements ItemBrokerInterface {
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
             const data: Rest.Format<'item'> = request.data.item_list[0];
+            await this.statisticsHandler.logTime(started, MetricTypes.FALCON_ITEM);
+
             return new Item(data);
         } catch (err) {
             if (err instanceof Error) {
