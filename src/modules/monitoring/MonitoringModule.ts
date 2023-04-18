@@ -9,22 +9,13 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
     })],
     providers: [
         makeCounterProvider({
-            name: METRICS_NAMES.AGGREGATOR_MESSAGES_SUCCESS,
-            help: 'Number of messages successfully processed',
-        }),
-        makeCounterProvider({
-            name: METRICS_NAMES.AGGREGATOR_MESSAGES_RETRY,
-            help: 'Number of messages which were retried',
-        }),
-        makeCounterProvider({
-            name: METRICS_NAMES.AGGREGATOR_MESSAGES_FAIL,
-            help: 'Number of messages which failed processing',
+            name: METRICS_NAMES.AGGREGATOR_MESSAGES,
+            help: 'Aggregator messages received, split by success/fail/retry',
+            labelNames: ['status'],
         }),
     ],
     exports: [
-        PROM_METRICS.AGGREGATOR_MESSAGES_SUCCESS,
-        PROM_METRICS.AGGREGATOR_MESSAGES_RETRY,
-        PROM_METRICS.AGGREGATOR_MESSAGES_FAIL,
+        PROM_METRICS.AGGREGATOR_MESSAGES,
     ],
 })
 export default class MonitoringModule{}

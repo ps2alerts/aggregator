@@ -3,7 +3,7 @@ import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import {Counter} from 'prom-client';
 import {InjectMetric} from '@willsoto/nestjs-prometheus';
-import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {METRICS_COUNTERS, METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
 export enum MetricTypes {
     CACHE_CHARACTER_HITS = 'Cache:Character:Hits',
@@ -35,9 +35,7 @@ export default class StatisticsHandler {
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
-        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_SUCCESS) private readonly metricMessagesSuccess: Counter<string>,
-        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_RETRY) private readonly metricMessagesRetry: Counter<string>,
-        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_FAIL) private readonly metricMessagesFail: Counter<string>,
+        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES) private readonly metricMessages: Counter<string>,
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
@@ -60,14 +58,14 @@ export default class StatisticsHandler {
     // Provides a singular entrypoint for easier refactoring, saves having to inject counters everywhere
     public increaseCounter(metric: string, count?: number): void {
         switch (metric) {
-            case METRICS_NAMES.AGGREGATOR_MESSAGES_SUCCESS:
-                this.metricMessagesSuccess.inc(count);
+            case METRICS_COUNTERS.AGGREGATOR_MESSAGES_SUCCESS:
+                this.metricMessages.inc({status: 'success'}, count);
                 break;
-            case METRICS_NAMES.AGGREGATOR_MESSAGES_RETRY:
-                this.metricMessagesRetry.inc(count);
+            case METRICS_COUNTERS.AGGREGATOR_MESSAGES_RETRY:
+                this.metricMessages.inc({status: 'retry'}, count);
                 break;
-            case METRICS_NAMES.AGGREGATOR_MESSAGES_FAIL:
-                this.metricMessagesFail.inc(count);
+            case METRICS_COUNTERS.AGGREGATOR_MESSAGES_FAIL:
+                this.metricMessages.inc({status: 'fail'}, count);
                 break;
         }
     }
