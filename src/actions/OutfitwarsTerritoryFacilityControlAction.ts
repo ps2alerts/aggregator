@@ -49,7 +49,7 @@ export default class OutfitwarsTerritoryFacilityControlAction implements ActionI
             OutfitwarsTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

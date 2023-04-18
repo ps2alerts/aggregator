@@ -55,7 +55,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.verbose(`${cacheKey} cache HIT`);
-            await this.statisticsHandler.logTime(started, MetricTypes.ITEM_CACHE_HITS);
+            await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_ITEM_HITS, null, null);
             const data = await this.cacheClient.get(cacheKey);
 
             // Check if we've actually got valid JSON in the key
@@ -115,7 +115,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         };
 
         await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(rawCensusItem));
-        await this.statisticsHandler.logTime(started, MetricTypes.ITEM_CACHE_MISSES);
+        await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_ITEM_MISSES, null, null);
 
         return item;
     }
@@ -132,15 +132,12 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         // Grab the item data from Census
         try {
-            const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker');
-            const started = new Date();
-            await apiRequest.try().then(async (items) => {
+            const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker', this.statisticsHandler);
+            await apiRequest.try().then((items) => {
                 if (!items[0]) {
                     ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
                     return null;
                 }
-
-                await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_ITEM);
 
                 returnItem = new Item(items[0]);
             });
@@ -160,9 +157,10 @@ export default class ItemBroker implements ItemBrokerInterface {
             return returnItem;
         }
 
+        const started = new Date();
+
         // Grab the item data from Falcon
         try {
-            const started = new Date();
             const request = await this.falconApiClient.get(lithafalconEndpoints.itemId, {
                 params: {
                     item_id: itemId,
@@ -171,12 +169,13 @@ export default class ItemBroker implements ItemBrokerInterface {
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
             const data: Rest.Format<'item'> = request.data.item_list[0];
-            await this.statisticsHandler.logTime(started, MetricTypes.FALCON_ITEM);
+            await this.statisticsHandler.logMetric(started, MetricTypes.FALCON_ITEM, true);
 
             return new Item(data);
         } catch (err) {
             if (err instanceof Error) {
                 ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Falcon API. Error: ${err.message}`);
+                await this.statisticsHandler.logMetric(started, MetricTypes.FALCON_ITEM, false);
                 throw new ApplicationException('Falcon API could not find item');
             }
         }

@@ -5,6 +5,7 @@ import ExceptionHandler from '../../../handlers/system/ExceptionHandler';
 import {CreateChannelOpts} from 'amqp-connection-manager/dist/esm/ChannelWrapper';
 import {ConsumeMessage} from 'amqplib';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler, {MetricTypes} from '../../../handlers/StatisticsHandler';
 
 export abstract class RabbitMQQueue {
     private static readonly logger = new Logger('RabbitMQQueue');
@@ -14,6 +15,7 @@ export abstract class RabbitMQQueue {
     protected constructor(
         private readonly connectionManager: AmqpConnectionManager,
         protected readonly queueName: string,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public getChannel(): ChannelWrapper {
@@ -104,9 +106,10 @@ export abstract class RabbitMQQueue {
         }
     }
 
-    protected handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry'): void {
+    protected async handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry', started: Date): Promise<void> {
         try {
             if (action === 'ack') {
+                await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, true);
                 return this.channel.ack(message);
             }
 
@@ -116,11 +119,15 @@ export abstract class RabbitMQQueue {
             tries++;
 
             if (tries >= 3) {
+                await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, false, true);
                 RabbitMQQueue.logger.error(`${this.queueName} Message exceeded too many tries! Dropping!`);
                 return this.channel.nack(message, false, false); // Chuck the message
             }
 
             // Retry
+            await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_RETRY, null, true);
+
+            RabbitMQQueue.logger.debug(`${this.queueName} Retrying message! Tries: ${tries}`);
             message.properties.headers.tries = tries;
             return this.channel.nack(message, false, true);
         } catch (err) {
@@ -128,18 +135,22 @@ export abstract class RabbitMQQueue {
         }
     }
 
-    // protected handleMessageDelay(
+    // protected async handleMessageDelay(
     //     message: ConsumeMessage,
     //     delay: number,
     //     pattern: string,
-    // ): void {
+    //     started: Date,
+    // ): Promise<void> {
     //     // Grab the delay publisher and re-publish to delay queue, then nack? the message.
     //
     //     try {
-    //         // TODO: IMPLEMENT
+    //         await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_DELAY, null, true);
+    //         RabbitMQQueue.logger.warn(`${this.queueName} Message requeued for ${delay}ms!`);
+    //
+    //         // TODO: Implement!
+    //         return this.channel.nack(message, false, true);
     //     } catch (err) {
     //         return this.handleRabbitMqException(err);
     //     }
-    //
     // }
 }

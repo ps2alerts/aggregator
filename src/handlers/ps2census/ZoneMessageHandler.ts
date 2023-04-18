@@ -57,14 +57,14 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
                 this.handlers.map((handler) => handler.handle(
                     new PS2EventQueueMessage(event, this.instance),
                 )),
-            ), 45000);
+            ), 30000);
             await Promise.race(promise);
 
             return actions.ack();
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Delaying message due to possible Census issues. Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.delay(5000);
+                return actions.delay(15000);
             }
 
             if (err instanceof ApplicationException) {
@@ -73,8 +73,8 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
             }
 
             if (err instanceof TimeoutException) {
-                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.delay(60000);
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load. Type: ${event.event_name} - Err: ${err.message}`);
+                return actions.delay(30000);
             }
 
             if (err instanceof Error) {

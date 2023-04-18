@@ -3,29 +3,26 @@ import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 
 export enum MetricTypes {
-    CENSUS_CACHE_HITS = 'Census:CacheHits',
-    CENSUS_CACHE_MISSES = 'Census:CacheMisses',
+    CACHE_CHARACTER_HITS = 'Cache:Character:Hits',
+    CACHE_CHARACTER_MISSES = 'Cache:Character:Misses',
+    CACHE_ITEM_HITS = 'Cache:Item:Hits',
+    CACHE_ITEM_MISSES = 'Cache:Item:Misses',
+    CACHE_MAP_REGION_HITS = 'Cache:MapRegion:Hits',
     CENSUS_CHARACTER = 'Census:Character',
-    CENSUS_FACILITY_DATA = 'Census:FacilityData',
     CENSUS_ITEM = 'Census:Item',
     CENSUS_MAP_REGION = 'Census:MapRegion',
-    EVENT_DEATH = 'Event:Death',
-    EVENT_FACILITY_CONTROL = 'Event:FacilityControl',
-    EVENT_GAIN_EXPERIENCE = 'Event:GainExperience',
-    EVENT_VEHICLE_DESTROY = 'Event:VehicleDestroy',
-    ITEM_CACHE_HITS = 'Item:CacheHits',
-    ITEM_CACHE_MISSES = 'Item:CacheMisses',
+    EVENT_DEATH = 'Event:Death', // See: EventTimingMiddlewareHandler
+    EVENT_FACILITY_CONTROL = 'Event:FacilityControl', // See: EventTimingMiddlewareHandler
+    EVENT_GAIN_EXPERIENCE = 'Event:GainExperience', // See: EventTimingMiddlewareHandler
+    EVENT_VEHICLE_DESTROY = 'Event:VehicleDestroy', // See: EventTimingMiddlewareHandler
     FALCON_ITEM = 'Falcon:Item',
     PS2ALERTS_API = 'PS2Alerts:API',
-    PS2ALERTS_API_MAP = 'PS2Alerts:MapRegion',
+    PS2ALERTS_API_INSTANCE = 'PS2Alerts:API:Instance',
+    PS2ALERTS_API_INSTANCE_FACILITY = 'PS2Alerts:API:InstanceFacility',
+    PS2ALERTS_API_CENSUS_REGIONS = 'PS2Alerts:API:CensusRegions',
+    RABBITMQ_SUCCESS= 'RabbitMQ:Success',
+    RABBITMQ_RETRY = 'RabbitMQ:Retry',
 }
-
-const censusEndpoints = [
-    MetricTypes.CENSUS_CHARACTER,
-    MetricTypes.CENSUS_FACILITY_DATA,
-    MetricTypes.CENSUS_ITEM,
-    MetricTypes.CENSUS_MAP_REGION,
-];
 
 @Injectable()
 export default class StatisticsHandler {
@@ -40,20 +37,17 @@ export default class StatisticsHandler {
         this.metricsPrefix = `metrics:${this.runId}`;
     }
 
-    public async logTime(started: Date, type: MetricTypes | string): Promise<void> {
+    public async logMetric(started: Date, type: MetricTypes | string, success?: boolean | null, retry?: boolean): Promise<void> {
         // TODO: Replace with prometheus histogram
-        const finishedTime = new Date().getTime();
         const listKey = `${this.metricsPrefix}:${type}`;
 
+        const finishedTime = new Date().getTime();
         const duration = finishedTime - started.getTime();
 
-        // If finished time is less than <50ms, we're assuming this got pulled from Redis, and we won't count this. Census is not this quick!
-        if (censusEndpoints.includes(<MetricTypes>type)) {
-            const hit = duration <= 50;
-            const censusCacheKey = `${this.metricsPrefix}:${hit ? MetricTypes.CENSUS_CACHE_HITS : MetricTypes.CENSUS_CACHE_MISSES}`;
-            await this.cacheClient.lpush(censusCacheKey, duration);
-        }
+        const successString = success === null ? 'N/A' : success ? '1' : '0';
+        const retryString = retry === null ? 'N/A' : retry ? '1' : '0';
+        const statsString = `${duration},${successString},${retryString}`;
 
-        await this.cacheClient.lpush(listKey, duration);
+        await this.cacheClient.lpush(listKey, statsString);
     }
 }

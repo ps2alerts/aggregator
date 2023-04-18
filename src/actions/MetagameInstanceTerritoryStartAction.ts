@@ -40,11 +40,13 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         await this.ps2alertsApiClient.post(
             ps2AlertsApiEndpoints.instanceEntriesFacilityBatch,
             docs,
-        ).catch((err: Error) => {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
-        });
+        ).then(async () => {
+            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
+        }).catch(async (err: Error) => {
+            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to insert initial map state! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
+        });
 
         MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Inserted initial map state`);
 
@@ -63,7 +65,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.zoneDataParser,
             this.statisticsHandler,
         ).getMapData();
-        await this.statisticsHandler.logTime(date, MetricTypes.CENSUS_MAP_REGION);
+        await this.statisticsHandler.logMetric(date, MetricTypes.CENSUS_MAP_REGION);
 
         if (mapData.length === 0) {
             throw new ApplicationException('Unable to properly get map data from census!');

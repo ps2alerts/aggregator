@@ -312,7 +312,7 @@ export default abstract class TerritoryCalculatorAbstract {
                 .replace('{facilityId}', facilityId.toString()),
         );
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, null);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface = apiResponse.data;

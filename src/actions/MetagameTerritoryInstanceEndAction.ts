@@ -46,11 +46,13 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         await this.ps2alertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', this.instance.instanceId),
             data,
-        ).catch((err: Error) => {
+        ).then(async () => {
+            await this.statisticsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, true);
+        }).catch(async (err: Error) => {
+            await this.statisticsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, false);
+
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`);
         });
-
-        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2ALERTS_API);
 
         // Update the final result of the instance
         const result: MetagameTerritoryControlResultInterface = await this.territoryResultAction.execute();

@@ -1,6 +1,7 @@
 import {Rest} from 'ps2census';
 import {promiseTimeout} from '../utils/PromiseTimeout';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 // This class exists as Census occasionally sends us invalid responses, and we must retry them.
 export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
@@ -14,12 +15,15 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
         private readonly query: Rest.GetQuery<T>,
         private readonly filter: Rest.Conditions<T>,
         private readonly caller: string,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async try(attempts = 0): Promise<Rest.CensusResponse<Rest.Format<T>> | undefined> {
         attempts++;
 
         CensusApiRetryDriver.logger.verbose(`[${this.caller}] Attempt #${attempts}...`);
+
+        const started = new Date();
 
         try {
             if (attempts > 2) {
@@ -33,11 +37,14 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
                 CensusApiRetryDriver.logger.log(`[${this.caller}] Retry for Census ${this.query.collection} successful at attempt #${attempts}`);
             }
 
+            await this.statisticsHandler.logMetric(started, this.metricKey(this.caller), true, attempts > 1);
+
             return res;
         } catch (err) {
             if (attempts < this.retryLimit) {
                 if (err instanceof Error) {
                     CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request "${this.query.collection}" failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
+                    await this.statisticsHandler.logMetric(started, this.metricKey(this.caller), false, true);
                 }
 
                 await this.delay(this.delayTime);
@@ -46,6 +53,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
             } else {
                 if (err instanceof Error) {
                     CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request "${this.query.collection}" failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
+                    await this.statisticsHandler.logMetric(started, this.metricKey(this.caller), false, true);
                 }
             }
         }
@@ -53,5 +61,17 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
 
     private delay(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private metricKey(caller: string) {
+        switch (caller) {
+            case 'CensusMapRegionQueryParser':
+                return MetricTypes.CENSUS_MAP_REGION;
+
+            case 'ItemBroker':
+                return MetricTypes.CENSUS_ITEM;
+        }
+
+        return null;
     }
 }

@@ -6,6 +6,8 @@ import {ConfigService} from '@nestjs/config';
 interface TableDisplayInterface {
     metricType: string;
     count: number;
+    failures: number | 'N/A' | '-';
+    retries: number | 'N/A' | '-';
     avgCountSec: string;
     avgMs: string;
     minMs: number;
@@ -62,33 +64,52 @@ export default class TimingStatisticsAuthority {
             for (const [key, metricType] of Object.entries(MetricTypes)) {
                 const key = `metrics:${this.runId}:${metricType}`;
                 const length = await this.cacheClient.llen(key);
-                const timings = await this.cacheClient.lrange(key, 0, length);
+                const entries = await this.cacheClient.lrange(key, 0, length);
 
                 let count = 0;
+                let successCount = 0;
+                let retryCount = 0;
+                let isFailNotApplicable = true;
+                let isRetryNotApplicable = true;
                 let timeSum = 0;
                 let avgCountSec = 0;
                 let avgTime = 0;
                 let min = 0;
                 let max = 0;
 
-                for (const timeString of timings) {
-                    const time = parseInt(timeString, 10);
+                for (const entry of entries) {
+                    // Explode the string as it's comma separated
+                    const stats = entry.split(','); // e.g. 1244,1 or 155,N/A
+                    const duration = parseInt(stats[0], 10);
+                    const isSuccess = stats[1] === 'N/A' ? 'N/A' : parseInt(stats[1], 10) === 1;
+                    const isRetry = stats[2] === 'N/A' ? 'N/A' : parseInt(stats[2], 10) === 1;
+
+                    if (isSuccess !== 'N/A') {
+                        isFailNotApplicable = false;
+                    }
+
+                    if (isRetry !== 'N/A') {
+                        isRetryNotApplicable = false;
+                    }
+
                     // Calculate things
                     count++;
-                    timeSum += time;
+                    successCount = isFailNotApplicable ? 0 : successCount + 1;
+                    retryCount = isRetryNotApplicable ? 0 : retryCount + 1;
+                    timeSum += duration;
                     avgCountSec = count / 60;
                     avgTime = timeSum / count;
 
                     if (min === 0) {
-                        min = time;
+                        min = duration;
                     }
 
-                    if (time < min) {
-                        min = time;
+                    if (duration < min) {
+                        min = duration;
                     }
 
-                    if (time > max) {
-                        max = time;
+                    if (duration > max) {
+                        max = duration;
                     }
                 }
 
@@ -100,6 +121,8 @@ export default class TimingStatisticsAuthority {
                 tableData.push({
                     metricType,
                     count,
+                    failures: count === 0 ? '-' : isFailNotApplicable ? 'N/A' : count - successCount,
+                    retries: count === 0 ? '-' : isRetryNotApplicable ? 'N/A' : count - retryCount,
                     avgCountSec: avgCountSec.toFixed(2),
                     avgMs: avgTime.toFixed(2),
                     minMs: min,

@@ -37,11 +37,12 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
                 .replace('{instanceId}', this.event.instance.instanceId)
                 .replace('{facilityId}', String(this.event.facility.id)),
             {mapControl: this.event.instance.result},
-        ).catch((err: Error) => {
+        ).then(async () => {
+            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
+        }).catch(async (err: Error) => {
+            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
             MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

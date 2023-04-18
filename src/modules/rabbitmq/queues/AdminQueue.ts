@@ -7,6 +7,7 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import {Options} from 'amqplib/properties';
 import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler from '../../../handlers/StatisticsHandler';
 
 export interface AdminQueueMessageContentInterface {
     action: string;
@@ -19,10 +20,11 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        statisticsHandler: StatisticsHandler,
         private readonly exchange: string,
         private readonly handler: QueueMessageHandlerInterface<AdminQueueMessage>,
     ) {
-        super(connectionManager, queueName);
+        super(connectionManager, queueName, statisticsHandler);
     }
 
     public async connect(): Promise<void> {
@@ -41,6 +43,8 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
                     priority: 0,
                 };
 
+                const started = new Date();
+
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 await channel.consume(this.queueName, async (message) => {
                     if (!message) {
@@ -53,7 +57,8 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
                         await this.handler.handle(
                             this.createMessage(message),
                             {
-                                ack: () => this.handleMessageConfirm(message, 'ack'),
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                ack: async () => await this.handleMessageConfirm(message, 'ack', started),
                                 retry: () => {
                                     return true; // Not supported
                                 },

@@ -8,7 +8,7 @@ import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 
 // TODO: Abstract this class!
 export default class OutfitwarsTerritoryInstanceStartAction implements ActionInterface<boolean> {
@@ -39,7 +39,7 @@ export default class OutfitwarsTerritoryInstanceStartAction implements ActionInt
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'OutfitwarsTerritoryInstanceStartAction');
         });
 
-        await this.statisticsHandler.logTime(started, 'PS2ALERTS_API');
+        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         OutfitwarsTerritoryInstanceStartAction.logger.log(`[${this.instance.instanceId}] Inserted initial map state`);
 

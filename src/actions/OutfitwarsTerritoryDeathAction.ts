@@ -108,7 +108,7 @@ export default class OutfitwarsTerritoryDeathAction implements ActionInterface<b
 
         return await Promise.all(toUpdate).then(async () => {
             (this.event.instance as OutfitWarsTerritoryInstance).outfitwars = instance.outfitwars;
-            await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
             return true;
         }).catch(() => {
             return false;

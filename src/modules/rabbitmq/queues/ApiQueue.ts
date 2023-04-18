@@ -11,6 +11,7 @@ import ApiMQMessage from '../../../data/ApiMQMessage';
 import {jsonLogOutput} from '../../../utils/json';
 import ExceptionHandler from '../../../handlers/system/ExceptionHandler';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler from '../../../handlers/StatisticsHandler';
 
 export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     private static readonly classLogger = new Logger('ApiQueue');
@@ -18,12 +19,13 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        statisticsHandler: StatisticsHandler,
         private readonly exchange: string,
         private readonly ttl: number,
         private readonly deadLetterExchange: string | undefined,
         private readonly deadLetterRoutingKey: string | undefined,
     ) {
-        super(connectionManager, queueName);
+        super(connectionManager, queueName, statisticsHandler);
     }
 
     public async connect(): Promise<void> {

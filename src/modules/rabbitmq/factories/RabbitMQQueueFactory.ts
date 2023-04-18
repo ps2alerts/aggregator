@@ -11,6 +11,7 @@ import {AdminQueue} from '../queues/AdminQueue';
 import InstanceAbstract from '../../../instances/InstanceAbstract';
 import {MetagameEventQueue} from '../queues/MetagameEventQueue';
 import {ConfigService} from '@nestjs/config';
+import StatisticsHandler from '../../../handlers/StatisticsHandler';
 
 @Injectable()
 export default class RabbitMQQueueFactory {
@@ -19,6 +20,7 @@ export default class RabbitMQQueueFactory {
         private readonly censusClient: CensusClient,
         private readonly timingMiddlewareHandler: EventTimingMiddlewareHandler,
         private readonly config: ConfigService,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     // Creates the queues that are used to process Death, VehicleDestroy etc.
@@ -33,6 +35,7 @@ export default class RabbitMQQueueFactory {
         return new InstanceEventQueue(
             this.connectionManager,
             queueName,
+            this.statisticsHandler,
             this.config.get('rabbitmq.topicExchange'),
             pattern,
             prefetch,
@@ -53,6 +56,7 @@ export default class RabbitMQQueueFactory {
         return new ApiQueue(
             this.connectionManager,
             queueName,
+            this.statisticsHandler,
             this.config.get('rabbitmq.exchange'),
             ttl,
             deadLetterExchange,
@@ -68,6 +72,7 @@ export default class RabbitMQQueueFactory {
         return new AdminQueue(
             this.connectionManager,
             queueName,
+            this.statisticsHandler,
             this.config.get('rabbitmq.exchange'),
             handler,
         );
@@ -82,6 +87,7 @@ export default class RabbitMQQueueFactory {
         return new MetagameEventQueue(
             this.connectionManager,
             queueName,
+            this.statisticsHandler,
             this.config.get('rabbitmq.topicExchange'),
             pattern,
             handler,

@@ -51,7 +51,7 @@ export default class OutfitwarsTerritoryInstanceEndAction implements ActionInter
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Outfit Wars Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`, 'OutfitwarsTerritoryInstanceEndAction');
         });
 
-        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2ALERTS_API);
+        await this.statisticsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API);
 
         // Update the final result of the instance
         const result: OutfitwarsTerritoryResultInterface = await this.territoryResultAction.execute();

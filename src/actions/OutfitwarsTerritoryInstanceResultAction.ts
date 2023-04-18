@@ -41,7 +41,7 @@ export default class OutfitwarsTerritoryInstanceResultAction implements ActionIn
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update outfit wars instance result data! Err: ${err.message} - Data: ${JSON.stringify({result})}`, 'OutfitwarsTerritoryInstanceResultAction');
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         return result;
     }

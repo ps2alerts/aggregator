@@ -37,11 +37,13 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
             ps2AlertsApiEndpoints.instancesInstance
                 .replace('{instanceId}', this.instance.instanceId),
             {result},
-        ).catch((err: Error) => {
+        ).then(async () => {
+            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, true);
+        }).catch(async (err: Error) => {
+            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
+
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update instance result data! Err: ${err.message} - Data: ${JSON.stringify({result})}`, 'MetagameInstanceTerritoryResultAction');
         });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return result;
     }

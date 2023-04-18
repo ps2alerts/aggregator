@@ -23,21 +23,22 @@ export default class CensusMapRegionQueryParser {
     public async getMapData(): Promise<CensusRegionMapJoinQueryInterface[]> {
         const cacheKey = `censusMap:W${this.instance.world}:Z${this.instance.zone}`;
 
+        const started = new Date();
+
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
-            CensusMapRegionQueryParser.logger.debug(`${cacheKey} HIT`);
+            CensusMapRegionQueryParser.logger.verbose(`${cacheKey} HIT`);
             const data = await this.cacheClient.get(cacheKey);
 
             if (data) {
+                await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_MAP_REGION_HITS, null, null);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return JSON.parse(data);
             }
         }
 
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
-
-        const started = new Date();
+        CensusMapRegionQueryParser.logger.verbose(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
         const query = this.restClient.getQueryBuilder('map')
             .join({
@@ -55,13 +56,12 @@ export default class CensusMapRegionQueryParser {
         /* eslint-enable */
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        const apiRequest = new CensusApiRetryDriver(query, filter, 'MetagameInstanceTerritoryStartAction');
+        const apiRequest = new CensusApiRetryDriver(query, filter, 'CensusMapRegionQueryParser', this.statisticsHandler);
         let mapDataFinal: CensusRegionMapJoinQueryInterface[] = [];
 
-        await apiRequest.try().then(async (mapData: CensusRegionMapJoinQueryInterface[]) => {
-            await this.statisticsHandler.logTime(started, MetricTypes.CENSUS_MAP_REGION);
+        await apiRequest.try().then((mapData: CensusRegionMapJoinQueryInterface[]) => {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            CensusMapRegionQueryParser.logger.debug(`[${this.instance.instanceId}] Census returned map_region data`);
+            CensusMapRegionQueryParser.logger.verbose(`[${this.instance.instanceId}] Census returned map_region data`);
 
             if (!mapData || mapData.length === 0) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -90,7 +90,7 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
             OutfitwarsTerritoryTeamAction.logger.error(`[${this.instance.instanceId}] Unable to update the instance record for TeamAction via API! Err: ${err.message}`);
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

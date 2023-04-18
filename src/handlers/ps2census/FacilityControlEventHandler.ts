@@ -59,17 +59,26 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
 
         const started = new Date();
 
-        await this.ps2AlertsApiClient.post(endpoint, facilityData).catch(async (err: Error) => {
-            FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
+        await this.ps2AlertsApiClient.post(endpoint, facilityData)
+            .then(async () => {
+                await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, false);
+            }).catch(async (err: Error) => {
+                FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
-            // Try again
-            await this.ps2AlertsApiClient.post(endpoint, facilityData).catch((err: Error) => {
-                FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
-                return false;
+                await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, false);
+
+                // Try again
+                await this.ps2AlertsApiClient.post(endpoint, facilityData)
+                    .then(async () => {
+                        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, true);
+                    })
+                    .catch(async (err: Error) => {
+                        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, true);
+
+                        FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
+                        return false;
+                    });
             });
-        });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<FacilityControlEvent>) => void handler.handle(facilityEvent)

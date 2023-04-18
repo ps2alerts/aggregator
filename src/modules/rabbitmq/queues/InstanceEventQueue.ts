@@ -11,6 +11,7 @@ import EventTimingMiddlewareHandler from '../../../middlewares/EventTimingMiddle
 import ApplicationException from '../../../exceptions/ApplicationException';
 import InstanceAbstract from '../../../instances/InstanceAbstract';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler from '../../../handlers/StatisticsHandler';
 
 export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     private static readonly classLogger = new Logger('InstanceEventQueue');
@@ -18,6 +19,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        statisticsHandler: StatisticsHandler,
         private readonly topicExchange: string,
         private readonly pattern: string,
         private readonly prefetch: number,
@@ -27,7 +29,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
         private readonly timingMiddlewareHandler: EventTimingMiddlewareHandler,
         private readonly censusClient: CensusClient,
     ) {
-        super(connectionManager, queueName);
+        super(connectionManager, queueName, statisticsHandler);
     }
 
     public async connect(): Promise<void> {
@@ -42,7 +44,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
         await this.createChannel({
             json: true,
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            setup: async (channel: ConfirmChannel) => {
+            setup: async (channel: ConfirmChannel): Promise<void> => {
                 await Promise.all([
                     channel.checkExchange(this.topicExchange),
                     channel.assertQueue(this.queueName, queueOptions),
@@ -63,18 +65,23 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                         return;
                     }
 
+                    const started = new Date();
+
                     try {
                         // A middleware is added here track how long it takes messages to respond.
                         // This will mainly call the ZoneMessageHandler.
                         await this.timingMiddlewareHandler.handle(
                             this.createPs2Event(message),
                             {
-                                ack: () => this.handleMessageConfirm(message, 'ack'),
-                                retry: () => this.handleMessageConfirm(message, 'retry'),
-                                // delay: (ms: number) => this.handleMessageDelay(message, ms, this.pattern),
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                ack: async () => await this.handleMessageConfirm(message, 'ack', started),
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                retry: async () => await this.handleMessageConfirm(message, 'retry', started),
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
                                 delay: () => {
-                                    return true;
-                                }, // TODO: IMPLEMENT
+                                    // await this.handleMessageDelay(message, 15000, this.pattern, started);
+                                    return true; // Ack the message
+                                },
                             },
                             this.handler,
                         );
@@ -84,7 +91,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             InstanceEventQueue.classLogger.error(`[${this.queueName}] Unable to properly handle message! ${err.message}`);
                         }
 
-                        this.handleMessageConfirm(message, 'ack'); // Critical error, probably unprocessable so we're chucking
+                        await this.handleMessageConfirm(message, 'ack', started); // Critical error, probably unprocessable so we're chucking
                     }
                 }, consumerOptions);
             },

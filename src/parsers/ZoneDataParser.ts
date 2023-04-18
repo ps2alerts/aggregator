@@ -35,7 +35,7 @@ export default class ZoneDataParser {
 
         const started = new Date();
         const response = await this.ps2AlertsApiClient.get(path);
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
+        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_CENSUS_REGIONS, true, null);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const regionData: CensusRegionResponseInterface = response.data;
 

@@ -7,6 +7,7 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import {Options} from 'amqplib/properties';
 import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
 import {Logger} from '@nestjs/common';
+import StatisticsHandler from '../../../handlers/StatisticsHandler';
 
 export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     private static readonly classLogger = new Logger('MetagameEventQueue');
@@ -14,12 +15,13 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
+        statisticsHandler: StatisticsHandler,
         private readonly topicExchange: string,
         private readonly pattern: string,
         private readonly handler: QueueMessageHandlerInterface<MetagameEvent>,
         private readonly censusClient: CensusClient,
     ) {
-        super(connectionManager, queueName);
+        super(connectionManager, queueName, statisticsHandler);
     }
 
     public async connect(): Promise<void> {
@@ -48,13 +50,16 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                         throw new ApplicationException('MetagameEvent Message was empty!', 'RabbitMQCensusStreamFactory.MetgameEventQueue');
                     }
 
+                    const started = new Date();
+
                     try {
                         // A middleware is added here track how long it takes messages to respond.
                         // This will mainly call the ZoneMiddleware Handler.
                         await this.handler.handle(
                             this.createMessage(message),
                             {
-                                ack: () => this.handleMessageConfirm(message, 'ack'),
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                ack: async () => await this.handleMessageConfirm(message, 'ack', started),
                                 retry: () => {
                                     return true; // TODO: Implement
                                 },
