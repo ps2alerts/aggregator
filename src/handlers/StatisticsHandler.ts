@@ -45,6 +45,7 @@ export default class StatisticsHandler {
         @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly queueMessagesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.ZONE_MESSAGE_COUNT) private readonly zoneMessageCount: Counter<string>,
         // Gauges
+        @InjectMetric(METRICS_NAMES.CACHE_GAUGE) private readonly cacheGauge: Gauge<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_GAUGE) private readonly instancesGauge: Gauge<string>,
 
     ) {
@@ -110,6 +111,9 @@ export default class StatisticsHandler {
         params.environment = this.censusEnvironment;
 
         switch (metric) {
+            case METRICS_NAMES.CACHE_GAUGE:
+                this.cacheGauge.set(params, value);
+                break;
             case METRICS_NAMES.INSTANCES_GAUGE:
                 this.instancesGauge.set(params, value);
                 break;

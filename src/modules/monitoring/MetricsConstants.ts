@@ -8,6 +8,7 @@ export const METRICS_NAMES = {
     ZONE_MESSAGE_COUNT: 'aggregator_zone_message_count',
 
     // Gauges
+    CACHE_GAUGE: 'aggregator_cache_gauge',
     INSTANCES_GAUGE: 'aggregator_instances_gauge',
 };
 
@@ -21,5 +22,6 @@ export const PROM_METRICS = {
     ZONE_MESSAGE_COUNT: 'PROM_METRIC_AGGREGATOR_ZONE_MESSAGE_COUNT',
 
     // Gauges
+    CACHE_GAUGE: 'PROM_METRIC_AGGREGATOR_CACHE_GAUGE',
     INSTANCES_GAUGE: 'PROM_METRIC_AGGREGATOR_INSTANCES_GAUGE',
 };

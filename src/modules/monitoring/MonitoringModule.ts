@@ -41,6 +41,11 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
         }),
         // Gauges
         makeGaugeProvider({
+            name: METRICS_NAMES.CACHE_GAUGE,
+            help: 'Cache metrics including number of keys',
+            labelNames: ['environment', 'type'],
+        }),
+        makeGaugeProvider({
             name: METRICS_NAMES.INSTANCES_GAUGE,
             help: 'Number of active instances',
             labelNames: ['environment', 'type'],
@@ -55,6 +60,7 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
         PROM_METRICS.INSTANCES_COUNT,
         PROM_METRICS.ZONE_MESSAGE_COUNT,
         // Gauges
+        PROM_METRICS.CACHE_GAUGE,
         PROM_METRICS.INSTANCES_GAUGE,
     ],
 })
