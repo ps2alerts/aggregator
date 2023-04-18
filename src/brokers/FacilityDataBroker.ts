@@ -108,12 +108,12 @@ export default class FacilityDataBroker {
 
             // Doing filter on nothing will result in nothing so this works too
             if (facilityData.length) {
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {type: 'ps2alerts_api', endpoint: 'census_regions', result: 'success'});
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'success'});
                 return facilityData[0];
             }
 
             // If empty, this is a problem!
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {type: 'ps2alerts_api', endpoint: 'census_regions', result: 'error'});
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'error'});
             return null;
 
         } catch (err) {
