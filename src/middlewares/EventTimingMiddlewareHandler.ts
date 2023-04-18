@@ -5,6 +5,7 @@ import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfac
 import {PS2Event} from 'ps2census';
 import StatisticsHandler from '../handlers/StatisticsHandler';
 import {Injectable} from '@nestjs/common';
+import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
 @Injectable()
 export default class EventTimingMiddlewareHandler {
@@ -25,6 +26,7 @@ export default class EventTimingMiddlewareHandler {
                 const metricName = `Event:${message.event_name}`;
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 await this.statisticsHandler.logMetric(started, metricName);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.EVENT_TYPES, {type: message.event_name, world: message.world_id});
                 target[prop]();
             },
         });

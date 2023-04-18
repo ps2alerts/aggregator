@@ -3,7 +3,7 @@ import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import {Counter} from 'prom-client';
 import {InjectMetric} from '@willsoto/nestjs-prometheus';
-import {METRICS_COUNTERS, METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
 export enum MetricTypes {
     CACHE_CHARACTER_HITS = 'Cache:Character:Hits',
@@ -34,8 +34,9 @@ export default class StatisticsHandler {
 
     constructor(
         private readonly cacheClient: Redis,
-        config: ConfigService,
-        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES) private readonly metricMessages: Counter<string>,
+        private readonly config: ConfigService,
+        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES) private readonly aggregatorMessagesCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.EVENT_TYPES) private readonly eventTypesCount: Counter<string>,
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
@@ -56,16 +57,20 @@ export default class StatisticsHandler {
     }
 
     // Provides a singular entrypoint for easier refactoring, saves having to inject counters everywhere
-    public increaseCounter(metric: string, count?: number): void {
+    public increaseCounter(metric: string, params?: Partial<Record<string, string | number>>, count?: number): void {
+        if (!params) {
+            params = {};
+        }
+
+        // Inject environment into params
+        params.environment = this.config.get('census.environment');
+
         switch (metric) {
-            case METRICS_COUNTERS.AGGREGATOR_MESSAGES_SUCCESS:
-                this.metricMessages.inc({status: 'success'}, count);
+            case METRICS_NAMES.AGGREGATOR_MESSAGES:
+                this.aggregatorMessagesCount.inc(params, count);
                 break;
-            case METRICS_COUNTERS.AGGREGATOR_MESSAGES_RETRY:
-                this.metricMessages.inc({status: 'retry'}, count);
-                break;
-            case METRICS_COUNTERS.AGGREGATOR_MESSAGES_FAIL:
-                this.metricMessages.inc({status: 'fail'}, count);
+            case METRICS_NAMES.EVENT_TYPES:
+                this.eventTypesCount.inc(params, count);
                 break;
         }
     }
