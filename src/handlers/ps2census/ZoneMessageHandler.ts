@@ -76,22 +76,28 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Delaying message due to possible Census issues. Type: ${event.event_name} - Err: ${err.message}`);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'max_retries_reached'});
                 return actions.delay(15000);
             }
 
             if (err instanceof ApplicationException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'processing_failed'});
+
                 return actions.retry();
             }
 
             if (err instanceof TimeoutException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load. Type: ${event.event_name} - Err: ${err.message}`);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'timeout'});
                 return actions.delay(30000);
             }
 
             if (err instanceof Error) {
                 actions.ack();
                 new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'error'});
+
             }
 
             // If we haven't got a specific means of handling the issue, drop it.
