@@ -1,7 +1,7 @@
 import Redis from 'ioredis';
-import {Injectable} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
-import {Counter} from 'prom-client';
+import {Counter, Gauge} from 'prom-client';
 import {InjectMetric} from '@willsoto/nestjs-prometheus';
 import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
@@ -29,6 +29,7 @@ export enum MetricTypes {
 
 @Injectable()
 export default class StatisticsHandler {
+    private static readonly logger = new Logger('StatisticsHandler');
     private readonly runId: number;
     private readonly metricsPrefix: string;
     private readonly censusEnvironment: string;
@@ -36,9 +37,12 @@ export default class StatisticsHandler {
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
-        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT) private readonly aggregatorMessagesCount: Counter<string>,
+        // Counts
+        @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly aggregatorMessagesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_COUNT) private readonly instancesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.ZONE_MESSAGE_COUNT) private readonly zoneMessageCount: Counter<string>,
+        // Gauges
+        @InjectMetric(METRICS_NAMES.INSTANCES_GAUGE) private readonly instancesGauge: Gauge<string>,
 
     ) {
         this.runId = config.get('app.runId');
@@ -70,7 +74,7 @@ export default class StatisticsHandler {
         params.environment = this.censusEnvironment;
 
         switch (metric) {
-            case METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT:
+            case METRICS_NAMES.QUEUE_MESSAGES_COUNT:
                 this.aggregatorMessagesCount.inc(params, count);
                 break;
             case METRICS_NAMES.INSTANCES_COUNT:
@@ -78,6 +82,27 @@ export default class StatisticsHandler {
                 break;
             case METRICS_NAMES.ZONE_MESSAGE_COUNT:
                 this.zoneMessageCount.inc(params, count);
+                break;
+            default:
+                StatisticsHandler.logger.error(`Attempted to increase counter for unknown metric: ${metric}`);
+                break;
+        }
+    }
+
+    public setGauge(metric: string, value: number, params?: Partial<Record<string, string | number>>): void {
+        if (!params) {
+            params = {};
+        }
+
+        // Inject Census environment into params
+        params.environment = this.censusEnvironment;
+
+        switch (metric) {
+            case METRICS_NAMES.INSTANCES_GAUGE:
+                this.instancesGauge.set(params, value);
+                break;
+            default:
+                StatisticsHandler.logger.error(`Attempted to set gauge for unknown metric: ${metric}`);
                 break;
         }
     }

@@ -24,6 +24,7 @@ import Redis from 'ioredis';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 import {ConfigService} from '@nestjs/config';
 import {PS2Environment} from 'ps2census';
+import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
@@ -152,9 +153,13 @@ export default class InstanceAuthority {
             await this.cacheClient.sadd(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
 
             InstanceAuthority.logger.log(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
+
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_start'});
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_start'});
             throw new ApplicationException(`[${instance.instanceId}] Unable to start instance correctly! E: ${err}`, 'InstanceAuthority.startInstance');
+
         }
 
         return true;
@@ -174,10 +179,13 @@ export default class InstanceAuthority {
             this.queueAuthority.stopQueuesForInstance(instance);
 
             InstanceAuthority.logger.log(`=== SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ===`);
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_end'});
+
             this.printActives(true);
             return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_end'});
             throw new ApplicationException(`[${instance.instanceId}] Unable to end instance correctly! E: ${err}`, 'InstanceAuthority');
         }
     }
@@ -192,9 +200,12 @@ export default class InstanceAuthority {
         await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
             .then(async () => {
                 await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, true);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_trash'});
+
             })
             .catch(async (err: Error) => {
                 await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_trash'});
 
                 throw new ApplicationException(`[${instance.instanceId}] UNABLE TO TRASH INSTANCE! API CALL FAILED! E: ${err.message}`, 'InstanceAuthority');
             });
@@ -314,6 +325,9 @@ export default class InstanceAuthority {
                 await this.cacheClient.sadd(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
             }
         }
+
+        this.statisticsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, this.currentInstances.length, {type: 'active'});
+        this.statisticsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, 0, {type: 'overdue'});
 
         // Set timer for instances display
         this.activeTimer = setInterval(() => {

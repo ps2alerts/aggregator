@@ -111,7 +111,7 @@ export abstract class RabbitMQQueue {
         try {
             if (action === 'ack') {
                 await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, true);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT, {type: 'success'});
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success'});
                 return this.channel.ack(message);
             }
 
@@ -122,7 +122,7 @@ export abstract class RabbitMQQueue {
 
             if (tries >= 3) {
                 await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, false, true);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT, {type: 'fail'});
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'fail'});
 
                 RabbitMQQueue.logger.error(`${this.queueName} Message exceeded too many tries! Dropping!`);
                 return this.channel.nack(message, false, false); // Chuck the message
@@ -130,7 +130,7 @@ export abstract class RabbitMQQueue {
 
             // Retry
             await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_RETRY, null, true);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT, {type: 'retry'});
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'retry'});
 
             RabbitMQQueue.logger.debug(`${this.queueName} Retrying message! Tries: ${tries}`);
             message.properties.headers.tries = tries;

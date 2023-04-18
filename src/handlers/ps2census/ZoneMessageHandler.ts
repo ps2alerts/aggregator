@@ -34,7 +34,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
             if (zoneId !== this.instance.zone) {
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT, {type: 'instance_mismatch'});
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'instance_mismatch'});
                 return actions.ack();
             }
         } else {

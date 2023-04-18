@@ -1,13 +1,18 @@
 import {Injectable, Logger} from '@nestjs/common';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import InstanceAuthority from './InstanceAuthority';
+import StatisticsHandler from '../handlers/StatisticsHandler';
+import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
 @Injectable()
 export default class OverdueInstanceAuthority {
     private static readonly logger = new Logger('OverdueInstanceAuthority');
     private timer?: NodeJS.Timeout;
 
-    constructor(private readonly instanceAuthority: InstanceAuthority) {}
+    constructor(
+        private readonly instanceAuthority: InstanceAuthority,
+        private readonly statisticsHandler: StatisticsHandler,
+    ) {}
 
     public run(): void {
         if (this.timer) {
@@ -18,11 +23,20 @@ export default class OverdueInstanceAuthority {
         this.timer = setInterval(() => {
             OverdueInstanceAuthority.logger.verbose('Running OverdueInstanceAuthority overdue alert check');
 
-            this.instanceAuthority.getAllInstances().filter((instance) => {
+            // Get all instances, update the gauges, then perform operations
+            const instances = this.instanceAuthority.getAllInstances();
+
+            this.statisticsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, instances.length, {type: 'active'});
+
+            const overdueInstances = instances.filter((instance) => {
                 return instance.overdue();
-            }).forEach((instance: PS2AlertsInstanceInterface) => {
+            });
+            this.statisticsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, overdueInstances.length, {type: 'overdue'});
+            overdueInstances.forEach((instance: PS2AlertsInstanceInterface) => {
                 try {
                     OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
+                    this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'overdue'});
+
                     void this.instanceAuthority.endInstance(instance);
                 } catch (err) {
                     if (err instanceof Error) {
