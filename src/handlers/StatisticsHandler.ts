@@ -35,7 +35,6 @@ export default class StatisticsHandler {
         private readonly cacheClient: Redis,
         config: ConfigService,
         @InjectMetric('aggregator_messages_successful') private readonly metricMessagesSuccessful: Counter<string>,
-
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;

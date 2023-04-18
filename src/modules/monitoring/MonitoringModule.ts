@@ -1,6 +1,7 @@
-import {Module, OnModuleInit} from '@nestjs/common';
+import {Module} from '@nestjs/common';
 import {makeCounterProvider, PrometheusModule} from '@willsoto/nestjs-prometheus';
 import {MonitoringController} from './MonitoringController';
+import {METRICS} from './MetricsConstants';
 
 @Module({
     imports: [PrometheusModule.register({
@@ -12,10 +13,8 @@ import {MonitoringController} from './MonitoringController';
             help: 'metric_help',
         }),
     ],
+    exports: [
+        METRICS.AGGREGATOR_MESSAGES_SUCCESSFUL,
+    ],
 })
-export default class MonitoringModule implements OnModuleInit {
-    public async onModuleInit() {
-        // Initalize all counters and gauges
-
-    }
-}
+export default class MonitoringModule{}

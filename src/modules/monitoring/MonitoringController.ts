@@ -6,7 +6,6 @@ import {Response} from 'express';
 export class MonitoringController extends PrometheusController {
     @Get()
     public async index(@Res() response: Response) {
-        console.log('Metrics hit!');
         return super.index(response);
     }
 }
