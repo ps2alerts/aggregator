@@ -40,7 +40,7 @@ export default class StatisticsHandler {
         // Counts
         @InjectMetric(METRICS_NAMES.BROKER_COUNT) private readonly brokerCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.CACHE_COUNT) private readonly cacheCount: Counter<string>,
-        @InjectMetric(METRICS_NAMES.CENSUS_COUNT) private readonly censusCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.EXTERNAL_REQUESTS) private readonly censusCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_COUNT) private readonly instancesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly queueMessagesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.ZONE_MESSAGE_COUNT) private readonly zoneMessageCount: Counter<string>,
@@ -83,7 +83,7 @@ export default class StatisticsHandler {
             case METRICS_NAMES.CACHE_COUNT:
                 this.cacheCount.inc(params, count);
                 break;
-            case METRICS_NAMES.CENSUS_COUNT:
+            case METRICS_NAMES.EXTERNAL_REQUESTS:
                 this.censusCount.inc(params, count);
                 break;
             case METRICS_NAMES.QUEUE_MESSAGES_COUNT:

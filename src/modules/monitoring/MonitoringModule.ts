@@ -11,7 +11,7 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
         // Counts
         makeCounterProvider({
             name: METRICS_NAMES.BROKER_COUNT,
-            help: 'Character Broker statistics',
+            help: 'Broker statistics',
             labelNames: ['environment', 'broker', 'type', 'result'],
         }),
         makeCounterProvider({
@@ -20,9 +20,9 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
             labelNames: ['environment', 'type', 'result'],
         }),
         makeCounterProvider({
-            name: METRICS_NAMES.CENSUS_COUNT,
-            help: 'Census statistics',
-            labelNames: ['environment', 'type', 'result', 'endpoint'],
+            name: METRICS_NAMES.EXTERNAL_REQUESTS,
+            help: 'External endpoints statistics',
+            labelNames: ['environment', 'provider', 'endpoint', 'result'],
         }),
         makeCounterProvider({
             name: METRICS_NAMES.INSTANCES_COUNT,
@@ -50,7 +50,7 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
         // Counts
         PROM_METRICS.BROKER_COUNT,
         PROM_METRICS.CACHE_COUNT,
-        PROM_METRICS.CENSUS_COUNT,
+        PROM_METRICS.EXTERNAL_REQUESTS_COUNT,
         PROM_METRICS.QUEUE_MESSAGES_COUNT,
         PROM_METRICS.INSTANCES_COUNT,
         PROM_METRICS.ZONE_MESSAGE_COUNT,

@@ -41,6 +41,7 @@ export default class CharacterBroker {
 
                 if (!cached) {
                     await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
+                    this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'success'});
                 }
             } else {
                 character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
@@ -57,6 +58,7 @@ export default class CharacterBroker {
 
                     if (!cached) {
                         await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
+                        this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'success'});
                     }
                 }
 
@@ -64,7 +66,6 @@ export default class CharacterBroker {
                     attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
                     CharacterBroker.logger.error('AttackerEvent had no actual attacker character ID! ps2census bug');
                     this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'attacker_event_no_character'});
-
                 } else {
                     started = new Date();
                     const cached = await this.checkIfInCache(payload.attacker_character_id);
@@ -74,6 +75,7 @@ export default class CharacterBroker {
 
                     if (!cached) {
                         await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
+                        this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'success'});
                     }
 
                     if (attackerCharacter) {
@@ -84,17 +86,18 @@ export default class CharacterBroker {
             }
 
             this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'success'});
+
             return {character, attacker};
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER, false, true);
                 this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'max_retries'});
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.CENSUS_COUNT, {endpoint: 'character', result: 'error'});
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'error'});
                 new ExceptionHandler('Census failed to return character data after maximum retries', err, 'CharacterBroker');
             }
 
             this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'error'});
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.CENSUS_COUNT, {endpoint: 'character', result: 'error'});
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'error'});
             new ExceptionHandler('Census failed to return character data not due to retries!', err, 'CharacterBroker');
         }
 
@@ -111,10 +114,11 @@ export default class CharacterBroker {
         if (cached) {
             await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_CHARACTER_HITS, null, null);
             this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: 'hit'});
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'cache_hit'});
         } else {
             await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_CHARACTER_MISSES, null, null);
             this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: 'miss'});
-
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'cache_miss'});
         }
 
         return cached;
