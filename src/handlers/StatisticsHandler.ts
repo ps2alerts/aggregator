@@ -31,15 +31,17 @@ export enum MetricTypes {
 export default class StatisticsHandler {
     private readonly runId: number;
     private readonly metricsPrefix: string;
+    private readonly censusEnvironment: string;
 
     constructor(
         private readonly cacheClient: Redis,
-        private readonly config: ConfigService,
+        config: ConfigService,
         @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES) private readonly aggregatorMessagesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.EVENT_TYPES) private readonly eventTypesCount: Counter<string>,
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
+        this.censusEnvironment = config.get('census.environment');
     }
 
     public async logMetric(started: Date, type: MetricTypes | string, success?: boolean | null, retry?: boolean): Promise<void> {
@@ -62,8 +64,8 @@ export default class StatisticsHandler {
             params = {};
         }
 
-        // Inject environment into params
-        params.environment = this.config.get('census.environment');
+        // Inject Census environment into params
+        params.environment = this.censusEnvironment;
 
         switch (metric) {
             case METRICS_NAMES.AGGREGATOR_MESSAGES:
