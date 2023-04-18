@@ -2,7 +2,7 @@ import {Injectable, Logger, OnApplicationBootstrap, OnModuleInit} from '@nestjs/
 import OverdueInstanceAuthority from '../../authorities/OverdueInstanceAuthority';
 import PopulationAuthority from '../../authorities/PopulationAuthority';
 import InstanceAuthority from '../../authorities/InstanceAuthority';
-import TimingStatisticsAuthority from '../../authorities/TimingStatisticsAuthority';
+import MetricsAuthority from '../../authorities/MetricsAuthority';
 import QueueAuthority from '../../authorities/QueueAuthority';
 
 @Injectable()
@@ -14,7 +14,7 @@ export default class AuthorityService implements OnModuleInit, OnApplicationBoot
         private readonly overdueInstanceAuthority: OverdueInstanceAuthority,
         private readonly populationAuthority: PopulationAuthority,
         private readonly queueAuthority: QueueAuthority,
-        private readonly timingStatisticsAuthority: TimingStatisticsAuthority,
+        private readonly timingStatisticsAuthority: MetricsAuthority,
     ) {}
 
     public async onModuleInit(): Promise<void> {

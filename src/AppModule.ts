@@ -3,7 +3,7 @@ import InstanceAuthority from './authorities/InstanceAuthority';
 import OverdueInstanceAuthority from './authorities/OverdueInstanceAuthority';
 import PopulationAuthority from './authorities/PopulationAuthority';
 import QueueAuthority from './authorities/QueueAuthority';
-import TimingStatisticsAuthority from './authorities/TimingStatisticsAuthority';
+import MetricsAuthority from './authorities/MetricsAuthority';
 import CharacterBroker from './brokers/CharacterBroker';
 import FacilityDataBroker from './brokers/FacilityDataBroker';
 import ItemBroker from './brokers/ItemBroker';
@@ -58,7 +58,7 @@ import {HealthModule} from './health/HealthModule';
 import {Death} from 'ps2census';
 import {ConfigModule} from '@nestjs/config';
 import {config} from './config';
-import {PrometheusModule} from '@willsoto/nestjs-prometheus';
+import MonitoringModule from './modules/monitoring/MonitoringModule';
 
 @Module({
     imports: [
@@ -67,12 +67,12 @@ import {PrometheusModule} from '@willsoto/nestjs-prometheus';
             load: [config],
             expandVariables: true,
         }),
-        PrometheusModule.register(),
         HealthModule,
         RedisModule,
         RabbitMQModule,
         CensusModule,
         PS2AlertsApiModule,
+        MonitoringModule,
     ],
     providers: [
         // TODO: Split this monstrosity into separate modules with some sort of hierarchy
@@ -81,7 +81,7 @@ import {PrometheusModule} from '@willsoto/nestjs-prometheus';
         OverdueInstanceAuthority,
         PopulationAuthority,
         QueueAuthority,
-        TimingStatisticsAuthority,
+        MetricsAuthority,
 
         // Brokers
         CharacterBroker,

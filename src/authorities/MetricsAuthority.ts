@@ -15,7 +15,7 @@ interface TableDisplayInterface {
 }
 
 @Injectable()
-export default class TimingStatisticsAuthority {
+export default class MetricsAuthority {
     private static readonly logger = new Logger('TimingStatisticsAuthority');
     private readonly runId: number;
     private readonly metricsListKey = 'metrics:list';
@@ -31,7 +31,7 @@ export default class TimingStatisticsAuthority {
 
     public async run(): Promise<void> {
         if (this.timer) {
-            TimingStatisticsAuthority.logger.warn('Attempted to run TimingStatisticsAuthority timer when already defined!');
+            MetricsAuthority.logger.warn('Attempted to run TimingStatisticsAuthority timer when already defined!');
             this.stop();
         }
 
@@ -52,7 +52,7 @@ export default class TimingStatisticsAuthority {
             await this.cacheClient.sadd(this.metricsListKey, listKey);
         }
 
-        TimingStatisticsAuthority.logger.debug(`${keys.length} metrics keys cleared!`);
+        MetricsAuthority.logger.debug(`${keys.length} metrics keys cleared!`);
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.timer = setInterval(async () => {
@@ -134,18 +134,18 @@ export default class TimingStatisticsAuthority {
             }
 
             if (show) {
-                TimingStatisticsAuthority.logger.debug(`Message Metrics for ${this.displayTime / 1000}s:`);
+                MetricsAuthority.logger.debug(`Message Metrics for ${this.displayTime / 1000}s:`);
                 console.table(tableData);
             } else {
-                TimingStatisticsAuthority.logger.debug('No metrics to show!');
+                MetricsAuthority.logger.debug('No metrics to show!');
             }
         }, this.displayTime);
 
-        TimingStatisticsAuthority.logger.debug('Created TimingStatisticsAuthority timer');
+        MetricsAuthority.logger.debug('Created TimingStatisticsAuthority timer');
     }
 
     public stop(): void {
-        TimingStatisticsAuthority.logger.debug('Clearing TimingStatisticsAuthority timer');
+        MetricsAuthority.logger.debug('Clearing TimingStatisticsAuthority timer');
 
         if (this.timer) {
             clearInterval(this.timer);
