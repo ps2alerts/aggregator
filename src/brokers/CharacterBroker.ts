@@ -107,7 +107,7 @@ export default class CharacterBroker {
 
     // ps2census will cache the character data for us, but we need to know if it's in the cache or not for metrics
     private async checkIfInCache(characterId: string): Promise<boolean> {
-        const cacheKey = `character:${characterId}`;
+        const cacheKey = `cache:character:${characterId}`;
         const started = new Date();
         const cached = !!await this.cacheClient.exists(cacheKey);
 
