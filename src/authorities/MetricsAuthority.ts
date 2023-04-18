@@ -1,3 +1,5 @@
+// noinspection JSUnusedLocalSymbols
+
 import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
