@@ -38,8 +38,11 @@ export default class StatisticsHandler {
         private readonly cacheClient: Redis,
         config: ConfigService,
         // Counts
-        @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly aggregatorMessagesCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.BROKER_COUNT) private readonly brokerCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.CACHE_COUNT) private readonly cacheCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.CENSUS_COUNT) private readonly censusCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_COUNT) private readonly instancesCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly queueMessagesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.ZONE_MESSAGE_COUNT) private readonly zoneMessageCount: Counter<string>,
         // Gauges
         @InjectMetric(METRICS_NAMES.INSTANCES_GAUGE) private readonly instancesGauge: Gauge<string>,
@@ -47,7 +50,7 @@ export default class StatisticsHandler {
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
-        this.censusEnvironment = config.get('census.environment');
+        this.censusEnvironment = config.getOrThrow('census.environment');
     }
 
     public async logMetric(started: Date, type: MetricTypes | string, success?: boolean | null, retry?: boolean): Promise<void> {
@@ -74,8 +77,17 @@ export default class StatisticsHandler {
         params.environment = this.censusEnvironment;
 
         switch (metric) {
+            case METRICS_NAMES.BROKER_COUNT:
+                this.brokerCount.inc(params, count);
+                break;
+            case METRICS_NAMES.CACHE_COUNT:
+                this.cacheCount.inc(params, count);
+                break;
+            case METRICS_NAMES.CENSUS_COUNT:
+                this.censusCount.inc(params, count);
+                break;
             case METRICS_NAMES.QUEUE_MESSAGES_COUNT:
-                this.aggregatorMessagesCount.inc(params, count);
+                this.queueMessagesCount.inc(params, count);
                 break;
             case METRICS_NAMES.INSTANCES_COUNT:
                 this.instancesCount.inc(params, count);
