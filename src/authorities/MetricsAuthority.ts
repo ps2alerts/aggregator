@@ -26,6 +26,7 @@ export default class MetricsAuthority {
     private metricsTimer?: NodeJS.Timeout;
     private readonly displayTime = 60000;
     private readonly metricsTime = 15000;
+    private readonly censusEnvironment: string;
 
     constructor(
         private readonly cacheClient: Redis,
@@ -33,6 +34,7 @@ export default class MetricsAuthority {
         private readonly statisticsHandler: StatisticsHandler,
     ) {
         this.runId = config.get('app.runId');
+        this.censusEnvironment = config.getOrThrow('census.environment');
     }
 
     public async run(): Promise<void> {
@@ -153,11 +155,11 @@ export default class MetricsAuthority {
 
         }, this.displayTime);
 
-        await this.enumerateCacheMetrics();
+        await this.gatherRedisMetrics();
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.metricsTimer = setInterval(async () => {
-            await this.enumerateCacheMetrics();
+            await this.gatherRedisMetrics();
         }, this.metricsTime);
 
         MetricsAuthority.logger.debug('Created TimingStatisticsAuthority timers');
@@ -175,13 +177,24 @@ export default class MetricsAuthority {
         }
     }
 
-    private async enumerateCacheMetrics() {
+    private async gatherRedisMetrics() {
         // Total up the number of keys currently in various caches
-        const characterCacheKeys = await this.cacheClient.keys('cache:character:*');
-        const itemCacheKeys = await this.cacheClient.keys('cache:item:*');
-        const unknownItemKeys = await this.cacheClient.keys('unknownItems:*');
-        this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, characterCacheKeys.length, {type: 'character_total'});
-        this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, itemCacheKeys.length, {type: 'item_total'});
-        this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, unknownItemKeys.length, {type: 'unknown_items'});
+        const promises = [
+            await this.cacheClient.keys('cache:character:*'),
+            await this.cacheClient.keys(`cache:item:${this.censusEnvironment}:*`),
+            await this.cacheClient.keys(`cache:facilityData:${this.censusEnvironment}:*`),
+            await this.cacheClient.smembers(`unknownItems:${this.censusEnvironment}`),
+            await this.cacheClient.keys('characterPresence:*'),
+            await this.cacheClient.keys('outfitParticipants:*'),
+        ];
+
+        await Promise.all(promises).then((results) => {
+            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[0].length, {type: 'cache_character'});
+            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[1].length, {type: 'cache_item'});
+            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[2].length, {type: 'cache_facility_data'});
+            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[3].length, {type: 'unknown_items'});
+            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[4].length, {type: 'character_presence'});
+            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[5].length, {type: 'outfit_participants'});
+        });
     }
 }
