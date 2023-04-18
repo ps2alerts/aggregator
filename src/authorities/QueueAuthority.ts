@@ -9,7 +9,6 @@ import {Inject, Injectable, Logger} from '@nestjs/common';
 import ZoneMessageHandler from '../handlers/ps2census/ZoneMessageHandler';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsQueueInterface} from '../interfaces/PS2AlertsQueueInterface';
-import StatisticsHandler from '../handlers/StatisticsHandler';
 
 @Injectable()
 export default class QueueAuthority {
@@ -19,7 +18,6 @@ export default class QueueAuthority {
     private readonly queuesMarkedForDeletionMap = new Map<number, PS2AlertsQueueInterface[]>();
     private currentInstances: PS2AlertsInstanceInterface[] = [];
     private timer?: NodeJS.Timeout;
-    private readonly statisticsHandler: StatisticsHandler;
 
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,

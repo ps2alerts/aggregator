@@ -158,13 +158,11 @@ export default abstract class TerritoryCalculatorAbstract {
         outOfPlayCount: number,
     ): number {
         const cutoffCount = (baseCount - bases.vs - bases.nc - bases.tr) - outOfPlayCount;
-        const cutoffPercent = Math.floor(cutoffCount * perBase);
-
         // if (config.logger.silly) {
         //     console.log('Cutoff bases', this.cutoffFacilityList);
         // }
 
-        return cutoffPercent;
+        return Math.floor(cutoffCount * perBase);
     }
 
     protected async getMapFacilities(): Promise<void> {
