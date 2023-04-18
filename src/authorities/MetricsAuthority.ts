@@ -1,7 +1,8 @@
 import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
-import {MetricTypes} from '../handlers/StatisticsHandler';
+import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 import {ConfigService} from '@nestjs/config';
+import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
 interface TableDisplayInterface {
     metricType: string;
@@ -20,11 +21,14 @@ export default class MetricsAuthority {
     private readonly runId: number;
     private readonly metricsListKey = 'metrics:list';
     private timer?: NodeJS.Timeout;
+    private metricsTimer?: NodeJS.Timeout;
     private readonly displayTime = 60000;
+    private readonly metricsTime = 15000;
 
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {
         this.runId = config.get('app.runId');
     }
@@ -32,6 +36,11 @@ export default class MetricsAuthority {
     public async run(): Promise<void> {
         if (this.timer) {
             MetricsAuthority.logger.warn('Attempted to run TimingStatisticsAuthority timer when already defined!');
+            this.stop();
+        }
+
+        if (this.metricsTimer) {
+            MetricsAuthority.logger.warn('Attempted to run TimingStatisticsAuthority metricsTimer when already defined!');
             this.stop();
         }
 
@@ -139,16 +148,38 @@ export default class MetricsAuthority {
             } else {
                 MetricsAuthority.logger.debug('No metrics to show!');
             }
+
         }, this.displayTime);
 
-        MetricsAuthority.logger.debug('Created TimingStatisticsAuthority timer');
+        await this.enumerateCacheMetrics();
+
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.metricsTimer = setInterval(async () => {
+            await this.enumerateCacheMetrics();
+        }, this.metricsTime);
+
+        MetricsAuthority.logger.debug('Created TimingStatisticsAuthority timers');
     }
 
     public stop(): void {
-        MetricsAuthority.logger.debug('Clearing TimingStatisticsAuthority timer');
+        MetricsAuthority.logger.debug('Clearing TimingStatisticsAuthority timers');
 
         if (this.timer) {
             clearInterval(this.timer);
         }
+
+        if (this.metricsTimer) {
+            clearInterval(this.metricsTimer);
+        }
+    }
+
+    private async enumerateCacheMetrics() {
+        // Total up the number of keys currently in various caches
+        const characterCacheKeys = await this.cacheClient.keys('cache:character:*');
+        const itemCacheKeys = await this.cacheClient.keys('cache:item:*');
+        const unknownItemKeys = await this.cacheClient.keys('unknownItems:*');
+        this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, characterCacheKeys.length, {type: 'character_total'});
+        this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, itemCacheKeys.length, {type: 'item_total'});
+        this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, unknownItemKeys.length, {type: 'unknown_items'});
     }
 }
