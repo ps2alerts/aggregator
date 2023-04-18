@@ -1,6 +1,8 @@
 import Redis from 'ioredis';
 import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
+import {Counter} from 'prom-client';
+import {InjectMetric} from '@willsoto/nestjs-prometheus';
 
 export enum MetricTypes {
     CACHE_CHARACTER_HITS = 'Cache:Character:Hits',
@@ -32,6 +34,8 @@ export default class StatisticsHandler {
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
+        @InjectMetric('aggregator_messages_successful') private readonly metricMessagesSuccessful: Counter<string>,
+
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
@@ -49,5 +53,10 @@ export default class StatisticsHandler {
         const statsString = `${duration},${successString},${retryString}`;
 
         await this.cacheClient.lpush(listKey, statsString);
+    }
+
+    // This exists because injecting the counter in the RabbitMQQueue class would require injection in every child class
+    public increaseMessagesSuccessMetric(): void {
+        this.metricMessagesSuccessful.inc();
     }
 }

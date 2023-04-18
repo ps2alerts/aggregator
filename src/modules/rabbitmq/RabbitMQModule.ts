@@ -9,16 +9,16 @@ import RedisModule from '../redis/RedisModule';
 import EventTimingMiddlewareHandler from '../../middlewares/EventTimingMiddlewareHandler';
 import StatisticsHandler from '../../handlers/StatisticsHandler';
 import {ConfigService} from '@nestjs/config';
+import MonitoringModule from '../monitoring/MonitoringModule';
 
 @Module({
-    imports: [RedisModule, CensusModule],
+    imports: [RedisModule, CensusModule, MonitoringModule],
     providers: [
         {
             provide: TYPES.rabbitMqConnection,
             useFactory: (config: ConfigService) => connect(config.get('rabbitmq.urls')),
             inject: [ConfigService],
         },
-
         RabbitMQQueueFactory,
         EventTimingMiddlewareHandler,
         StatisticsHandler,

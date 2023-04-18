@@ -110,6 +110,7 @@ export abstract class RabbitMQQueue {
         try {
             if (action === 'ack') {
                 await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, true);
+                this.statisticsHandler.increaseMessagesSuccessMetric();
                 return this.channel.ack(message);
             }
 
