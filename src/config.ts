@@ -18,6 +18,7 @@ export const config = () => ({
     census: {
         serviceID: env('CENSUS_SERVICE_ID'),
         environment: env('CENSUS_ENVIRONMENT'),
+        timeout: 29000, // Census server timeout is 30 seconds, we take a second off to be safe
     },
 
     internalApi: {

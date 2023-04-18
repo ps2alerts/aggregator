@@ -14,6 +14,7 @@ import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
 import StatisticsHandler from '../handlers/StatisticsHandler';
+import {ConfigService} from '@nestjs/config';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
     private static readonly classLogger = new Logger('MetagameTerritoryCalculator');
@@ -25,6 +26,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
         statisticsHandler: StatisticsHandler,
+        config: ConfigService,
     ) {
         super(
             instance,
@@ -33,6 +35,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
             cacheClient,
             zoneDataParser,
             statisticsHandler,
+            config,
         );
     }
 

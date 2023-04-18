@@ -29,6 +29,7 @@ import OutfitwarsTerritoryTeamAction from '../actions/OutfitwarsTerritoryTeamAct
 import OutfitwarsTerritoryDeathAction from '../actions/OutfitwarsTerritoryDeathAction';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import StatisticsHandler from '../handlers/StatisticsHandler';
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class InstanceActionFactory {
@@ -41,6 +42,7 @@ export default class InstanceActionFactory {
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
         private readonly statisticsHandler: StatisticsHandler,
+        private readonly config: ConfigService,
     ) {}
 
     public buildStart(
@@ -54,6 +56,7 @@ export default class InstanceActionFactory {
                 this.cacheClient,
                 this.zoneDataParser,
                 this.statisticsHandler,
+                this.config,
             );
         }
 

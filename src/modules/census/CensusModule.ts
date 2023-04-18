@@ -23,7 +23,7 @@ import {ConfigService} from '@nestjs/config';
                 },
                 rest: {
                     axios: {
-                        timeout: 10005,
+                        timeout: config.get('census.timeout'),
                     },
                 },
             }),

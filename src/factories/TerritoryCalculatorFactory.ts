@@ -9,6 +9,7 @@ import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalcula
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
 import StatisticsHandler from '../handlers/StatisticsHandler';
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export default class TerritoryCalculatorFactory {
@@ -17,6 +18,7 @@ export default class TerritoryCalculatorFactory {
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
         private readonly statisticsHandler: StatisticsHandler,
+        private readonly config: ConfigService,
     ) {}
 
     public buildMetagameTerritoryCalculator(
@@ -30,6 +32,7 @@ export default class TerritoryCalculatorFactory {
             this.cacheClient,
             this.zoneDataParser,
             this.statisticsHandler,
+            this.config,
         );
     }
 
@@ -44,6 +47,7 @@ export default class TerritoryCalculatorFactory {
             this.cacheClient,
             this.zoneDataParser,
             this.statisticsHandler,
+            this.config,
         );
     }
 }

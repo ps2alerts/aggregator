@@ -3,6 +3,7 @@ import {promiseTimeout} from '../utils/PromiseTimeout';
 import {Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
 import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {ConfigService} from '@nestjs/config';
 
 // This class exists as Census occasionally sends us invalid responses, and we must retry them.
 export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
@@ -11,13 +12,17 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
     // The below with the combination gives Census 30 seconds to recover before we abort a query.
     private readonly retryLimit = 12;
     private readonly delayTime = 2500;
+    private readonly timeoutTime: number;
 
     constructor(
         private readonly query: Rest.GetQuery<T>,
         private readonly filter: Rest.Conditions<T>,
         private readonly caller: string,
         private readonly statisticsHandler: StatisticsHandler,
-    ) {}
+        config: ConfigService,
+    ) {
+        this.timeoutTime = config.get('census.timeout'); // Maximum Census tolerance
+    }
 
     public async try(attempts = 0): Promise<Rest.CensusResponse<Rest.Format<T>> | undefined> {
         attempts++;
@@ -33,7 +38,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
             }
 
             // Annoyingly Census does respond initially, tricking Axios into thinking it's not timing out. This forces it to time out.
-            const res = await promiseTimeout(this.query.get(this.filter), 10000);
+            const res = await promiseTimeout(this.query.get(this.filter), this.timeoutTime);
 
             if (attempts > 1) {
                 CensusApiRetryDriver.logger.log(`[${this.caller}] Retry for Census ${this.query.collection} successful at attempt #${attempts}`);
@@ -49,7 +54,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
                 if (err instanceof Error) {
                     CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request "${this.query.collection}" failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
                     await this.statisticsHandler.logMetric(started, this.metricKey(this.caller), false, true);
-                    this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: this.query.collection, result: 'retry_error'});
+                    this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: this.query.collection, result: 'retry'});
                 }
 
                 await this.delay(this.delayTime);

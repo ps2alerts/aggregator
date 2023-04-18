@@ -14,6 +14,7 @@ import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Faction} from '../ps2alerts-constants/faction';
 import {Logger} from '@nestjs/common';
 import StatisticsHandler from '../handlers/StatisticsHandler';
+import {ConfigService} from '@nestjs/config';
 
 export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<OutfitwarsTerritoryResultInterface> {
     private static readonly classLogger = new Logger('OutfitwarsTerritoryCalculator');
@@ -25,6 +26,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
         statisticsHandler: StatisticsHandler,
+        config: ConfigService,
     ) {
         super(
             instance,
@@ -33,6 +35,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
             cacheClient,
             zoneDataParser,
             statisticsHandler,
+            config,
         );
     }
 

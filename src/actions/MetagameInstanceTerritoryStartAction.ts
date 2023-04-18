@@ -12,6 +12,7 @@ import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import {ConfigService} from '@nestjs/config';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameInstanceTerritoryStartAction');
@@ -23,11 +24,12 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
         private readonly statisticsHandler: StatisticsHandler,
+        private readonly config: ConfigService,
     ) {}
 
     public async execute(): Promise<boolean> {
-        MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Running startActions()`);
-        MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Trying to get initial map state`);
+        MetagameInstanceTerritoryStartAction.logger.debug(`[${this.instance.instanceId}] Running startActions()`);
+        MetagameInstanceTerritoryStartAction.logger.debug(`[${this.instance.instanceId}] Trying to get initial map state`);
 
         const docs = await this.getInitialMap();
 
@@ -64,6 +66,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.cacheClient,
             this.zoneDataParser,
             this.statisticsHandler,
+            this.config,
         ).getMapData();
         await this.statisticsHandler.logMetric(date, MetricTypes.CENSUS_MAP_REGION);
 
