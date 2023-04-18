@@ -14,6 +14,8 @@ import {promiseTimeout} from '../../utils/PromiseTimeout';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
+import {METRICS_NAMES} from '../../modules/monitoring/MetricsConstants';
+import StatisticsHandler from '../StatisticsHandler';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements QueueMessageHandlerInterface<T> {
@@ -22,6 +24,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
     constructor(
         private readonly instance: PS2AlertsInstanceInterface,
         private readonly handlers: Array<PS2EventQueueMessageHandlerInterface<T>>,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async handle(event: T, actions: ChannelActionsInterface): Promise<void> {
@@ -31,6 +34,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
             if (zoneId !== this.instance.zone) {
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT, {type: 'instance_mismatch'});
                 return actions.ack();
             }
         } else {
@@ -44,6 +48,14 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
                 return actions.ack();
             }
         }
+
+        this.statisticsHandler.increaseCounter(
+            METRICS_NAMES.ZONE_MESSAGE_COUNT, {
+                type: String(event.event_name),
+                world: event.world_id,
+                zone: event.zone_id,
+            },
+        );
 
         // If the message came after the alert ended, chuck
         if (this.instance.messageOverdue(event)) {

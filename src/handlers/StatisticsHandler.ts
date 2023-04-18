@@ -36,8 +36,10 @@ export default class StatisticsHandler {
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
-        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES) private readonly aggregatorMessagesCount: Counter<string>,
-        @InjectMetric(METRICS_NAMES.EVENT_TYPES) private readonly eventTypesCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT) private readonly aggregatorMessagesCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.INSTANCES_COUNT) private readonly instancesCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.ZONE_MESSAGE_COUNT) private readonly zoneMessageCount: Counter<string>,
+
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
@@ -68,11 +70,14 @@ export default class StatisticsHandler {
         params.environment = this.censusEnvironment;
 
         switch (metric) {
-            case METRICS_NAMES.AGGREGATOR_MESSAGES:
+            case METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT:
                 this.aggregatorMessagesCount.inc(params, count);
                 break;
-            case METRICS_NAMES.EVENT_TYPES:
-                this.eventTypesCount.inc(params, count);
+            case METRICS_NAMES.INSTANCES_COUNT:
+                this.instancesCount.inc(params, count);
+                break;
+            case METRICS_NAMES.ZONE_MESSAGE_COUNT:
+                this.zoneMessageCount.inc(params, count);
                 break;
         }
     }

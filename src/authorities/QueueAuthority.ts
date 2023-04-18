@@ -9,6 +9,7 @@ import {Inject, Injectable, Logger} from '@nestjs/common';
 import ZoneMessageHandler from '../handlers/ps2census/ZoneMessageHandler';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsQueueInterface} from '../interfaces/PS2AlertsQueueInterface';
+import StatisticsHandler from '../handlers/StatisticsHandler';
 
 @Injectable()
 export default class QueueAuthority {
@@ -22,6 +23,7 @@ export default class QueueAuthority {
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
         @Inject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventQueueMessageHandlerInterface<any>>,
+        private readonly statisticsHandler: StatisticsHandler,
     ) {
         for (const handler of eventInstanceHandlers) {
             let handlerList = this.handlerMap.get(handler.eventName);
@@ -71,7 +73,7 @@ export default class QueueAuthority {
                 `${instance.world}.${eventName}.*`,
                 eventName === 'GainExperience' ? 100 : 50, // GainExp events are much lighter to process and more numerous
                 instance,
-                new ZoneMessageHandler(instance, handlers),
+                new ZoneMessageHandler(instance, handlers, this.statisticsHandler),
             );
 
             await queue.connect();

@@ -9,19 +9,20 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
     })],
     providers: [
         makeCounterProvider({
-            name: METRICS_NAMES.AGGREGATOR_MESSAGES,
+            name: METRICS_NAMES.AGGREGATOR_MESSAGES_COUNT,
             help: 'Aggregator messages received, split by success/fail/retry',
             labelNames: ['environment', 'type'],
         }),
         makeCounterProvider({
-            name: METRICS_NAMES.EVENT_TYPES,
+            name: METRICS_NAMES.ZONE_MESSAGE_COUNT,
             help: 'Census Event messages split by type',
             labelNames: ['environment', 'type', 'world'],
         }),
     ],
     exports: [
-        PROM_METRICS.AGGREGATOR_MESSAGES,
-        PROM_METRICS.EVENT_TYPES,
+        PROM_METRICS.AGGREGATOR_MESSAGES_COUNT,
+        PROM_METRICS.INSTANCES_COUNT,
+        PROM_METRICS.ZONE_MESSAGE_COUNT,
     ],
 })
 export default class MonitoringModule{}
