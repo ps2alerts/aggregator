@@ -9,10 +9,10 @@ import {ConfigService} from '@nestjs/config';
 export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
     private static readonly logger = new Logger('CensusApiRetryDriver');
 
-    // The below with the combination gives Census 30 seconds to recover before we abort a query.
-    private readonly retryLimit = 12;
+    // The below with the combination gives Census 120 seconds to recover before we abort a query.
+    private readonly retryLimit = 4;
     private readonly delayTime = 2500;
-    private readonly timeoutTime: number;
+    private readonly timeoutTime: number; // Maximum Census tolerance 30s
 
     constructor(
         private readonly query: Rest.GetQuery<T>,

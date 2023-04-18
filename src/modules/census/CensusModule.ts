@@ -13,13 +13,16 @@ import {ConfigService} from '@nestjs/config';
         // Census
         {
             provide: CensusClient,
-            useFactory: (config: ConfigService, cache: CensusCacheDriver) => new CensusClient(config.getOrThrow('census.serviceID'), config.getOrThrow('census.environment'), {
+            useFactory: (
+                config: ConfigService,
+                characterCache: CensusCacheDriver,
+            ) => new CensusClient(config.getOrThrow('census.serviceID'), config.getOrThrow('census.environment'), {
                 characterManager: {
                     query: (query) =>
                         query.resolve('world', ['outfit_member_extended', ['outfit_id', 'name', 'alias', 'leader_character_id']])
                             .hide('head_id', 'times', 'certs', 'profile_id', 'title_id', 'daily_ribbon'),
-                    retries: 3,
-                    cache,
+                    retries: 4,
+                    cache: characterCache,
                 },
                 rest: {
                     axios: {
@@ -49,7 +52,7 @@ import {ConfigService} from '@nestjs/config';
         },
         {
             provide: CensusCacheDriver,
-            useFactory: (redis: Redis) => new CensusCacheDriver(redis, 'character', 86400),
+            useFactory: (redis: Redis) => new CensusCacheDriver(redis, 'cache:character', 86400),
             inject: [Redis],
         },
     ],
