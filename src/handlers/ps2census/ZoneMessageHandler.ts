@@ -69,7 +69,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
                 this.handlers.map((handler) => handler.handle(
                     new PS2EventQueueMessage(event, this.instance),
                 )),
-            ), 30000);
+            ), 45000);
             await Promise.race(promise);
 
             return actions.ack();
