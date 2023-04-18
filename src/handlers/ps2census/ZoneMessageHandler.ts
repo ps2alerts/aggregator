@@ -76,7 +76,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Delaying message due to possible Census issues. Type: ${event.event_name} - Err: ${err.message}`);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'max_retries_reached'});
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'census_max_retries'});
                 return actions.delay(15000);
             }
 

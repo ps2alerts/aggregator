@@ -107,11 +107,18 @@ export abstract class RabbitMQQueue {
         }
     }
 
-    protected async handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry', started: Date): Promise<void> {
+    protected async handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry' | 'discard', started: Date): Promise<void> {
         try {
             if (action === 'ack') {
                 await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, true);
                 this.statisticsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success'});
+                return this.channel.ack(message);
+            }
+
+            // Ultimately this is not what we want, we just want to record these have happened for now.
+            if (action === 'discard') {
+                await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, false);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'discard'});
                 return this.channel.ack(message);
             }
 
