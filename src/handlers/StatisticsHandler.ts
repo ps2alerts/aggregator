@@ -3,6 +3,7 @@ import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import {Counter} from 'prom-client';
 import {InjectMetric} from '@willsoto/nestjs-prometheus';
+import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
 
 export enum MetricTypes {
     CACHE_CHARACTER_HITS = 'Cache:Character:Hits',
@@ -34,7 +35,9 @@ export default class StatisticsHandler {
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
-        @InjectMetric('aggregator_messages_successful') private readonly metricMessagesSuccessful: Counter<string>,
+        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_SUCCESS) private readonly metricMessagesSuccess: Counter<string>,
+        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_RETRY) private readonly metricMessagesRetry: Counter<string>,
+        @InjectMetric(METRICS_NAMES.AGGREGATOR_MESSAGES_FAIL) private readonly metricMessagesFail: Counter<string>,
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
@@ -54,8 +57,18 @@ export default class StatisticsHandler {
         await this.cacheClient.lpush(listKey, statsString);
     }
 
-    // This exists because injecting the counter in the RabbitMQQueue class would require injection in every child class
-    public increaseMessagesSuccessMetric(): void {
-        this.metricMessagesSuccessful.inc();
+    // Provides a singular entrypoint for easier refactoring, saves having to inject counters everywhere
+    public increaseCounter(metric: string, count?: number): void {
+        switch (metric) {
+            case METRICS_NAMES.AGGREGATOR_MESSAGES_SUCCESS:
+                this.metricMessagesSuccess.inc(count);
+                break;
+            case METRICS_NAMES.AGGREGATOR_MESSAGES_RETRY:
+                this.metricMessagesRetry.inc(count);
+                break;
+            case METRICS_NAMES.AGGREGATOR_MESSAGES_FAIL:
+                this.metricMessagesFail.inc(count);
+                break;
+        }
     }
 }

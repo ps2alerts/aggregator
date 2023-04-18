@@ -6,6 +6,7 @@ import {CreateChannelOpts} from 'amqp-connection-manager/dist/esm/ChannelWrapper
 import {ConsumeMessage} from 'amqplib';
 import {Logger} from '@nestjs/common';
 import StatisticsHandler, {MetricTypes} from '../../../handlers/StatisticsHandler';
+import {METRICS_NAMES} from '../../monitoring/MetricsConstants';
 
 export abstract class RabbitMQQueue {
     private static readonly logger = new Logger('RabbitMQQueue');
@@ -110,7 +111,7 @@ export abstract class RabbitMQQueue {
         try {
             if (action === 'ack') {
                 await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, true);
-                this.statisticsHandler.increaseMessagesSuccessMetric();
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_SUCCESS);
                 return this.channel.ack(message);
             }
 
@@ -121,12 +122,15 @@ export abstract class RabbitMQQueue {
 
             if (tries >= 3) {
                 await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, false, true);
+                this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_FAIL);
+
                 RabbitMQQueue.logger.error(`${this.queueName} Message exceeded too many tries! Dropping!`);
                 return this.channel.nack(message, false, false); // Chuck the message
             }
 
             // Retry
             await this.statisticsHandler.logMetric(started, MetricTypes.RABBITMQ_RETRY, null, true);
+            this.statisticsHandler.increaseCounter(METRICS_NAMES.AGGREGATOR_MESSAGES_RETRY);
 
             RabbitMQQueue.logger.debug(`${this.queueName} Retrying message! Tries: ${tries}`);
             message.properties.headers.tries = tries;
