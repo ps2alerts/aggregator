@@ -15,11 +15,13 @@ async function bootstrap(): Promise<void> {
 
     const app = await NestFactory.create(AppModule, new FastifyAdapter(), {
         bufferLogs: true,
+        autoFlushLogs: false,
     });
 
     const config = await app.resolve(ConfigService);
 
     app.useLogger(config.get('logger.levels'));
+    app.flushLogs();
 
     app.enableShutdownHooks();
 
