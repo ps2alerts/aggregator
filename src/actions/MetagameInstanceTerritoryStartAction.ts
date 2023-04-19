@@ -96,7 +96,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
                     outfitCaptured: null,
                 });
             } else {
-                MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Unknown / invalid facility detected! ${row.RowData.map_region.facility_name}`);
+                MetagameInstanceTerritoryStartAction.logger.warn(`[${this.instance.instanceId}] Unknown / invalid map region without a facility detected! ${row.RowData.map_region.facility_name}. On Oshur this is expected.`);
             }
         });
 
