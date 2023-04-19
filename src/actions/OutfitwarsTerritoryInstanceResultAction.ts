@@ -6,7 +6,7 @@ import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfa
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 
 // This class takes care of calculating the result of an instance and updating it via both the API and in memory
 // Also fantastic naming I know :D
@@ -17,7 +17,7 @@ export default class OutfitwarsTerritoryInstanceResultAction implements ActionIn
         private readonly instance: OutfitWarsTerritoryInstance,
         private readonly territoryCalculator: OutfitwarsTerritoryCalculator,
         private readonly ps2alertsApiClient: AxiosInstance,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<OutfitwarsTerritoryResultInterface> {
@@ -41,7 +41,7 @@ export default class OutfitwarsTerritoryInstanceResultAction implements ActionIn
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update outfit wars instance result data! Err: ${err.message} - Data: ${JSON.stringify({result})}`, 'OutfitwarsTerritoryInstanceResultAction');
         });
 
-        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
+        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         return result;
     }

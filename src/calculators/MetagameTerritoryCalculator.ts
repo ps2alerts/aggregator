@@ -13,7 +13,7 @@ import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
@@ -25,7 +25,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
         ps2AlertsApiClient: AxiosInstance,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
-        statisticsHandler: StatisticsHandler,
+        metricsHandler: MetricsHandler,
         config: ConfigService,
     ) {
         super(
@@ -34,7 +34,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
             ps2AlertsApiClient,
             cacheClient,
             zoneDataParser,
-            statisticsHandler,
+            metricsHandler,
             config,
         );
     }

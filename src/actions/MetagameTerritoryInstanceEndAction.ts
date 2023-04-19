@@ -12,7 +12,7 @@ import {
     MetagameTerritoryControlResultInterface,
 } from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameTerritoryInstanceEndAction');
@@ -23,7 +23,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         private readonly ps2alertsApiClient: AxiosInstance,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -47,9 +47,9 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
             ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', this.instance.instanceId),
             data,
         ).then(async () => {
-            await this.statisticsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, true);
+            await this.metricsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, true);
         }).catch(async (err: Error) => {
-            await this.statisticsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, false);
+            await this.metricsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, false);
 
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`);
         });

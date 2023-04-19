@@ -7,9 +7,9 @@ import {Injectable, Logger} from '@nestjs/common';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
 import {CharacterEvent} from 'ps2census/dist/client/events/base/character.event';
 import FakeCharacterFactory from '../factories/FakeCharacterFactory';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import Redis from 'ioredis';
-import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class CharacterBroker {
@@ -17,7 +17,7 @@ export default class CharacterBroker {
 
     constructor(
         private readonly fakeCharacterFactory: FakeCharacterFactory,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
         private readonly cacheClient: Redis,
     ) {}
 
@@ -40,8 +40,8 @@ export default class CharacterBroker {
                 character = new Character(await payload.character());
 
                 if (!cached) {
-                    await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
-                    this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'success'});
+                    await this.metricsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'success'});
                 }
             } else {
                 character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
@@ -57,15 +57,15 @@ export default class CharacterBroker {
                     character = new Character(await payload.character(), parseInt(payload.team_id, 10));
 
                     if (!cached) {
-                        await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
-                        this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'success'});
+                        await this.metricsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'success'});
                     }
                 }
 
                 if (!payload.attacker_character_id || payload.attacker_character_id === '0') {
                     attacker = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
                     CharacterBroker.logger.error('AttackerEvent had no actual attacker character ID! ps2census bug');
-                    this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'attacker_event_no_character'});
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'attacker_event_no_character'});
                 } else {
                     started = new Date();
                     const cached = await this.checkIfInCache(payload.attacker_character_id);
@@ -74,8 +74,8 @@ export default class CharacterBroker {
                     const attackerCharacter = await payload.attacker();
 
                     if (!cached) {
-                        await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
-                        this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'success'});
+                        await this.metricsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER);
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'success'});
                     }
 
                     if (attackerCharacter) {
@@ -85,23 +85,23 @@ export default class CharacterBroker {
                 }
             }
 
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'success'});
 
             return {character, attacker};
         } catch (err) {
             if (err instanceof MaxRetryException) {
-                await this.statisticsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER, false, true);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'max_retries'});
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'error'});
+                await this.metricsHandler.logMetric(started, MetricTypes.CENSUS_CHARACTER, false, true);
+                this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'max_retries'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'error'});
                 new ExceptionHandler('Census failed to return character data after maximum retries', err, 'CharacterBroker');
             }
 
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'error'});
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'character', result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'error'});
             new ExceptionHandler('Census failed to return character data not due to retries!', err, 'CharacterBroker');
         }
 
-        this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'exception'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'exception'});
         throw new ApplicationException('CharacterBroker failed to return characters, even fake ones!', 'CharacterBroker');
     }
 
@@ -112,13 +112,13 @@ export default class CharacterBroker {
         const cached = !!await this.cacheClient.exists(cacheKey);
 
         if (cached) {
-            await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_CHARACTER_HITS, null, null);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: 'hit'});
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'cache_hit'});
+            await this.metricsHandler.logMetric(started, MetricTypes.CACHE_CHARACTER_HITS, null, null);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: 'hit'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'cache_hit'});
         } else {
-            await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_CHARACTER_MISSES, null, null);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: 'miss'});
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'cache_miss'});
+            await this.metricsHandler.logMetric(started, MetricTypes.CACHE_CHARACTER_MISSES, null, null);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: 'miss'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'cache_miss'});
         }
 
         return cached;

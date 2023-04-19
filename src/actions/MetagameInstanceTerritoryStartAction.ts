@@ -11,7 +11,7 @@ import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoint
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
@@ -23,7 +23,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
         private readonly config: ConfigService,
     ) {}
 
@@ -43,9 +43,9 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             ps2AlertsApiEndpoints.instanceEntriesFacilityBatch,
             docs,
         ).then(async () => {
-            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
+            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
         }).catch(async (err: Error) => {
-            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
+            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
 
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to insert initial map state! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
         });
@@ -65,10 +65,10 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.instance,
             this.cacheClient,
             this.zoneDataParser,
-            this.statisticsHandler,
+            this.metricsHandler,
             this.config,
         ).getMapData();
-        await this.statisticsHandler.logMetric(date, MetricTypes.CENSUS_MAP_REGION);
+        await this.metricsHandler.logMetric(date, MetricTypes.CENSUS_MAP_REGION);
 
         if (mapData.length === 0) {
             throw new ApplicationException('Unable to properly get map data from census!');

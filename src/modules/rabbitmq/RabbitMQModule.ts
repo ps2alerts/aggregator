@@ -7,12 +7,12 @@ import RabbitMQQueueFactory from './factories/RabbitMQQueueFactory';
 import CensusModule from '../census/CensusModule';
 import RedisModule from '../redis/RedisModule';
 import EventTimingMiddlewareHandler from '../../middlewares/EventTimingMiddlewareHandler';
-import StatisticsHandler from '../../handlers/StatisticsHandler';
+import MetricsHandler from '../../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
-import MonitoringModule from '../monitoring/MonitoringModule';
+import MetricsModule from '../metrics/MetricsModule';
 
 @Module({
-    imports: [RedisModule, CensusModule, MonitoringModule],
+    imports: [RedisModule, CensusModule, MetricsModule],
     providers: [
         {
             provide: TYPES.rabbitMqConnection,
@@ -21,7 +21,7 @@ import MonitoringModule from '../monitoring/MonitoringModule';
         },
         RabbitMQQueueFactory,
         EventTimingMiddlewareHandler,
-        StatisticsHandler,
+        MetricsHandler,
 
         ApiMQPublisher,
         ApiMQDelayPublisher,
@@ -31,7 +31,7 @@ import MonitoringModule from '../monitoring/MonitoringModule';
         RabbitMQQueueFactory,
         ApiMQPublisher,
         ApiMQDelayPublisher,
-        StatisticsHandler,
+        MetricsHandler,
     ],
 })
 export default class RabbitMQModule implements OnModuleInit {

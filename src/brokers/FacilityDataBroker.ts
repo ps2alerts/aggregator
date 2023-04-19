@@ -13,9 +13,9 @@ import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoint
 import {getZoneVersion} from '../utils/zoneVersion';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {getRealZoneId} from '../utils/zoneIdHandler';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
-import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class FacilityDataBroker {
@@ -27,7 +27,7 @@ export default class FacilityDataBroker {
         private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
         config: ConfigService,
     ) {
         this.censusEnvironment = config.getOrThrow('census.environment');
@@ -49,33 +49,33 @@ export default class FacilityDataBroker {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache HIT`);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: 'hit'});
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'cache_hit'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: 'hit'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'cache_hit'});
 
             const data = await this.cacheClient.get(cacheKey);
 
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return new FacilityData(JSON.parse(data), zone);
         }
 
         FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache MISS`);
-        this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: 'miss'});
-        this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'cache_miss'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: 'miss'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'cache_miss'});
 
         const result = await this.getFacilityData(facilityId, zone);
 
         if (result) {
             FacilityDataBroker.logger.verbose(`Facility ID ${facilityId} successfully retrieved from PS2A API`);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
 
             facilityData = new FacilityData(result, zone);
         }
 
         if (!result) {
             FacilityDataBroker.logger.error(`PS2Alerts is missing the facility! ${facilityId} on zone ${zone}`);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'error'});
 
             // Log the unknown item so we can investigate
             await this.cacheClient.sadd(`unknownFacilities:${environment}`, `${facilityId}-${zone}`);
@@ -97,7 +97,7 @@ export default class FacilityDataBroker {
                     .replace('{zone}', String(zone))
                     .replace('{version}', getZoneVersion(zone)),
             );
-            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_CENSUS_REGIONS, true);
+            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_CENSUS_REGIONS, true);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const data: CensusRegionResponseInterface = result.data;
@@ -108,17 +108,17 @@ export default class FacilityDataBroker {
 
             // Doing filter on nothing will result in nothing so this works too
             if (facilityData.length) {
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'success'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'success'});
                 return facilityData[0];
             }
 
             // If empty, this is a problem!
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'error'});
             return null;
 
         } catch (err) {
             if (err instanceof Error) {
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {
                     type: 'ps2alerts_api',
                     endpoint: 'census_regions',
                     result: 'error',

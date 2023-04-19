@@ -7,7 +7,7 @@ import ApplicationException from '../../../exceptions/ApplicationException';
 import {Options} from 'amqplib/properties';
 import {QueueMessageHandlerInterface} from '../../../interfaces/QueueMessageHandlerInterface';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../../../handlers/StatisticsHandler';
+import MetricsHandler from '../../../handlers/MetricsHandler';
 
 export interface AdminQueueMessageContentInterface {
     action: string;
@@ -20,11 +20,11 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
-        statisticsHandler: StatisticsHandler,
+        metricsHandler: MetricsHandler,
         private readonly exchange: string,
         private readonly handler: QueueMessageHandlerInterface<AdminQueueMessage>,
     ) {
-        super(connectionManager, queueName, statisticsHandler);
+        super(connectionManager, queueName, metricsHandler);
     }
 
     public async connect(): Promise<void> {

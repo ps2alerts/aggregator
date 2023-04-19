@@ -11,7 +11,7 @@ import EventTimingMiddlewareHandler from '../../../middlewares/EventTimingMiddle
 import ApplicationException from '../../../exceptions/ApplicationException';
 import InstanceAbstract from '../../../instances/InstanceAbstract';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../../../handlers/StatisticsHandler';
+import MetricsHandler from '../../../handlers/MetricsHandler';
 
 export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     private static readonly classLogger = new Logger('InstanceEventQueue');
@@ -19,7 +19,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
     constructor(
         connectionManager: AmqpConnectionManager,
         queueName: string,
-        statisticsHandler: StatisticsHandler,
+        metricsHandler: MetricsHandler,
         private readonly topicExchange: string,
         private readonly pattern: string,
         private readonly prefetch: number,
@@ -29,7 +29,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
         private readonly timingMiddlewareHandler: EventTimingMiddlewareHandler,
         private readonly censusClient: CensusClient,
     ) {
-        super(connectionManager, queueName, statisticsHandler);
+        super(connectionManager, queueName, metricsHandler);
     }
 
     public async connect(): Promise<void> {

@@ -4,7 +4,7 @@ import TerritoryResultInterface from '../ps2alerts-constants/interfaces/Territor
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {AxiosInstance} from 'axios';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameInstanceTerritoryFacilityControlAction');
@@ -13,7 +13,7 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
         private readonly event: FacilityControlEvent,
         private readonly territoryResultAction: ActionInterface<TerritoryResultInterface>,
         private readonly ps2AlertsApiClient: AxiosInstance,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -38,9 +38,9 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
                 .replace('{facilityId}', String(this.event.facility.id)),
             {mapControl: this.event.instance.result},
         ).then(async () => {
-            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
+            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
         }).catch(async (err: Error) => {
-            await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
+            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
             MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
 

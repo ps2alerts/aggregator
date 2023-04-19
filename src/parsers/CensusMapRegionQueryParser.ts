@@ -6,7 +6,7 @@ import {CensusRegionMapJoinQueryInterface} from '../interfaces/CensusRegionEndpo
 import ZoneDataParser from './ZoneDataParser';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 
 export default class CensusMapRegionQueryParser {
@@ -18,7 +18,7 @@ export default class CensusMapRegionQueryParser {
         private readonly instance: InstanceAbstract,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
         private readonly config: ConfigService,
     ) {}
 
@@ -33,7 +33,7 @@ export default class CensusMapRegionQueryParser {
             const data = await this.cacheClient.get(cacheKey);
 
             if (data) {
-                await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_MAP_REGION_HITS, null, null);
+                await this.metricsHandler.logMetric(started, MetricTypes.CACHE_MAP_REGION_HITS, null, null);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return JSON.parse(data);
             }
@@ -58,7 +58,7 @@ export default class CensusMapRegionQueryParser {
         /* eslint-enable */
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        const apiRequest = new CensusApiRetryDriver(query, filter, 'CensusMapRegionQueryParser', this.statisticsHandler, this.config);
+        const apiRequest = new CensusApiRetryDriver(query, filter, 'CensusMapRegionQueryParser', this.metricsHandler, this.config);
         let mapDataFinal: CensusRegionMapJoinQueryInterface[] = [];
 
         await apiRequest.try().then((mapData: CensusRegionMapJoinQueryInterface[]) => {

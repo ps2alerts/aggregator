@@ -3,13 +3,13 @@
 // This class is usually called in front of ZoneMessageQueueHandler, not the actual handlers themselves.
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import {PS2Event} from 'ps2census';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {Injectable} from '@nestjs/common';
 
 @Injectable()
 export default class EventTimingMiddlewareHandler {
     constructor(
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {
     }
 
@@ -24,7 +24,7 @@ export default class EventTimingMiddlewareHandler {
             get: (target: any, prop) => async () => {
                 const metricName = `Event:${message.event_name}`;
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                await this.statisticsHandler.logMetric(started, metricName);
+                await this.metricsHandler.logMetric(started, metricName);
                 target[prop]();
             },
         });

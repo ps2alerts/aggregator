@@ -3,7 +3,7 @@ import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import {Counter, Gauge} from 'prom-client';
 import {InjectMetric} from '@willsoto/nestjs-prometheus';
-import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 export enum MetricTypes {
     CACHE_CHARACTER_HITS = 'Cache:Character:Hits',
@@ -28,8 +28,8 @@ export enum MetricTypes {
 }
 
 @Injectable()
-export default class StatisticsHandler {
-    private static readonly logger = new Logger('StatisticsHandler');
+export default class MetricsHandler {
+    private static readonly logger = new Logger('metricsHandler');
     private readonly runId: number;
     private readonly metricsPrefix: string;
     private readonly censusEnvironment: string;
@@ -40,7 +40,7 @@ export default class StatisticsHandler {
         // Counts
         @InjectMetric(METRICS_NAMES.BROKER_COUNT) private readonly brokerCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.CACHE_COUNT) private readonly cacheCount: Counter<string>,
-        @InjectMetric(METRICS_NAMES.EXTERNAL_REQUESTS) private readonly censusCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT) private readonly censusCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_COUNT) private readonly instancesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly queueMessagesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.ZONE_MESSAGE_COUNT) private readonly zoneMessageCount: Counter<string>,
@@ -84,7 +84,7 @@ export default class StatisticsHandler {
             case METRICS_NAMES.CACHE_COUNT:
                 this.cacheCount.inc(params, count);
                 break;
-            case METRICS_NAMES.EXTERNAL_REQUESTS:
+            case METRICS_NAMES.EXTERNAL_REQUESTS_COUNT:
                 this.censusCount.inc(params, count);
                 break;
             case METRICS_NAMES.QUEUE_MESSAGES_COUNT:
@@ -97,7 +97,7 @@ export default class StatisticsHandler {
                 this.zoneMessageCount.inc(params, count);
                 break;
             default:
-                StatisticsHandler.logger.error(`Attempted to increase counter for unknown metric: ${metric}`);
+                MetricsHandler.logger.error(`Attempted to increase counter for unknown metric: ${metric}`);
                 break;
         }
     }
@@ -118,7 +118,7 @@ export default class StatisticsHandler {
                 this.instancesGauge.set(params, value);
                 break;
             default:
-                StatisticsHandler.logger.error(`Attempted to set gauge for unknown metric: ${metric}`);
+                MetricsHandler.logger.error(`Attempted to set gauge for unknown metric: ${metric}`);
                 break;
         }
     }

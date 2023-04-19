@@ -14,8 +14,8 @@ import {promiseTimeout} from '../../utils/PromiseTimeout';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
-import {METRICS_NAMES} from '../../modules/monitoring/MetricsConstants';
-import StatisticsHandler from '../StatisticsHandler';
+import {METRICS_NAMES} from '../../modules/metrics/MetricsConstants';
+import MetricsHandler from '../MetricsHandler';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements QueueMessageHandlerInterface<T> {
@@ -24,7 +24,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
     constructor(
         private readonly instance: PS2AlertsInstanceInterface,
         private readonly handlers: Array<PS2EventQueueMessageHandlerInterface<T>>,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async handle(event: T, actions: ChannelActionsInterface): Promise<void> {
@@ -34,7 +34,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
             if (zoneId !== this.instance.zone) {
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'instance_mismatch'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'instance_mismatch'});
                 return actions.ack();
             }
         } else {
@@ -49,7 +49,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
             }
         }
 
-        this.statisticsHandler.increaseCounter(
+        this.metricsHandler.increaseCounter(
             METRICS_NAMES.ZONE_MESSAGE_COUNT, {
                 type: String(event.event_name),
                 world: event.world_id,
@@ -76,27 +76,27 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Delaying message due to possible Census issues. Type: ${event.event_name} - Err: ${err.message}`);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'census_max_retries'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'census_max_retries'});
                 return actions.delay(15000);
             }
 
             if (err instanceof ApplicationException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'processing_failed'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'processing_failed'});
 
                 return actions.retry();
             }
 
             if (err instanceof TimeoutException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load. Type: ${event.event_name} - Err: ${err.message}`);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'timeout'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'timeout'});
                 return actions.delay(30000);
             }
 
             if (err instanceof Error) {
                 actions.ack();
                 new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'error'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'error'});
 
             }
 

@@ -11,7 +11,7 @@ import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
-import StatisticsHandler, {MetricTypes} from '../StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../MetricsHandler';
 
 @Injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -23,7 +23,7 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
         private readonly instanceActionFactory: InstanceActionFactory,
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         @Inject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {
     }
 
@@ -61,19 +61,19 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
 
         await this.ps2AlertsApiClient.post(endpoint, facilityData)
             .then(async () => {
-                await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, false);
+                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, false);
             }).catch(async (err: Error) => {
                 FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
-                await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, false);
+                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, false);
 
                 // Try again
                 await this.ps2AlertsApiClient.post(endpoint, facilityData)
                     .then(async () => {
-                        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, true);
+                        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, true);
                     })
                     .catch(async (err: Error) => {
-                        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, true);
+                        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, true);
 
                         FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
                         return false;

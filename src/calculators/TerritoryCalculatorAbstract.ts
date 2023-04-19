@@ -16,7 +16,7 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
@@ -57,7 +57,7 @@ export default abstract class TerritoryCalculatorAbstract {
         protected readonly ps2AlertsApiClient: AxiosInstance,
         protected readonly cacheClient: Redis,
         protected readonly zoneDataParser: ZoneDataParser,
-        protected readonly statisticsHandler: StatisticsHandler,
+        protected readonly metricsHandler: MetricsHandler,
         protected readonly config: ConfigService,
     ) {}
 
@@ -176,7 +176,7 @@ export default abstract class TerritoryCalculatorAbstract {
             this.instance,
             this.cacheClient,
             this.zoneDataParser,
-            this.statisticsHandler,
+            this.metricsHandler,
             this.config,
         ).getMapData();
 
@@ -313,7 +313,7 @@ export default abstract class TerritoryCalculatorAbstract {
                 .replace('{facilityId}', facilityId.toString()),
         );
 
-        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, null);
+        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, null);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface = apiResponse.data;

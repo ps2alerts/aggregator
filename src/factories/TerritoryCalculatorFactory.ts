@@ -8,7 +8,7 @@ import ZoneDataParser from '../parsers/ZoneDataParser';
 import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 
 @Injectable()
@@ -17,7 +17,7 @@ export default class TerritoryCalculatorFactory {
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
         private readonly config: ConfigService,
     ) {}
 
@@ -31,7 +31,7 @@ export default class TerritoryCalculatorFactory {
             this.ps2AlertsApiClient,
             this.cacheClient,
             this.zoneDataParser,
-            this.statisticsHandler,
+            this.metricsHandler,
             this.config,
         );
     }
@@ -46,7 +46,7 @@ export default class TerritoryCalculatorFactory {
             this.ps2AlertsApiClient,
             this.cacheClient,
             this.zoneDataParser,
-            this.statisticsHandler,
+            this.metricsHandler,
             this.config,
         );
     }

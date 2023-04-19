@@ -1,11 +1,11 @@
 import {Module} from '@nestjs/common';
 import {makeCounterProvider, makeGaugeProvider, PrometheusModule} from '@willsoto/nestjs-prometheus';
-import {MonitoringController} from './MonitoringController';
+import {MetricsController} from './MetricsController';
 import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
 
 @Module({
     imports: [PrometheusModule.register({
-        controller: MonitoringController,
+        controller: MetricsController,
     })],
     providers: [
         // Counts
@@ -20,7 +20,7 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
             labelNames: ['environment', 'type', 'result'],
         }),
         makeCounterProvider({
-            name: METRICS_NAMES.EXTERNAL_REQUESTS,
+            name: METRICS_NAMES.EXTERNAL_REQUESTS_COUNT,
             help: 'External endpoints statistics',
             labelNames: ['environment', 'provider', 'endpoint', 'result'],
         }),
@@ -64,4 +64,4 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
         PROM_METRICS.INSTANCES_GAUGE,
     ],
 })
-export default class MonitoringModule{}
+export default class MetricsModule {}

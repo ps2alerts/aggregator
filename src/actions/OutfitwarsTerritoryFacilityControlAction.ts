@@ -4,7 +4,7 @@ import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoint
 import {AxiosInstance} from 'axios';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 
 export default class OutfitwarsTerritoryFacilityControlAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('OutfitwarsTerritoryFacilityControlAction');
@@ -14,7 +14,7 @@ export default class OutfitwarsTerritoryFacilityControlAction implements ActionI
         private readonly territoryResultAction: ActionInterface<OutfitwarsTerritoryResultInterface>,
         private readonly territoryTeamAction: ActionInterface<boolean>,
         private readonly ps2AlertsApiClient: AxiosInstance,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -49,7 +49,7 @@ export default class OutfitwarsTerritoryFacilityControlAction implements ActionI
             OutfitwarsTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
 
-        await this.statisticsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
+        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

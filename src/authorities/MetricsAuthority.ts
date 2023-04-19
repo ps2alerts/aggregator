@@ -2,9 +2,9 @@
 
 import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
-import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 interface TableDisplayInterface {
     metricType: string;
@@ -31,7 +31,7 @@ export default class MetricsAuthority {
     constructor(
         private readonly cacheClient: Redis,
         config: ConfigService,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {
         this.runId = config.get('app.runId');
         this.censusEnvironment = config.getOrThrow('census.environment');
@@ -189,12 +189,12 @@ export default class MetricsAuthority {
         ];
 
         await Promise.all(promises).then((results) => {
-            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[0].length, {type: 'cache_character'});
-            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[1].length, {type: 'cache_item'});
-            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[2].length, {type: 'cache_facility_data'});
-            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[3].length, {type: 'unknown_items'});
-            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[4].length, {type: 'character_presence'});
-            this.statisticsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[5].length, {type: 'outfit_participants'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[0].length, {type: 'cache_character'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[1].length, {type: 'cache_item'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[2].length, {type: 'cache_facility_data'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[3].length, {type: 'unknown_items'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[4].length, {type: 'character_presence'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[5].length, {type: 'outfit_participants'});
         });
     }
 }

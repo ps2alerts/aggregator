@@ -13,9 +13,9 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import Redis from 'ioredis';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
-import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -27,7 +27,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         @Inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
         private readonly config: ConfigService,
     ) {
         this.censusEnvironment = config.getOrThrow('census.environment');
@@ -50,7 +50,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             }
 
             ItemBroker.logger.verbose(`[${environment}] Missing item ID but has vehicle ID, assuming vehicle roadkill`);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'success'});
 
             return item;
         }
@@ -60,9 +60,9 @@ export default class ItemBroker implements ItemBrokerInterface {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.verbose(`${cacheKey} cache HIT`);
-            await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_ITEM_HITS, null, null);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'hit'});
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'cache_hit'});
+            await this.metricsHandler.logMetric(started, MetricTypes.CACHE_ITEM_HITS, null, null);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'hit'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'cache_hit'});
 
             const data = await this.cacheClient.get(cacheKey);
 
@@ -73,7 +73,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             } catch (err) {
                 // Json didn't parse, chuck the data
                 ItemBroker.logger.warn(`${cacheKey} was invalid JSON, flushing cache`);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'invalid'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'invalid'});
 
                 await this.cacheClient.del(cacheKey);
                 // Fall through to the rest of the method to get the item
@@ -81,9 +81,9 @@ export default class ItemBroker implements ItemBrokerInterface {
         }
 
         ItemBroker.logger.verbose(`${cacheKey} MISS`);
-        await this.statisticsHandler.logMetric(started, MetricTypes.CACHE_ITEM_MISSES, null, null);
-        this.statisticsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'miss'});
-        this.statisticsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'cache_miss'});
+        await this.metricsHandler.logMetric(started, MetricTypes.CACHE_ITEM_MISSES, null, null);
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'miss'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'cache_miss'});
 
         // Serve the fake item by default, if one is found it gets replaced
         let item = new FakeItemFactory().build();
@@ -142,11 +142,11 @@ export default class ItemBroker implements ItemBrokerInterface {
         };
 
         // Grab the item data from Census
-        const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker', this.statisticsHandler, this.config);
+        const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker', this.metricsHandler, this.config);
         await apiRequest.try().then((items) => {
             if (!items[0]) {
                 ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'census', endpoint: 'item', result: 'empty'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'item', result: 'empty'});
 
                 return null;
             }
@@ -176,15 +176,15 @@ export default class ItemBroker implements ItemBrokerInterface {
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
             const data: Rest.Format<'item'> = request.data.item_list[0];
-            await this.statisticsHandler.logMetric(started, MetricTypes.FALCON_ITEM, true);
-            this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'falcon', endpoint: 'item', result: 'success'});
+            await this.metricsHandler.logMetric(started, MetricTypes.FALCON_ITEM, true);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'falcon', endpoint: 'item', result: 'success'});
 
             return new Item(data);
         } catch (err) {
             if (err instanceof Error) {
                 ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Falcon API. Error: ${err.message}`);
-                await this.statisticsHandler.logMetric(started, MetricTypes.FALCON_ITEM, false);
-                this.statisticsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS, {provider: 'falcon', endpoint: 'item', result: 'error'});
+                await this.metricsHandler.logMetric(started, MetricTypes.FALCON_ITEM, false);
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'falcon', endpoint: 'item', result: 'error'});
 
                 throw new ApplicationException('Falcon API could not find item');
             }

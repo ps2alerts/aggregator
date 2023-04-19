@@ -58,7 +58,7 @@ import {HealthModule} from './health/HealthModule';
 import {Death} from 'ps2census';
 import {ConfigModule} from '@nestjs/config';
 import {config} from './config';
-import MonitoringModule from './modules/monitoring/MonitoringModule';
+import MetricsModule from './modules/metrics/MetricsModule';
 
 @Module({
     imports: [
@@ -72,7 +72,7 @@ import MonitoringModule from './modules/monitoring/MonitoringModule';
         RabbitMQModule,
         CensusModule,
         PS2AlertsApiModule,
-        MonitoringModule,
+        MetricsModule,
     ],
     providers: [
         // TODO: Split this monstrosity into separate modules with some sort of hierarchy

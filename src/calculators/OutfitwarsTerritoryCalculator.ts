@@ -13,7 +13,7 @@ import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Faction} from '../ps2alerts-constants/faction';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 
 export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<OutfitwarsTerritoryResultInterface> {
@@ -25,7 +25,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
         ps2AlertsApiClient: AxiosInstance,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
-        statisticsHandler: StatisticsHandler,
+        metricsHandler: MetricsHandler,
         config: ConfigService,
     ) {
         super(
@@ -34,7 +34,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
             ps2AlertsApiClient,
             cacheClient,
             zoneDataParser,
-            statisticsHandler,
+            metricsHandler,
             config,
         );
     }

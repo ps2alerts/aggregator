@@ -1,8 +1,8 @@
 import {Injectable, Logger} from '@nestjs/common';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import InstanceAuthority from './InstanceAuthority';
-import StatisticsHandler from '../handlers/StatisticsHandler';
-import {METRICS_NAMES} from '../modules/monitoring/MetricsConstants';
+import MetricsHandler from '../handlers/MetricsHandler';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class OverdueInstanceAuthority {
@@ -11,7 +11,7 @@ export default class OverdueInstanceAuthority {
 
     constructor(
         private readonly instanceAuthority: InstanceAuthority,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public run(): void {
@@ -26,16 +26,16 @@ export default class OverdueInstanceAuthority {
             // Get all instances, update the gauges, then perform operations
             const instances = this.instanceAuthority.getAllInstances();
 
-            this.statisticsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, instances.length, {type: 'active'});
+            this.metricsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, instances.length, {type: 'active'});
 
             const overdueInstances = instances.filter((instance) => {
                 return instance.overdue();
             });
-            this.statisticsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, overdueInstances.length, {type: 'overdue'});
+            this.metricsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, overdueInstances.length, {type: 'overdue'});
             overdueInstances.forEach((instance: PS2AlertsInstanceInterface) => {
                 try {
                     OverdueInstanceAuthority.logger.warn(`Instance ${instance.instanceId} on world ${instance.world} is OVERDUE! Ending!`);
-                    this.statisticsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'overdue'});
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'overdue'});
 
                     void this.instanceAuthority.endInstance(instance);
                 } catch (err) {
