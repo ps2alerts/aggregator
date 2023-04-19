@@ -12,9 +12,9 @@ import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterfac
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
 import ExceptionHandler from '../system/ExceptionHandler';
-import {AxiosInstance} from 'axios';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
+import {PS2AlertsApiDriver} from '../../drivers/PS2AlertsApiDriver';
 
 @Injectable()
 export default class DeathEventHandler implements PS2EventQueueMessageHandlerInterface<Death> {
@@ -26,7 +26,7 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
         private readonly characterBroker: CharacterBroker,
         private readonly characterPresenceHandler: CharacterPresenceHandler,
         private readonly instanceActionFactory: InstanceActionFactory,
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         @Inject(TYPES.deathAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<DeathEvent>>,
     ) {}
 

@@ -2,7 +2,6 @@ import {Inject, Injectable, Logger} from '@nestjs/common';
 import FacilityControlEvent from './events/FacilityControlEvent';
 import {TYPES} from '../../constants/types';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
-import {AxiosInstance} from 'axios';
 import {FacilityControl} from 'ps2census';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
@@ -12,6 +11,7 @@ import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpo
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import MetricsHandler, {MetricTypes} from '../MetricsHandler';
+import {PS2AlertsApiDriver} from '../../drivers/PS2AlertsApiDriver';
 
 @Injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -21,7 +21,7 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
     constructor(
         private readonly facilityDataBroker: FacilityDataBroker,
         private readonly instanceActionFactory: InstanceActionFactory,
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         @Inject(TYPES.facilityControlAggregates) private readonly aggregateHandlers: Array<AggregateHandlerInterface<FacilityControlEvent>>,
         private readonly metricsHandler: MetricsHandler,
     ) {

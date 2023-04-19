@@ -6,20 +6,20 @@ import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MapDataInterface from '../interfaces/MapDataInterface';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Rest} from 'ps2census';
-import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameInstanceTerritoryStartAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly ps2alertsApiClient: PS2AlertsApiDriver,
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,

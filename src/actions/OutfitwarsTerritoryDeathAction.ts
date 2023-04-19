@@ -1,19 +1,19 @@
 import {ActionInterface} from '../interfaces/ActionInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance} from 'axios';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {Faction} from '../ps2alerts-constants/faction';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class OutfitwarsTerritoryDeathAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('OutfitwarsTerritoryDeathAction');
 
     constructor(
         private readonly event: DeathEvent,
-        private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly metricsHandler: MetricsHandler,
     ) {}
 

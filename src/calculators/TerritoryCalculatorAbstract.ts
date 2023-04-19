@@ -7,7 +7,7 @@ import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/Faction
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import {Rest} from 'ps2census';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance, AxiosResponse} from 'axios';
+import {AxiosResponse} from 'axios';
 import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
     from '../interfaces/PS2AlertsInstanceEntriesInstanceFacilityResponseInterface';
 import Redis from 'ioredis';
@@ -18,6 +18,7 @@ import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -54,7 +55,7 @@ export default abstract class TerritoryCalculatorAbstract {
     protected constructor(
         protected readonly instance: InstanceAbstract,
         protected readonly restClient: Rest.Client,
-        protected readonly ps2AlertsApiClient: AxiosInstance,
+        protected readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         protected readonly cacheClient: Redis,
         protected readonly zoneDataParser: ZoneDataParser,
         protected readonly metricsHandler: MetricsHandler,

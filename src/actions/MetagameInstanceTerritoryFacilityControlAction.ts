@@ -2,9 +2,9 @@ import {ActionInterface} from '../interfaces/ActionInterface';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import TerritoryResultInterface from '../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance} from 'axios';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameInstanceTerritoryFacilityControlAction');
@@ -12,7 +12,7 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
     constructor(
         private readonly event: FacilityControlEvent,
         private readonly territoryResultAction: ActionInterface<TerritoryResultInterface>,
-        private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly metricsHandler: MetricsHandler,
     ) {}
 

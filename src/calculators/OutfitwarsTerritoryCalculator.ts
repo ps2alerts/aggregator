@@ -3,7 +3,6 @@ import {CalculatorInterface} from './CalculatorInterface';
 import TerritoryCalculatorAbstract, {FacilityInterface, PercentagesInterface} from './TerritoryCalculatorAbstract';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
-import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import {Rest} from 'ps2census';
 import ZoneDataParser from '../parsers/ZoneDataParser';
@@ -15,6 +14,7 @@ import {Faction} from '../ps2alerts-constants/faction';
 import {Logger} from '@nestjs/common';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<OutfitwarsTerritoryResultInterface> {
     private static readonly classLogger = new Logger('OutfitwarsTerritoryCalculator');
@@ -22,7 +22,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
     constructor(
         protected readonly instance: OutfitWarsTerritoryInstance,
         restClient: Rest.Client,
-        ps2AlertsApiClient: AxiosInstance,
+        ps2AlertsApiClient: PS2AlertsApiDriver,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
         metricsHandler: MetricsHandler,

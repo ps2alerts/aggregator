@@ -1,12 +1,12 @@
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance} from 'axios';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 // This class takes care of calculating the result of an instance and updating it via both the API and in memory
 // Also fantastic naming I know :D
@@ -16,7 +16,7 @@ export default class OutfitwarsTerritoryInstanceResultAction implements ActionIn
     constructor(
         private readonly instance: OutfitWarsTerritoryInstance,
         private readonly territoryCalculator: OutfitwarsTerritoryCalculator,
-        private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly ps2alertsApiClient: PS2AlertsApiDriver,
         private readonly metricsHandler: MetricsHandler,
     ) {}
 

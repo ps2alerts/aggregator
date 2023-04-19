@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations,@typescript-eslint/no-unsafe-member-access */
-import {Inject, Injectable, Logger} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {jsonLogOutput} from '../../utils/json';
 import {MetagameEventState} from '../../ps2alerts-constants/metagameEventState';
 import MetagameTerritoryInstance from '../../instances/MetagameTerritoryInstance';
@@ -15,9 +15,8 @@ import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInst
 import {getOutfitWarPhase, getOutfitWarRound} from '../../ps2alerts-constants/outfitwars/utils';
 import {getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import {Zone} from '../../ps2alerts-constants/zone';
-import {TYPES} from '../../constants/types';
-import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
+import {PS2AlertsApiDriver} from '../../drivers/PS2AlertsApiDriver';
 
 @Injectable()
 export default class MetagameEventEventHandler implements QueueMessageHandlerInterface<MetagameEvent> {
@@ -27,7 +26,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
     constructor(
         private readonly instanceAuthority: InstanceAuthority,
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
     ) {}
 
     public async handle(metagameEvent: MetagameEvent, actions: ChannelActionsInterface): Promise<void> {

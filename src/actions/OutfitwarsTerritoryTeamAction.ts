@@ -1,13 +1,13 @@
 import {ActionInterface} from '../interfaces/ActionInterface';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance} from 'axios';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {Rest} from 'ps2census';
 import Outfit from '../data/Outfit';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class OutfitwarsTerritoryTeamAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('OutfitwarsTerritoryTeamAction');
@@ -16,7 +16,7 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
         private readonly instance: OutfitWarsTerritoryInstance,
         private readonly event: FacilityControlEvent,
         private readonly restClient: Rest.Client,
-        private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly metricsHandler: MetricsHandler,
     ) {}
 

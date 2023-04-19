@@ -2,13 +2,13 @@
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import MapDataInterface from '../interfaces/MapDataInterface';
-import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 // TODO: Abstract this class!
 export default class OutfitwarsTerritoryInstanceStartAction implements ActionInterface<boolean> {
@@ -16,7 +16,7 @@ export default class OutfitwarsTerritoryInstanceStartAction implements ActionInt
 
     constructor(
         private readonly instance: OutfitWarsTerritoryInstance,
-        private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly ps2alertsApiClient: PS2AlertsApiDriver,
         private readonly metricsHandler: MetricsHandler,
     ) {}
 

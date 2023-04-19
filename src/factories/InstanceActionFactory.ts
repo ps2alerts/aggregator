@@ -2,8 +2,7 @@ import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface
 import {ActionInterface} from '../interfaces/ActionInterface';
 import ApplicationException from '../exceptions/ApplicationException';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
-import {Inject, Injectable} from '@nestjs/common';
-import {TYPES} from '../constants/types';
+import {Injectable} from '@nestjs/common';
 import MetagameInstanceTerritoryStartAction from '../actions/MetagameInstanceTerritoryStartAction';
 import MetagameTerritoryInstanceEndAction from '../actions/MetagameTerritoryInstanceEndAction';
 import TerritoryCalculatorFactory from './TerritoryCalculatorFactory';
@@ -11,7 +10,6 @@ import MetagameInstanceTerritoryFacilityControlAction from '../actions/MetagameI
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {Rest} from 'ps2census';
-import {AxiosInstance} from 'axios';
 import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEvent';
 import MetagameInstanceTerritoryResultAction from '../actions/MetagameInstanceTerritoryResultAction';
 import Redis from 'ioredis';
@@ -30,6 +28,7 @@ import OutfitwarsTerritoryDeathAction from '../actions/OutfitwarsTerritoryDeathA
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 @Injectable()
 export default class InstanceActionFactory {
@@ -38,7 +37,7 @@ export default class InstanceActionFactory {
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
         private readonly restClient: Rest.Client,
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
         private readonly metricsHandler: MetricsHandler,

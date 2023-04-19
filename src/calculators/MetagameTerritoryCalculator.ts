@@ -9,12 +9,12 @@ import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/Faction
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Rest} from 'ps2census';
-import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
     private static readonly classLogger = new Logger('MetagameTerritoryCalculator');
@@ -22,7 +22,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
     constructor(
         protected readonly instance: MetagameTerritoryInstance,
         restClient: Rest.Client,
-        ps2AlertsApiClient: AxiosInstance,
+        ps2AlertsApiClient: PS2AlertsApiDriver,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
         metricsHandler: MetricsHandler,

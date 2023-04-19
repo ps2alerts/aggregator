@@ -76,10 +76,9 @@ export default abstract class BaseExternalRequestDriver {
         });
     }
 
+    // Return the first n segments of the path
     protected formatEndpoint(url: string): string {
         const urlParts = url.split('/');
-        const formattedUrl = urlParts.slice(0, this.endpointDepth + 1).join('/');
-        console.log(formattedUrl);
-        return formattedUrl;
+        return urlParts.slice(0, this.endpointDepth + 1).join('/');
     }
 }

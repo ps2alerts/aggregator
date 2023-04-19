@@ -6,13 +6,13 @@ import FactionUtils from '../utils/FactionUtils';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance} from 'axios';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {
     MetagameTerritoryControlResultInterface,
 } from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameTerritoryInstanceEndAction');
@@ -20,7 +20,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
     constructor(
         private readonly instance: MetagameTerritoryInstance,
         private readonly territoryResultAction: ActionInterface<MetagameTerritoryControlResultInterface>,
-        private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly ps2alertsApiClient: PS2AlertsApiDriver,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
         private readonly metricsHandler: MetricsHandler,
