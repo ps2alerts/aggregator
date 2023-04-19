@@ -4,9 +4,10 @@ import MetricsHandler from '../handlers/MetricsHandler';
 import {AxiosInstance, AxiosResponse} from 'axios';
 import {ExternalRequestDriverInterface} from './ExternalRequestDriverInterface';
 import BaseExternalRequestDriver from './BaseExternalRequestDriver';
-import {Inject} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {TYPES} from '../constants/types';
 
+@Injectable()
 export class FalconRequestDriver extends BaseExternalRequestDriver implements ExternalRequestDriverInterface {
     constructor(
         @Inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,

@@ -1,10 +1,12 @@
-import {Rest} from 'ps2census';
 import {CensusApiRetryDriver} from './CensusApiRetryDriver';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
+import {Rest} from 'ps2census';
 import {Format} from 'ps2census/dist/rest';
+import {Injectable} from '@nestjs/common';
 
+@Injectable()
 export class CensusRequestDriver {
     constructor(
         private readonly restClient: Rest.Client,
@@ -21,7 +23,7 @@ export class CensusRequestDriver {
             item_id: String(itemId),
         };
 
-        const timer = this.metricsHandler.getHistogram(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: '/item'});
+        const timer = this.metricsHandler.getHistogram(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM, {provider: 'census', endpoint: '/item'});
 
         // Grab the item data from Census
         const apiRequest = new CensusApiRetryDriver(query, filter, 'CensusRequestDriver:getItem', this.metricsHandler, this.config);
