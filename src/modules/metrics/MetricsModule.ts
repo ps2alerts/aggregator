@@ -1,5 +1,10 @@
 import {Module} from '@nestjs/common';
-import {makeCounterProvider, makeGaugeProvider, PrometheusModule} from '@willsoto/nestjs-prometheus';
+import {
+    makeCounterProvider,
+    makeGaugeProvider,
+    makeHistogramProvider,
+    PrometheusModule,
+} from '@willsoto/nestjs-prometheus';
 import {MetricsController} from './MetricsController';
 import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
 
@@ -50,6 +55,13 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
             help: 'Number of active instances',
             labelNames: ['environment', 'type'],
         }),
+        // Histograms
+        makeHistogramProvider({
+            name: METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM,
+            help: 'External endpoints roundtimes',
+            labelNames: ['environment', 'provider', 'endpoint'],
+            buckets: [0.01, 0.05, 0.10, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30], // in seconds
+        }),
     ],
     exports: [
         // Counts
@@ -62,6 +74,8 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
         // Gauges
         PROM_METRICS.CACHE_GAUGE,
         PROM_METRICS.INSTANCES_GAUGE,
+        // Histograms
+        PROM_METRICS.EXTERNAL_REQUESTS_HISTOGRAM,
     ],
 })
 export default class MetricsModule {}

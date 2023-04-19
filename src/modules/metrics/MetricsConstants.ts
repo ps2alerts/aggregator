@@ -11,6 +11,9 @@ export const METRICS_NAMES = {
     // Gauges
     CACHE_GAUGE: 'aggregator_cache_gauge',
     INSTANCES_GAUGE: 'aggregator_instances_gauge',
+
+    // Histograms
+    EXTERNAL_REQUESTS_HISTOGRAM: 'aggregator_external_requests_histogram',
 };
 
 export const PROM_METRICS = {
@@ -26,4 +29,7 @@ export const PROM_METRICS = {
     // Gauges
     CACHE_GAUGE: 'PROM_METRIC_AGGREGATOR_CACHE_GAUGE',
     INSTANCES_GAUGE: 'PROM_METRIC_AGGREGATOR_INSTANCES_GAUGE',
+
+    // Histograms
+    EXTERNAL_REQUESTS_HISTOGRAM: 'PROM_METRIC_AGGREGATOR_EXTERNAL_REQUESTS_HISTOGRAM',
 };

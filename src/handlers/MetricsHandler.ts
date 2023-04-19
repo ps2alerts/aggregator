@@ -1,7 +1,7 @@
 import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
-import {Counter, Gauge} from 'prom-client';
+import {Counter, Gauge, Histogram} from 'prom-client';
 import {InjectMetric} from '@willsoto/nestjs-prometheus';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
@@ -48,6 +48,8 @@ export default class MetricsHandler {
         @InjectMetric(METRICS_NAMES.CACHE_GAUGE) private readonly cacheGauge: Gauge<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_GAUGE) private readonly instancesGauge: Gauge<string>,
 
+        // Histograms
+        @InjectMetric(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM) private readonly externalRequestsHistogram: Histogram<string>,
     ) {
         this.runId = config.get('app.runId');
         this.metricsPrefix = `metrics:${this.runId}`;
@@ -119,6 +121,16 @@ export default class MetricsHandler {
                 break;
             default:
                 MetricsHandler.logger.error(`Attempted to set gauge for unknown metric: ${metric}`);
+                break;
+        }
+    }
+
+    public getHistogram(metric: string, params?: Partial<Record<string, string | number>>) {
+        switch (metric) {
+            case METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM:
+                return this.externalRequestsHistogram.startTimer(params);
+            default:
+                MetricsHandler.logger.error(`Attempted to start timer for unknown metric: ${metric}`);
                 break;
         }
     }
