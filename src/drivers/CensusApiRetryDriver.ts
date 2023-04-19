@@ -13,6 +13,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
     private readonly retryLimit = 4;
     private readonly delayTime = 2500;
     private readonly timeoutTime: number; // Maximum Census tolerance 30s
+    private readonly endpoint: string;
 
     constructor(
         private readonly query: Rest.GetQuery<T>,
@@ -22,6 +23,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
         config: ConfigService,
     ) {
         this.timeoutTime = config.get('census.timeout'); // Maximum Census tolerance
+        this.endpoint = `/${this.query.collection}`;
     }
 
     public async try(attempts = 0): Promise<Rest.CensusResponse<Rest.Format<T>> | undefined> {
@@ -29,11 +31,11 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
 
         CensusApiRetryDriver.logger.verbose(`[${this.caller}] Attempt #${attempts}...`);
 
-        const timer = this.metricsHandler.getHistogram(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM, {provider: 'census', endpoint: this.query.collection});
+        const timer = this.metricsHandler.getHistogram(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM, {provider: 'census', endpoint: this.endpoint});
 
         try {
             if (attempts > 2) {
-                CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempting to get ${this.query.collection} from Census... Attempt #${attempts}`);
+                CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempting to get ${this.endpoint} from Census... Attempt #${attempts}`);
                 this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'retry'});
             }
 
@@ -42,7 +44,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
             timer();
 
             if (attempts > 1) {
-                CensusApiRetryDriver.logger.log(`[${this.caller}] Retry for Census ${this.query.collection} successful at attempt #${attempts}`);
+                CensusApiRetryDriver.logger.log(`[${this.caller}] Retry for Census ${this.endpoint} successful at attempt #${attempts}`);
                 this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'retry_success'});
             }
 
@@ -52,7 +54,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
         } catch (err) {
             if (attempts < this.retryLimit) {
                 if (err instanceof Error) {
-                    CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request "${this.query.collection}" failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
+                    CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request "${this.endpoint}" failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
                     this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'retry'});
                 }
 
@@ -63,7 +65,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
                 return await this.try(attempts);
             } else {
                 if (err instanceof Error) {
-                    CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request "${this.query.collection}" failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
+                    CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request "${this.endpoint}" failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
                     this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'error'});
                 }
             }
