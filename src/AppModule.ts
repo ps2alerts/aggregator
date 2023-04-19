@@ -59,6 +59,9 @@ import {Death} from 'ps2census';
 import {ConfigModule} from '@nestjs/config';
 import {config} from './config';
 import MetricsModule from './modules/metrics/MetricsModule';
+import {PS2AlertsApiDriver} from './drivers/PS2AlertsApiDriver';
+import {FalconRequestDriver} from './drivers/FalconRequestDriver';
+import {CensusRequestDriver} from './drivers/CensusRequestDriver';
 
 @Module({
     imports: [
@@ -136,6 +139,11 @@ import MetricsModule from './modules/metrics/MetricsModule';
         // Subscribers
         AdminAggregatorSubscriber,
         MetagameSubscriber,
+
+        // Drivers
+        CensusRequestDriver,
+        PS2AlertsApiDriver,
+        FalconRequestDriver,
 
         // Multi injects
         {

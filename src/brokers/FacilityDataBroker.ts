@@ -1,4 +1,4 @@
-import {Inject, Injectable, Logger} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {FacilityDataInterface} from '../interfaces/FacilityDataInterface';
 import FacilityData from '../data/FacilityData';
 import FakeMapRegionFactory from '../constants/fakeMapRegion';
@@ -7,15 +7,14 @@ import PS2EventQueueMessage from '../handlers/messages/PS2EventQueueMessage';
 import Parser from '../utils/parser';
 import Redis from 'ioredis';
 import {Zone} from '../ps2alerts-constants/zone';
-import {TYPES} from '../constants/types';
-import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {getZoneVersion} from '../utils/zoneVersion';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {getRealZoneId} from '../utils/zoneIdHandler';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 @Injectable()
 export default class FacilityDataBroker {
@@ -26,9 +25,9 @@ export default class FacilityDataBroker {
     constructor(
         private readonly cacheClient: Redis,
         private readonly restClient: Rest.Client,
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         private readonly metricsHandler: MetricsHandler,
         config: ConfigService,
+        private readonly ps2AlertsApiDriver: PS2AlertsApiDriver,
     ) {
         this.censusEnvironment = config.getOrThrow('census.environment');
     }
@@ -88,16 +87,13 @@ export default class FacilityDataBroker {
     }
 
     private async getFacilityData(facilityId: number, zone: Zone): Promise<CensusFacilityRegion | null> {
-        const started = new Date();
-
         try {
-            const result = await this.ps2AlertsApiClient.get(
+            const result = await this.ps2AlertsApiDriver.get(
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 ps2AlertsApiEndpoints.censusRegions
                     .replace('{zone}', String(zone))
                     .replace('{version}', getZoneVersion(zone)),
             );
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_CENSUS_REGIONS, true);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const data: CensusRegionResponseInterface = result.data;
@@ -108,19 +104,18 @@ export default class FacilityDataBroker {
 
             // Doing filter on nothing will result in nothing so this works too
             if (facilityData.length) {
-                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'success'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
                 return facilityData[0];
             }
 
             // If empty, this is a problem!
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'ps2alerts_api', endpoint: 'census_regions', result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'empty'});
             return null;
 
         } catch (err) {
             if (err instanceof Error) {
-                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {
-                    type: 'ps2alerts_api',
-                    endpoint: 'census_regions',
+                this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {
+                    broker: 'facility_data',
                     result: 'error',
                 });
             }

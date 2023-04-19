@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {Inject, Injectable, Logger} from '@nestjs/common';
-import {TYPES} from '../constants/types';
+import {Injectable, Logger} from '@nestjs/common';
 import {ItemBrokerInterface} from '../interfaces/ItemBrokerInterface';
 import {ItemInterface} from '../interfaces/ItemInterface';
 import Item from '../data/Item';
 import FakeItemFactory from '../factories/FakeItemFactory';
 import {Vehicle} from '../ps2alerts-constants/vehicle';
-import {CensusApiRetryDriver} from '../drivers/CensusApiRetryDriver';
 import {Rest} from 'ps2census';
-import {AxiosInstance} from 'axios';
 import ApplicationException from '../exceptions/ApplicationException';
 import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints';
 import {CensusEnvironment} from '../types/CensusEnvironment';
@@ -16,6 +13,8 @@ import Redis from 'ioredis';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {FalconRequestDriver} from '../drivers/FalconRequestDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 @Injectable()
 export default class ItemBroker implements ItemBrokerInterface {
@@ -26,7 +25,8 @@ export default class ItemBroker implements ItemBrokerInterface {
     constructor(
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
-        @Inject(TYPES.falconApiClient) private readonly falconApiClient: AxiosInstance,
+        private readonly censusRequestDriver: CensusRequestDriver,
+        private readonly falconRequestClient: FalconRequestDriver,
         private readonly metricsHandler: MetricsHandler,
         private readonly config: ConfigService,
     ) {
@@ -90,17 +90,19 @@ export default class ItemBroker implements ItemBrokerInterface {
 
         const censusItem = await this.getItemFromCensus(itemId, environment);
 
-        // If we didn't just return a fake item, use it
-        if (censusItem.id !== -1) {
+        // If we didn't just return a fake item or null, use it
+        if (censusItem && censusItem.id !== -1) {
             ItemBroker.logger.verbose(`[${environment}] Census API found item ${itemId}!`);
             item = censusItem;
+        } else {
+            ItemBroker.logger.debug(`[${environment}] Census API could not find item ${itemId}!`);
         }
 
         if (environment === 'ps2' && !censusItem) {
             const falconItem = await this.getItemFromFalcon(itemId, environment);
 
             if (falconItem) {
-                ItemBroker.logger.verbose(`[${environment}] Falcon API found item ${itemId}!`);
+                ItemBroker.logger.debug(`[${environment}] Falcon API found item ${itemId}!`);
                 item = falconItem;
             }
         }
@@ -109,6 +111,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             // Log the unknown item so we can investigate
             await this.cacheClient.sadd(`unknownItems:${environment}`, itemId);
             ItemBroker.logger.debug(`Unknown item ${itemId} logged`);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'unknown'});
 
             // Returns fake
             ItemBroker.logger.warn(`[${environment}] Returning fake item in response for item ${itemId}`);
@@ -126,35 +129,23 @@ export default class ItemBroker implements ItemBrokerInterface {
             is_vehicle_weapon: String(item.isVehicleWeapon),
         };
 
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'success'});
+
         await this.cacheClient.setex(cacheKey, 60 * 60 * 24, JSON.stringify(rawCensusItem));
 
         return item;
     }
 
     private async getItemFromCensus(itemId: number, environment: CensusEnvironment): Promise<ItemInterface | null> {
-        let returnItem = new FakeItemFactory().build();
+        const censusItem = await this.censusRequestDriver.getItem(itemId);
 
-        const query = this.restClient.getQueryBuilder('item')
-            .limit(1);
-        const filter = {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            item_id: String(itemId),
-        };
+        if (censusItem) {
+            // If we got a response from the Census API, use it
+            return new Item(censusItem);
+        }
 
-        // Grab the item data from Census
-        const apiRequest = new CensusApiRetryDriver(query, filter, 'ItemBroker', this.metricsHandler, this.config);
-        await apiRequest.try().then((items) => {
-            if (!items[0]) {
-                ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'item', result: 'empty'});
-
-                return null;
-            }
-
-            returnItem = new Item(items[0]);
-        });
-
-        return returnItem;
+        ItemBroker.logger.warn(`[${environment}] Could not find item ${itemId} in Census, or they returned garbage.`);
+        return null;
     }
 
     private async getItemFromFalcon(itemId: number, environment: CensusEnvironment): Promise<ItemInterface> {
@@ -164,27 +155,17 @@ export default class ItemBroker implements ItemBrokerInterface {
             return returnItem;
         }
 
-        const started = new Date();
-
         // Grab the item data from Falcon
         try {
-            const request = await this.falconApiClient.get(lithafalconEndpoints.itemId, {
-                params: {
-                    item_id: itemId,
-                },
-            });
+            const request = await this.falconRequestClient.get(lithafalconEndpoints.itemId, {params: {item_id: itemId}});
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
             const data: Rest.Format<'item'> = request.data.item_list[0];
-            await this.metricsHandler.logMetric(started, MetricTypes.FALCON_ITEM, true);
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'falcon', endpoint: 'item', result: 'success'});
 
             return new Item(data);
         } catch (err) {
             if (err instanceof Error) {
                 ItemBroker.logger.warn(`[${environment}] Unable to properly grab item ${itemId} from Falcon API. Error: ${err.message}`);
-                await this.metricsHandler.logMetric(started, MetricTypes.FALCON_ITEM, false);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'falcon', endpoint: 'item', result: 'error'});
 
                 throw new ApplicationException('Falcon API could not find item');
             }
