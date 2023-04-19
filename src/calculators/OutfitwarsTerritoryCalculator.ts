@@ -40,7 +40,7 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
     }
 
     public async calculate(): Promise<OutfitwarsTerritoryResultInterface> {
-        OutfitwarsTerritoryCalculator.classLogger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
+        OutfitwarsTerritoryCalculator.classLogger.verbose(`[${this.instance.instanceId}] Running TerritoryCalculator`);
 
         // Hydrate the territory data
         await this.hydrateData();

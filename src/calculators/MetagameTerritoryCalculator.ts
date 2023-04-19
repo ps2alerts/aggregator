@@ -40,7 +40,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
     }
 
     public async calculate(): Promise<MetagameTerritoryControlResultInterface> {
-        MetagameTerritoryCalculator.classLogger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
+        MetagameTerritoryCalculator.classLogger.verbose(`[${this.instance.instanceId}] Running TerritoryCalculator`);
 
         // Hydrate the territory data
         await this.hydrateData();
