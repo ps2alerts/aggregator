@@ -1,4 +1,4 @@
-import {Module, OnModuleInit} from '@nestjs/common';
+import {Module, OnApplicationBootstrap} from '@nestjs/common';
 import {connect} from 'amqp-connection-manager';
 import {TYPES} from '../../constants/types';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
@@ -34,14 +34,14 @@ import MetricsModule from '../metrics/MetricsModule';
         MetricsHandler,
     ],
 })
-export default class RabbitMQModule implements OnModuleInit {
+export default class RabbitMQModule implements OnApplicationBootstrap {
     constructor(
         private readonly apiMqPublisher: ApiMQPublisher,
         private readonly apiMqDelayPublisher: ApiMQDelayPublisher,
     ) {
     }
 
-    public async onModuleInit() {
+    public async onApplicationBootstrap() {
         await Promise.all([
             this.apiMqPublisher.connect(),
             this.apiMqDelayPublisher.connect(),

@@ -1,11 +1,11 @@
-import {Injectable, OnModuleInit} from '@nestjs/common';
+import {Injectable, OnApplicationBootstrap} from '@nestjs/common';
 import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
 import AdminAggregatorMessageHandler from '../handlers/AdminAggregatorMessageHandler';
 import {AdminQueue} from '../modules/rabbitmq/queues/AdminQueue';
 import {ConfigService} from '@nestjs/config';
 
 @Injectable()
-export default class AdminAggregatorSubscriber implements OnModuleInit {
+export default class AdminAggregatorSubscriber implements OnApplicationBootstrap {
     private queue: AdminQueue;
 
     constructor(
@@ -15,7 +15,7 @@ export default class AdminAggregatorSubscriber implements OnModuleInit {
     ) {
     }
 
-    public async onModuleInit(): Promise<void> {
+    public async onApplicationBootstrap(): Promise<void> {
         const queueName = `aggregator-admin-${this.config.get('app.environment')}-${this.config.getOrThrow('census.environment')}`;
 
         this.queue = this.queueFactory.createAdminQueue(

@@ -1,6 +1,6 @@
 // noinspection JSMethodCanBeStatic
 
-import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
+import {Injectable, Logger, OnApplicationBootstrap} from '@nestjs/common';
 import {pcWorldArray, World} from '../ps2alerts-constants/world';
 import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
 import {MetagameEventQueue} from '../modules/rabbitmq/queues/MetagameEventQueue';
@@ -8,7 +8,7 @@ import MetagameEventEventHandler from '../handlers/ps2census/MetagameEventEventH
 import {ConfigService} from '@nestjs/config';
 
 @Injectable()
-export default class MetagameSubscriber implements OnModuleInit {
+export default class MetagameSubscriber implements OnApplicationBootstrap {
     private static readonly logger = new Logger('MetagameSubscriber');
     private readonly queues = new Map<World, MetagameEventQueue>();
     private isConnected = false;
@@ -20,7 +20,7 @@ export default class MetagameSubscriber implements OnModuleInit {
     ) {
     }
 
-    public async onModuleInit(): Promise<void> {
+    public async onApplicationBootstrap(): Promise<void> {
         if (this.isConnected) {
             MetagameSubscriber.logger.error('Attempted to resubscribe to Metagame queues when already connected!');
             return;
