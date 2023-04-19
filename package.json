@@ -30,7 +30,7 @@
     "@nestjs/common": "^9.4.0",
     "@nestjs/core": "^9.4.0",
     "@nestjs/microservices": "^9.4.0",
-    "@nestjs/platform-fastify": "^9.1.2",
+    "@nestjs/platform-fastify": "^9.4.0",
     "@nestjs/terminus": "^9.1.1",
     "amqp-connection-manager": "^4.1.12",
     "amqplib": "^0.10.0",
