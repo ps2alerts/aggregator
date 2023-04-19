@@ -16,6 +16,7 @@ export default abstract class BaseExternalRequestDriver {
         private readonly metricsHandler: MetricsHandler,
         caller: string,
         provider: string,
+        private readonly endpointDepth: number = 2,
     ) {
         this.caller = caller;
         this.provider = provider;
@@ -55,15 +56,21 @@ export default abstract class BaseExternalRequestDriver {
     protected doRequest(wrapper: ExternalRequestWrapperInterface): any{
         return wrapper.request.then((response: AxiosResponse) => {
             wrapper.timer();
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: this.provider, endpoint: wrapper.url, result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: this.provider, endpoint: this.formatEndpoint(wrapper.url), result: 'success'});
             return response;
         }).catch((err) => {
             wrapper.timer();
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: this.provider, endpoint: wrapper.url, result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: this.provider, endpoint: this.formatEndpoint(wrapper.url), result: 'error'});
 
             if (err instanceof Error) {
-                BaseExternalRequestDriver.logger.error(`[${this.caller}] - External API call failed for ${wrapper.url} endpoint! Err: ${err.message}`);
+                BaseExternalRequestDriver.logger.error(`[${this.caller}] - External API call failed for ${this.formatEndpoint(wrapper.url)} endpoint! Err: ${err.message}`);
             }
         });
+    }
+
+    protected formatEndpoint(url: string): string {
+        const urlParts = url.split('/');
+        const formattedUrl = urlParts.slice(0, this.endpointDepth).join('/');
+        return formattedUrl;
     }
 }

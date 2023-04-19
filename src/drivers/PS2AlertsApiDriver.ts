@@ -13,7 +13,13 @@ export class PS2AlertsApiDriver extends BaseExternalRequestDriver implements Ext
         @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
         metricsHandler: MetricsHandler,
     ) {
-        super(ps2AlertsApiClient, metricsHandler, 'PS2AlertsApiDriver', 'ps2alerts_api');
+        super(
+            ps2AlertsApiClient,
+            metricsHandler,
+            'PS2AlertsApiDriver',
+            'ps2alerts_api',
+            2,
+        );
     }
 
     public async get(url: string): Promise<AxiosResponse<any, any>> {
