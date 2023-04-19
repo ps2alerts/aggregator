@@ -27,8 +27,8 @@
   "homepage": "https://github.com/ps2alerts/aggregator#readme",
   "dependencies": {
     "@nestjs/axios": "^2.0.0",
-    "@nestjs/common": "^9.0.0",
-    "@nestjs/core": "^9.0.0",
+    "@nestjs/common": "^9.4.0",
+    "@nestjs/core": "^9.4.0",
     "@nestjs/microservices": "^9.4.0",
     "@nestjs/platform-fastify": "^9.1.2",
     "@nestjs/terminus": "^9.1.1",
