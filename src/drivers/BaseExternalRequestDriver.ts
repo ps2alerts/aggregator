@@ -16,7 +16,7 @@ export default abstract class BaseExternalRequestDriver {
         private readonly metricsHandler: MetricsHandler,
         caller: string,
         provider: string,
-        private readonly endpointDepth: number = 2,
+        private readonly endpointDepth: number = 2, // Has to be greater than 1, or we don't see any segments
     ) {
         this.caller = caller;
         this.provider = provider;
@@ -47,20 +47,28 @@ export default abstract class BaseExternalRequestDriver {
         }
 
         return {
-            timer: this.metricsHandler.getHistogram(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM, {provider: this.provider, endpoint: url}),
+            timer: this.metricsHandler.getHistogram(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM, {provider: this.provider, endpoint: this.formatEndpoint(url)}),
             url,
             request,
         };
     }
 
-    protected doRequest(wrapper: ExternalRequestWrapperInterface): any{
-        return wrapper.request.then((response: AxiosResponse) => {
+    protected async doRequest(wrapper: ExternalRequestWrapperInterface): Promise<any> {
+        return await wrapper.request.then((response: AxiosResponse) => {
             wrapper.timer();
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: this.provider, endpoint: this.formatEndpoint(wrapper.url), result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {
+                provider: this.provider,
+                endpoint: this.formatEndpoint(wrapper.url),
+                result: 'success',
+            });
             return response;
         }).catch((err) => {
             wrapper.timer();
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: this.provider, endpoint: this.formatEndpoint(wrapper.url), result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {
+                provider: this.provider,
+                endpoint: this.formatEndpoint(wrapper.url),
+                result: 'error',
+            });
 
             if (err instanceof Error) {
                 BaseExternalRequestDriver.logger.error(`[${this.caller}] - External API call failed for ${this.formatEndpoint(wrapper.url)} endpoint! Err: ${err.message}`);
@@ -70,7 +78,8 @@ export default abstract class BaseExternalRequestDriver {
 
     protected formatEndpoint(url: string): string {
         const urlParts = url.split('/');
-        const formattedUrl = urlParts.slice(0, this.endpointDepth).join('/');
+        const formattedUrl = urlParts.slice(0, this.endpointDepth + 1).join('/');
+        console.log(formattedUrl);
         return formattedUrl;
     }
 }

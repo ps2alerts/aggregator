@@ -18,7 +18,7 @@ export class PS2AlertsApiDriver extends BaseExternalRequestDriver implements Ext
             metricsHandler,
             'PS2AlertsApiDriver',
             'ps2alerts_api',
-            2,
+            1,
         );
     }
 
