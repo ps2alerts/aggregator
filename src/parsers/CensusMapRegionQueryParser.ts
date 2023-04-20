@@ -23,7 +23,7 @@ export default class CensusMapRegionQueryParser {
     ) {}
 
     public async getMapData(): Promise<CensusRegionMapJoinQueryInterface[]> {
-        const cacheKey = `censusMap:W${this.instance.world}:Z${this.instance.zone}`;
+        const cacheKey = `cache:liveMap:W${this.instance.world}:Z${this.instance.zone}`;
 
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
@@ -31,13 +31,13 @@ export default class CensusMapRegionQueryParser {
 
             if (data) {
                 CensusMapRegionQueryParser.logger.verbose(`${cacheKey} HIT`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'map_region', result: 'hit'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'live_map', result: 'hit'});
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return JSON.parse(data);
             }
         }
 
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'map_region', result: 'miss'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'live_map', result: 'miss'});
 
         CensusMapRegionQueryParser.logger.verbose(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
