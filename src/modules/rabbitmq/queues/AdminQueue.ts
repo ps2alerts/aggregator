@@ -43,8 +43,6 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
                     priority: 0,
                 };
 
-                const started = new Date();
-
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 await channel.consume(this.queueName, async (message) => {
                     if (!message) {
@@ -58,7 +56,7 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
                             this.createMessage(message),
                             {
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                ack: async () => await this.handleMessageConfirm(message, 'ack', started),
+                                ack: async () => await this.handleMessageConfirm(message, 'ack'),
                                 retry: () => {
                                     return true; // Not supported
                                 },

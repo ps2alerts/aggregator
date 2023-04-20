@@ -1,7 +1,7 @@
 import {Rest} from 'ps2census';
 import {promiseTimeout} from '../utils/PromiseTimeout';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 import {ConfigService} from '@nestjs/config';
 
@@ -74,17 +74,5 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
 
     private delay(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    private metricKey(caller: string) {
-        switch (caller) {
-            case 'CensusMapRegionQueryParser':
-                return MetricTypes.CENSUS_MAP_REGION;
-
-            case 'ItemBroker':
-                return MetricTypes.CENSUS_ITEM;
-        }
-
-        return null;
     }
 }

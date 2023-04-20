@@ -10,9 +10,9 @@ import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoint
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
-import {ConfigService} from '@nestjs/config';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameInstanceTerritoryStartAction');
@@ -24,7 +24,7 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
         private readonly metricsHandler: MetricsHandler,
-        private readonly config: ConfigService,
+        private readonly censusRequestDriver: CensusRequestDriver,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -37,16 +37,10 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             throw new ApplicationException(`[${this.instance.instanceId}] Map state was empty!`, 'MetagameInstanceTerritoryStartAction');
         }
 
-        const started = new Date();
-
         await this.ps2alertsApiClient.post(
             ps2AlertsApiEndpoints.instanceEntriesFacilityBatch,
             docs,
-        ).then(async () => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
-        }).catch(async (err: Error) => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
-
+        ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to insert initial map state! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
         });
 
@@ -66,13 +60,8 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.cacheClient,
             this.zoneDataParser,
             this.metricsHandler,
-            this.config,
+            this.censusRequestDriver,
         ).getMapData();
-        await this.metricsHandler.logMetric(date, MetricTypes.CENSUS_MAP_REGION);
-
-        if (mapData.length === 0) {
-            throw new ApplicationException('Unable to properly get map data from census!');
-        }
 
         const docs: MapDataInterface[] = [];
 

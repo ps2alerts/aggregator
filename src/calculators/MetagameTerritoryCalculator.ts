@@ -13,8 +13,8 @@ import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
 import MetricsHandler from '../handlers/MetricsHandler';
-import {ConfigService} from '@nestjs/config';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
     private static readonly classLogger = new Logger('MetagameTerritoryCalculator');
@@ -26,7 +26,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
         metricsHandler: MetricsHandler,
-        config: ConfigService,
+        censusRequestDriver: CensusRequestDriver,
     ) {
         super(
             instance,
@@ -35,7 +35,7 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
             cacheClient,
             zoneDataParser,
             metricsHandler,
-            config,
+            censusRequestDriver,
         );
     }
 

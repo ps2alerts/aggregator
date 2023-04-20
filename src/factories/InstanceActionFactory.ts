@@ -27,8 +27,8 @@ import OutfitwarsTerritoryTeamAction from '../actions/OutfitwarsTerritoryTeamAct
 import OutfitwarsTerritoryDeathAction from '../actions/OutfitwarsTerritoryDeathAction';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import MetricsHandler from '../handlers/MetricsHandler';
-import {ConfigService} from '@nestjs/config';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 @Injectable()
 export default class InstanceActionFactory {
@@ -41,7 +41,7 @@ export default class InstanceActionFactory {
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
         private readonly metricsHandler: MetricsHandler,
-        private readonly config: ConfigService,
+        private readonly censusRequestDriver: CensusRequestDriver,
     ) {}
 
     public buildStart(
@@ -55,7 +55,7 @@ export default class InstanceActionFactory {
                 this.cacheClient,
                 this.zoneDataParser,
                 this.metricsHandler,
-                this.config,
+                this.censusRequestDriver,
             );
         }
 
@@ -63,7 +63,6 @@ export default class InstanceActionFactory {
             return new OutfitwarsTerritoryInstanceStartAction(
                 instance,
                 this.ps2AlertsApiClient,
-                this.metricsHandler,
             );
         }
 
@@ -80,7 +79,6 @@ export default class InstanceActionFactory {
                 this.ps2AlertsApiClient,
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
-                this.metricsHandler,
             );
         }
 
@@ -91,7 +89,6 @@ export default class InstanceActionFactory {
                 this.ps2AlertsApiClient,
                 this.globalVictoryAggregate,
                 this.outfitParticipantCacheHandler,
-                this.metricsHandler,
             );
         }
 
@@ -106,7 +103,6 @@ export default class InstanceActionFactory {
                 event,
                 this.buildMetagameTerritoryResult(event.instance),
                 this.ps2AlertsApiClient,
-                this.metricsHandler,
             );
         }
 
@@ -116,7 +112,6 @@ export default class InstanceActionFactory {
                 this.buildOutfitwarsResult(event.instance),
                 this.buildOutfitwarsTeam(event.instance, event),
                 this.ps2AlertsApiClient,
-                this.metricsHandler,
             );
         }
 
@@ -130,7 +125,6 @@ export default class InstanceActionFactory {
             instance,
             this.territoryCalculatorFactory.buildMetagameTerritoryCalculator(instance, this.restClient),
             this.ps2AlertsApiClient,
-            this.metricsHandler,
         );
     }
 
@@ -141,7 +135,6 @@ export default class InstanceActionFactory {
             instance,
             this.territoryCalculatorFactory.buildOutfitwarsTerritoryCalculator(instance, this.restClient),
             this.ps2AlertsApiClient,
-            this.metricsHandler,
         );
     }
 
@@ -154,7 +147,6 @@ export default class InstanceActionFactory {
             facilityControl,
             this.restClient,
             this.ps2AlertsApiClient,
-            this.metricsHandler,
         );
     }
 
@@ -164,7 +156,6 @@ export default class InstanceActionFactory {
         return new OutfitwarsTerritoryDeathAction(
             event,
             this.ps2AlertsApiClient,
-            this.metricsHandler,
         );
     }
 }

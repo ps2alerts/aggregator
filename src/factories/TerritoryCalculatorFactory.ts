@@ -7,8 +7,8 @@ import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalcula
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import OutfitwarsTerritoryCalculator from '../calculators/OutfitwarsTerritoryCalculator';
 import MetricsHandler from '../handlers/MetricsHandler';
-import {ConfigService} from '@nestjs/config';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 @Injectable()
 export default class TerritoryCalculatorFactory {
@@ -17,7 +17,7 @@ export default class TerritoryCalculatorFactory {
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
         private readonly metricsHandler: MetricsHandler,
-        private readonly config: ConfigService,
+        private readonly censusRequestDriver: CensusRequestDriver,
     ) {}
 
     public buildMetagameTerritoryCalculator(
@@ -31,7 +31,7 @@ export default class TerritoryCalculatorFactory {
             this.cacheClient,
             this.zoneDataParser,
             this.metricsHandler,
-            this.config,
+            this.censusRequestDriver,
         );
     }
 
@@ -46,7 +46,7 @@ export default class TerritoryCalculatorFactory {
             this.cacheClient,
             this.zoneDataParser,
             this.metricsHandler,
-            this.config,
+            this.censusRequestDriver,
         );
     }
 }

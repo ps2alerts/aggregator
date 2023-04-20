@@ -65,8 +65,6 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                         return;
                     }
 
-                    const started = new Date();
-
                     try {
                         // A middleware is added here track how long it takes messages to respond.
                         // This will mainly call the ZoneMessageHandler.
@@ -74,13 +72,13 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             this.createPs2Event(message),
                             {
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                ack: async () => await this.handleMessageConfirm(message, 'ack', started),
+                                ack: async () => await this.handleMessageConfirm(message, 'ack'),
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                retry: async () => await this.handleMessageConfirm(message, 'retry', started),
+                                retry: async () => await this.handleMessageConfirm(message, 'retry'),
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                                 delay: async () => {
                                     // await this.handleMessageDelay(message, 15000, this.pattern, started);
-                                    await this.handleMessageConfirm(message, 'discard', started); // Just ack the message, effectively discarding it
+                                    await this.handleMessageConfirm(message, 'discard'); // Just ack the message, effectively discarding it
                                 },
                             },
                             this.handler,
@@ -91,7 +89,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             InstanceEventQueue.classLogger.error(`[${this.queueName}] Unable to properly handle message! ${err.message}`);
                         }
 
-                        await this.handleMessageConfirm(message, 'discard', started); // Critical error, probably unprocessable so we're chucking
+                        await this.handleMessageConfirm(message, 'discard'); // Critical error, probably unprocessable so we're chucking
                     }
                 }, consumerOptions);
             },

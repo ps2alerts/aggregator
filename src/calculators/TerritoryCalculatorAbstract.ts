@@ -17,8 +17,8 @@ import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
 import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
-import {ConfigService} from '@nestjs/config';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -59,7 +59,7 @@ export default abstract class TerritoryCalculatorAbstract {
         protected readonly cacheClient: Redis,
         protected readonly zoneDataParser: ZoneDataParser,
         protected readonly metricsHandler: MetricsHandler,
-        protected readonly config: ConfigService,
+        protected readonly censusRequestDriver: CensusRequestDriver,
     ) {}
 
     protected async hydrateData(): Promise<void> {
@@ -178,7 +178,7 @@ export default abstract class TerritoryCalculatorAbstract {
             this.cacheClient,
             this.zoneDataParser,
             this.metricsHandler,
-            this.config,
+            this.censusRequestDriver,
         ).getMapData();
 
         if (mapData.length === 0) {

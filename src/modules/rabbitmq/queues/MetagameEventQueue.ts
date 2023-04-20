@@ -50,8 +50,6 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                         throw new ApplicationException('MetagameEvent Message was empty!', 'RabbitMQCensusStreamFactory.MetgameEventQueue');
                     }
 
-                    const started = new Date();
-
                     try {
                         // A middleware is added here track how long it takes messages to respond.
                         // This will mainly call the ZoneMiddleware Handler.
@@ -59,7 +57,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             this.createMessage(message),
                             {
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                ack: async () => await this.handleMessageConfirm(message, 'ack', started),
+                                ack: async () => await this.handleMessageConfirm(message, 'ack'),
                                 retry: () => {
                                     return true; // TODO: Implement
                                 },
