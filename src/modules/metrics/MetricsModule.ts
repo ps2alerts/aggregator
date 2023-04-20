@@ -25,6 +25,11 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
             labelNames: ['environment', 'type', 'result'],
         }),
         makeCounterProvider({
+            name: METRICS_NAMES.ERRORS_COUNT,
+            help: 'Errors to be monitored',
+            labelNames: ['environment', 'type', 'result'],
+        }),
+        makeCounterProvider({
             name: METRICS_NAMES.EXTERNAL_REQUESTS_COUNT,
             help: 'External endpoints statistics',
             labelNames: ['environment', 'provider', 'endpoint', 'result'],

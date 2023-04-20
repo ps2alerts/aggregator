@@ -16,7 +16,7 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
@@ -306,15 +306,11 @@ export default abstract class TerritoryCalculatorAbstract {
             ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
             : ps2AlertsApiEndpoints.outfitwarsInstanceFacilityFacility;
 
-        const started = new Date();
-
         const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(
             endpoint
                 .replace('{instanceId}', this.instance.instanceId)
                 .replace('{facilityId}', facilityId.toString()),
         );
-
-        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, null);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface = apiResponse.data;
