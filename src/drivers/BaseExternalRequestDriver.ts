@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {ExternalRequestWrapperInterface} from './ExternalRequestDriverInterface';
-import {AxiosInstance, AxiosResponse} from 'axios';
+import {AxiosError, AxiosInstance, AxiosResponse} from 'axios';
 import ApplicationException from '../exceptions/ApplicationException';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 import MetricsHandler from '../handlers/MetricsHandler';
@@ -70,8 +70,9 @@ export default abstract class BaseExternalRequestDriver {
                 result: 'error',
             });
 
-            if (err instanceof Error) {
-                BaseExternalRequestDriver.logger.error(`[${this.caller}] - External API call failed for ${this.formatEndpoint(wrapper.url)} endpoint! Err: ${err.message}`);
+            if (err instanceof AxiosError) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                BaseExternalRequestDriver.logger.error(`[${this.caller}] - External API call failed for ${this.formatEndpoint(wrapper.url)} endpoint! Err: ${err.message} - Response message: ${err.response.data.message}`);
             }
         });
     }

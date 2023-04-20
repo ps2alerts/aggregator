@@ -63,9 +63,13 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.censusRequestDriver,
         ).getMapData();
 
+        if (!mapData.Regions?.Row || mapData.Regions.Row.length === 0) {
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to properly get map data from census!`, 'MetagameInstanceTerritoryStartAction');
+        }
+
         const docs: MapDataInterface[] = [];
 
-        mapData[0].Regions.Row.forEach((row) => {
+        mapData.Regions.Row.forEach((row) => {
             // Check if we have a facility type, if we don't chuck it as it's an old facility
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             const facilityId = parseInt(row.RowData.map_region.facility_id, 10);

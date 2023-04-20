@@ -181,11 +181,11 @@ export default abstract class TerritoryCalculatorAbstract {
             this.censusRequestDriver,
         ).getMapData();
 
-        if (mapData.length === 0) {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to properly get map data from census!`);
+        if (!mapData.Regions?.Row || mapData.Regions.Row.length === 0) {
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to properly get map data from census!`, 'TerritoryCalculatorAbstract');
         }
 
-        for (const row of mapData[0].Regions.Row) {
+        for (const row of mapData.Regions.Row) {
             const region = row.RowData;
             const id = parseInt(region.map_region.facility_id, 10);
 

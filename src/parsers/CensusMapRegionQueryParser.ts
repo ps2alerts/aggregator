@@ -22,7 +22,7 @@ export default class CensusMapRegionQueryParser {
         private readonly censusRequestDriver: CensusRequestDriver,
     ) {}
 
-    public async getMapData(): Promise<CensusRegionMapJoinQueryInterface[]> {
+    public async getMapData(): Promise<CensusRegionMapJoinQueryInterface> {
         const cacheKey = `cache:liveMap:W${this.instance.world}:Z${this.instance.zone}`;
 
         // If in cache, grab it
@@ -42,13 +42,18 @@ export default class CensusMapRegionQueryParser {
         CensusMapRegionQueryParser.logger.verbose(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
         try {
-            const mapData = this.censusRequestDriver.getMap(this.instance.world, this.instance.zone);
+            const mapData = await this.censusRequestDriver.getMap(this.instance.world, this.instance.zone);
+
             // Cache the data
             await this.cacheClient.setex(cacheKey, 5, JSON.stringify(mapData));
 
             return mapData;
         } catch (err) {
-            throw new ApplicationException(`[${this.instance.instanceId}] No map data was returned from Census!`);
+            if (err instanceof Error) {
+                throw new ApplicationException(`[${this.instance.instanceId}] Getting map data from Census failed! Error: ${err.message}`);
+            }
+
+            throw new ApplicationException(`[${this.instance.instanceId}] Getting map data from Census failed!`);
         }
     }
 }

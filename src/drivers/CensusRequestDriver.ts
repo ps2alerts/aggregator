@@ -42,7 +42,7 @@ export class CensusRequestDriver {
         return items[0];
     }
 
-    public async getMap(world: World, zone: Zone): Promise<CensusRegionMapJoinQueryInterface[]> {
+    public async getMap(world: World, zone: Zone): Promise<CensusRegionMapJoinQueryInterface> {
         const query = this.restClient.getQueryBuilder('map')
             .join({
                 type: 'map_region',
@@ -62,14 +62,16 @@ export class CensusRequestDriver {
             // Unfortunately there is no real means to force ps2census to return the data in the interface we expect with a join, so we have to ignore it here.
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            const mapData: CensusRegionMapJoinQueryInterface[] = await apiRequest.try();
+            const mapData: CensusRegionMapJoinQueryInterface = await apiRequest.try();
 
-            if (!mapData || mapData.length === 0) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (!mapData[0].Regions?.Row && mapData[0].Regions.Row.length === 0) {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new ApplicationException(`Census returned empty map data for zone ${zone}!`);
             }
 
-            return mapData;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return mapData[0];
         } catch (err) {
             if (err instanceof Error) {
                 throw new ApplicationException(`Unable to query Census for Map Region data! E: ${err.message}`);
