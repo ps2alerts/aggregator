@@ -56,7 +56,7 @@ export class AdminQueue extends RabbitMQQueue implements PS2AlertsQueueInterface
                             this.createMessage(message),
                             {
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                ack: async () => await this.handleMessageConfirm(message, 'ack'),
+                                ack: () => this.handleMessageConfirm(message, 'ack'),
                                 retry: () => {
                                     return true; // Not supported
                                 },

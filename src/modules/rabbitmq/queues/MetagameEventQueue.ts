@@ -57,7 +57,7 @@ export class MetagameEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             this.createMessage(message),
                             {
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                ack: async () => await this.handleMessageConfirm(message, 'ack'),
+                                ack: () => this.handleMessageConfirm(message, 'ack'),
                                 retry: () => {
                                     return true; // TODO: Implement
                                 },

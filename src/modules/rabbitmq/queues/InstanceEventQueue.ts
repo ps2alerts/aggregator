@@ -72,13 +72,13 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             this.createPs2Event(message),
                             {
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                ack: async () => await this.handleMessageConfirm(message, 'ack'),
+                                ack: () => this.handleMessageConfirm(message, 'ack'),
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                retry: async () => await this.handleMessageConfirm(message, 'retry'),
+                                retry: () => this.handleMessageConfirm(message, 'retry'),
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                delay: async () => {
+                                delay: () => {
                                     // await this.handleMessageDelay(message, 15000, this.pattern, started);
-                                    await this.handleMessageConfirm(message, 'discard'); // Just ack the message, effectively discarding it
+                                    this.handleMessageConfirm(message, 'discard'); // Just ack the message, effectively discarding it
                                 },
                             },
                             this.handler,
@@ -89,7 +89,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             InstanceEventQueue.classLogger.error(`[${this.queueName}] Unable to properly handle message! ${err.message}`);
                         }
 
-                        await this.handleMessageConfirm(message, 'discard'); // Critical error, probably unprocessable so we're chucking
+                        this.handleMessageConfirm(message, 'discard'); // Critical error, probably unprocessable so we're chucking
                     }
                 }, consumerOptions);
             },

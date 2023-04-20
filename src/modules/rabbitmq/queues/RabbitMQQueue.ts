@@ -107,7 +107,7 @@ export abstract class RabbitMQQueue {
         }
     }
 
-    protected async handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry' | 'discard'): Promise<void> {
+    protected handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry' | 'discard'): void {
         try {
             if (action === 'ack') {
                 this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success'});
