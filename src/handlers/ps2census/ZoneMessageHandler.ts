@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment */
 // This handler is responsible for requeues and building the PS2EventQueueMessage with has various helpful data included.
 
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
@@ -73,32 +73,33 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
                 )),
             ), 45000);
             await Promise.race(promise);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'successful'});
 
             return actions.ack();
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Delaying message due to possible Census issues. Type: ${event.event_name} - Err: ${err.message}`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'census_max_retries'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'census_max_retries'});
                 return actions.delay(15000);
             }
 
             if (err instanceof ApplicationException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'processing_failed'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'processing_failed'});
 
                 return actions.retry();
             }
 
             if (err instanceof TimeoutException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load. Type: ${event.event_name} - Err: ${err.message}`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'timeout'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'timeout'});
                 return actions.delay(30000);
             }
 
             if (err instanceof Error) {
                 actions.ack();
                 new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
-                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'error'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'error'});
             }
 
             // If we haven't got a specific means of handling the issue, drop it.
