@@ -20,7 +20,7 @@ import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 import Redis from 'ioredis';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 import {PS2Environment} from 'ps2census';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
@@ -402,20 +402,14 @@ export default class InstanceAuthority {
     private async startTerritoryControlInstance(instance: MetagameTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
         InstanceAuthority.logger.log(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);
 
-        let started = new Date();
-
         await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, metadata)
-            .then(async (response) => {
+            .then((response) => {
                 if (!response.data) {
-                    await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`, 'InstanceAuthority.startTerritoryControlInstance');
                 }
-
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
             })
-            .catch(async (err) => {
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
+            .catch((err) => {
                 InstanceAuthority.logger.error(err.response.data);
                 new ExceptionHandler('Unable to create instance via API!', err.response.data.message, 'InstanceAuthority.startTerritoryControlInstance');
             });
@@ -440,18 +434,12 @@ export default class InstanceAuthority {
             return false;
         }
 
-        started = new Date();
-
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             {state: Ps2AlertsEventState.STARTED},
-        ).then(async () => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, true);
-        }).catch(async (err: Error) => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
-
+        ).catch((err: Error) => {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startTerritoryControlInstance');
         });
 
@@ -461,23 +449,15 @@ export default class InstanceAuthority {
     private async startOutfitwarsTerritoryInstance(instance: OutfitWarsTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
         InstanceAuthority.logger.log(`[${instance.instanceId}] Sending outfitwars instances POST to API ${ps2AlertsApiEndpoints.outfitwars}`);
 
-        let started = new Date();
-
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.outfitwars, metadata)
-            .then(async (response) => {
+            .then((response) => {
                 if (!response.data) {
-                    await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API, false);
-
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     throw new ApplicationException(`Unable to create instance via API! Responded with: ${response.data}`, 'InstanceAuthority.startOutfitwarsTerritoryInstance');
                 }
-
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API, false);
             })
-            .catch(async (err) => {
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API, false);
-
+            .catch((err) => {
                 new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
             });
 
@@ -501,19 +481,13 @@ export default class InstanceAuthority {
             return false;
         }
 
-        started = new Date();
-
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', instance.instanceId),
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             {state: Ps2AlertsEventState.STARTED},
-        ).then(async () => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, true);
-        }).catch(async (err: Error) => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
-
+        ).catch((err: Error) => {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
         });
 

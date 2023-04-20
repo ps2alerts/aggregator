@@ -14,12 +14,12 @@ export default class AuthorityService implements OnModuleInit, OnApplicationBoot
         private readonly overdueInstanceAuthority: OverdueInstanceAuthority,
         private readonly populationAuthority: PopulationAuthority,
         private readonly queueAuthority: QueueAuthority,
-        private readonly timingStatisticsAuthority: MetricsAuthority,
+        private readonly metricsAuthority: MetricsAuthority,
     ) {}
 
     public async onModuleInit(): Promise<void> {
         AuthorityService.logger.debug('Booting Authority Services...');
-        await this.timingStatisticsAuthority.run();
+        await this.metricsAuthority.run();
     }
 
     public async onApplicationBootstrap(): Promise<void> {

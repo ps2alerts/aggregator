@@ -6,7 +6,6 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import Redis from 'ioredis';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 @Injectable()
@@ -14,7 +13,6 @@ export default class ZoneDataParser {
     constructor(
         private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly cacheClient: Redis,
-        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     // Sends a call off to the PS2A API to grab the map data based on current date and zone, pulling in the correct lattice links contextually based off instance date.
@@ -32,9 +30,7 @@ export default class ZoneDataParser {
             .replace('{zone}', zone.toString())
             .replace('{version}', latticeVersion);
 
-        const started = new Date();
         const response = await this.ps2AlertsApiClient.get(path);
-        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_CENSUS_REGIONS, true, null);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const regionData: CensusRegionResponseInterface = response.data;
 

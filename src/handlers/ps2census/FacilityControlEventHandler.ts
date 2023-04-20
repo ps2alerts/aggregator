@@ -10,8 +10,9 @@ import FacilityDataBroker from '../../brokers/FacilityDataBroker';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
-import MetricsHandler, {MetricTypes} from '../MetricsHandler';
+import MetricsHandler from '../MetricsHandler';
 import {PS2AlertsApiDriver} from '../../drivers/PS2AlertsApiDriver';
+import {METRICS_NAMES} from '../../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class FacilityControlEventHandler implements PS2EventQueueMessageHandlerInterface<FacilityControl> {
@@ -57,23 +58,19 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
             endpoint = ps2AlertsApiEndpoints.outfitwarsInstanceFacility.replace('{instanceId}', event.instance.instanceId);
         }
 
-        const started = new Date();
-
         await this.ps2AlertsApiClient.post(endpoint, facilityData)
-            .then(async () => {
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, false);
-            }).catch(async (err: Error) => {
+            .catch(async (err: Error) => {
                 FacilityControlEventHandler.logger.warn(`[${event.instance.instanceId}] Unable to create facility control record via API! Err: ${err.message}`);
 
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, false);
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_api_facility_control_errors', result: 'error'});
 
                 // Try again
                 await this.ps2AlertsApiClient.post(endpoint, facilityData)
-                    .then(async () => {
-                        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true, true);
+                    .then(() => {
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_facility_control_errors', result: 'retry_successful'});
                     })
-                    .catch(async (err: Error) => {
-                        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false, true);
+                    .catch((err: Error) => {
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_facility_control_errors', result: 'retry_failure'});
 
                         FacilityControlEventHandler.logger.error(`[${event.instance.instanceId}] Unable to create facility control record via API for a SECOND time! Aborting! Err: ${err.message}`);
                         return false;
@@ -85,8 +82,10 @@ export default class FacilityControlEventHandler implements PS2EventQueueMessage
                 .catch((e) => {
                     if (e instanceof Error) {
                         FacilityControlEventHandler.logger.error(`Error parsing AggregateHandlers for FacilityControlEventHandler: ${e.message}\r\n${jsonLogOutput(event)}`);
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'aggregate_errors_facility_control', result: 'error'});
                     } else {
                         FacilityControlEventHandler.logger.error('UNEXPECTED ERROR parsing FacilityControlEventHandler AggregateHandlers!');
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'aggregate_errors_facility_control', result: 'unexpected_error'});
                     }
                 }),
         );

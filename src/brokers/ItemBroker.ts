@@ -10,7 +10,7 @@ import ApplicationException from '../exceptions/ApplicationException';
 import {lithafalconEndpoints} from '../ps2alerts-constants/lithafalconEndpoints';
 import {CensusEnvironment} from '../types/CensusEnvironment';
 import Redis from 'ioredis';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 import {FalconRequestDriver} from '../drivers/FalconRequestDriver';
@@ -39,8 +39,6 @@ export default class ItemBroker implements ItemBrokerInterface {
     ): Promise<ItemInterface> {
         const environment = this.censusEnvironment;
 
-        const started = new Date();
-
         if (itemId === 0 || isNaN(itemId) || !itemId) {
             let item = new FakeItemFactory().build(true); // Assume it's a vehicle roadkill first
 
@@ -60,7 +58,6 @@ export default class ItemBroker implements ItemBrokerInterface {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.verbose(`${cacheKey} cache HIT`);
-            await this.metricsHandler.logMetric(started, MetricTypes.CACHE_ITEM_HITS, null, null);
             this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'hit'});
             this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'cache_hit'});
 
@@ -81,7 +78,6 @@ export default class ItemBroker implements ItemBrokerInterface {
         }
 
         ItemBroker.logger.verbose(`${cacheKey} MISS`);
-        await this.metricsHandler.logMetric(started, MetricTypes.CACHE_ITEM_MISSES, null, null);
         this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: 'miss'});
         this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: 'cache_miss'});
 
