@@ -38,7 +38,7 @@ export default class CharacterBroker {
                 character = new Character(await payload.character());
 
                 if (!cached) {
-                    this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'success'});
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: '/character', result: 'success'});
                 }
             } else {
                 character = this.fakeCharacterFactory.build(parseInt(payload.world_id, 10));
@@ -53,7 +53,7 @@ export default class CharacterBroker {
                     character = new Character(await payload.character(), parseInt(payload.team_id, 10));
 
                     if (!cached) {
-                        this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'success'});
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: '/character', result: 'success'});
                     }
                 }
 
@@ -68,7 +68,7 @@ export default class CharacterBroker {
                     const attackerCharacter = await payload.attacker();
 
                     if (!cached) {
-                        this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'success'});
+                        this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: '/character', result: 'success'});
                     }
 
                     if (attackerCharacter) {
@@ -78,18 +78,18 @@ export default class CharacterBroker {
                 }
             }
 
-            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: '/character', result: 'success'});
 
             return {character, attacker};
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'max_retries'});
-                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'error'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: '/character', result: 'error'});
                 new ExceptionHandler('Census failed to return character data after maximum retries', err, 'CharacterBroker');
             }
 
             this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'error'});
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: 'character', result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: '/character', result: 'error'});
             new ExceptionHandler('Census failed to return character data not due to retries!', err, 'CharacterBroker');
         }
 

@@ -55,6 +55,8 @@ export class CensusRequestDriver {
             zone_ids: String(zone),
         };
 
+        const timer = this.metricsHandler.getHistogram(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM, {provider: 'census', endpoint: '/map'});
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const apiRequest = new CensusApiRetryDriver(query, filter, 'CensusRequestDriver:getMap', this.metricsHandler, this.config);
 
@@ -63,6 +65,8 @@ export class CensusRequestDriver {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const mapData: CensusRegionMapJoinQueryInterface = await apiRequest.try();
+
+            timer();
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!mapData[0].Regions?.Row && mapData[0].Regions.Row.length === 0) {
@@ -73,6 +77,8 @@ export class CensusRequestDriver {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return mapData[0];
         } catch (err) {
+            timer();
+
             if (err instanceof Error) {
                 throw new ApplicationException(`Unable to query Census for Map Region data! E: ${err.message}`);
             }
