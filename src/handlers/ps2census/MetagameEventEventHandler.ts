@@ -17,6 +17,8 @@ import {getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import {Zone} from '../../ps2alerts-constants/zone';
 import {ps2AlertsApiEndpoints} from '../../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {PS2AlertsApiDriver} from '../../drivers/PS2AlertsApiDriver';
+import MetricsHandler from '../MetricsHandler';
+import {METRICS_NAMES} from '../../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class MetagameEventEventHandler implements QueueMessageHandlerInterface<MetagameEvent> {
@@ -27,6 +29,7 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
     constructor(
         private readonly instanceAuthority: InstanceAuthority,
         private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async handle(metagameEvent: MetagameEvent, actions: ChannelActionsInterface): Promise<void> {
@@ -60,17 +63,20 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
 
         if (event.eventState === MetagameEventState.STARTED && instance) {
             MetagameEventEventHandler.logger.error(`Attempted to start an already existing instance! ${event.instanceId} W: ${event.world} - Z: ${event.zone}`);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_instance_errors', result: 'already_started'});
             return actions.ack();
         }
 
         if (event.eventState === MetagameEventState.FINISHED && !instance) {
             MetagameEventEventHandler.logger.error(`Attempted to end an instance that does not exist! ${event.instanceId} W: ${event.world} - Z: ${event.zone}`);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_instance_errors', result: 'end_does_not_exist'});
             return actions.ack();
         }
 
         if (event.eventState === MetagameEventState.STARTED && !instance) {
             if (!event.details) {
                 MetagameEventEventHandler.logger.error('Unsupported alert detected!');
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_instance_errors', result: 'unsupported_metagame_type'});
                 return actions.ack();
             }
 
@@ -117,9 +123,11 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                 return actions.ack();
             } catch (e) {
                 if (e instanceof Error) {
-                    MetagameEventEventHandler.logger.error(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    MetagameEventEventHandler.logger.error(`Error starting MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_instance_errors', result: 'start_error'});
                 } else {
-                    MetagameEventEventHandler.logger.error('UNEXPECTED ERROR parsing MetagameEvent!');
+                    MetagameEventEventHandler.logger.error('UNEXPECTED ERROR starting MetagameEvent!');
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_instance_errors', result: 'start_error_unexpected'});
                 }
 
                 return actions.ack(); // TODO: REQUEUE
@@ -132,9 +140,11 @@ export default class MetagameEventEventHandler implements QueueMessageHandlerInt
                 return actions.ack();
             } catch (e) {
                 if (e instanceof Error) {
-                    MetagameEventEventHandler.logger.error(`Error parsing MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    MetagameEventEventHandler.logger.error(`Error ending MetagameEvent: ${e.message}\r\n${jsonLogOutput(event)}`);
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_instance_errors', result: 'end_error'});
                 } else {
-                    MetagameEventEventHandler.logger.error('UNEXPECTED ERROR parsing MetagameEvent!');
+                    MetagameEventEventHandler.logger.error('UNEXPECTED ERROR ending MetagameEvent!');
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.ERRORS_COUNT, {type: 'ps2alerts_instance_errors', result: 'end_error'});
                 }
 
                 return actions.ack(); // TODO: REQUEUE
