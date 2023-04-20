@@ -3,7 +3,6 @@ import FacilityControlEvent from '../handlers/ps2census/events/FacilityControlEv
 import TerritoryResultInterface from '../ps2alerts-constants/interfaces/TerritoryResultInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class MetagameInstanceTerritoryFacilityControlAction implements ActionInterface<boolean> {
@@ -13,7 +12,6 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
         private readonly event: FacilityControlEvent,
         private readonly territoryResultAction: ActionInterface<TerritoryResultInterface>,
         private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
-        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -27,8 +25,6 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
         // Update the result for the instance
         await this.territoryResultAction.execute();
 
-        const started = new Date();
-
         // Update the mapControl record for the facility itself, since we now know the result values.
         // This is used to display the snapshot in times for each facility capture, so we can render the map correctly.
         // Note: This will update the LATEST record, it is assumed it is created first.
@@ -37,10 +33,7 @@ export default class MetagameInstanceTerritoryFacilityControlAction implements A
                 .replace('{instanceId}', this.event.instance.instanceId)
                 .replace('{facilityId}', String(this.event.facility.id)),
             {mapControl: this.event.instance.result},
-        ).then(async () => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, true);
-        }).catch(async (err: Error) => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE_FACILITY, false);
+        ).catch((err: Error) => {
             MetagameInstanceTerritoryFacilityControlAction.logger.error(`[${this.event.instance.instanceId}] Unable to update the facility control record via API! Err: ${err.message}`);
         });
 

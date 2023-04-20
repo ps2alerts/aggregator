@@ -5,7 +5,7 @@ import ExceptionHandler from '../../../handlers/system/ExceptionHandler';
 import {CreateChannelOpts} from 'amqp-connection-manager/dist/esm/ChannelWrapper';
 import {ConsumeMessage} from 'amqplib';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../../../handlers/MetricsHandler';
+import MetricsHandler from '../../../handlers/MetricsHandler';
 import {METRICS_NAMES} from '../../metrics/MetricsConstants';
 
 export abstract class RabbitMQQueue {
@@ -107,17 +107,15 @@ export abstract class RabbitMQQueue {
         }
     }
 
-    protected async handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry' | 'discard', started: Date): Promise<void> {
+    protected async handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry' | 'discard'): Promise<void> {
         try {
             if (action === 'ack') {
-                await this.metricsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, true);
                 this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success'});
                 return this.channel.ack(message);
             }
 
             // Ultimately this is not what we want, we just want to record these have happened for now.
             if (action === 'discard') {
-                await this.metricsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, false);
                 this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'discard'});
                 return this.channel.ack(message);
             }
@@ -128,7 +126,6 @@ export abstract class RabbitMQQueue {
             tries++;
 
             if (tries >= 3) {
-                await this.metricsHandler.logMetric(started, MetricTypes.RABBITMQ_SUCCESS, false, true);
                 this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'fail'});
 
                 RabbitMQQueue.logger.error(`${this.queueName} Message exceeded too many tries! Dropping!`);
@@ -136,7 +133,6 @@ export abstract class RabbitMQQueue {
             }
 
             // Retry
-            await this.metricsHandler.logMetric(started, MetricTypes.RABBITMQ_RETRY, null, true);
             this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'retry'});
 
             RabbitMQQueue.logger.debug(`${this.queueName} Retrying message! Tries: ${tries}`);
@@ -156,7 +152,7 @@ export abstract class RabbitMQQueue {
     //     // Grab the delay publisher and re-publish to delay queue, then nack? the message.
     //
     //     try {
-    //         await this.metricsHandler.logMetric(started, MetricTypes.RABBITMQ_DELAY, null, true);
+    //         this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'delay'});
     //         RabbitMQQueue.logger.warn(`${this.queueName} Message requeued for ${delay}ms!`);
     //
     //         // TODO: Implement!

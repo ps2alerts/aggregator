@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import {Inject, Injectable, Logger} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import ApplicationException from '../exceptions/ApplicationException';
-import {TYPES} from '../constants/types';
 import {pcWorldArray, World} from '../ps2alerts-constants/world';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
@@ -11,7 +10,7 @@ import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
 import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
-import {AxiosInstance, AxiosResponse} from 'axios';
+import {AxiosResponse} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 import QueueAuthority from './QueueAuthority';
@@ -25,6 +24,7 @@ import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 import {PS2Environment} from 'ps2census';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
@@ -62,7 +62,7 @@ export default class InstanceAuthority {
 
     constructor(
         private readonly instanceActionFactory: InstanceActionFactory,
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly queueAuthority: QueueAuthority,
         private readonly cacheClient: Redis, // Required for Population aggregation
         private readonly metricsHandler: MetricsHandler,
@@ -195,18 +195,13 @@ export default class InstanceAuthority {
 
         await this.removeActiveInstance(instance);
 
-        const started = new Date();
-
-        await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
-            .then(async () => {
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, true);
+        await this.ps2AlertsApiClient.delete(
+            ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
+            .then(() => {
                 this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_trash'});
-
             })
-            .catch(async (err: Error) => {
-                await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
+            .catch((err: Error) => {
                 this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_trash'});
-
                 throw new ApplicationException(`[${instance.instanceId}] UNABLE TO TRASH INSTANCE! API CALL FAILED! E: ${err.message}`, 'InstanceAuthority');
             });
 
@@ -227,8 +222,6 @@ export default class InstanceAuthority {
 
         let apiResponses: AxiosResponse[];
 
-        const started = new Date();
-
         const promises = [
             await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive),
             // await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
@@ -239,8 +232,6 @@ export default class InstanceAuthority {
         } catch (err) {
             throw new ApplicationException('Unable to get Active Instances from PS2Alerts API! Crashing the app...', 'InstanceAuthority', 1);
         }
-
-        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         const instances: InstanceAbstract[] = [];
 

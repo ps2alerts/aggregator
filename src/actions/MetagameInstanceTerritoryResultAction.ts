@@ -8,7 +8,6 @@ import {
 } from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import MetagameTerritoryCalculator from '../calculators/MetagameTerritoryCalculator';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 // This class takes care of calculating the result of an instance and updating it via both the API and in memory
@@ -19,7 +18,6 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
         private readonly instance: MetagameTerritoryInstance,
         private readonly territoryCalculator: MetagameTerritoryCalculator,
         private readonly ps2alertsApiClient: PS2AlertsApiDriver,
-        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<MetagameTerritoryControlResultInterface> {
@@ -30,18 +28,12 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
             this.instance.result = result;
         }
 
-        const started = new Date();
-
         // Call API to patch the instance record
         await this.ps2alertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance
                 .replace('{instanceId}', this.instance.instanceId),
             {result},
-        ).then(async () => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, true);
-        }).catch(async (err: Error) => {
-            await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API_INSTANCE, false);
-
+        ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to update instance result data! Err: ${err.message} - Data: ${JSON.stringify({result})}`, 'MetagameInstanceTerritoryResultAction');
         });
 

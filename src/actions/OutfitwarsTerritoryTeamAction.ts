@@ -6,7 +6,6 @@ import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {Rest} from 'ps2census';
 import Outfit from '../data/Outfit';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class OutfitwarsTerritoryTeamAction implements ActionInterface<boolean> {
@@ -17,7 +16,6 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
         private readonly event: FacilityControlEvent,
         private readonly restClient: Rest.Client,
         private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
-        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -79,8 +77,6 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
 
         this.instance.outfitwars.teams = teams;
 
-        const started = new Date();
-
         this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.outfitwarsInstance.replace('{instanceId}', this.instance.instanceId),
             {
@@ -89,8 +85,6 @@ export default class OutfitwarsTerritoryTeamAction implements ActionInterface<bo
         ).catch((err: Error) => {
             OutfitwarsTerritoryTeamAction.logger.error(`[${this.instance.instanceId}] Unable to update the instance record for TeamAction via API! Err: ${err.message}`);
         });
-
-        await this.metricsHandler.logMetric(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

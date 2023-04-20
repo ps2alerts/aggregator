@@ -60,6 +60,8 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         // If the message came after the alert ended, chuck
         if (this.instance.messageOverdue(event)) {
             ZoneMessageHandler.logger.verbose(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'message_overdue'});
+
             return actions.ack();
         }
 
@@ -97,7 +99,6 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
                 actions.ack();
                 new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
                 this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: 'error'});
-
             }
 
             // If we haven't got a specific means of handling the issue, drop it.

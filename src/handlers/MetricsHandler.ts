@@ -23,8 +23,6 @@ export enum MetricTypes {
     PS2ALERTS_API_INSTANCE = 'PS2Alerts:API:Instance',
     PS2ALERTS_API_INSTANCE_FACILITY = 'PS2Alerts:API:InstanceFacility',
     PS2ALERTS_API_CENSUS_REGIONS = 'PS2Alerts:API:CensusRegions',
-    RABBITMQ_SUCCESS= 'RabbitMQ:Success',
-    RABBITMQ_RETRY = 'RabbitMQ:Retry',
 }
 
 @Injectable()

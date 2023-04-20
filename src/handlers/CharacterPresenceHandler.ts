@@ -62,7 +62,7 @@ export default class CharacterPresenceHandler {
         const instances = await this.cacheClient.smembers(`ActiveInstances-${this.censusEnvironment}`);
 
         if (!instances.length) {
-            CharacterPresenceHandler.logger.debug('No instances running, aborting collection');
+            CharacterPresenceHandler.logger.verbose('No instances running, aborting collection');
             return null;
         }
 

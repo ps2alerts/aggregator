@@ -11,7 +11,6 @@ import {
     MetagameTerritoryControlResultInterface,
 } from '../ps2alerts-constants/interfaces/MetagameTerritoryControlResultInterface';
 import {Logger} from '@nestjs/common';
-import MetricsHandler, {MetricTypes} from '../handlers/MetricsHandler';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class MetagameTerritoryInstanceEndAction implements ActionInterface<boolean> {
@@ -23,7 +22,6 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         private readonly ps2alertsApiClient: PS2AlertsApiDriver,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -46,11 +44,7 @@ export default class MetagameTerritoryInstanceEndAction implements ActionInterfa
         await this.ps2alertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', this.instance.instanceId),
             data,
-        ).then(async () => {
-            await this.metricsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, true);
-        }).catch(async (err: Error) => {
-            await this.metricsHandler.logMetric(endTime, MetricTypes.PS2ALERTS_API_INSTANCE, false);
-
+        ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`);
         });
 
