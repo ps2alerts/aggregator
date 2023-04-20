@@ -47,6 +47,7 @@ export default class MetricsHandler {
         @InjectMetric(METRICS_NAMES.INSTANCES_GAUGE) private readonly instancesGauge: Gauge<string>,
 
         // Histograms
+        @InjectMetric(METRICS_NAMES.EVENT_PROCESSING_HISTOGRAM) private readonly eventProcessingHistogram: Histogram<string>,
         @InjectMetric(METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM) private readonly externalRequestsHistogram: Histogram<string>,
     ) {
         this.runId = config.get('app.runId');
@@ -70,12 +71,7 @@ export default class MetricsHandler {
 
     // Provides a singular entrypoint for easier refactoring, saves having to inject counters everywhere
     public increaseCounter(metric: string, params?: Partial<Record<string, string | number>>, count?: number): void {
-        if (!params) {
-            params = {};
-        }
-
-        // Inject Census environment into params
-        params.environment = this.censusEnvironment;
+        params = this.configureParams(params);
 
         switch (metric) {
             case METRICS_NAMES.BROKER_COUNT:
@@ -103,12 +99,7 @@ export default class MetricsHandler {
     }
 
     public setGauge(metric: string, value: number, params?: Partial<Record<string, string | number>>): void {
-        if (!params) {
-            params = {};
-        }
-
-        // Inject Census environment into params
-        params.environment = this.censusEnvironment;
+        params = this.configureParams(params);
 
         switch (metric) {
             case METRICS_NAMES.CACHE_GAUGE:
@@ -124,12 +115,26 @@ export default class MetricsHandler {
     }
 
     public getHistogram(metric: string, params?: Partial<Record<string, string | number>>) {
+        params = this.configureParams(params);
+
         switch (metric) {
+            case METRICS_NAMES.EVENT_PROCESSING_HISTOGRAM:
+                return this.eventProcessingHistogram.startTimer(params);
             case METRICS_NAMES.EXTERNAL_REQUESTS_HISTOGRAM:
                 return this.externalRequestsHistogram.startTimer(params);
             default:
                 MetricsHandler.logger.error(`Attempted to start timer for unknown metric: ${metric}`);
                 break;
         }
+    }
+
+    private configureParams(params?: Partial<Record<string, string | number>>) {
+        if (!params) {
+            params = {};
+        }
+
+        // Inject Census environment into params
+        params.environment = this.censusEnvironment;
+        return params;
     }
 }

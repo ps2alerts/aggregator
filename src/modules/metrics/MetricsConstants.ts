@@ -13,6 +13,7 @@ export const METRICS_NAMES = {
     INSTANCES_GAUGE: 'aggregator_instances_gauge',
 
     // Histograms
+    EVENT_PROCESSING_HISTOGRAM: 'aggregator_event_processing_histogram',
     EXTERNAL_REQUESTS_HISTOGRAM: 'aggregator_external_requests_histogram',
 };
 
@@ -31,5 +32,6 @@ export const PROM_METRICS = {
     INSTANCES_GAUGE: 'PROM_METRIC_AGGREGATOR_INSTANCES_GAUGE',
 
     // Histograms
+    EVENT_PROCESSING_HISTOGRAM: 'PROM_METRIC_AGGREGATOR_EVENT_PROCESSING_HISTOGRAM',
     EXTERNAL_REQUESTS_HISTOGRAM: 'PROM_METRIC_AGGREGATOR_EXTERNAL_REQUESTS_HISTOGRAM',
 };

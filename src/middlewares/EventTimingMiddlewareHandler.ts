@@ -5,6 +5,7 @@ import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfac
 import {PS2Event} from 'ps2census';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {Injectable} from '@nestjs/common';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class EventTimingMiddlewareHandler {
@@ -18,13 +19,11 @@ export default class EventTimingMiddlewareHandler {
         actions: ChannelActionsInterface,
         handler: QueueMessageHandlerInterface<PS2Event<any>>,
     ): Promise<void> {
-        const started = new Date();
+        const timer = this.metricsHandler.getHistogram(METRICS_NAMES.EVENT_PROCESSING_HISTOGRAM, {eventType: message.event_name});
 
         const actionProxy: ChannelActionsInterface = new Proxy(actions, {
-            get: (target: any, prop) => async () => {
-                const metricName = `Event:${message.event_name}`;
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                await this.metricsHandler.logMetric(started, metricName);
+            get: (target: any, prop) => () => {
+                timer();
                 target[prop]();
             },
         });
