@@ -25,6 +25,7 @@ import {ConfigService} from '@nestjs/config';
 import {PS2Environment} from 'ps2census';
 import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
@@ -67,6 +68,7 @@ export default class InstanceAuthority {
         private readonly cacheClient: Redis, // Required for Population aggregation
         private readonly metricsHandler: MetricsHandler,
         config: ConfigService,
+        private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
     ) {
         this.censusEnvironment = config.getOrThrow('census.environment');
     }
@@ -159,7 +161,6 @@ export default class InstanceAuthority {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_start'});
             throw new ApplicationException(`[${instance.instanceId}] Unable to start instance correctly! E: ${err}`, 'InstanceAuthority.startInstance');
-
         }
 
         return true;
@@ -180,14 +181,14 @@ export default class InstanceAuthority {
 
             InstanceAuthority.logger.log(`=== SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ===`);
             this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_end'});
-
-            this.printActives(true);
-            return true;
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_end'});
             throw new ApplicationException(`[${instance.instanceId}] Unable to end instance correctly! E: ${err}`, 'InstanceAuthority');
         }
+
+        this.printActives(true);
+        return true;
     }
 
     public async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
@@ -244,6 +245,8 @@ export default class InstanceAuthority {
 
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
+
+            await this.outfitParticipantCacheHandler.flushAll();
         } else {
             for (const i of instances) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
@@ -395,6 +398,11 @@ export default class InstanceAuthority {
         });
 
         await this.cacheClient.srem(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
+
+        // If there are no alerts going on, force a flush of all outfitParticipant keys otherwise they'll dangle
+        if (this.currentInstances.length === 0) {
+            await this.outfitParticipantCacheHandler.flushAll();
+        }
 
         InstanceAuthority.logger.debug(`=== ${instance.instanceId} removed from actives ===`);
     }
