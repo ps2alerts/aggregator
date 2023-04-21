@@ -78,7 +78,7 @@ export default class CharacterBroker {
                 }
             }
 
-            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: '/character', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: 'success'});
 
             return {character, attacker};
         } catch (err) {
