@@ -13,7 +13,7 @@ import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces
 import {getRealZoneId} from '../utils/zoneIdHandler';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
-import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {METRIC_VALUES, METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 @Injectable()
@@ -48,33 +48,33 @@ export default class FacilityDataBroker {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache HIT`);
-            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: 'hit'});
-            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'cache_hit'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_HIT});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.CACHE_HIT});
 
             const data = await this.cacheClient.get(cacheKey);
 
-            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.SUCCESS});
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return new FacilityData(JSON.parse(data), zone);
         }
 
         FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache MISS`);
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: 'miss'});
-        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'cache_miss'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
 
         const result = await this.getFacilityData(facilityId, zone);
 
         if (result) {
             FacilityDataBroker.logger.verbose(`Facility ID ${facilityId} successfully retrieved from PS2A API`);
-            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.SUCCESS});
 
             facilityData = new FacilityData(result, zone);
         }
 
         if (!result) {
             FacilityDataBroker.logger.error(`PS2Alerts is missing the facility! ${facilityId} on zone ${zone}`);
-            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'error'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.ERROR});
 
             // Log the unknown item so we can investigate
             await this.cacheClient.sadd(`unknownFacilities:${environment}`, `${facilityId}-${zone}`);
@@ -104,7 +104,7 @@ export default class FacilityDataBroker {
 
             // Doing filter on nothing will result in nothing so this works too
             if (facilityData.length) {
-                this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: 'success'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.SUCCESS});
                 return facilityData[0];
             }
 
@@ -116,7 +116,7 @@ export default class FacilityDataBroker {
             if (err instanceof Error) {
                 this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {
                     broker: 'facility_data',
-                    result: 'error',
+                    result: METRIC_VALUES.ERROR,
                 });
             }
 

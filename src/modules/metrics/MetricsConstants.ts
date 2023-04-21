@@ -35,3 +35,13 @@ export const PROM_METRICS = {
     EVENT_PROCESSING_HISTOGRAM: 'PROM_METRIC_AGGREGATOR_EVENT_PROCESSING_HISTOGRAM',
     EXTERNAL_REQUESTS_HISTOGRAM: 'PROM_METRIC_AGGREGATOR_EXTERNAL_REQUESTS_HISTOGRAM',
 };
+
+export const METRIC_VALUES = {
+    SUCCESS: 'success',
+    FAILURE: 'fail',
+    CACHE_HIT: 'cache_hit',
+    CACHE_MISS: 'cache_miss',
+    CACHE_INVALID: 'cache_invalid',
+    ERROR: 'error',
+    CRITICAL: 'critical',
+};
