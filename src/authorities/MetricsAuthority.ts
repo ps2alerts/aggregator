@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
-import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {METRIC_VALUES, METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class MetricsAuthority {
@@ -28,6 +28,7 @@ export default class MetricsAuthority {
             this.stop();
         }
 
+        this.setDefaults();
         await this.gatherRedisMetrics();
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -44,6 +45,16 @@ export default class MetricsAuthority {
         if (this.metricsTimer) {
             clearInterval(this.metricsTimer);
         }
+    }
+
+    // Always set these metrics up on runtime otherwise it makes graphs and alerts go wonky
+    private setDefaults() {
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
     }
 
     private async gatherRedisMetrics() {
