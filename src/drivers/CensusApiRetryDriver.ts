@@ -36,7 +36,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
         try {
             if (attempts > 2) {
                 CensusApiRetryDriver.logger.debug(`[${this.caller}] Attempting to get ${this.endpoint} from Census... Attempt #${attempts}`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'retry'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.endpoint, result: 'retry'});
             }
 
             // Annoyingly Census does respond initially, tricking Axios into thinking it's not timing out. This forces it to time out.
@@ -45,17 +45,17 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
 
             if (attempts > 1) {
                 CensusApiRetryDriver.logger.log(`[${this.caller}] Retry for Census ${this.endpoint} successful at attempt #${attempts}`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'retry_success'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.endpoint, result: 'retry_success'});
             }
 
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'success'});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.endpoint, result: 'success'});
 
             return res;
         } catch (err) {
             if (attempts < this.retryLimit) {
                 if (err instanceof Error) {
                     CensusApiRetryDriver.logger.warn(`[${this.caller}] Census Request "${this.endpoint}" failed! E: ${err.message}. Retrying in ${this.delayTime / 1000} seconds...`);
-                    this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'retry'});
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.endpoint, result: 'retry'});
                 }
 
                 timer();
@@ -66,7 +66,7 @@ export class CensusApiRetryDriver<T extends Rest.CollectionNames> {
             } else {
                 if (err instanceof Error) {
                     CensusApiRetryDriver.logger.error(`[${this.caller}] Census Request "${this.endpoint}" failed after ${this.retryLimit} attempts! E: ${err.message}`, 'CensusApiRetryDriver');
-                    this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.query.collection, result: 'error'});
+                    this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint: this.endpoint, result: 'error'});
                 }
             }
         }
