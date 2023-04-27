@@ -5,13 +5,10 @@ import {
     makeHistogramProvider,
     PrometheusModule,
 } from '@willsoto/nestjs-prometheus';
-import {MetricsController} from './MetricsController';
 import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
 
 @Module({
-    imports: [PrometheusModule.register({
-        controller: MetricsController,
-    })],
+    imports: [PrometheusModule.register()],
     providers: [
         // Counts
         makeCounterProvider({
