@@ -6,7 +6,7 @@ import ZoneDataParser from './ZoneDataParser';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {Logger} from '@nestjs/common';
 import MetricsHandler from '../handlers/MetricsHandler';
-import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {METRIC_VALUES, METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export default class CensusMapRegionQueryParser {
@@ -31,13 +31,13 @@ export default class CensusMapRegionQueryParser {
 
             if (data) {
                 CensusMapRegionQueryParser.logger.verbose(`${cacheKey} HIT`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'live_map', result: 'hit'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'live_map', result: METRIC_VALUES.CACHE_HIT});
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return JSON.parse(data);
             }
         }
 
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'live_map', result: 'miss'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'live_map', result: METRIC_VALUES.CACHE_MISS});
 
         CensusMapRegionQueryParser.logger.verbose(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 
