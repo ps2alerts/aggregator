@@ -58,7 +58,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             ItemBroker.logger.verbose(`${cacheKey} cache HIT`);
-            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_HIT});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_HIT});
             this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: METRIC_VALUES.CACHE_HIT});
 
             const data = await this.cacheClient.get(cacheKey);
@@ -70,7 +70,7 @@ export default class ItemBroker implements ItemBrokerInterface {
             } catch (err) {
                 // Json didn't parse, chuck the data
                 ItemBroker.logger.warn(`${cacheKey} was invalid JSON, flushing cache`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_INVALID});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_INVALID});
 
                 await this.cacheClient.del(cacheKey);
                 // Fall through to the rest of the method to get the item
@@ -78,7 +78,7 @@ export default class ItemBroker implements ItemBrokerInterface {
         }
 
         ItemBroker.logger.verbose(`${cacheKey} MISS`);
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
         this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: METRIC_VALUES.CACHE_MISS});
 
         // Serve the fake item by default, if one is found it gets replaced

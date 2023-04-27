@@ -50,11 +50,11 @@ export default class MetricsAuthority {
     // Always set these metrics up on runtime otherwise it makes graphs and alerts go wonky
     private setDefaults() {
         this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: METRIC_VALUES.CACHE_MISS});
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
         this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'item', result: METRIC_VALUES.CACHE_MISS});
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'item', result: METRIC_VALUES.CACHE_MISS});
         this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
     }
 
     private async gatherRedisMetrics() {

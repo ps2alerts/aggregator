@@ -113,10 +113,10 @@ export default class CharacterBroker {
         const cached = !!await this.cacheClient.exists(cacheKey);
 
         if (cached) {
-            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: METRIC_VALUES.CACHE_HIT});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'character', result: METRIC_VALUES.CACHE_HIT});
             this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: METRIC_VALUES.CACHE_HIT});
         } else {
-            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'character', result: METRIC_VALUES.CACHE_MISS});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'character', result: METRIC_VALUES.CACHE_MISS});
             this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'character', result: METRIC_VALUES.CACHE_MISS});
         }
 

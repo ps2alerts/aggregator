@@ -17,7 +17,7 @@ export default class MetricsHandler {
         config: ConfigService,
         // Counts
         @InjectMetric(METRICS_NAMES.BROKER_COUNT) private readonly brokerCount: Counter<string>,
-        @InjectMetric(METRICS_NAMES.CACHE_COUNT) private readonly cacheCount: Counter<string>,
+        @InjectMetric(METRICS_NAMES.CACHE_HITMISS_COUNT) private readonly cacheCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT) private readonly censusCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_COUNT) private readonly instancesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly queueMessagesCount: Counter<string>,
@@ -43,7 +43,7 @@ export default class MetricsHandler {
             case METRICS_NAMES.BROKER_COUNT:
                 this.brokerCount.inc(params, count);
                 break;
-            case METRICS_NAMES.CACHE_COUNT:
+            case METRICS_NAMES.CACHE_HITMISS_COUNT:
                 this.cacheCount.inc(params, count);
                 break;
             case METRICS_NAMES.EXTERNAL_REQUESTS_COUNT:

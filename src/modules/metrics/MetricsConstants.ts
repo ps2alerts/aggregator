@@ -3,7 +3,7 @@ import {getToken} from '@willsoto/nestjs-prometheus';
 export const METRICS_NAMES = {
     // Counts
     BROKER_COUNT: 'aggregator_broker_count',
-    CACHE_COUNT: 'aggregator_cache_count',
+    CACHE_HITMISS_COUNT: 'aggregator_cache_hitmiss_count',
     ERRORS_COUNT: 'aggregator_errors_count',
     EXTERNAL_REQUESTS_COUNT: 'aggregator_external_requests_count',
     INSTANCES_COUNT: 'aggregator_instances_count',
@@ -22,7 +22,7 @@ export const METRICS_NAMES = {
 export const PROM_METRICS = {
     // Counts
     BROKER_COUNT: getToken(METRICS_NAMES.BROKER_COUNT),
-    CACHE_COUNT: getToken(METRICS_NAMES.CACHE_COUNT),
+    CACHE_HITMISS_COUNT: getToken(METRICS_NAMES.CACHE_HITMISS_COUNT),
     ERRORS_COUNT: getToken(METRICS_NAMES.ERRORS_COUNT),
     EXTERNAL_REQUESTS_COUNT: getToken(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT),
     INSTANCES_COUNT: getToken(METRICS_NAMES.INSTANCES_COUNT),

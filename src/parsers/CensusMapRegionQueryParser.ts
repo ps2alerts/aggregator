@@ -31,13 +31,13 @@ export default class CensusMapRegionQueryParser {
 
             if (data) {
                 CensusMapRegionQueryParser.logger.verbose(`${cacheKey} HIT`);
-                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'live_map', result: 'hit'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'live_map', result: 'hit'});
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return JSON.parse(data);
             }
         }
 
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'live_map', result: 'miss'});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'live_map', result: 'miss'});
 
         CensusMapRegionQueryParser.logger.verbose(`[${this.instance.instanceId}] Grabbing map_region data from Census... (lets hope it doesn't fail...)`);
 

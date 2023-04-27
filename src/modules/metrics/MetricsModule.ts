@@ -17,7 +17,7 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
             labelNames: ['environment', 'broker', 'type', 'result'],
         }),
         makeCounterProvider({
-            name: METRICS_NAMES.CACHE_COUNT,
+            name: METRICS_NAMES.CACHE_HITMISS_COUNT,
             help: 'Cache layer statistics',
             labelNames: ['environment', 'type', 'result'],
         }),

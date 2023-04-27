@@ -48,7 +48,7 @@ export default class FacilityDataBroker {
         // If in cache, grab it
         if (await this.cacheClient.exists(cacheKey)) {
             FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache HIT`);
-            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_HIT});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_HIT});
             this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.CACHE_HIT});
 
             const data = await this.cacheClient.get(cacheKey);
@@ -60,7 +60,7 @@ export default class FacilityDataBroker {
         }
 
         FacilityDataBroker.logger.verbose(`facilityData ${cacheKey} cache MISS`);
-        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
+        this.metricsHandler.increaseCounter(METRICS_NAMES.CACHE_HITMISS_COUNT, {type: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
         this.metricsHandler.increaseCounter(METRICS_NAMES.BROKER_COUNT, {broker: 'facility_data', result: METRIC_VALUES.CACHE_MISS});
 
         const result = await this.getFacilityData(facilityId, zone);
