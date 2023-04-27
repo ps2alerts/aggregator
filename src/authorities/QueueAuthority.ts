@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // This class is responsible for managing queue state based on instances running
 
-import RabbitMQQueueFactory from '../services/rabbitmq/factories/RabbitMQQueueFactory';
+import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import {PS2EventQueueMessageHandlerInterface} from '../interfaces/PS2EventQueueMessageHandlerInterface';
 import {TYPES} from '../constants/types';
@@ -9,6 +9,7 @@ import {Inject, Injectable, Logger} from '@nestjs/common';
 import ZoneMessageHandler from '../handlers/ps2census/ZoneMessageHandler';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsQueueInterface} from '../interfaces/PS2AlertsQueueInterface';
+import MetricsHandler from '../handlers/MetricsHandler';
 
 @Injectable()
 export default class QueueAuthority {
@@ -22,6 +23,7 @@ export default class QueueAuthority {
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
         @Inject(TYPES.eventInstanceHandlers) eventInstanceHandlers: Array<PS2EventQueueMessageHandlerInterface<any>>,
+        private readonly metricsHandler: MetricsHandler,
     ) {
         for (const handler of eventInstanceHandlers) {
             let handlerList = this.handlerMap.get(handler.eventName);
@@ -64,19 +66,6 @@ export default class QueueAuthority {
         }
 
         const queues: PS2AlertsQueueInterface[] = [];
-        // const delayQueueName = `aggregator-${instance.instanceId}-delay`;
-        //
-        // const delayQueue = this.queueFactory.createInstanceQueue(
-        //     `aggregator-${instance.instanceId}-${eventName}`,
-        //     `${instance.world}.${eventName}.*`,
-        //     eventName === 'GainExperience' ? 100 : 50, // GainExp events are much lighter to process and more numerous
-        //     instance,
-        //     new ZoneMessageHandler(instance, handlers),
-        // );
-
-        // Create a queue that holds delayed messages. These messages have custom TTLs on them, which makes a DLQ inappropriate.
-
-        // queues.push(delayQueue);
 
         for (const [eventName, handlers] of this.handlerMap) {
             const queue = this.queueFactory.createInstanceQueue(
@@ -84,7 +73,7 @@ export default class QueueAuthority {
                 `${instance.world}.${eventName}.*`,
                 eventName === 'GainExperience' ? 100 : 50, // GainExp events are much lighter to process and more numerous
                 instance,
-                new ZoneMessageHandler(instance, handlers),
+                new ZoneMessageHandler(instance, handlers, this.metricsHandler),
             );
 
             await queue.connect();

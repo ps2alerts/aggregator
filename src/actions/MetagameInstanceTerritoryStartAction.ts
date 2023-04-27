@@ -6,28 +6,30 @@ import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import MapDataInterface from '../interfaces/MapDataInterface';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Rest} from 'ps2census';
-import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export default class MetagameInstanceTerritoryStartAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('MetagameInstanceTerritoryStartAction');
 
     constructor(
         private readonly instance: MetagameTerritoryInstance,
-        private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly ps2alertsApiClient: PS2AlertsApiDriver,
         private readonly restClient: Rest.Client,
         private readonly cacheClient: Redis,
         private readonly zoneDataParser: ZoneDataParser,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
+        private readonly censusRequestDriver: CensusRequestDriver,
     ) {}
 
     public async execute(): Promise<boolean> {
-        MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Running startActions()`);
-        MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Trying to get initial map state`);
+        MetagameInstanceTerritoryStartAction.logger.debug(`[${this.instance.instanceId}] Running startActions()`);
+        MetagameInstanceTerritoryStartAction.logger.debug(`[${this.instance.instanceId}] Trying to get initial map state`);
 
         const docs = await this.getInitialMap();
 
@@ -35,16 +37,12 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             throw new ApplicationException(`[${this.instance.instanceId}] Map state was empty!`, 'MetagameInstanceTerritoryStartAction');
         }
 
-        const started = new Date();
-
         await this.ps2alertsApiClient.post(
             ps2AlertsApiEndpoints.instanceEntriesFacilityBatch,
             docs,
         ).catch((err: Error) => {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to update bracket! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to insert initial map state! E: ${err.message}`, 'MetagameInstanceTerritoryStartAction');
         });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         MetagameInstanceTerritoryStartAction.logger.log(`[${this.instance.instanceId}] Inserted initial map state`);
 
@@ -61,17 +59,17 @@ export default class MetagameInstanceTerritoryStartAction implements ActionInter
             this.instance,
             this.cacheClient,
             this.zoneDataParser,
-            this.statisticsHandler,
+            this.metricsHandler,
+            this.censusRequestDriver,
         ).getMapData();
-        await this.statisticsHandler.logTime(date, MetricTypes.CENSUS_MAP_REGION);
 
-        if (mapData.length === 0) {
-            throw new ApplicationException('Unable to properly get map data from census!');
+        if (!mapData.Regions?.Row || mapData.Regions.Row.length === 0) {
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to properly get map data from census!`, 'MetagameInstanceTerritoryStartAction');
         }
 
         const docs: MapDataInterface[] = [];
 
-        mapData[0].Regions.Row.forEach((row) => {
+        mapData.Regions.Row.forEach((row) => {
             // Check if we have a facility type, if we don't chuck it as it's an old facility
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             const facilityId = parseInt(row.RowData.map_region.facility_id, 10);

@@ -3,7 +3,7 @@ import InstanceAuthority from './authorities/InstanceAuthority';
 import OverdueInstanceAuthority from './authorities/OverdueInstanceAuthority';
 import PopulationAuthority from './authorities/PopulationAuthority';
 import QueueAuthority from './authorities/QueueAuthority';
-import TimingStatisticsAuthority from './authorities/TimingStatisticsAuthority';
+import MetricsAuthority from './authorities/MetricsAuthority';
 import CharacterBroker from './brokers/CharacterBroker';
 import FacilityDataBroker from './brokers/FacilityDataBroker';
 import ItemBroker from './brokers/ItemBroker';
@@ -39,11 +39,11 @@ import CharacterPresenceHandler from './handlers/CharacterPresenceHandler';
 import OutfitParticipantCacheHandler from './handlers/OutfitParticipantCacheHandler';
 import PopulationHandler from './handlers/PopulationHandler';
 import ZoneDataParser from './parsers/ZoneDataParser';
-import AuthorityService from './services/authorities/AuthorityService';
-import RabbitMQModule from './services/rabbitmq/RabbitMQModule';
-import RedisModule from './services/redis/RedisModule';
-import CensusModule from './services/census/CensusModule';
-import PS2AlertsApiModule from './services/ps2alerts-api/PS2AlertsApiModule';
+import AuthorityService from './modules/authorities/AuthorityService';
+import RabbitMQModule from './modules/rabbitmq/RabbitMQModule';
+import RedisModule from './modules/redis/RedisModule';
+import CensusModule from './modules/census/CensusModule';
+import PS2AlertsApiModule from './modules/ps2alerts-api/PS2AlertsApiModule';
 import {TYPES} from './constants/types';
 import MessageQueueHandlerInterface from './interfaces/MessageQueueHandlerInterface';
 import PopulationData from './data/PopulationData';
@@ -56,14 +56,26 @@ import AdminAggregatorSubscriber from './subscribers/AdminAggregatorSubscriber';
 import MetagameSubscriber from './subscribers/MetagameSubscriber';
 import {HealthModule} from './health/HealthModule';
 import {Death} from 'ps2census';
+import {ConfigModule} from '@nestjs/config';
+import {config} from './config';
+import MetricsModule from './modules/metrics/MetricsModule';
+import {PS2AlertsApiDriver} from './drivers/PS2AlertsApiDriver';
+import {FalconRequestDriver} from './drivers/FalconRequestDriver';
+import {CensusRequestDriver} from './drivers/CensusRequestDriver';
 
 @Module({
     imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [config],
+            expandVariables: true,
+        }),
         HealthModule,
         RedisModule,
         RabbitMQModule,
         CensusModule,
         PS2AlertsApiModule,
+        MetricsModule,
     ],
     providers: [
         // TODO: Split this monstrosity into separate modules with some sort of hierarchy
@@ -72,7 +84,7 @@ import {Death} from 'ps2census';
         OverdueInstanceAuthority,
         PopulationAuthority,
         QueueAuthority,
-        TimingStatisticsAuthority,
+        MetricsAuthority,
 
         // Brokers
         CharacterBroker,
@@ -127,6 +139,11 @@ import {Death} from 'ps2census';
         // Subscribers
         AdminAggregatorSubscriber,
         MetagameSubscriber,
+
+        // Drivers
+        CensusRequestDriver,
+        PS2AlertsApiDriver,
+        FalconRequestDriver,
 
         // Multi injects
         {

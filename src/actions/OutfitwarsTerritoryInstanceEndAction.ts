@@ -4,12 +4,11 @@ import ApplicationException from '../exceptions/ApplicationException';
 import GlobalVictoryAggregate from '../handlers/aggregate/global/GlobalVictoryAggregate';
 import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance} from 'axios';
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class OutfitwarsTerritoryInstanceEndAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('OutfitwarsTerritoryInstanceEndAction');
@@ -17,10 +16,9 @@ export default class OutfitwarsTerritoryInstanceEndAction implements ActionInter
     constructor(
         private readonly instance: OutfitWarsTerritoryInstance,
         private readonly territoryResultAction: ActionInterface<OutfitwarsTerritoryResultInterface>,
-        private readonly ps2alertsApiClient: AxiosInstance,
+        private readonly ps2alertsApiClient: PS2AlertsApiDriver,
         private readonly globalVictoryAggregate: GlobalVictoryAggregate,
         private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
-        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -50,8 +48,6 @@ export default class OutfitwarsTerritoryInstanceEndAction implements ActionInter
         ).catch((err: Error) => {
             throw new ApplicationException(`[${this.instance.instanceId}] Unable to mark Outfit Wars Instance as ended via API! Err: ${err.message} - Data: ${JSON.stringify(data)}`, 'OutfitwarsTerritoryInstanceEndAction');
         });
-
-        await this.statisticsHandler.logTime(endTime, MetricTypes.PS2ALERTS_API);
 
         // Update the final result of the instance
         const result: OutfitwarsTerritoryResultInterface = await this.territoryResultAction.execute();

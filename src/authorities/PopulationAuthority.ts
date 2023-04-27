@@ -27,7 +27,7 @@ export default class PopulationAuthority {
                 const result = await this.characterPresenceHandler.collate();
 
                 if (!result) {
-                    PopulationAuthority.logger.debug('No pop data to collate!');
+                    PopulationAuthority.logger.debug('No pop data to collate! Is collector running or any alerts ongoing?');
                     return;
                 }
 

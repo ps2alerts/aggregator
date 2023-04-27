@@ -1,36 +1,71 @@
-export function get(key: string, def = ''): string {
-    return process.env[key]?.trim() ?? def;
+import * as process from 'process';
+
+export function env(name: string): string | undefined;
+export function env(name: string, def): string;
+
+export function env(name: string, def?: string): string | undefined {
+    return process.env[name] ?? def;
 }
 
-export function getAndTest<T extends string>(key: string, test: (value: string) => boolean): T {
-    const value = process.env[key];
+export function envInt(name: string, radix: number): number | undefined;
+export function envInt(name: string, radix: number, def: number): number;
 
-    if (value && test(value)) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return value;
+export function envInt(
+    name: string,
+    radix: number,
+    def?: number,
+): number | undefined {
+    if (['inf', 'infinity'].includes(process.env[name]?.toLowerCase())) {
+        return Infinity;
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    throw new Error(`Environment variable ${key} didn't match test ${test}`);
+    return parseInt(process.env[name], radix) || def;
 }
 
-export function getBool(key: string, def = false): boolean {
-    const value = process.env[key];
+export function envFloat(name: string): number | undefined;
+export function envFloat(name: string, def: number): number;
 
-    if (value) {
-        switch (value.trim().toUpperCase()) {
-            case 'TRUE':
-                return true;
-            case 'FALSE':
-                return false;
-        }
+export function envFloat(name: string, def?: number): number | undefined {
+    return parseFloat(process.env[name]) || def;
+}
+
+export function envBool(name: string): boolean | undefined;
+export function envBool(name: string, def: boolean): boolean;
+
+export function envBool(name: string, def?: boolean): boolean | undefined {
+    const val = process.env[name]?.toLowerCase();
+
+    if (['true', 'false'].includes(val)) {
+        return val === 'true';
     }
 
     return def;
 }
 
-export function getInt(key: string, def: number): number {
-    const value = process.env[key];
-    return value ? parseInt(value, 10) : def;
+export function envSplit(
+    name: string,
+    separator?: string,
+): string[] | undefined;
+export function envSplit(
+    name: string,
+    def: string[],
+    separator?: string,
+): string[];
+
+export function envSplit(
+    name: string,
+    defOrSeparator?: string[] | string,
+    separator?: string,
+): string[] | undefined {
+    let def: string[] = undefined;
+
+    if (Array.isArray(defOrSeparator)) {
+        def = defOrSeparator;
+    } else {
+        separator = defOrSeparator;
+    }
+
+    separator ??= ',';
+
+    return process.env[name]?.split(separator) ?? def;
 }

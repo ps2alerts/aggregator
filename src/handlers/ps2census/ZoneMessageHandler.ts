@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment */
 // This handler is responsible for requeues and building the PS2EventQueueMessage with has various helpful data included.
 
 import PS2EventQueueMessage from '../messages/PS2EventQueueMessage';
@@ -14,6 +14,8 @@ import {promiseTimeout} from '../../utils/PromiseTimeout';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import {getZoneIdFromBinary, getZoneInstanceIdFromBinary} from '../../utils/binaryZoneIds';
 import OutfitWarsTerritoryInstance from '../../instances/OutfitWarsTerritoryInstance';
+import {METRICS_NAMES} from '../../modules/metrics/MetricsConstants';
+import MetricsHandler from '../MetricsHandler';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements QueueMessageHandlerInterface<T> {
@@ -22,6 +24,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
     constructor(
         private readonly instance: PS2AlertsInstanceInterface,
         private readonly handlers: Array<PS2EventQueueMessageHandlerInterface<T>>,
+        private readonly metricsHandler: MetricsHandler,
     ) {}
 
     public async handle(event: T, actions: ChannelActionsInterface): Promise<void> {
@@ -31,6 +34,7 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (this.instance.ps2AlertsEventType === Ps2AlertsEventType.LIVE_METAGAME) {
             if (zoneId !== this.instance.zone) {
+                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'instance_mismatch', event_type: event.event_name});
                 return actions.ack();
             }
         } else {
@@ -45,9 +49,19 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
             }
         }
 
+        this.metricsHandler.increaseCounter(
+            METRICS_NAMES.ZONE_MESSAGE_COUNT, {
+                type: String(event.event_name),
+                world: event.world_id,
+                zone: event.zone_id,
+            },
+        );
+
         // If the message came after the alert ended, chuck
         if (this.instance.messageOverdue(event)) {
             ZoneMessageHandler.logger.verbose(`[${this.instance.instanceId}] Ignoring ${event.event_name} message as instance ended before this event's timestamp!`);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'message_overdue'});
+
             return actions.ack();
         }
 
@@ -59,27 +73,33 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
                 )),
             ), 45000);
             await Promise.race(promise);
+            this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'successful'});
 
             return actions.ack();
         } catch (err) {
             if (err instanceof MaxRetryException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Census retries reached! Delaying message due to possible Census issues. Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.delay(5000);
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'census_max_retries'});
+                return actions.delay(15000);
             }
 
             if (err instanceof ApplicationException) {
                 ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unable to properly process ZoneMessage!Type: ${event.event_name} - Err: ${err.message}`);
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'processing_failed'});
+
                 return actions.retry();
             }
 
             if (err instanceof TimeoutException) {
-                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load Type: ${event.event_name} - Err: ${err.message}`);
-                return actions.delay(60000);
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] ZoneMessage took too long to process! Waiting for a while before processing again due to load. Type: ${event.event_name} - Err: ${err.message}`);
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'timeout'});
+                return actions.delay(30000);
             }
 
             if (err instanceof Error) {
                 actions.ack();
                 new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
+                this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'error'});
             }
 
             // If we haven't got a specific means of handling the issue, drop it.

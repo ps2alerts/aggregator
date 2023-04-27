@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import {Inject, Injectable, Logger} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import ApplicationException from '../exceptions/ApplicationException';
-import {TYPES} from '../constants/types';
 import {pcWorldArray, World} from '../ps2alerts-constants/world';
 import PS2AlertsInstanceInterface from '../interfaces/PS2AlertsInstanceInterface';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
@@ -11,9 +10,8 @@ import {remove} from 'lodash';
 import {jsonLogOutput} from '../utils/json';
 import InstanceActionFactory from '../factories/InstanceActionFactory';
 import {calculateRemainingTime} from '../utils/InstanceRemainingTime';
-import {AxiosInstance, AxiosResponse} from 'axios';
+import {AxiosResponse} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import config from '../config';
 import {censusEnvironments} from '../ps2alerts-constants/censusEnvironments';
 import QueueAuthority from './QueueAuthority';
 import ExceptionHandler from '../handlers/system/ExceptionHandler';
@@ -22,7 +20,12 @@ import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import InstanceAbstract from '../instances/InstanceAbstract';
 import {PS2AlertsInstanceFeaturesInterface} from '../ps2alerts-constants/interfaces/PS2AlertsInstanceFeaturesInterface';
 import Redis from 'ioredis';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
+import {ConfigService} from '@nestjs/config';
+import {PS2Environment} from 'ps2census';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import OutfitParticipantCacheHandler from '../handlers/OutfitParticipantCacheHandler';
 
 interface InstanceMetadataInterface {
     features: PS2AlertsInstanceFeaturesInterface;
@@ -56,15 +59,19 @@ export default class InstanceAuthority {
     private readonly currentInstances: PS2AlertsInstanceInterface[] = [];
     private activeTimer?: NodeJS.Timeout;
     private initialized = false;
-    private readonly censusEnvironment = config.census.censusEnvironment;
+    private readonly censusEnvironment: PS2Environment;
 
     constructor(
         private readonly instanceActionFactory: InstanceActionFactory,
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly queueAuthority: QueueAuthority,
         private readonly cacheClient: Redis, // Required for Population aggregation
-        private readonly statisticsHandler: StatisticsHandler,
-    ) {}
+        private readonly metricsHandler: MetricsHandler,
+        config: ConfigService,
+        private readonly outfitParticipantCacheHandler: OutfitParticipantCacheHandler,
+    ) {
+        this.censusEnvironment = config.getOrThrow('census.environment');
+    }
 
     public getInstance(instanceId: string): PS2AlertsInstanceInterface | null {
         InstanceAuthority.logger.verbose(`Attempting to find an instance with ID: "${instanceId}"...`);
@@ -148,8 +155,11 @@ export default class InstanceAuthority {
             await this.cacheClient.sadd(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
 
             InstanceAuthority.logger.log(`================== INSTANCE "${instance.instanceId}" STARTED! ==================`);
+
+            this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_start'});
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_start'});
             throw new ApplicationException(`[${instance.instanceId}] Unable to start instance correctly! E: ${err}`, 'InstanceAuthority.startInstance');
         }
 
@@ -170,12 +180,15 @@ export default class InstanceAuthority {
             this.queueAuthority.stopQueuesForInstance(instance);
 
             InstanceAuthority.logger.log(`=== SUCCESSFULLY ENDED INSTANCE "${instance.instanceId}" ===`);
-            this.printActives(true);
-            return true;
+            this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_end'});
         } catch (err) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_end'});
             throw new ApplicationException(`[${instance.instanceId}] Unable to end instance correctly! E: ${err}`, 'InstanceAuthority');
         }
+
+        this.printActives(true);
+        return true;
     }
 
     public async trashInstance(instance: PS2AlertsInstanceInterface): Promise<void> {
@@ -183,14 +196,15 @@ export default class InstanceAuthority {
 
         await this.removeActiveInstance(instance);
 
-        const started = new Date();
-
-        await this.ps2AlertsApiClient.delete(ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
+        await this.ps2AlertsApiClient.delete(
+            ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId))
+            .then(() => {
+                this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'success_trash'});
+            })
             .catch((err: Error) => {
+                this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_trash'});
                 throw new ApplicationException(`[${instance.instanceId}] UNABLE TO TRASH INSTANCE! API CALL FAILED! E: ${err.message}`, 'InstanceAuthority');
             });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         InstanceAuthority.logger.error(`=== [${instance.instanceId}] INSTANCE TRASHED! ===`);
 
@@ -209,8 +223,6 @@ export default class InstanceAuthority {
 
         let apiResponses: AxiosResponse[];
 
-        const started = new Date();
-
         const promises = [
             await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.instanceActive),
             // await this.ps2AlertsApiClient.get(ps2AlertsApiEndpoints.outfitwarsActive),
@@ -221,8 +233,6 @@ export default class InstanceAuthority {
         } catch (err) {
             throw new ApplicationException('Unable to get Active Instances from PS2Alerts API! Crashing the app...', 'InstanceAuthority', 1);
         }
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         const instances: InstanceAbstract[] = [];
 
@@ -235,6 +245,8 @@ export default class InstanceAuthority {
 
         if (!instances.length) {
             InstanceAuthority.logger.warn('No active instances were detected! This could be entirely normal however.');
+
+            await this.outfitParticipantCacheHandler.flushAll();
         } else {
             for (const i of instances) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
@@ -307,6 +319,9 @@ export default class InstanceAuthority {
                 await this.cacheClient.sadd(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
             }
         }
+
+        this.metricsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, this.currentInstances.length, {type: 'active'});
+        this.metricsHandler.setGauge(METRICS_NAMES.INSTANCES_GAUGE, 0, {type: 'overdue'});
 
         // Set timer for instances display
         this.activeTimer = setInterval(() => {
@@ -384,13 +399,16 @@ export default class InstanceAuthority {
 
         await this.cacheClient.srem(`ActiveInstances-${this.censusEnvironment}`, instance.instanceId);
 
+        // If there are no alerts going on, force a flush of all outfitParticipant keys otherwise they'll dangle
+        if (this.currentInstances.length === 0) {
+            await this.outfitParticipantCacheHandler.flushAll();
+        }
+
         InstanceAuthority.logger.debug(`=== ${instance.instanceId} removed from actives ===`);
     }
 
     private async startTerritoryControlInstance(instance: MetagameTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
         InstanceAuthority.logger.log(`[${instance.instanceId}] Sending instances POST to API ${ps2AlertsApiEndpoints.instances}`);
-
-        let started = new Date();
 
         await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.instances, metadata)
             .then((response) => {
@@ -403,8 +421,6 @@ export default class InstanceAuthority {
                 InstanceAuthority.logger.error(err.response.data);
                 new ExceptionHandler('Unable to create instance via API!', err.response.data.message, 'InstanceAuthority.startTerritoryControlInstance');
             });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         InstanceAuthority.logger.log(`=== INSERTED NEW METAGAME TERRITORY INSTANCE ${instance.instanceId} ===`);
 
@@ -426,8 +442,6 @@ export default class InstanceAuthority {
             return false;
         }
 
-        started = new Date();
-
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
             ps2AlertsApiEndpoints.instancesInstance.replace('{instanceId}', instance.instanceId),
@@ -437,15 +451,11 @@ export default class InstanceAuthority {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startTerritoryControlInstance');
         });
 
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
-
         return true;
     }
 
     private async startOutfitwarsTerritoryInstance(instance: OutfitWarsTerritoryInstance, metadata: InstanceMetadataInterface): Promise<boolean> {
         InstanceAuthority.logger.log(`[${instance.instanceId}] Sending outfitwars instances POST to API ${ps2AlertsApiEndpoints.outfitwars}`);
-
-        let started = new Date();
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         await this.ps2AlertsApiClient.post(ps2AlertsApiEndpoints.outfitwars, metadata)
@@ -458,8 +468,6 @@ export default class InstanceAuthority {
             .catch((err) => {
                 new ExceptionHandler('Unable to create instance via API!', err, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
             });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         InstanceAuthority.logger.log(`=== INSERTED NEW OUTFIT WARS TERRITORY INSTANCE ${instance.instanceId} ===`);
 
@@ -481,8 +489,6 @@ export default class InstanceAuthority {
             return false;
         }
 
-        started = new Date();
-
         // Mark in the database the alert has now properly started
         await this.ps2AlertsApiClient.patch(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -492,8 +498,6 @@ export default class InstanceAuthority {
         ).catch((err: Error) => {
             throw new ApplicationException(`[${instance.instanceId}] Unable to mark instance as STARTED! Err: ${err.message}`, 'InstanceAuthority.startOutfitWarsTerritoryInstance');
         });
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         return true;
     }

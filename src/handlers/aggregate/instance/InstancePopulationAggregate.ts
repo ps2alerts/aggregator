@@ -4,7 +4,7 @@ import PopulationData from '../../../data/PopulationData';
 import InstanceAuthority from '../../../authorities/InstanceAuthority';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import CharacterPresenceHandler from '../../CharacterPresenceHandler';
 import ExceptionHandler from '../../system/ExceptionHandler';
 

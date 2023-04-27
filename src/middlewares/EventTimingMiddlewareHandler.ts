@@ -3,13 +3,14 @@
 // This class is usually called in front of ZoneMessageQueueHandler, not the actual handlers themselves.
 import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../interfaces/QueueMessageHandlerInterface';
 import {PS2Event} from 'ps2census';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
 import {Injectable} from '@nestjs/common';
+import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class EventTimingMiddlewareHandler {
     constructor(
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly metricsHandler: MetricsHandler,
     ) {
     }
 
@@ -18,21 +19,15 @@ export default class EventTimingMiddlewareHandler {
         actions: ChannelActionsInterface,
         handler: QueueMessageHandlerInterface<PS2Event<any>>,
     ): Promise<void> {
-        const startTime = new Date();
+        const timer = this.metricsHandler.getHistogram(METRICS_NAMES.EVENT_PROCESSING_HISTOGRAM, {eventType: message.event_name});
 
         const actionProxy: ChannelActionsInterface = new Proxy(actions, {
-            get: (target: any, prop) => async () => {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                await this.logTime(startTime, `Event:${message.event_name}`);
+            get: (target: any, prop) => () => {
+                timer();
                 target[prop]();
             },
         });
 
         await handler.handle(message, actionProxy);
-    }
-
-    // Log the time that it took to process the message, determined from the message time.
-    private async logTime(started: Date, eventType: string): Promise<void> {
-        await this.statisticsHandler.logTime(started, eventType);
     }
 }

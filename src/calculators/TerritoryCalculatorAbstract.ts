@@ -7,7 +7,7 @@ import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/Faction
 import CensusMapRegionQueryParser from '../parsers/CensusMapRegionQueryParser';
 import {Rest} from 'ps2census';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance, AxiosResponse} from 'axios';
+import {AxiosResponse} from 'axios';
 import PS2AlertsInstanceEntriesInstanceFacilityResponseInterface
     from '../interfaces/PS2AlertsInstanceEntriesInstanceFacilityResponseInterface';
 import Redis from 'ioredis';
@@ -16,8 +16,9 @@ import InstanceAbstract from '../instances/InstanceAbstract';
 import {FacilityType} from '../ps2alerts-constants/facilityType';
 import {Ps2AlertsEventType} from '../ps2alerts-constants/ps2AlertsEventType';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
-import config from '../config';
+import MetricsHandler from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export interface PercentagesInterface extends FactionNumbersInterface {
     cutoff: number;
@@ -54,10 +55,11 @@ export default abstract class TerritoryCalculatorAbstract {
     protected constructor(
         protected readonly instance: InstanceAbstract,
         protected readonly restClient: Rest.Client,
-        protected readonly ps2AlertsApiClient: AxiosInstance,
+        protected readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         protected readonly cacheClient: Redis,
         protected readonly zoneDataParser: ZoneDataParser,
-        protected readonly statisticsHandler: StatisticsHandler,
+        protected readonly metricsHandler: MetricsHandler,
+        protected readonly censusRequestDriver: CensusRequestDriver,
     ) {}
 
     protected async hydrateData(): Promise<void> {
@@ -159,13 +161,11 @@ export default abstract class TerritoryCalculatorAbstract {
         outOfPlayCount: number,
     ): number {
         const cutoffCount = (baseCount - bases.vs - bases.nc - bases.tr) - outOfPlayCount;
-        const cutoffPercent = Math.floor(cutoffCount * perBase);
+        // if (config.logger.silly) {
+        //     console.log('Cutoff bases', this.cutoffFacilityList);
+        // }
 
-        if (config.logger.silly) {
-            console.log('Cutoff bases', this.cutoffFacilityList);
-        }
-
-        return cutoffPercent;
+        return Math.floor(cutoffCount * perBase);
     }
 
     protected async getMapFacilities(): Promise<void> {
@@ -177,14 +177,15 @@ export default abstract class TerritoryCalculatorAbstract {
             this.instance,
             this.cacheClient,
             this.zoneDataParser,
-            this.statisticsHandler,
+            this.metricsHandler,
+            this.censusRequestDriver,
         ).getMapData();
 
-        if (mapData.length === 0) {
-            throw new ApplicationException(`[${this.instance.instanceId}] Unable to properly get map data from census!`);
+        if (!mapData.Regions?.Row || mapData.Regions.Row.length === 0) {
+            throw new ApplicationException(`[${this.instance.instanceId}] Unable to properly get map data from census!`, 'TerritoryCalculatorAbstract');
         }
 
-        for (const row of mapData[0].Regions.Row) {
+        for (const row of mapData.Regions.Row) {
             const region = row.RowData;
             const id = parseInt(region.map_region.facility_id, 10);
 
@@ -305,15 +306,11 @@ export default abstract class TerritoryCalculatorAbstract {
             ? ps2AlertsApiEndpoints.instanceEntriesInstanceFacilityFacility
             : ps2AlertsApiEndpoints.outfitwarsInstanceFacilityFacility;
 
-        const started = new Date();
-
         const apiResponse: AxiosResponse = await this.ps2AlertsApiClient.get(
             endpoint
                 .replace('{instanceId}', this.instance.instanceId)
                 .replace('{facilityId}', facilityId.toString()),
         );
-
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result: PS2AlertsInstanceEntriesInstanceFacilityResponseInterface = apiResponse.data;

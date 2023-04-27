@@ -9,12 +9,12 @@ import {FactionNumbersInterface} from '../ps2alerts-constants/interfaces/Faction
 import {Ps2AlertsEventState} from '../ps2alerts-constants/ps2AlertsEventState';
 import MetagameTerritoryInstance from '../instances/MetagameTerritoryInstance';
 import {Rest} from 'ps2census';
-import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import ZoneDataParser from '../parsers/ZoneDataParser';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../handlers/StatisticsHandler';
-import config from '../config';
+import MetricsHandler from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<MetagameTerritoryControlResultInterface> {
     private static readonly classLogger = new Logger('MetagameTerritoryCalculator');
@@ -22,10 +22,11 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
     constructor(
         protected readonly instance: MetagameTerritoryInstance,
         restClient: Rest.Client,
-        ps2AlertsApiClient: AxiosInstance,
+        ps2AlertsApiClient: PS2AlertsApiDriver,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
-        statisticsHandler: StatisticsHandler,
+        metricsHandler: MetricsHandler,
+        censusRequestDriver: CensusRequestDriver,
     ) {
         super(
             instance,
@@ -33,20 +34,21 @@ export default class MetagameTerritoryCalculator extends TerritoryCalculatorAbst
             ps2AlertsApiClient,
             cacheClient,
             zoneDataParser,
-            statisticsHandler,
+            metricsHandler,
+            censusRequestDriver,
         );
     }
 
     public async calculate(): Promise<MetagameTerritoryControlResultInterface> {
-        MetagameTerritoryCalculator.classLogger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
+        MetagameTerritoryCalculator.classLogger.verbose(`[${this.instance.instanceId}] Running TerritoryCalculator`);
 
         // Hydrate the territory data
         await this.hydrateData();
 
         // Now calculate the results
-        if (config.logger.silly) {
-            console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
-        }
+        // if (config.logger.silly) {
+        //     console.log(`[${this.instance.instanceId}] outOfPlay bases`, this.disabledFacilityList.size, this.disabledFacilityList);
+        // }
 
         const percentages = this.calculatePercentages();
         const victor = this.calculateVictor(percentages);

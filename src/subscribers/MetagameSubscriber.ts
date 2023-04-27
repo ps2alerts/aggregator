@@ -1,14 +1,14 @@
 // noinspection JSMethodCanBeStatic
 
-import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
+import {Injectable, Logger, OnApplicationBootstrap} from '@nestjs/common';
 import {pcWorldArray, World} from '../ps2alerts-constants/world';
-import config from '../config';
-import RabbitMQQueueFactory from '../services/rabbitmq/factories/RabbitMQQueueFactory';
-import {MetagameEventQueue} from '../services/rabbitmq/queues/MetagameEventQueue';
+import RabbitMQQueueFactory from '../modules/rabbitmq/factories/RabbitMQQueueFactory';
+import {MetagameEventQueue} from '../modules/rabbitmq/queues/MetagameEventQueue';
 import MetagameEventEventHandler from '../handlers/ps2census/MetagameEventEventHandler';
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
-export default class MetagameSubscriber implements OnModuleInit {
+export default class MetagameSubscriber implements OnApplicationBootstrap {
     private static readonly logger = new Logger('MetagameSubscriber');
     private readonly queues = new Map<World, MetagameEventQueue>();
     private isConnected = false;
@@ -16,10 +16,11 @@ export default class MetagameSubscriber implements OnModuleInit {
     constructor(
         private readonly queueFactory: RabbitMQQueueFactory,
         private readonly metagameEventHandler: MetagameEventEventHandler,
+        private readonly config: ConfigService,
     ) {
     }
 
-    public async onModuleInit(): Promise<void> {
+    public async onApplicationBootstrap(): Promise<void> {
         if (this.isConnected) {
             MetagameSubscriber.logger.error('Attempted to resubscribe to Metagame queues when already connected!');
             return;
@@ -28,7 +29,7 @@ export default class MetagameSubscriber implements OnModuleInit {
         MetagameSubscriber.logger.log('Creating world MetagameEvent queues...');
 
         // Subscribe only to worlds that make sense for the environment
-        const censusEnv = config.census.censusEnvironment;
+        const censusEnv: string = this.config.get('census.environment');
         let worlds: World[] = censusEnv === 'ps2' ? pcWorldArray : censusEnv === 'ps2ps4us' ? [1000] : [2000];
 
         // Filter out Jaeger

@@ -1,21 +1,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {getZoneLatticeVersion, Zone} from '../ps2alerts-constants/zone';
-import {Inject, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import ApplicationException from '../exceptions/ApplicationException';
 import {CensusFacilityRegion, CensusRegionResponseInterface} from '../interfaces/CensusRegionEndpointInterfaces';
-import {TYPES} from '../constants/types';
-import {AxiosInstance} from 'axios';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
 import Redis from 'ioredis';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 @Injectable()
 export default class ZoneDataParser {
     constructor(
-        @Inject(TYPES.ps2AlertsApiClient) private readonly ps2AlertsApiClient: AxiosInstance,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
         private readonly cacheClient: Redis,
-        private readonly statisticsHandler: StatisticsHandler,
     ) {}
 
     // Sends a call off to the PS2A API to grab the map data based on current date and zone, pulling in the correct lattice links contextually based off instance date.
@@ -33,9 +30,7 @@ export default class ZoneDataParser {
             .replace('{zone}', zone.toString())
             .replace('{version}', latticeVersion);
 
-        const started = new Date();
         const response = await this.ps2AlertsApiClient.get(path);
-        await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const regionData: CensusRegionResponseInterface = response.data;
 

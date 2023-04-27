@@ -14,6 +14,7 @@ class Item implements ItemInterface {
         this.id = parseInt(censusItem.item_id, 10);
         this.name = censusItem.name.en;
         this.faction = parseInt(censusItem.faction_id, 10);
+        this.typeId = parseInt(censusItem.item_type_id, 10);
         this.categoryId = parseInt(censusItem.item_category_id, 10);
         this.isVehicleWeapon = censusItem.is_vehicle_weapon === '1';
     }

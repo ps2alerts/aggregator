@@ -3,7 +3,7 @@ import AggregateHandlerInterface from '../../../interfaces/AggregateHandlerInter
 import DeathEvent from '../../ps2census/events/DeathEvent';
 import {Injectable, Logger} from '@nestjs/common';
 import {Kill} from 'ps2census';
-import ApiMQPublisher from '../../../services/rabbitmq/publishers/ApiMQPublisher';
+import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import ApiMQMessage from '../../../data/ApiMQMessage';
 import {MqAcceptedPatterns} from '../../../ps2alerts-constants/mqAcceptedPatterns';
 import OutfitParticipantCacheHandler from '../../OutfitParticipantCacheHandler';

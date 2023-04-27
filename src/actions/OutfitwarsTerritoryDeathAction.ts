@@ -1,20 +1,18 @@
 import {ActionInterface} from '../interfaces/ActionInterface';
 import {ps2AlertsApiEndpoints} from '../ps2alerts-constants/ps2AlertsApiEndpoints';
-import {AxiosInstance} from 'axios';
 import DeathEvent from '../handlers/ps2census/events/DeathEvent';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
 import {Team} from '../ps2alerts-constants/outfitwars/team';
 import {Faction} from '../ps2alerts-constants/faction';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler, {MetricTypes} from '../handlers/StatisticsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
 
 export default class OutfitwarsTerritoryDeathAction implements ActionInterface<boolean> {
     private static readonly logger = new Logger('OutfitwarsTerritoryDeathAction');
 
     constructor(
         private readonly event: DeathEvent,
-        private readonly ps2AlertsApiClient: AxiosInstance,
-        private readonly statisticsHandler: StatisticsHandler,
+        private readonly ps2AlertsApiClient: PS2AlertsApiDriver,
     ) {}
 
     public async execute(): Promise<boolean> {
@@ -104,11 +102,8 @@ export default class OutfitwarsTerritoryDeathAction implements ActionInterface<b
             );
         }
 
-        const started = new Date();
-
-        return await Promise.all(toUpdate).then(async () => {
+        return await Promise.all(toUpdate).then(() => {
             (this.event.instance as OutfitWarsTerritoryInstance).outfitwars = instance.outfitwars;
-            await this.statisticsHandler.logTime(started, MetricTypes.PS2ALERTS_API);
             return true;
         }).catch(() => {
             return false;

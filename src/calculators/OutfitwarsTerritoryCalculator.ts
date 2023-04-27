@@ -3,7 +3,6 @@ import {CalculatorInterface} from './CalculatorInterface';
 import TerritoryCalculatorAbstract, {FacilityInterface, PercentagesInterface} from './TerritoryCalculatorAbstract';
 import {OutfitwarsTerritoryResultInterface} from '../ps2alerts-constants/interfaces/OutfitwarsTerritoryResultInterface';
 import OutfitWarsTerritoryInstance from '../instances/OutfitWarsTerritoryInstance';
-import {AxiosInstance} from 'axios';
 import Redis from 'ioredis';
 import {Rest} from 'ps2census';
 import ZoneDataParser from '../parsers/ZoneDataParser';
@@ -13,7 +12,9 @@ import {NexusInitialMapData} from '../ps2alerts-constants/outfitwars/nexus';
 import {censusOldFacilities} from '../ps2alerts-constants/censusOldFacilities';
 import {Faction} from '../ps2alerts-constants/faction';
 import {Logger} from '@nestjs/common';
-import StatisticsHandler from '../handlers/StatisticsHandler';
+import MetricsHandler from '../handlers/MetricsHandler';
+import {PS2AlertsApiDriver} from '../drivers/PS2AlertsApiDriver';
+import {CensusRequestDriver} from '../drivers/CensusRequestDriver';
 
 export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAbstract implements CalculatorInterface<OutfitwarsTerritoryResultInterface> {
     private static readonly classLogger = new Logger('OutfitwarsTerritoryCalculator');
@@ -21,10 +22,11 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
     constructor(
         protected readonly instance: OutfitWarsTerritoryInstance,
         restClient: Rest.Client,
-        ps2AlertsApiClient: AxiosInstance,
+        ps2AlertsApiClient: PS2AlertsApiDriver,
         cacheClient: Redis,
         zoneDataParser: ZoneDataParser,
-        statisticsHandler: StatisticsHandler,
+        metricsHandler: MetricsHandler,
+        censusRequestDriver: CensusRequestDriver,
     ) {
         super(
             instance,
@@ -32,12 +34,13 @@ export default class OutfitwarsTerritoryCalculator extends TerritoryCalculatorAb
             ps2AlertsApiClient,
             cacheClient,
             zoneDataParser,
-            statisticsHandler,
+            metricsHandler,
+            censusRequestDriver,
         );
     }
 
     public async calculate(): Promise<OutfitwarsTerritoryResultInterface> {
-        OutfitwarsTerritoryCalculator.classLogger.debug(`[${this.instance.instanceId}] Running TerritoryCalculator`);
+        OutfitwarsTerritoryCalculator.classLogger.verbose(`[${this.instance.instanceId}] Running TerritoryCalculator`);
 
         // Hydrate the territory data
         await this.hydrateData();
