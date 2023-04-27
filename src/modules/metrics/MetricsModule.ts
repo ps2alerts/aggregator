@@ -71,20 +71,6 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
             buckets: [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.05, 0.1, 0.5, 1, 2, 3, 4, 5, 10, 20, 30], // in seconds
         }),
     ],
-    exports: [
-        // Counts
-        PROM_METRICS.BROKER_COUNT,
-        PROM_METRICS.CACHE_COUNT,
-        PROM_METRICS.EXTERNAL_REQUESTS_COUNT,
-        PROM_METRICS.QUEUE_MESSAGES_COUNT,
-        PROM_METRICS.INSTANCES_COUNT,
-        PROM_METRICS.ZONE_MESSAGE_COUNT,
-        // Gauges
-        PROM_METRICS.CACHE_GAUGE,
-        PROM_METRICS.INSTANCES_GAUGE,
-        // Histograms
-        PROM_METRICS.EXTERNAL_REQUESTS_HISTOGRAM,
-        PROM_METRICS.EVENT_PROCESSING_HISTOGRAM,
-    ],
+    exports: Object.values(PROM_METRICS),
 })
 export default class MetricsModule {}
