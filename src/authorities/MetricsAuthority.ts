@@ -70,13 +70,13 @@ export default class MetricsAuthority {
         ];
 
         await Promise.all(promises).then((results) => {
-            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[0].length, {type: 'cache_character'});
-            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[1].length, {type: 'cache_item'});
-            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[2].length, {type: 'cache_facility_data'});
-            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[3].length, {type: 'unknown_items'});
-            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[4].length, {type: 'unknown_facilities'});
-            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[5].length, {type: 'character_presence'});
-            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_GAUGE, results[6].length, {type: 'outfit_participants'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[0].length, {type: 'cache_character'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[1].length, {type: 'cache_item'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[2].length, {type: 'cache_facility_data'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[3].length, {type: 'unknown_items'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[4].length, {type: 'unknown_facilities'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[5].length, {type: 'character_presence'});
+            this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[6].length, {type: 'outfit_participants'});
         });
     }
 }

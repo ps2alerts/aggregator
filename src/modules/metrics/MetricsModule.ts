@@ -48,7 +48,7 @@ import {METRICS_NAMES, PROM_METRICS} from './MetricsConstants';
         }),
         // Gauges
         makeGaugeProvider({
-            name: METRICS_NAMES.CACHE_GAUGE,
+            name: METRICS_NAMES.CACHE_KEYS_GAUGE,
             help: 'Cache metrics including number of keys',
             labelNames: ['environment', 'type'],
         }),

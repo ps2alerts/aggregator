@@ -11,7 +11,7 @@ export const METRICS_NAMES = {
     ZONE_MESSAGE_COUNT: 'aggregator_zone_message_count',
 
     // Gauges
-    CACHE_GAUGE: 'aggregator_cache_gauge',
+    CACHE_KEYS_GAUGE: 'aggregator_cache_keys_gauge',
     INSTANCES_GAUGE: 'aggregator_instances_gauge',
 
     // Histograms
@@ -30,7 +30,7 @@ export const PROM_METRICS = {
     ZONE_MESSAGE_COUNT: getToken(METRICS_NAMES.ZONE_MESSAGE_COUNT),
 
     // Gauges
-    CACHE_GAUGE: getToken(METRICS_NAMES.CACHE_GAUGE),
+    CACHE_KEYS_GAUGE: getToken(METRICS_NAMES.CACHE_KEYS_GAUGE),
     INSTANCES_GAUGE: getToken(METRICS_NAMES.INSTANCES_GAUGE),
 
     // Histograms

@@ -23,7 +23,7 @@ export default class MetricsHandler {
         @InjectMetric(METRICS_NAMES.QUEUE_MESSAGES_COUNT) private readonly queueMessagesCount: Counter<string>,
         @InjectMetric(METRICS_NAMES.ZONE_MESSAGE_COUNT) private readonly zoneMessageCount: Counter<string>,
         // Gauges
-        @InjectMetric(METRICS_NAMES.CACHE_GAUGE) private readonly cacheGauge: Gauge<string>,
+        @InjectMetric(METRICS_NAMES.CACHE_KEYS_GAUGE) private readonly cacheGauge: Gauge<string>,
         @InjectMetric(METRICS_NAMES.INSTANCES_GAUGE) private readonly instancesGauge: Gauge<string>,
 
         // Histograms
@@ -68,7 +68,7 @@ export default class MetricsHandler {
         params = this.configureParams(params);
 
         switch (metric) {
-            case METRICS_NAMES.CACHE_GAUGE:
+            case METRICS_NAMES.CACHE_KEYS_GAUGE:
                 this.cacheGauge.set(params, value);
                 break;
             case METRICS_NAMES.INSTANCES_GAUGE:
