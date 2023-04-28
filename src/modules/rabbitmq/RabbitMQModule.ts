@@ -16,7 +16,15 @@ import MetricsModule from '../metrics/MetricsModule';
     providers: [
         {
             provide: TYPES.rabbitMqConnection,
-            useFactory: (config: ConfigService) => connect(config.get('rabbitmq.urls')),
+            useFactory: (config: ConfigService) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                const rabbitUrls: string = config.get('rabbitmq.urls');
+                console.log(`Connecting to Rabbit: ${rabbitUrls}`);
+                const connection = connect(rabbitUrls);
+                console.log('Successfully connected to Rabbit!');
+                return connection;
+
+            },
             inject: [ConfigService],
         },
         RabbitMQQueueFactory,
