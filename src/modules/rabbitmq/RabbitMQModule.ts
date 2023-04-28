@@ -1,5 +1,5 @@
 import {Logger, Module, OnApplicationBootstrap, OnApplicationShutdown, Inject} from '@nestjs/common';
-import {connect} from 'amqp-connection-manager';
+import {connect, AmqpConnectionManager} from 'amqp-connection-manager';
 import {TYPES} from '../../constants/types';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
