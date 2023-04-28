@@ -50,6 +50,7 @@ export default class RabbitMQModule implements OnApplicationBootstrap {
     }
 
     public async onApplicationBootstrap() {
+
         await Promise.all([
             this.apiMqPublisher.connect(),
             this.apiMqDelayPublisher.connect(),

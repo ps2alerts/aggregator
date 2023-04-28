@@ -18,16 +18,18 @@ export default class AuthorityService implements OnModuleInit, OnApplicationBoot
     ) {}
 
     public async onModuleInit(): Promise<void> {
-        AuthorityService.logger.debug('Booting Authority Services...');
+        AuthorityService.logger.debug('AuthorityServices booting...');
         await this.metricsAuthority.run();
+        AuthorityService.logger.debug('Authority Services booted!');
+
     }
 
     public async onApplicationBootstrap(): Promise<void> {
-        await this.instanceAuthority.init();
-
         AuthorityService.logger.debug('Starting Authority Services...');
+        await this.instanceAuthority.init();
         this.overdueInstanceAuthority.run();
         this.populationAuthority.run();
         this.queueAuthority.run();
+        AuthorityService.logger.debug('Authority Services started!');
     }
 }

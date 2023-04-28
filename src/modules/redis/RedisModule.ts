@@ -38,9 +38,13 @@ export default class RedisModule implements OnModuleInit, OnModuleDestroy {
     }
 
     public onModuleInit(): void {
+        this.logger.debug('RedisModule booting...');
+
         this.redis.on('close', () => this.logger.log('Connection closed'))
             .on('reconnecting', () => this.logger.debug('Reconnecting'))
             .on('error', (message) => this.logger.warn(message));
+
+        this.logger.debug('RedisModule booted!');
     }
 
     public onModuleDestroy(): void {
