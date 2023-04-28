@@ -39,6 +39,8 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
             },
         };
 
+        ApiQueue.classLogger.debug(`Connecting to queue ${this.queueName}...`);
+
         await this.createChannel({
             json: true,
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
