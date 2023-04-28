@@ -1,4 +1,4 @@
-import {Module, OnApplicationBootstrap} from '@nestjs/common';
+import {Logger, Module, OnApplicationBootstrap} from '@nestjs/common';
 import {connect} from 'amqp-connection-manager';
 import {TYPES} from '../../constants/types';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
@@ -43,6 +43,8 @@ import MetricsModule from '../metrics/MetricsModule';
     ],
 })
 export default class RabbitMQModule implements OnApplicationBootstrap {
+    private readonly logger = new Logger('Redis');
+
     constructor(
         private readonly apiMqPublisher: ApiMQPublisher,
         private readonly apiMqDelayPublisher: ApiMQDelayPublisher,
@@ -50,10 +52,11 @@ export default class RabbitMQModule implements OnApplicationBootstrap {
     }
 
     public async onApplicationBootstrap() {
-
+        this.logger.debug('Booting RabbitMQModule...');
         await Promise.all([
             this.apiMqPublisher.connect(),
             this.apiMqDelayPublisher.connect(),
         ]);
+        this.logger.debug('RabbitMQModule booted!');
     }
 }
