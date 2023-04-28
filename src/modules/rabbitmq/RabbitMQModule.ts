@@ -44,16 +44,16 @@ export default class RabbitMQModule implements OnApplicationBootstrap, OnApplica
         private readonly apiMqPublisher: ApiMQPublisher,
         private readonly apiMqDelayPublisher: ApiMQDelayPublisher,
     ) {
-      rabbit
-      .on('connect', () => {
-        this.logger.log('Connected');
-      })
-      .on('disconnect', () => {
-        this.logger.log('Disconnected');
-      })
-      .on('connectFailed', () => {
-        this.logger.warn('Connection failed');
-      });
+        rabbit
+            .on('connect', () => {
+                this.logger.log('Connected');
+            })
+            .on('disconnect', () => {
+                this.logger.log('Disconnected');
+            })
+            .on('connectFailed', () => {
+                this.logger.warn('Connection failed');
+            });
     }
 
     public async onApplicationBootstrap() {
@@ -64,8 +64,8 @@ export default class RabbitMQModule implements OnApplicationBootstrap, OnApplica
 
         this.logger.debug('RabbitMQModule booted!');
     }
-    
-    async onApplicationShutdown(): Promise<void> {
-      await this.rabbit.close();
+
+    public async onApplicationShutdown(): Promise<void> {
+        await this.rabbit.close();
     }
 }
