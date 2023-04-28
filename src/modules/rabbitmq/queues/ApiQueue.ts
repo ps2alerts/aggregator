@@ -39,6 +39,8 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
             },
         };
 
+        console.log(`${this.queueName} queueOptions`, queueOptions);
+
         ApiQueue.classLogger.debug(`Connecting to queue ${this.queueName}...`);
 
         await this.createChannel({
