@@ -10,6 +10,8 @@ import EventTimingMiddlewareHandler from '../../middlewares/EventTimingMiddlewar
 import MetricsHandler from '../../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
 import MetricsModule from '../metrics/MetricsModule';
+import {promiseTimeout} from '../../utils/PromiseTimeout';
+import TimeoutException from '../../exceptions/TimeoutException';
 
 @Module({
     imports: [RedisModule, CensusModule, MetricsModule],
@@ -53,10 +55,10 @@ export default class RabbitMQModule implements OnApplicationBootstrap {
 
     public async onApplicationBootstrap() {
         this.logger.debug('Booting RabbitMQModule...');
-        await Promise.all([
-            this.apiMqPublisher.connect(),
-            this.apiMqDelayPublisher.connect(),
-        ]);
+
+        await promiseTimeout(this.apiMqPublisher.connect(), 5000, new TimeoutException('MQ Publisher queue did not connect in time!'));
+        await promiseTimeout(this.apiMqDelayPublisher.connect(), 5000, new TimeoutException('MQ Publisher Delay queue did not connect in time!'));
+
         this.logger.debug('RabbitMQModule booted!');
     }
 }
