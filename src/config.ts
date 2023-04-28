@@ -28,7 +28,7 @@ export const config = () => ({
     },
 
     rabbitmq: {
-        urls: envSplit('RABBITMQ_URLS', ['amqp://guest:guest@ps2alerts-mq:15672/?heartbeat=10&connection_timeout=5000']),
+        urls: envSplit('RABBITMQ_URLS', ['amqp://guest:guest@ps2alerts-mq:5672/?heartbeat=10&connection_timeout=5000']),
         exchange: env('RABBITMQ_EXCHANGE', 'ps2alerts'),
         topicExchange: env('RABBITMQ_TOPIC_EXCHANGE', 'ps2alerts-topic'),
         apiQueueName: env('RABBITMQ_API_QUEUE', 'api-queue'),
