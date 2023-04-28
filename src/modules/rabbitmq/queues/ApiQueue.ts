@@ -39,11 +39,6 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
             },
         };
 
-        console.log(`${this.queueName} queueOptions`, queueOptions);
-        console.log(`${this.queueName} exchange`, this.exchange);
-
-        ApiQueue.classLogger.debug(`Connecting to queue ${this.queueName}...`);
-
         await this.createChannel({
             json: true,
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -55,8 +50,6 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
                 await channel.bindQueue(this.queueName, this.exchange, '#');
             },
         });
-
-        ApiQueue.classLogger.debug(`Connected to queue ${this.queueName}!`);
     }
 
     public async send(msg: ApiMQMessage | ApiMQGlobalAggregateMessage): Promise<boolean | undefined> {
