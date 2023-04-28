@@ -6,11 +6,24 @@ import {ConfigService} from '@nestjs/config';
     providers: [
         {
             provide: Redis,
-            useFactory: (config: ConfigService) => new Redis({
-                host: config.get('redis.host'),
-                port: config.get('redis.port'),
-                password: config.get('redis.password'),
-            }),
+            useFactory: (config: ConfigService) => {
+                const redisHost: string = config.get('redis.host');
+                const redisPort: number = config.get('redis.port');
+                const redisPass: string = config.get('redis.password');
+                const redisDb: number = config.get('redis.db');
+
+                console.log(`Connecting to Redis: ${redisHost}:${redisPort}:${redisPass}[${redisDb}]`);
+
+                const redis = new Redis({
+                    host: redisHost,
+                    port: redisPort,
+                    password: redisPass,
+                    db: redisDb,
+                });
+
+                console.log('Connected to Redis!');
+                return redis;
+            },
             inject: [ConfigService],
         },
     ],
