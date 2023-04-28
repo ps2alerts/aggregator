@@ -1,5 +1,5 @@
-import {Logger, Module, OnApplicationBootstrap} from '@nestjs/common';
-import {connect} from 'amqp-connection-manager';
+import {Logger, Module, OnApplicationBootstrap, OnApplicationShutdown, Inject} from '@nestjs/common';
+import {connect, AmqpConnectionManager} from 'amqp-connection-manager';
 import {TYPES} from '../../constants/types';
 import ApiMQPublisher from './publishers/ApiMQPublisher';
 import ApiMQDelayPublisher from './publishers/ApiMQDelayPublisher';
@@ -18,15 +18,7 @@ import TimeoutException from '../../exceptions/TimeoutException';
     providers: [
         {
             provide: TYPES.rabbitMqConnection,
-            useFactory: (config: ConfigService) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                const rabbitUrls: string = config.get('rabbitmq.urls');
-                console.log(`Connecting to Rabbit: ${rabbitUrls}`);
-                const connection = connect(rabbitUrls);
-                console.log('Successfully connected to Rabbit!');
-                return connection;
-
-            },
+            useFactory: (config: ConfigService) => connect(config.get('rabbitmq.urls')),
             inject: [ConfigService],
         },
         RabbitMQQueueFactory,
@@ -44,13 +36,24 @@ import TimeoutException from '../../exceptions/TimeoutException';
         MetricsHandler,
     ],
 })
-export default class RabbitMQModule implements OnApplicationBootstrap {
-    private readonly logger = new Logger('Redis');
+export default class RabbitMQModule implements OnApplicationBootstrap, OnApplicationShutdown {
+    private readonly logger = new Logger(RabbitMQModule.name);
 
     constructor(
+        @Inject(TYPES.rabbitMqConnection) private readonly rabbit: AmqpConnectionManager,
         private readonly apiMqPublisher: ApiMQPublisher,
         private readonly apiMqDelayPublisher: ApiMQDelayPublisher,
     ) {
+        rabbit
+            .on('connect', () => {
+                this.logger.log('Connected');
+            })
+            .on('disconnect', () => {
+                this.logger.log('Disconnected');
+            })
+            .on('connectFailed', () => {
+                this.logger.warn('Connection failed');
+            });
     }
 
     public async onApplicationBootstrap() {
@@ -60,5 +63,9 @@ export default class RabbitMQModule implements OnApplicationBootstrap {
         await promiseTimeout(this.apiMqDelayPublisher.connect(), 5000, new TimeoutException('MQ Publisher Delay queue did not connect in time!'));
 
         this.logger.debug('RabbitMQModule booted!');
+    }
+
+    public async onApplicationShutdown(): Promise<void> {
+        await this.rabbit.close();
     }
 }
