@@ -78,7 +78,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                                 delay: () => {
                                     // await this.handleMessageDelay(message, 15000, this.pattern, started);
-                                    this.handleMessageConfirm(message, 'discard'); // Just ack the message, effectively discarding it
+                                    this.handleMessageDiscard(message); // Just ack the message, effectively discarding it
                                 },
                             },
                             this.handler,
@@ -89,7 +89,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             InstanceEventQueue.classLogger.error(`[${this.queueName}] Unable to properly handle message! ${err.message}`);
                         }
 
-                        this.handleMessageConfirm(message, 'discard'); // Critical error, probably unprocessable so we're chucking
+                        this.handleMessageDiscard(message); // Critical error, probably unprocessable so we're chucking
                     }
                 }, consumerOptions);
             },

@@ -107,40 +107,43 @@ export abstract class RabbitMQQueue {
         }
     }
 
-    protected handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry' | 'discard'): void {
+    protected handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry'): void {
         try {
             if (action === 'ack') {
-                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success'});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success', event_type: message.fields.routingKey});
                 return this.channel.ack(message);
             }
 
-            // Ultimately this is not what we want, we just want to record these have happened for now.
-            if (action === 'discard') {
-                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'discard'});
-                return this.channel.ack(message);
-            }
+            // For now, if it's a retry just discard it. We have issues where messages are just bouncing around unable to the processed.
+            this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'retry_fake', event_type: message.fields.routingKey});
+            return this.handleMessageDiscard(message);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            let tries = parseInt(message.properties.headers.tries ?? '0', 10);
-
-            tries++;
-
-            if (tries >= 3) {
-                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'fail'});
-
-                RabbitMQQueue.logger.error(`${this.queueName} Message exceeded too many tries! Dropping!`);
-                return this.channel.nack(message, false, false); // Chuck the message
-            }
-
-            // Retry
-            this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'retry'});
-
-            RabbitMQQueue.logger.debug(`${this.queueName} Retrying message! Tries: ${tries}`);
-            message.properties.headers.tries = tries;
-            return this.channel.nack(message, false, true);
+            // // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            // let tries = parseInt(message.properties.headers.tries ?? '0', 10);
+            //
+            // tries++;
+            //
+            // if (tries >= 3) {
+            //     this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'fail', event_type: message.fields.routingKey});
+            //
+            //     RabbitMQQueue.logger.error(`${this.queueName} Message exceeded too many tries! Dropping!`);
+            //     return this.channel.nack(message, false, false); // Chuck the message
+            // }
+            //
+            // // Retry
+            // this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'retry' event_type: message.fields.routingKey});
+            //
+            // RabbitMQQueue.logger.debug(`${this.queueName} Retrying message! Tries: ${tries}`);
+            // message.properties.headers.tries = tries;
+            // return this.channel.nack(message, false, true);
         } catch (err) {
             return this.handleRabbitMqException(err);
         }
+    }
+
+    protected handleMessageDiscard(message: ConsumeMessage) {
+        this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'discard', event_type: message.fields.routingKey});
+        return this.channel.ack(message);
     }
 
     // protected async handleMessageDelay(
