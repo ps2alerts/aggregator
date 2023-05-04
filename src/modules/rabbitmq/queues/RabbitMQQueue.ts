@@ -7,6 +7,7 @@ import {ConsumeMessage} from 'amqplib';
 import {Logger} from '@nestjs/common';
 import MetricsHandler from '../../../handlers/MetricsHandler';
 import {METRICS_NAMES} from '../../metrics/MetricsConstants';
+import {getEventTypeFromMessage} from '../../../utils/consumeMessage';
 
 export abstract class RabbitMQQueue {
     private static readonly logger = new Logger('RabbitMQQueue');
@@ -108,14 +109,16 @@ export abstract class RabbitMQQueue {
     }
 
     protected handleMessageConfirm(message: ConsumeMessage, action: 'ack' | 'retry'): void {
+        const eventType = getEventTypeFromMessage(message);
+
         try {
             if (action === 'ack') {
-                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success', event_type: message.fields.routingKey});
+                this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'success', event_type: eventType});
                 return this.channel.ack(message);
             }
 
             // For now, if it's a retry just discard it. We have issues where messages are just bouncing around unable to the processed.
-            this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'retry_fake', event_type: message.fields.routingKey});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'retry_fake', event_type: eventType});
             return this.handleMessageDiscard(message);
 
             // // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -142,7 +145,8 @@ export abstract class RabbitMQQueue {
     }
 
     protected handleMessageDiscard(message: ConsumeMessage) {
-        this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'discard', event_type: message.fields.routingKey});
+        const eventType = getEventTypeFromMessage(message);
+        this.metricsHandler.increaseCounter(METRICS_NAMES.QUEUE_MESSAGES_COUNT, {type: 'discard', event_type: eventType});
         return this.channel.ack(message);
     }
 
