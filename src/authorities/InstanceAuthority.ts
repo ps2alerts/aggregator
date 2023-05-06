@@ -127,7 +127,7 @@ export default class InstanceAuthority {
                 captureHistory: true,
                 xpm: true,
             },
-            mapVersion: instance.zone === Zone.OSHUR ? '1.1' : '1.0', // As of 13th July Oshur uses a new map
+            mapVersion: instance.zone === Zone.OSHUR ? '1.2' : '1.0', // As of May 2023 Oshur uses a new map
             latticeVersion: getZoneLatticeVersion(instance.zone, instance.timeStarted),
         });
 
