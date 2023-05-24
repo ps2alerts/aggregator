@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import {Injectable, Logger} from '@nestjs/common';
 import MetricsHandler from '../handlers/MetricsHandler';
 import {ConfigService} from '@nestjs/config';
-import {METRICS_NAMES} from '../modules/metrics/MetricsConstants';
+import {METRIC_VALUES, METRICS_NAMES} from '../modules/metrics/MetricsConstants';
 
 @Injectable()
 export default class MetricsAuthority {
@@ -66,6 +66,11 @@ export default class MetricsAuthority {
             this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[4].length, {type: 'unknown_facilities'});
             this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[5].length, {type: 'character_presence'});
             this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[6].length, {type: 'outfit_participants'});
+        });
+
+        // Zero certain gauges as they're rarely being set and cause alerts otherwise
+        ['/character', '/map', '/item'].forEach((endpoint) => {
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint, result: METRIC_VALUES.ERROR});
         });
     }
 }
