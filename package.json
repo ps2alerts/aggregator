@@ -33,7 +33,7 @@
     "@nestjs/microservices": "^9.4.1",
     "@nestjs/platform-fastify": "^9.4.1",
     "@nestjs/terminus": "^9.1.1",
-    "@willsoto/nestjs-prometheus": "^5.1.0",
+    "@willsoto/nestjs-prometheus": "^5.1.2",
     "amqp-connection-manager": "^4.1.13",
     "amqplib": "^0.10.0",
     "axios": "^1.4.0",
