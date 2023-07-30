@@ -2705,10 +2705,10 @@ proxy-from-env@^1.1.0:
   resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
   integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
 
-ps2census@^4.5.7:
-  version "4.5.7"
-  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.5.7.tgz#7e38b7af9afaf2bf710f8920ecc5c7d900aee72b"
-  integrity sha512-AjV5HnV0W0gAvGA3SaMk/vDTfCcAH6RLmn7CQba084EOLOsbYtT1MlMC4ev6c/Gyx03es+JPoCVY1aI4rEPm/Q==
+ps2census@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/ps2census/-/ps2census-4.6.0.tgz#8fdf26d9147bfe38c4290203d66e59901e1aa90a"
+  integrity sha512-UbcfvvE7UFn3E2vSGQfcYmP3L2zeSp3jPVVE3ViSJ8wuMW6aXrB71sm/B85/oThu4ydWXPii9fy7DtS8BF6F7A==
   dependencies:
     axios "1.4.0"
     eventemitter3 "5.0.1"
