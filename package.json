@@ -34,7 +34,7 @@
     "@nestjs/platform-fastify": "^9.4.3",
     "@nestjs/terminus": "^9.1.1",
     "@willsoto/nestjs-prometheus": "^5.2.1",
-    "amqp-connection-manager": "^4.1.13",
+    "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.0",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
