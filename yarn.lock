@@ -706,10 +706,10 @@
     "@webassemblyjs/ast" "1.11.1"
     "@xtuc/long" "4.2.2"
 
-"@willsoto/nestjs-prometheus@^5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@willsoto/nestjs-prometheus/-/nestjs-prometheus-5.3.0.tgz#14601c150f1bc29e55f8b4da631d784382ab5d48"
-  integrity sha512-EJrLgfBTJtsep6wWsS1mH7utloUVzgY603av0ry2kesiPYr/Qw0hB3jbmQ5CJe9WOf9e5/zxx1QgGv47wSZ6QQ==
+"@willsoto/nestjs-prometheus@^5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@willsoto/nestjs-prometheus/-/nestjs-prometheus-5.5.0.tgz#33213538f32fc71f02a67bfc66de6d331a72a4f4"
+  integrity sha512-8JTQfos4doFKT8TBncp8vDM+rPkrUazBdeGiLlGz2chRaqEHs8tNss+HmT9pclaKiBia8UnxZSmLmQsjzngmaw==
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
