@@ -37,7 +37,7 @@ export default class EventId {
             )],
             [Zone.OSHUR, new Map(
                 [
-                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.OSHUR_ENGLIGHTENMENT],
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.OSHUR_ENLIGHTENMENT],
                     [Faction.NEW_CONGLOMERATE, MetagameEventType.OSHUR_LIBERATION],
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.OSHUR_SUPERIORITY],
                 ],
@@ -80,7 +80,13 @@ export default class EventId {
                     [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_ESAMIR_UNSTABLE_MELTDOWN],
                 ],
             )],
-            // Oshur does not have unstable meltdown alerts.
+            [Zone.OSHUR, new Map(
+                [
+                    [Faction.VANU_SOVEREIGNTY, MetagameEventType.VS_OSHUR_UNSTABLE_MELTDOWN],
+                    [Faction.NEW_CONGLOMERATE, MetagameEventType.NC_OSHUR_UNSTABLE_MELTDOWN],
+                    [Faction.TERRAN_REPUBLIC, MetagameEventType.TR_OSHUR_UNSTABLE_MELTDOWN],
+                ],
+            )],
             // Nexus does not have unstable meltdown alerts.
         ],
     );
@@ -170,34 +176,34 @@ export default class EventId {
             case 174: // Aerial Anomalies
             case 175: // Race for Readings
                 return -1;
-            case 176: // Esamir Unstable Meltdown NC TRIGGER??? (ACTIVE)
+            case 176: // Esamir Unstable Meltdown NC (ACTIVE)
                 return Zone.ESAMIR;
-            case 177: // Hossin Unstable Meltdown NC TRIGGER??? (ACTIVE)
+            case 177: // Hossin Unstable Meltdown NC (ACTIVE)
                 return Zone.HOSSIN;
-            case 178: // Amerish Unstable Meltdown NC TRIGGER??? (ACTIVE)
+            case 178: // Amerish Unstable Meltdown NC (ACTIVE)
                 return Zone.AMERISH;
-            case 179: // Indar Unstable Meltdown NC TRIGGER??? (ACTIVE)
+            case 179: // Indar Unstable Meltdown NC (ACTIVE)
                 return Zone.INDAR;
             case 180: // Large Outposts "Gaining Ground"
             case 181: // Large Outposts "Gaining Ground"
             case 182: // Large Outposts "Gaining Ground"
             case 183: // Large Outposts "Gaining Ground"
                 return -1;
-            case 186: // Esamir Unstable Meltdown VS TRIGGER??? (ACTIVE)
+            case 186: // Esamir Unstable Meltdown VS (ACTIVE)
                 return Zone.ESAMIR;
-            case 187: // Hossin Unstable Meltdown VS TRIGGER??? (ACTIVE)
+            case 187: // Hossin Unstable Meltdown VS (ACTIVE)
                 return Zone.HOSSIN;
-            case 188: // Amerish Unstable Meltdown VS TRIGGER??? (ACTIVE)
+            case 188: // Amerish Unstable Meltdown VS (ACTIVE)
                 return Zone.AMERISH;
-            case 189: // Indar Unstable Meltdown VS TRIGGER???(ACTIVE)
+            case 189: // Indar Unstable Meltdown VS(ACTIVE)
                 return Zone.INDAR;
-            case 190: // Esamir Unstable Meltdown TR TRIGGER??? (ACTIVE)
+            case 190: // Esamir Unstable Meltdown TR (ACTIVE)
                 return Zone.ESAMIR;
-            case 191: // Hossin Unstable Meltdown TR TRIGGER??? (ACTIVE)
+            case 191: // Hossin Unstable Meltdown TR (ACTIVE)
                 return Zone.HOSSIN;
-            case 192: // Amerish Unstable Meltdown TR TRIGGER??? (ACTIVE)
+            case 192: // Amerish Unstable Meltdown TR (ACTIVE)
                 return Zone.AMERISH;
-            case 193: // Indar Unstable Meltdown TR TRIGGER??? (ACTIVE)
+            case 193: // Indar Unstable Meltdown TR (ACTIVE)
                 return Zone.INDAR;
             case 194: // Refine and refuel
             case 195: // Refine and refuel
@@ -221,6 +227,9 @@ export default class EventId {
             case 222: // Oshur NC Triggered
             case 223: // Oshur TR Triggered
             case 224: // Oshur VS Triggered
+            case 248: // Oshur Unstable Meltdown NC (ACTIVE)
+            case 249: // Oshur Unstable Meltdown VS (ACTIVE)
+            case 250: // Oshur Unstable Meltdown TR (ACTIVE)
                 return Zone.OSHUR;
             case 227: // Nexus Outfit Wars Game
             case 234: // Nexus Outfit Wars Prep
