@@ -1,7 +1,6 @@
 import {Zone} from '../ps2alerts-constants/zone';
 import {Faction} from '../ps2alerts-constants/faction';
 import {MetagameEventType} from '../ps2alerts-constants/metagameEventType';
-import ApplicationException from '../exceptions/ApplicationException';
 
 export default class EventId {
     // FML
@@ -244,10 +243,6 @@ export default class EventId {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return EventId.normalStateZoneFactionMap.get(zone).get(faction);
-        }
-
-        if (zone === Zone.OSHUR) {
-            throw new ApplicationException('Oshur does not have meltdown alerts');
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
