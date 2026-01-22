@@ -39,7 +39,7 @@
     "axios": "^1.12.0",
     "date-fns": "^2.30.0",
     "ioredis": "^5.3.2",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "prom-client": "^14.2.0",
     "ps2census": "^4.5.7",
     "reflect-metadata": "^0.1.13",
