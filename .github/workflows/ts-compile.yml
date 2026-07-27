@@ -2,7 +2,11 @@
 name: Typescript Compile
 on:
   push:
+    branches: [dev]
   pull_request:
+permissions:
+  contents: read
+
 jobs:
   typescript-compile:
     name: Typescript Compile
