@@ -132,12 +132,22 @@ export default class InstanceAuthority {
         });
 
         try {
+            let started = false;
+
             if (instance instanceof MetagameTerritoryInstance) {
-                await this.startTerritoryControlInstance(instance, instanceMetadata);
+                started = await this.startTerritoryControlInstance(instance, instanceMetadata);
             }
 
             if (instance instanceof OutfitWarsTerritoryInstance) {
-                await this.startOutfitwarsTerritoryInstance(instance, instanceMetadata);
+                started = await this.startOutfitwarsTerritoryInstance(instance, instanceMetadata);
+            }
+
+            // A false here means the start actions failed and the instance was already trashed.
+            // Subscribing its queues anyway used to feed events into an instance the API no longer has.
+            if (!started) {
+                InstanceAuthority.logger.error(`[${instance.instanceId}] Instance was trashed during start, not activating it.`);
+                this.metricsHandler.increaseCounter(METRICS_NAMES.INSTANCES_COUNT, {type: 'fail_start'});
+                return false;
             }
 
             // Mark as started in memory state
