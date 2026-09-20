@@ -40,34 +40,29 @@ export default class MetagameInstanceTerritoryResultAction implements ActionInte
         return result;
     }
 
-    private async tryCalculate(attempts = 0): Promise<MetagameTerritoryControlResultInterface> {
-        attempts++;
+    // Retries are awaited here so a failure surfaces to the caller exactly once.
+    // A detached setTimeout retry used to throw with nothing catching it and take the process down.
+    private async tryCalculate(): Promise<MetagameTerritoryControlResultInterface> {
+        const maxAttempts = 3;
 
-        if (attempts > 3) {
-            throw new ApplicationException('TerritoryCalculator failed after 3 attempts', 'MetagameInstanceTerritoryResultAction');
-        }
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            MetagameInstanceTerritoryResultAction.logger.debug(`[${this.instance.instanceId}] TerritoryCalculator attempt #${attempt}`);
 
-        MetagameInstanceTerritoryResultAction.logger.debug(`[${this.instance.instanceId}] TerritoryCalculator attempt #${attempts}`);
+            try {
+                return await this.territoryCalculator.calculate();
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
 
-        try {
-            return await this.territoryCalculator.calculate();
-        } catch (err) {
-            if (attempts === 3) {
-                if (err instanceof Error) {
-                    MetagameInstanceTerritoryResultAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
+                if (attempt === maxAttempts) {
+                    MetagameInstanceTerritoryResultAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempt}. E: ${message}`);
+                    break;
                 }
-            } else {
-                if (err instanceof Error) {
-                    MetagameInstanceTerritoryResultAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
-                }
+
+                MetagameInstanceTerritoryResultAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempt}. E: ${message}`);
+                await new Promise((resolve) => setTimeout(resolve, 1000));
             }
-
-            setTimeout(() => {
-                MetagameInstanceTerritoryResultAction.logger.warn(`[${this.instance.instanceId}] Retrying TerritoryCalculator - Attempt #${attempts}`);
-                void this.tryCalculate(attempts);
-            }, 1000);
         }
 
-        throw new ApplicationException('TerritoryCalculator really borked', 'MetagameInstanceTerritoryResultAction');
+        throw new ApplicationException(`TerritoryCalculator failed after ${maxAttempts} attempts`, 'MetagameInstanceTerritoryResultAction');
     }
 }
