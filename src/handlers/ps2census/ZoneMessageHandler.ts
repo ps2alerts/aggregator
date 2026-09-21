@@ -7,7 +7,6 @@ import {ChannelActionsInterface, QueueMessageHandlerInterface} from '../../inter
 import PS2AlertsInstanceInterface from '../../interfaces/PS2AlertsInstanceInterface';
 import ApplicationException from '../../exceptions/ApplicationException';
 import {Logger} from '@nestjs/common';
-import ExceptionHandler from '../system/ExceptionHandler';
 import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQueueMessageHandlerInterface';
 import TimeoutException from '../../exceptions/TimeoutException';
 import {promiseTimeout} from '../../utils/PromiseTimeout';
@@ -96,9 +95,10 @@ export default class ZoneMessageHandler<T extends ZoneEvent<any>> implements Que
                 return actions.delay(30000);
             }
 
+            // Log and drop. Rethrowing here after the ack made the queue ack the same delivery tag twice,
+            // which RabbitMQ answers by closing the channel.
             if (err instanceof Error) {
-                actions.ack();
-                new ExceptionHandler(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name}`, err, 'ZoneMessageHandler');
+                ZoneMessageHandler.logger.error(`[${this.instance.instanceId}] Unexpected error occurred processing ZoneMessage! Type: ${event.event_name} - Err: ${err.message}`, err.stack);
                 this.metricsHandler.increaseCounter(METRICS_NAMES.ZONE_MESSAGE_COUNT, {type: event.event_name, result: 'error'});
             }
 

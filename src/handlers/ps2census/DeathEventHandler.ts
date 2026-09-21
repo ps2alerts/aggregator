@@ -11,7 +11,6 @@ import {PS2EventQueueMessageHandlerInterface} from '../../interfaces/PS2EventQue
 import AggregateHandlerInterface from '../../interfaces/AggregateHandlerInterface';
 import CharacterBroker from '../../brokers/CharacterBroker';
 import ItemBroker from '../../brokers/ItemBroker';
-import ExceptionHandler from '../system/ExceptionHandler';
 import {Ps2AlertsEventType} from '../../ps2alerts-constants/ps2AlertsEventType';
 import InstanceActionFactory from '../../factories/InstanceActionFactory';
 import {PS2AlertsApiDriver} from '../../drivers/PS2AlertsApiDriver';
@@ -67,8 +66,9 @@ export default class DeathEventHandler implements PS2EventQueueMessageHandlerInt
         this.aggregateHandlers.map(
             (handler: AggregateHandlerInterface<DeathEvent>) => void handler.handle(deathEvent)
                 .catch((err) => {
+                    // Log only. ExceptionHandler rethrows, and a rejection out of a void promise ends the process.
                     if (err instanceof Error) {
-                        new ExceptionHandler(`Error parsing AggregateHandlers for DeathEventHandler: ${err.message}\r\n${jsonLogOutput(event)}`, err, 'DeathEventHandler.aggregates');
+                        DeathEventHandler.logger.error(`Error parsing AggregateHandlers for DeathEventHandler: ${err.message}\r\n${jsonLogOutput(event)}`, err.stack);
                     } else {
                         DeathEventHandler.logger.error('UNEXPECTED ERROR parsing DeathEvent AggregateHandlers!');
                     }

@@ -40,35 +40,29 @@ export default class OutfitwarsTerritoryInstanceResultAction implements ActionIn
         return result;
     }
 
-    private async tryCalculate(attempts = 0): Promise<OutfitwarsTerritoryResultInterface> {
-        attempts++;
+    // Retries are awaited here so a failure surfaces to the caller exactly once.
+    // A detached setTimeout retry used to throw with nothing catching it and take the process down.
+    private async tryCalculate(): Promise<OutfitwarsTerritoryResultInterface> {
+        const maxAttempts = 3;
 
-        if (attempts > 3) {
-            throw new ApplicationException('TerritoryCalculator failed after 3 attempts', 'OutfitwarsTerritoryInstanceResultAction');
-        }
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            OutfitwarsTerritoryInstanceResultAction.logger.debug(`[${this.instance.instanceId}] TerritoryCalculator attempt #${attempt}`);
 
-        OutfitwarsTerritoryInstanceResultAction.logger.debug(`[${this.instance.instanceId}] TerritoryCalculator attempt #${attempts}`);
+            try {
+                return await this.territoryCalculator.calculate();
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
 
-        try {
-            return await this.territoryCalculator.calculate();
-        } catch (err) {
-            if (attempts === 3) {
-                if (err instanceof Error) {
-                    OutfitwarsTerritoryInstanceResultAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
+                if (attempt === maxAttempts) {
+                    OutfitwarsTerritoryInstanceResultAction.logger.error(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempt}. E: ${message}`);
+                    break;
                 }
 
-            } else {
-                if (err instanceof Error) {
-                    OutfitwarsTerritoryInstanceResultAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempts}. E: ${err.message}`);
-                }
+                OutfitwarsTerritoryInstanceResultAction.logger.warn(`[${this.instance.instanceId}] Error running TerritoryCalculator - Attempt #${attempt}. E: ${message}`);
+                await new Promise((resolve) => setTimeout(resolve, 5000));
             }
-
-            setTimeout(() => {
-                OutfitwarsTerritoryInstanceResultAction.logger.warn(`[${this.instance.instanceId}] Retrying TerritoryCalculator - Attempt #${attempts}`);
-                void this.tryCalculate(attempts);
-            }, 5000);
         }
 
-        throw new ApplicationException('TerritoryCalculator really borked', 'OutfitwarsTerritoryInstanceResultAction');
+        throw new ApplicationException(`TerritoryCalculator failed after ${maxAttempts} attempts`, 'OutfitwarsTerritoryInstanceResultAction');
     }
 }

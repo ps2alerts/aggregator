@@ -65,21 +65,30 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                         return;
                     }
 
+                    // Every action below acks the delivery tag, and RabbitMQ closes the channel on a second ack.
+                    // dispose() runs the first disposition only; a second call, or the catch below, is a no-op.
+                    let disposition: string | null = null;
+
+                    const dispose = (name: string, run: () => void): void => {
+                        if (disposition) {
+                            InstanceEventQueue.classLogger.warn(`[${this.queueName}] Ignoring "${name}" for a message already disposed as "${disposition}"`);
+                            return;
+                        }
+
+                        disposition = name;
+                        run();
+                    };
+
                     try {
                         // A middleware is added here track how long it takes messages to respond.
                         // This will mainly call the ZoneMessageHandler.
                         await this.timingMiddlewareHandler.handle(
                             this.createPs2Event(message),
                             {
-                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                ack: () => this.handleMessageConfirm(message, 'ack'),
-                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                retry: () => this.handleMessageConfirm(message, 'retry'),
-                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                                delay: () => {
-                                    // await this.handleMessageDelay(message, 15000, this.pattern, started);
-                                    this.handleMessageDiscard(message); // Just ack the message, effectively discarding it
-                                },
+                                ack: () => dispose('ack', () => this.handleMessageConfirm(message, 'ack')),
+                                retry: () => dispose('retry', () => this.handleMessageConfirm(message, 'retry')),
+                                // await this.handleMessageDelay(message, 15000, this.pattern, started);
+                                delay: () => dispose('delay', () => this.handleMessageDiscard(message)), // Just ack the message, effectively discarding it
                             },
                             this.handler,
                         );
@@ -89,7 +98,7 @@ export class InstanceEventQueue extends RabbitMQQueue implements PS2AlertsQueueI
                             InstanceEventQueue.classLogger.error(`[${this.queueName}] Unable to properly handle message! ${err.message}`);
                         }
 
-                        this.handleMessageDiscard(message); // Critical error, probably unprocessable so we're chucking
+                        dispose('discard', () => this.handleMessageDiscard(message)); // Critical error, probably unprocessable so we're chucking
                     }
                 }, consumerOptions);
             },
