@@ -3,6 +3,8 @@ import AppModule from './AppModule';
 import {FastifyAdapter} from '@nestjs/platform-fastify';
 import {Logger} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
+import {FastifyInstance} from 'fastify';
+import {isMetricsRequestAllowed, metricsAllowList} from './metrics-access';
 
 async function bootstrap(): Promise<void> {
     process.on('uncaughtException', (err) => {
@@ -24,6 +26,16 @@ async function bootstrap(): Promise<void> {
     app.flushLogs();
 
     app.enableShutdownHooks();
+
+    const allowList = metricsAllowList(process.env.METRICS_ALLOWED_CIDRS);
+    (app.getHttpAdapter().getInstance() as FastifyInstance).addHook('onRequest', (request, reply, done) => {
+        if (request.url.split('?')[0] === '/metrics' && !isMetricsRequestAllowed(allowList, request.ip, request.headers)) {
+            void reply.code(403).send({error: 'Forbidden'});
+            return;
+        }
+
+        done();
+    });
 
     await app.listen(config.get('app.port'), '0.0.0.0');
 }
