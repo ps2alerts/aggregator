@@ -29,7 +29,7 @@ async function bootstrap(): Promise<void> {
 
     const allowList = metricsAllowList(process.env.METRICS_ALLOWED_CIDRS);
     (app.getHttpAdapter().getInstance() as FastifyInstance).addHook('onRequest', (request, reply, done) => {
-        if (request.url.split('?')[0] === '/metrics' && !isMetricsRequestAllowed(allowList, request.ip, request.headers)) {
+        if (request.routerPath === '/metrics' && !isMetricsRequestAllowed(allowList, request.ip, request.headers)) {
             void reply.code(403).send({error: 'Forbidden'});
             return;
         }
