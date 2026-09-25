@@ -68,9 +68,9 @@ export default class MetricsAuthority {
             this.metricsHandler.setGauge(METRICS_NAMES.CACHE_KEYS_GAUGE, results[6].length, {type: 'outfit_participants'});
         });
 
-        // Zero certain gauges as they're rarely being set and cause alerts otherwise
+        // Create these series at zero so alerts on them have data; adding 0 must not count a real error
         ['/character', '/map', '/item'].forEach((endpoint) => {
-            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint, result: METRIC_VALUES.ERROR});
+            this.metricsHandler.increaseCounter(METRICS_NAMES.EXTERNAL_REQUESTS_COUNT, {provider: 'census', endpoint, result: METRIC_VALUES.ERROR}, 0);
         });
     }
 }
