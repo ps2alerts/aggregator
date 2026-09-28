@@ -66,7 +66,8 @@ export default class GlobalFacilityControlAggregate implements AggregateHandlerI
                 documents,
                 [{
                     world: event.instance.world,
-                    facility: event.facility,
+                    // Match on the id alone: facility metadata changes over time, and a full-object match then misses the row
+                    'facility.id': event.facility.id,
                     ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,

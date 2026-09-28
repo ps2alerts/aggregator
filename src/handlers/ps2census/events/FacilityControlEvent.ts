@@ -64,7 +64,8 @@ export default class FacilityControlEvent extends InstanceEvent {
 
         this.isDefence = this.oldFaction === this.newFaction;
 
-        this.outfitCaptured = event.payload.outfit_id ? event.payload.outfit_id : null;
+        // Census sends "0" when no outfit took the base, and the string "0" is truthy
+        this.outfitCaptured = event.payload.outfit_id && event.payload.outfit_id !== '0' ? event.payload.outfit_id : null;
 
         // Used to render capture histories on the website
         // Can't use a switch statement here as TS doesn't understand the faction references that don't exist

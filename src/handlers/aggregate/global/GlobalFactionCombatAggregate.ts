@@ -10,7 +10,7 @@ import ApiMQGlobalAggregateMessage from '../../../data/ApiMQGlobalAggregateMessa
 import ApiMQPublisher from '../../../modules/rabbitmq/publishers/ApiMQPublisher';
 import {Bracket} from '../../../ps2alerts-constants/bracket';
 import ExceptionHandler from '../../system/ExceptionHandler';
-import {format} from 'date-fns';
+import {utcDay} from '../../../utils/utcDay';
 
 @Injectable()
 export default class GlobalFactionCombatAggregate implements AggregateHandlerInterface<DeathEvent> {
@@ -86,7 +86,8 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 documents,
                 [{
                     world: event.instance.world,
-                    date: format(new Date(), 'yyyy-MM-dd'),
+                    // An alert counts wholly on the day it started, so a rebuild from per-alert rows can reproduce it
+                    date: utcDay(event.instance.timeStarted),
                     ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
             ), event.instance.duration);
@@ -98,7 +99,8 @@ export default class GlobalFactionCombatAggregate implements AggregateHandlerInt
                 documents,
                 [{
                     world: event.instance.world,
-                    date: format(new Date(), 'yyyy-MM-dd'),
+                    // An alert counts wholly on the day it started, so a rebuild from per-alert rows can reproduce it
+                    date: utcDay(event.instance.timeStarted),
                     ps2AlertsEventType: event.instance.ps2AlertsEventType,
                 }],
                 Bracket.TOTAL,
