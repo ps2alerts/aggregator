@@ -10,6 +10,7 @@ export default class MetricsAuthority {
     private static readonly logger = new Logger('MetricsAuthority');
     private readonly runId: number;
     private metricsTimer?: NodeJS.Timeout;
+    private collecting = false;
     private readonly metricsTime = 15000;
     private readonly censusEnvironment: string;
 
@@ -32,7 +33,19 @@ export default class MetricsAuthority {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this.metricsTimer = setInterval(async () => {
-            await this.gatherRedisMetrics();
+            if (this.collecting) {
+                return; // A slow scan skips a tick rather than overlapping it
+            }
+
+            this.collecting = true;
+
+            try {
+                await this.gatherRedisMetrics();
+            } catch (err) {
+                MetricsAuthority.logger.error(`Unable to gather Redis metrics! Err: ${(err as Error).message}`);
+            } finally {
+                this.collecting = false;
+            }
         }, this.metricsTime);
 
         MetricsAuthority.logger.debug('Created MetricsAuthority timers');
