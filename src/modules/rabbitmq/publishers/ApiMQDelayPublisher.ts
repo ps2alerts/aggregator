@@ -25,6 +25,7 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
         this.longQueue = this.queueFactory.createApiQueue(
             `${this.apiDelayQueueName}-91min`,
             91 * 60 * 1000,
+            true,
             '',
             this.apiQueueName,
         );
@@ -32,6 +33,7 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
         this.shortQueue = this.queueFactory.createApiQueue(
             `${this.apiDelayQueueName}-46min`,
             46 * 60 * 1000,
+            true,
             '',
             this.apiQueueName,
         );

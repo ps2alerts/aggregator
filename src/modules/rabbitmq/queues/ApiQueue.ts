@@ -22,6 +22,7 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
         metricsHandler: MetricsHandler,
         private readonly exchange: string,
         private readonly ttl: number,
+        private readonly durable: boolean,
         private readonly deadLetterExchange: string | undefined,
         private readonly deadLetterRoutingKey: string | undefined,
     ) {
@@ -29,14 +30,13 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
     }
 
     public async connect(): Promise<void> {
+        // A non-durable queue is memory-only: lazy mode would write every message to disk regardless
         const queueOptions = {
-            durable: true,
-            messageTtl: this.ttl, // 46 minutes
+            durable: this.durable,
+            messageTtl: this.ttl,
             deadLetterExchange: this.deadLetterExchange ?? undefined,
             deadLetterRoutingKey: this.deadLetterRoutingKey ?? undefined,
-            arguments: {
-                'x-queue-mode': 'lazy',
-            },
+            arguments: this.durable ? {'x-queue-mode': 'lazy'} : {},
         };
 
         await this.createChannel({
@@ -62,7 +62,7 @@ export class ApiQueue extends RabbitMQQueue implements PS2AlertsQueueInterface {
             await this.getChannel().sendToQueue(
                 this.queueName,
                 msg,
-                {persistent: true},
+                {persistent: this.durable},
             );
             return true;
         } catch (err) {
