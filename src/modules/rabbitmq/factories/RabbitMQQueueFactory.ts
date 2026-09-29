@@ -50,6 +50,7 @@ export default class RabbitMQQueueFactory {
     public createApiQueue(
         queueName: string,
         ttl: number,
+        durable: boolean,
         deadLetterExchange?: string,
         deadLetterRoutingKey?: string,
     ): ApiQueue {
@@ -59,6 +60,7 @@ export default class RabbitMQQueueFactory {
             this.metricsHandler,
             this.config.get('rabbitmq.exchange'),
             ttl,
+            durable,
             deadLetterExchange,
             deadLetterRoutingKey,
         );

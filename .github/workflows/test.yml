@@ -1,0 +1,31 @@
+---
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Install node v22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Install modules
+        run: yarn install
+
+      - name: Run tests
+        run: yarn test

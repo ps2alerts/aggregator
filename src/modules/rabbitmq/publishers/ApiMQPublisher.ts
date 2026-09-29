@@ -18,9 +18,11 @@ export default class ApiMQPublisher implements RabbitMQQueueWrapperInterface {
     }
 
     public async connect(): Promise<void> {
+        // Memory-only. Must match the api's declaration of this queue, or whichever declares second fails.
         this.queue = this.queueFactory.createApiQueue(
             this.apiQueueName,
             180 * 60 * 1000,
+            false,
         );
 
         await this.queue.connect();
