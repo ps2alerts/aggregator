@@ -161,6 +161,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     [{
                         vehicle: event.vehicleId,
                         world: event.instance.world,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ), event.instance.duration);
 
@@ -171,6 +172,7 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     [{
                         vehicle: event.vehicleId,
                         world: event.instance.world,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                     Bracket.TOTAL,
                 ));
@@ -180,9 +182,10 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     event.instance.instanceId,
                     documents.victimDocs,
                     [{
-                        vehicle: event.attackerVehicleId,
+                        vehicle: event.vehicleId,
                         world: event.instance.world,
                         character: event.character.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ), event.instance.duration);
 
@@ -191,9 +194,10 @@ export default class VehicleAggregateHandler implements AggregateHandlerInterfac
                     event.instance.instanceId,
                     documents.victimDocs,
                     [{
-                        vehicle: event.attackerVehicleId,
+                        vehicle: event.vehicleId,
                         world: event.instance.world,
                         character: event.character.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                     Bracket.TOTAL,
                 ));

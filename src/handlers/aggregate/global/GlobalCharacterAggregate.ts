@@ -31,13 +31,13 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         const victimDocs = [];
 
         attackerDocs.push({$setOnInsert: {
-            world: event.character.world,
+            world: event.instance.world,
             character: event.attackerCharacter,
             ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
 
         victimDocs.push({$setOnInsert: {
-            world: event.character.world,
+            world: event.instance.world,
             character: event.character,
             ps2AlertsEventType: event.instance.ps2AlertsEventType,
         }});
@@ -48,7 +48,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
         // Keep the character's outfit, battle rank and ASP updated
         attackerDocs.push({
             $set: {
-                'character.battle_rank': event.attackerCharacter.battleRank,
+                'character.battleRank': event.attackerCharacter.battleRank,
                 'character.asp': event.attackerCharacter.asp,
                 'character.adjustedBattleRank': event.attackerCharacter.adjustedBattleRank,
                 'character.outfit': event.attackerCharacter.outfit,
@@ -57,7 +57,7 @@ export default class GlobalCharacterAggregate implements AggregateHandlerInterfa
 
         victimDocs.push({
             $set: {
-                'character.battle_rank': event.character.battleRank,
+                'character.battleRank': event.character.battleRank,
                 'character.asp': event.character.asp,
                 'character.adjustedBattleRank': event.character.adjustedBattleRank,
                 'character.outfit': event.character.outfit,

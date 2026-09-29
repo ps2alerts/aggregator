@@ -49,6 +49,11 @@ export default class ApiMQDelayPublisher implements RabbitMQQueueWrapperInterfac
             return;
         }
 
+        // Delayed messages only feed bracket rows, which Outfit Wars never has; the API would drop them anyway
+        if (msg.data.instance.startsWith('outfitwars')) {
+            return;
+        }
+
         const queue = duration === shortAlert ? this.shortQueue : this.longQueue;
 
         try {

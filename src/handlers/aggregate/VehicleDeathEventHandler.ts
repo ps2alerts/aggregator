@@ -47,6 +47,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         instance: event.instance.instanceId,
                         vehicle: event.attackerVehicleId,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ));
 
@@ -57,6 +58,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                         instance: event.instance.instanceId,
                         vehicle: event.attackerVehicleId,
                         character: event.attackerCharacter.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ));
             } catch (err) {
@@ -79,6 +81,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         world: event.instance.world,
                         vehicle: event.attackerVehicleId,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ), event.instance.duration);
 
@@ -89,6 +92,7 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         world: event.instance.world,
                         vehicle: event.attackerVehicleId,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                     Bracket.TOTAL,
                 ));
@@ -100,7 +104,8 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         world: event.instance.world,
                         vehicle: event.attackerVehicleId,
-                        character: event.character.id,
+                        character: event.attackerCharacter.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                 ), event.instance.duration);
 
@@ -111,7 +116,8 @@ export default class VehicleDeathEventHandler implements AggregateHandlerInterfa
                     [{
                         world: event.instance.world,
                         vehicle: event.attackerVehicleId,
-                        character: event.character.id,
+                        character: event.attackerCharacter.id,
+                        ps2AlertsEventType: event.instance.ps2AlertsEventType,
                     }],
                     Bracket.TOTAL,
                 ));
